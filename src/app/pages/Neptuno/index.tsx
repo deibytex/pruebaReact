@@ -177,23 +177,18 @@ export default function Neptuno() {
 <>
 <PageTitle>Neptuno App</PageTitle>
         <Container>
-            <Row><Col>
-            <label className='d-flex'> Bienvenidos a Neptuno, ayudante para tus descargas diarias</label>
-            </Col></Row>
+         
             <Row>
                 <Col>
-                    <Container>
-                        <form
-                            className="form w-100"
-                            noValidate
-                            id="nept_search_documents"                        >
-
+                    <Container className='d-flex'>
+                       
                             {/* begin::Form group */}
                             <div className="v-row mb-10 fv-plugins-icon-container d-flex flex-row-reverse">
+                           
                             <button
                                     type="submit"
                                     id="nept_search_submit_button"
-                                    className="btn btn-primary">
+                                    className="btn btn-primary -12">
                                     <span className="indicator-label">Buscar</span>
 
                                 </button>
@@ -207,7 +202,7 @@ export default function Neptuno() {
                             </div>
 
 
-                        </form>
+                    
                     </Container>
                 </Col>
 
