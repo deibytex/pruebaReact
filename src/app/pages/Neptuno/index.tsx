@@ -93,10 +93,13 @@ function StyledTreeItem(props: StyledTreeItemProps) {
 
                     <ButtonToolbar aria-label="Toolbar with button groups">
                         <ButtonGroup className="sm-1 " aria-label="First group">
-                            <Link to="/"><AddCircle /></Link>
+                            {/*<Link to="/"><AddCircle /></Link>
                             <Link to="/"><Edit /></Link>
                             <Link to="/"><Download /></Link>
-                            <Link to="/"><InfoIcon /></Link>
+                            <Link to="/"><InfoIcon /></Link>*/ }
+
+                            <Link to="/download"><Download /></Link>
+                            
                         </ButtonGroup>
                     </ButtonToolbar>
                 </Box>

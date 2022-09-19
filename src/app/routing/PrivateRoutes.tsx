@@ -6,6 +6,7 @@ import { StartDashboardWrapper } from "../pages/dashboards/start-dashboard/Start
 import { MenuTestPage } from "../pages/MenuTestPage";
 import {Bienvenidos} from "../pages/Principal"
 import Neptuno from "../pages/Neptuno/index"
+import GetFileFromLink  from "../pages/Neptuno/download"
 export function PrivateRoutes() {
   const ProfilePageWrapper = lazy(
     () => import("../modules/profile/ProfilePageWrapper")
@@ -25,6 +26,7 @@ export function PrivateRoutes() {
 
 
         <Route path="/dashboard" component={StartDashboardWrapper} />
+        <Route path="/neptuno/download/:id(\\d+)" component={GetFileFromLink} />
 
         {/*/<Route path="/light" component={LightDashboardWrapper} />
         <Route path="/general" component={GeneralPageWrapper} />
@@ -33,7 +35,7 @@ export function PrivateRoutes() {
   <Route path="/docs" component={DocsPageWrapper} />*/}
         <Redirect from="/auth" to="/bienvenido" />
         <Redirect exact from="/" to="/bienvenido" />
-        <Redirect to="bienvenido" />
+      
       </Switch>
     </Suspense>
   );

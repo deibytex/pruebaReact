@@ -14,6 +14,7 @@ export function AsideMenuMain() {
           </div>
           <AsideMenuItem to="/neptuno/archivos" title="Archivos" />
           <AsideMenuItem to="/neptuno/logs" title="Logs" />
+          <AsideMenuItem to="/neptuno/download" title="Descarga" />
         </>
         <>
           <div className="menu-item">
