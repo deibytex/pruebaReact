@@ -103,26 +103,22 @@ function StyledTreeItem(props: StyledTreeItemProps) {
 
                     <ButtonToolbar aria-label="Toolbar with button groups">
                         <ButtonGroup className="sm-1 " aria-label="First group">
-                        
+                            {(tipoArchivo == "archivo") && (
+                                <Formik
+                                    initialValues={{
 
-                        {(tipoArchivo == "archivo") && ( <Formik
-                            initialValues={{
-                                
-                            }}
-                            onSubmit={
-                                values => {                                    
-                                    DescargarArchivo("Raiz/otro/documentoequivalente.pdf");
-                                }                              
-                            }                       
-                        >
-                            <Form>                                
-                            <Button size='sm' className="" type='submit'> <Download /></Button>  
-                            </Form>                           
+                                    }}
+                                    onSubmit={
+                                        values => {
+                                            DescargarArchivo("Raiz/otro/documentoequivalente.pdf");
+                                        }
+                                    } >
+                                    <Form>
+                                        <Button size='sm' className="" type='submit'> <Download /></Button>
+                                    </Form>
 
-                        </Formik> )}
-                            
-                            
-
+                                </Formik>)
+                            }
                         </ButtonGroup>
                     </ButtonToolbar>
                 </Box>
@@ -182,19 +178,19 @@ function getComponetsFromData(props: dataprops) {
     );
 }
 
-async function cargarArchivo(archivo : any, handleshowFileLoad: ((arg0: boolean) => void) ) {
+async function cargarArchivo(archivo: any, handleshowFileLoad: ((arg0: boolean) => void)) {
 
     const formData = new FormData();
-    formData.append("archivo", archivo); 
-    formData.append("src", "Raiz/otro");    
-    formData.append("nombre", "Yuli");    
+    formData.append("archivo", archivo);
+    formData.append("src", "Raiz/otro");
+    formData.append("nombre", "Yuli");
     await axios({
         method: 'post',
         url: 'https://apicoretest.azurewebsites.net/api/movil/blobservice',
         data: formData,
-        headers: { 'Content-Type' : 'multipart/form-data' }
+        headers: { 'Content-Type': 'multipart/form-data' }
 
-    }).then( 
+    }).then(
 
         t => {
             console.log(t);
@@ -208,7 +204,7 @@ async function cargarArchivo(archivo : any, handleshowFileLoad: ((arg0: boolean)
 
 // descarga la informacion del nodo del tree view
 // debe pasarle la ruta tal cual como se encuentra en el blog storgare no es caseSensitive
-async function DescargarArchivo(nombrearchivo :string) {
+async function DescargarArchivo(nombrearchivo: string) {
 
     const FileDownload = require('js-file-download');
     await axios({
@@ -216,7 +212,7 @@ async function DescargarArchivo(nombrearchivo :string) {
         url: 'https://localhost:7211/api/Movil/DownloadFileFromBlob',
         params: { nombrearchivo },
         responseType: 'blob'
-    }).then( 
+    }).then(
 
         t => {
             FileDownload(t.data, 'documentoequivalente.pdf');
@@ -225,7 +221,7 @@ async function DescargarArchivo(nombrearchivo :string) {
         }
     );
 
-    
+
 
 }
 const data = dataArchivos;
@@ -236,43 +232,43 @@ export default function Neptuno() {
     const [subjectData, setSubjectData] = React.useState<object>();
     const [selectedSingleItem, setSelectedSingleItem] = React.useState("");*/
 
-    const [showFileLoad, handleshowFileLoad] = useState(true);
+    const [showFileLoad, handleshowFileLoad] = useState(false);
 
     /* INICIO FUNCIONES PARA FILTRAR */
-  /*  const onFilterMouseUp = (e: { target: { value: any; }; }) => {
-        const value = e.target.value;
-        const filter = value.trim();
-        let expandedTemp = expanded;
-        if (!filter) {
-          setSubjectData(data);
-          setExpanded(['root']);
-          return;
-        }
-    
-        let filtered = filterTree(data, filter);
-        filtered = expandFilteredNodes(filtered, filter);
-        if (filtered && filtered.children) {
-          expandedTemp = [];
-          expandedTemp.push(...getIDsExpandFilter(filtered));
-        }
-        setExpanded(uniq(expandedTemp));
-        setSubjectData(filtered);
-      };
-    
-      const handleToggle = (event: any, nodeIds: string[]) => {
-        let expandedTemp = expanded;
-        expandedTemp = nodeIds;
-        setExpanded(expandedTemp);
-      };
-    
-      const handleSelect = (event: any, nodeIds: React.SetStateAction<never[]> | React.SetStateAction<string>) => {
-        setSelected(nodeIds);
-        // When false (default) is a string this takes single string.
-        if (!Array.isArray(nodeIds)) {
-          setSelectedSingleItem(nodeIds);
-        }
-        // TODO: When `multiSelect` is true this takes an array of strings
-      };*/
+    /*  const onFilterMouseUp = (e: { target: { value: any; }; }) => {
+          const value = e.target.value;
+          const filter = value.trim();
+          let expandedTemp = expanded;
+          if (!filter) {
+            setSubjectData(data);
+            setExpanded(['root']);
+            return;
+          }
+      
+          let filtered = filterTree(data, filter);
+          filtered = expandFilteredNodes(filtered, filter);
+          if (filtered && filtered.children) {
+            expandedTemp = [];
+            expandedTemp.push(...getIDsExpandFilter(filtered));
+          }
+          setExpanded(uniq(expandedTemp));
+          setSubjectData(filtered);
+        };
+      
+        const handleToggle = (event: any, nodeIds: string[]) => {
+          let expandedTemp = expanded;
+          expandedTemp = nodeIds;
+          setExpanded(expandedTemp);
+        };
+      
+        const handleSelect = (event: any, nodeIds: React.SetStateAction<never[]> | React.SetStateAction<string>) => {
+          setSelected(nodeIds);
+          // When false (default) is a string this takes single string.
+          if (!Array.isArray(nodeIds)) {
+            setSelectedSingleItem(nodeIds);
+          }
+          // TODO: When `multiSelect` is true this takes an array of strings
+        };*/
 
     return (
         <>
@@ -315,15 +311,15 @@ export default function Neptuno() {
                                 nombre: ''
                             }}
                             onSubmit={
-                                values => {                                    
+                                values => {
                                     cargarArchivo(values.upload, handleshowFileLoad);
-                                }                              
-                            }                       
+                                }
+                            }
                         >
                             <Form>
                                 <FormGroupImagen label={'Cargar Archivo:'} campo={'upload'} />
                                 <ErrorMessage name="upload">
-                                    {mensaje => 
+                                    {mensaje =>
                                         <div className='text-danger' >{mensaje}</div>
 
                                     }
@@ -332,7 +328,7 @@ export default function Neptuno() {
                                     id="nept_search_upload_button"
                                     className="btn btn-primary -12">
                                     <span className="indicator-label">Cargar</span> </button>
-                                    
+
                             </Form>
 
                         </Formik>

@@ -15,6 +15,16 @@ export function AsideMenuNeptuno() {
           <AsideMenuItem to="/neptuno/archivos" title="Archivos" />       
         </>
               </>
-    </>
+
+              <>
+          <div className="menu-item">
+            <h4 className="menu-content text-muted mb-0 fs-6 fw-bold text-uppercase">
+              LOGS
+            </h4>
+          </div>
+          <AsideMenuItem to="/neptuno/logs" title="Logs" />       
+        </>
+              </>
+  
   );
 }

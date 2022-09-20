@@ -1,9 +1,9 @@
 import axios from "axios"
 
 
-export default function getDataFromServer( container : string) {
+export default function getDataFromServer() {
 
 
-    return (<></>);
+    return (<> ESTA ES MI PRUEBA DE LA INFORMACION DE LOGS</>);
 
 }
