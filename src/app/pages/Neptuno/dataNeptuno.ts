@@ -1,3 +1,27 @@
+import axios from 'axios'
+
+// descarga la informacion desde el servidor 
+async function DescargarDirectorio(container :string) {
+
+ 
+    await axios({
+        method: 'get',
+        url: 'https://localhost:7211/api/Movil/getDirectorio',
+        params: { container },
+        responseType: 'blob'
+    }).then( 
+
+        t => {
+           
+            console.log(t);
+
+        }
+    );
+
+    
+
+}
+
 let dataArchivos = [ 
 
             {

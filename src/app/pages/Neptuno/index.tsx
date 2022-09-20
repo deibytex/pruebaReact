@@ -111,7 +111,7 @@ function StyledTreeItem(props: StyledTreeItemProps) {
                             }}
                             onSubmit={
                                 values => {                                    
-                                    DescargarArchivo("Yuli/comprobante_1992022.pdf");
+                                    DescargarArchivo("Raiz/otro/documentoequivalente.pdf");
                                 }                              
                             }                       
                         >
@@ -219,7 +219,7 @@ async function DescargarArchivo(nombrearchivo :string) {
     }).then( 
 
         t => {
-            FileDownload(t.data, 'report.pdf');
+            FileDownload(t.data, 'documentoequivalente.pdf');
             console.log(t);
 
         }
@@ -236,7 +236,7 @@ export default function Neptuno() {
     const [subjectData, setSubjectData] = React.useState<object>();
     const [selectedSingleItem, setSelectedSingleItem] = React.useState("");*/
 
-    const [showFileLoad, handleshowFileLoad] = useState(false);
+    const [showFileLoad, handleshowFileLoad] = useState(true);
 
     /* INICIO FUNCIONES PARA FILTRAR */
   /*  const onFilterMouseUp = (e: { target: { value: any; }; }) => {
