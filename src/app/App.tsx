@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { shallowEqual, useSelector } from "react-redux";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { RootState } from "../setup";
 import { ThemeProvider } from "../_start/layout/core";
 import { MasterLayout } from "../_start/layout/MasterLayout";
 import { Logout } from "./modules/auth/Logout";
+import { NeptunoRoutes } from "./routing/NeptunoRouting";
 import { PrivateRoutes } from "./routing/PrivateRoutes";
 import { PublicRoutes } from "./routing/PublicRoutes";
 
@@ -18,7 +19,6 @@ const App: React.FC<Props> = ({ basename }) => {
     shallowEqual
   );
 
- 
   return (
     <BrowserRouter basename={basename}>
       <ThemeProvider>
@@ -31,7 +31,7 @@ const App: React.FC<Props> = ({ basename }) => {
           ) : (
             <>
               <MasterLayout>
-                <PrivateRoutes />
+                <NeptunoRoutes />
               </MasterLayout>
             </>
           )}

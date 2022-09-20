@@ -23,11 +23,11 @@ export interface IMegaMenuConfig {
 export interface IAsideConfig {
   display: boolean;
   fixed: boolean;
-  menu: "main" | "documentation";
+  menu: "main" | "documentation" | "neptuno";
   primaryDisplay: boolean;
   secondaryDisplay: boolean;
   toggle: boolean;
-  content?: "menu" | "docs";
+  content?: "menu" | "docs"| "neptuno";
   minimized: boolean;
 }
 

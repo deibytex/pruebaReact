@@ -22,8 +22,8 @@ export const DefaultThemeConfig: IThemeConfig = {
   aside: {
     display: true, // Set true|false to show or hide Aside
     fixed: true, // Set true|false to enabled or disable Fixed Aside mode
-    menu: "main", // Set main|documentation menu for Aside
-    primaryDisplay: true, // Set true|false to show or hide aside primary panel
+    menu: "neptuno", // Set main|documentation menu for Aside
+    primaryDisplay: false, // Set true|false to show or hide aside primary panel
     secondaryDisplay: true, // Set true|false to show or hide Aside Secondary
     toggle: true, // Set true|false to enabl Aside toggle
     minimized: false // Minimize aside by default,

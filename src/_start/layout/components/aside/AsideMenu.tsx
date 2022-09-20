@@ -1,9 +1,10 @@
 import React, { useRef, useEffect } from "react";
 import { AsideMenuDocs } from "./AsideMenuDocs";
 import { AsideMenuMain } from "./AsideMenuMain";
+import { AsideMenuNeptuno } from "./AsideMenuNeptuno";
 
 type Props = {
-  menuType: "main" | "documentation";
+  menuType: "main" | "documentation" | "neptuno";
   asidePrimaryDisplay: boolean;
 };
 
@@ -38,6 +39,7 @@ const AsideMenu: React.FC<Props> = ({ menuType, asidePrimaryDisplay }) => {
         <div className="menu-wrapper menu-column menu-fit">
           {menuType === "main" && <AsideMenuMain />}
           {menuType === "documentation" && <AsideMenuDocs />}
+          {menuType === "neptuno" && <AsideMenuNeptuno />}
         </div>
       </div>
     </div>
