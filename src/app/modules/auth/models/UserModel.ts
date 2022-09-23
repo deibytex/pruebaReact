@@ -1,3 +1,4 @@
+import { NumberSchema } from "yup";
 import { AuthModel } from "./AuthModel";
 import { UserAddressModel } from "./UserAddressModel";
 import { UserCommunicationModel } from "./UserCommunicationModel";
@@ -25,4 +26,16 @@ export interface UserModel {
   communication?: UserCommunicationModel;
   address?: UserAddressModel;
   socialNetworks?: UserSocialNetworksModel;
+}
+
+export interface UserModelSyscaf {
+  id: string;
+  username: string;
+  password: string | undefined;
+  email: string;
+  nombres: string;
+  clienteid: string | undefined | null;
+  exp: number;
+  usuarioIds : number;
+  containerneptuno : string;
 }

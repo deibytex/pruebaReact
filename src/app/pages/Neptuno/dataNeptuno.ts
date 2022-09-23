@@ -1,26 +1,16 @@
 import axios from 'axios'
 
-// descarga la informacion desde el servidor 
-async function DescargarDirectorio(container :string) {
+type neptunoDirectory = {
+    archivoId: number;
+    nombre: string;
+    descripcion: string | undefined | null;
+    tipo: string;
+    src: string;
+    peso: number;
+    hijos: Array<neptunoDirectory> | null;
 
- 
-    await axios({
-        method: 'get',
-        url: 'https://localhost:7211/api/Movil/getDirectorio',
-        params: { container },
-        responseType: 'blob'
-    }).then( 
+};
 
-        t => {
-           
-            console.log(t);
-
-        }
-    );
-
-    
-
-}
 
 let dataArchivos = [ 
 
@@ -42,7 +32,7 @@ let dataArchivos = [
                                 id: 3,
                                 tipo: "carpeta",
                                 nombre: "BROCHURE",
-                                src: null,
+                                src: "DOCUMENTACION TECNICA/KIMAX/BROCHURE",
                                 hijos: [
                                     {
                                         id: 4,
@@ -63,14 +53,14 @@ let dataArchivos = [
                         id: 5,
                         tipo: "carpeta",
                         nombre: "MIX",
-                        src: null,
+                        src: "",
                         hijos: [
 
                             {
                                 id: 6,
                                 tipo: "carpeta",
                                 nombre: "CAPACITACIONES",
-                                src: null,
+                                src: "",
                                 hijos: [
                                     {
                                         id: 7,

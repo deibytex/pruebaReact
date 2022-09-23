@@ -14,7 +14,7 @@ type Props = {
 };
 
 const App: React.FC<Props> = ({ basename }) => {
-  const isAuthorized = useSelector<RootState>(
+  const isAuthorized =  useSelector<RootState>(
     ({ auth }) => auth.user,
     shallowEqual
   );

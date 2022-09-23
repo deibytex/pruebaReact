@@ -2,12 +2,12 @@ import { Action } from "@reduxjs/toolkit";
 import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { put, takeLatest } from "redux-saga/effects";
-import { UserModel } from "../models/UserModel";
-import { getUserByToken } from "./AuthCRUD";
+import {  UserModelSyscaf } from "../models/UserModel";
+
 
 export interface ActionWithPayload<T> extends Action {
   payload?: T;
-} 
+}
 
 export const actionTypes = {
   Login: "[Login] Action",
@@ -20,11 +20,11 @@ export const actionTypes = {
 
 const initialAuthState: IAuthState = {
   user: undefined,
-  accessToken: undefined,
+  accessToken: undefined
 };
 
 export interface IAuthState {
-  user?: UserModel;
+  user?: UserModelSyscaf; 
   accessToken?: string;
 }
 
@@ -52,12 +52,12 @@ export const reducer = persistReducer(
 
       case actionTypes.UserLoaded: {
         const user = action.payload?.user;
-        return { ...state, user };
+        return { ...state, user  };
       }
 
       case actionTypes.SetUser: {
         const user = action.payload?.user;
-        return { ...state, user };
+        return { ...state,  user};
       }
 
       default:
@@ -76,8 +76,8 @@ export const actions = {
   requestUser: () => ({
     type: actionTypes.UserRequested
   }),
-  fulfillUser: (user: UserModel) => ({ type: actionTypes.UserLoaded, payload: { user } }),
-  setUser: (user: UserModel) => ({ type: actionTypes.SetUser, payload: { user } }),
+  fulfillUser: (user: UserModelSyscaf) => ({ type: actionTypes.UserLoaded, payload: { user } }),
+  setUser: (user: UserModelSyscaf) => ({ type: actionTypes.SetUser, payload: { user } }),
 };
 
 export function* saga() {
@@ -89,8 +89,8 @@ export function* saga() {
     yield put(actions.requestUser());
   });
 
-  yield takeLatest(actionTypes.UserRequested, function* userRequested() {
+ /*yield takeLatest(actionTypes.UserRequested, function* userRequested() {
     const { data: user } = yield getUserByToken();
     yield put(actions.fulfillUser(user));
-  });
+  });*/
 }

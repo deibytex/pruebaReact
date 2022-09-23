@@ -7,12 +7,13 @@ import { useFormik } from "formik";
 import * as auth from "../redux/AuthRedux";
 import { login } from "../redux/AuthCRUD";
 import { toAbsoluteUrl } from "../../../../_start/helpers";
-
+import jwt_decode from "jwt-decode"
+import { UserModelSyscaf } from "../models/UserModel";
 const loginSchema = Yup.object().shape({
   email: Yup.string()
-    .email("Wrong email format")
+    /*.email("Wrong email format")
     .min(3, "Minimum 3 symbols")
-    .max(50, "Maximum 50 symbols")
+    .max(50, "Maximum 50 symbols")*/
     .required("Email is required"),
   password: Yup.string()
     .min(3, "Minimum 3 symbols")
@@ -21,8 +22,8 @@ const loginSchema = Yup.object().shape({
 });
 
 const initialValues = {
-  email: "admin@demo.com",
-  password: "demo",
+  email: "",
+  password: "",
 };
 
 /*
@@ -40,12 +41,19 @@ export function Login() {
     onSubmit: (values, { setStatus, setSubmitting }) => {
       setLoading(true);
       setTimeout(() => {
+
+       
         login(values.email, values.password)
-          .then(({ data: { accessToken } }) => {
+          .then(( data) => {  
+            
+          
+            var decoded = jwt_decode<UserModelSyscaf>(data.data.token);
+            console.log(decoded);
             setLoading(false);
-            dispatch(auth.actions.login(accessToken));
+            dispatch(auth.actions.login(data.data.token));
+            dispatch(auth.actions.fulfillUser(decoded));
           })
-          .catch(() => {
+          .catch((e) => {          
             setLoading(false);
             setSubmitting(false);
             setStatus("Los detalles del login es incorrecto");
