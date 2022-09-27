@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 type neptunoDirectory = {
-    archivoId: number;
+    id: number;
     nombre: string;
     descripcion: string | undefined | null;
     tipo: string;

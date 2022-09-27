@@ -3,6 +3,7 @@ import { Redirect, Route, Switch } from "react-router-dom";
 import { FallbackView } from "../../_start/partials";
 import {Bienvenidos} from "../pages/Principal"
 import Neptuno from "../pages/Neptuno/index"
+import fatigueDashboard from "../pages/Fatigue/dashboard";
 
 
 
@@ -15,6 +16,7 @@ export function NeptunoRoutes() {
         <Route path="/neptuno/archivos" component={Neptuno} />      
         <Redirect from="/auth" to="/bienvenido" />
         <Redirect exact from="/" to="/bienvenido" />      
+        <Route path="/fatigue/dashboard" component={fatigueDashboard} />    
       </Switch>
     </Suspense>
   );

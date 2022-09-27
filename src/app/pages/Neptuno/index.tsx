@@ -10,7 +10,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { SvgIconProps } from '@mui/material/SvgIcon';
 import { Col, Container, Row, ButtonGroup, Button, ButtonToolbar, Modal } from 'react-bootstrap-v5';
-import { ErrorMessage, Form, Formik, FormikHelpers, FormikValues } from "formik";
+import { ErrorMessage, Field, Form, Formik, FormikHelpers, FormikValues } from "formik";
 import { dataArchivos } from "./dataNeptuno"
 import {
     PageTitle,
@@ -51,7 +51,8 @@ type neptunoDirectory = {
 };
 
 // definimos los campos a recibir de las propiedades
-type dataprops = {    
+type dataprops = {
+    archivoId: number;
     tipo: string;
     nombre: string;
     src: string;
@@ -116,7 +117,7 @@ function StyledTreeItem(props: StyledTreeItemProps) {
         color,
         labelIcon: LabelIcon,
         labelInfo,
-        labelText, tipoArchivo, src, handleshowFileLoad, handlessetSrc,container,
+        labelText, tipoArchivo, src, handleshowFileLoad, handlessetSrc, container,
         ...other
     } = props;
 
@@ -138,7 +139,7 @@ function StyledTreeItem(props: StyledTreeItemProps) {
                                     }}
                                     onSubmit={
                                         values => {
-                                            DescargarArchivo(src,container);
+                                            DescargarArchivo(src, container);
                                         }
                                     } >
                                     <Form>
@@ -169,10 +170,10 @@ function StyledTreeItem(props: StyledTreeItemProps) {
 // renderiza segun los datos el arbol de información
 // este método es recursivo, hay que tener cuidado con realizar cambios 
 // para que no quede en un ciclo infinito
-function getComponetsFromData(props: dataprops, handleshowFileLoad: ((arg0: boolean) => void), handlessetSrc: ((arg0: string) => void), container : string) {
+function getComponetsFromData(props: dataprops, handleshowFileLoad: ((arg0: boolean) => void), handlessetSrc: ((arg0: string) => void), container: string) {
     // se definen las constantes que vienen de las propiedades
     const {
-       
+        archivoId,
         tipo,
         nombre,
         src,
@@ -185,17 +186,17 @@ function getComponetsFromData(props: dataprops, handleshowFileLoad: ((arg0: bool
     // retornamos el item a mostrar en el arbol, le asignamos un key ya que como se imprime dinamicamente
     // el sistema pide asignarle un key único que será tenido en cuenta en el aplicativo
     return (
-        <StyledTreeItem key={`nept_tree_${uuid()}_${nombre}`} nodeId={uuid()} labelText={nombre} labelIcon={
+        <StyledTreeItem key={`nept_tree_${archivoId.toString()}`} nodeId={archivoId.toString()} labelText={nombre} labelIcon={
             (tipo == "archivo") ? Archive : Folder
         }
-            tipoArchivo={tipo} handleshowFileLoad={handleshowFileLoad} src={src} handlessetSrc={handlessetSrc} container = {container}
+            tipoArchivo={tipo} handleshowFileLoad={handleshowFileLoad} src={src} handlessetSrc={handlessetSrc} container={container}
         >
             {(hijos != null && hijos.length > 0) &&
                 hijos.map(
                     function (hijo, idx) {
 
                         return getComponetsFromData({
-                           
+                            archivoId: hijo.archivoId,
                             tipo: hijo.tipo,
                             nombre: hijo.nombre,
                             src: hijo.src,
@@ -209,11 +210,11 @@ function getComponetsFromData(props: dataprops, handleshowFileLoad: ((arg0: bool
     );
 }
 
-async function cargarArchivo(archivo: any, handleshowFileLoad: ((arg0: boolean) => void), srcFileLoad: string, contenedor : string, handlesdatosNeptuno: React.Dispatch<React.SetStateAction<neptunoDirectory[]>>) {
+async function cargarArchivo(archivo: any, handleshowFileLoad: ((arg0: boolean) => void), srcFileLoad: string, contenedor: string, handlesdatosNeptuno: React.Dispatch<React.SetStateAction<neptunoDirectory[]>>) {
 
     const formData = new FormData();
     formData.append("archivo", archivo);
-    formData.append("src",`${srcFileLoad}`);
+    formData.append("src", `${srcFileLoad}`);
     formData.append("nombre", "desde el blob");
     formData.append("contenedor", contenedor);
     await axios({
@@ -228,10 +229,11 @@ async function cargarArchivo(archivo: any, handleshowFileLoad: ((arg0: boolean) 
             console.log(t);
             handleshowFileLoad(false);
             (async () => {
-                handlesdatosNeptuno( await DescargarDirectorio(contenedor));             
-    
+                handlesdatosNeptuno(await DescargarDirectorio(contenedor, ""));
+
+
             })()
-         
+
             // actualizar la data tree
             // colocar un mensaje de ok
         }
@@ -240,7 +242,7 @@ async function cargarArchivo(archivo: any, handleshowFileLoad: ((arg0: boolean) 
 
 // descarga la informacion del nodo del tree view
 // debe pasarle la ruta tal cual como se encuentra en el blog storgare no es caseSensitive
-async function DescargarArchivo(nombrearchivo: string, container : string ) {
+async function DescargarArchivo(nombrearchivo: string, container: string) {
 
     const FileDownload = require('js-file-download');
     await axios({
@@ -263,13 +265,13 @@ async function DescargarArchivo(nombrearchivo: string, container : string ) {
 
 
 }
-async function DescargarDirectorio(container: string) {
+async function DescargarDirectorio(container: string, filter: string) {
 
-   
-    const response = await axios.get(urlNeptunoGetDirectory, { params: { container } });
+
+    const response = await axios.get(urlNeptunoGetDirectory, { params: { container, filter } });
 
     return (response.data as Array<neptunoDirectory>);
-   
+
 }
 
 
@@ -289,13 +291,17 @@ export default function Neptuno() {
     // se debe mandar contenedor asociado al usuario
     const [srcFileLoad, handlessrcFileLoad] = useState("");
     const [datosNeptuno, handlesdatosNeptuno] = useState<neptunoDirectory[]>([]);
+    const [expanded, setExpanded] = React.useState<string[]>([]);
 
     // convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
     const model = (isAuthorized as UserModelSyscaf);
-   
+
     useEffect(() => {
         (async () => {
-            handlesdatosNeptuno( await DescargarDirectorio(model.containerneptuno));
+
+            let data = await DescargarDirectorio(model.containerneptuno, "");
+            handlesdatosNeptuno(data);
+
             setIsLoaded(true);
 
         })()
@@ -304,7 +310,7 @@ export default function Neptuno() {
     if (model.containerneptuno) {
 
 
-    
+
         // constantes para filtrar el arbol
         /*const [expanded, setExpanded] = React.useState(["root"]);
         const [selected, setSelected] = React.useState([]);
@@ -361,7 +367,7 @@ export default function Neptuno() {
                 {isLoaded ? (
                     <>
                         <Modal
-                            className="bg-white"
+                            className="bg-transparent "
                             id="kt_mega_menu_modal"
                             aria-hidden="true"
                             tabIndex="-1"
@@ -371,7 +377,7 @@ export default function Neptuno() {
                         >
 
 
-                            <div className="container">
+                            <div className="container rounded-2">
                                 <div className="modal-header d-flex align-items-center justify-content-between border-0">
                                     <div className="d-flex align-items-center">
                                         {/* begin::Logo */}
@@ -394,26 +400,43 @@ export default function Neptuno() {
                                 <div>
                                     <Formik
                                         initialValues={{
-                                            upload: ''
+                                            upload: '',
+                                            carpeta: ''
                                         }}
                                         onSubmit={
                                             values => {
-                                                cargarArchivo(values.upload, handleshowFileLoad, srcFileLoad, model.containerneptuno, handlesdatosNeptuno);
+
+                                                let src = (values.carpeta != "") ? `${srcFileLoad}/` :  "";
+                                                cargarArchivo(values.upload, handleshowFileLoad, `${src}${values.carpeta}`, model.containerneptuno, handlesdatosNeptuno);
                                             }
                                         }
                                     >
                                         <Form>
-                                            <FormGroupImagen label={'Cargar Archivo:'} campo={'upload'} />
-                                            <ErrorMessage name="upload">
-                                                {mensaje =>
-                                                    <div className='text-danger' >{mensaje}</div>
+                                            <Container>
+                                                <div className="form-group">
+                                                    <label>Nueva Carpeta: </label>
+                                                    <Field
+                                                    className="ml-4"
+                                                        placeholder=""
+                                                        name="carpeta"
+                                                        autoComplete="off" type='text'
+                                                    />
+                                                </div>
+                                            </Container>
+                                            <Container className="mt-2">
+                                                <FormGroupImagen label={'Cargar Archivo:'} campo={'upload'} />
+                                                <ErrorMessage name="upload">
+                                                    {mensaje =>
+                                                        <div className='text-danger' >{mensaje}</div>
 
-                                                }
-                                            </ErrorMessage>
-                                            <button type='submit'
-                                                id="nept_search_upload_button"
-                                                className="btn btn-primary -12">
-                                                <span className="indicator-label">Cargar</span> </button>
+                                                    }
+                                                </ErrorMessage>
+                                                <button type='submit'
+                                                    id="nept_search_upload_button"
+                                                    className="btn btn-primary -12 mt-2 mb-4">
+                                                    <span className="indicator-label">Cargar</span> </button>
+                                            </Container>
+
 
                                         </Form>
 
@@ -427,136 +450,136 @@ export default function Neptuno() {
 
 
                         <PageTitle>Neptuno App</PageTitle>
-                        
 
-                            <Row>
-                                <Col>
-                                    <Container className='d-flex'>
 
-                                        {/* begin::Form group */}
+                        <Row>
+                            <Col>
+                                <Container className='d-flex'>
 
-                                        <Formik
+                                    {/* begin::Form group */}
+
+                                    <Formik
                                         initialValues={{
                                             Buscar: ''
                                         }}
                                         onSubmit={
                                             values => {
+
                                                 (async () => {
-                                                   
-                                                  
-                                                    
-                                        
+                                                    // descarga el directorio
+                                                    let data = await DescargarDirectorio(model.containerneptuno, values.Buscar);
+                                                    handlesdatosNeptuno(data);
                                                 })()
+
                                             }
                                         }
                                     >
-                                        <Form>
-                                                                                       
-                                            <div className="v-row mb-10 fv-plugins-icon-container d-flex flex-row-reverse">
-                                            <ErrorMessage name="upload">
-                                                {mensaje =>
-                                                    <div className='text-danger' >{mensaje}</div>
+                                        {(Buscar) => (
+                                            <Form>
 
-                                                }
-                                            </ErrorMessage>
-                                            <button
-                                                type="submit"
-                                                id="nept_search_submit_button"
-                                                className="btn btn-primary -12">
-                                                <span className="indicator-label">Buscar</span>
+                                                <div className="v-row mb-10 fv-plugins-icon-container d-flex flex-row-reverse">
+                                                    <ErrorMessage name="upload">
+                                                        {mensaje =>
+                                                            <div className='text-danger' >{mensaje}</div>
+
+                                                        }
+                                                    </ErrorMessage>
+                                                    <button
+                                                        type="submit"
+                                                        id="nept_search_submit_button"
+                                                        className="btn btn-primary -12">
+                                                        <span className="indicator-label">Buscar</span>
 
 
-                                            </button>
-                                            {' '}
-                                            <input
-                                                placeholder="Buscar"
-                                                name="Buscar"
-                                                autoComplete="off"
-                                            />
+                                                    </button>
+                                                    {' '}
+                                                    <Field
+                                                        placeholder="Buscar"
+                                                        name="Buscar"
+                                                        autoComplete="off" type='text'
+                                                    />
 
-                                        </div>
+                                                </div>
 
-                                        </Form>
-
+                                            </Form>
+                                        )}
                                     </Formik>
 
-                                       
 
 
 
-                                    </Container>
-                                </Col>
+
+                                </Container>
+                            </Col>
 
 
-                            </Row>
-                            <Row>
-                                <Col >
+                        </Row>
+                        <Row>
+                            <Col >
 
-                                    <TreeView
-                                        aria-label="gmail"
-                                        defaultExpanded={['3']}
-                                        defaultCollapseIcon={<ArrowDropDownIcon />}
-                                        defaultExpandIcon={<ArrowRightIcon />}
-                                        defaultEndIcon={<div style={{ width: 24 }} />}
-                                        sx={{ height: 264, flexGrow: 1, overflowY: 'auto' }}
-                                    >
+                                <TreeView
+                                    aria-label="gmail"
+                                    defaultExpanded={['3']}
+                                    defaultCollapseIcon={<ArrowDropDownIcon />}
+                                    defaultExpandIcon={<ArrowRightIcon />}
+                                    defaultEndIcon={<div style={{ width: 24 }} />}
 
-
-
-                                        {
+                                >
+                                    {
 
 
-                        datosNeptuno.map(function (item, indx) {
-                                                let nodeid = indx + 25;
-                                                return (
-                                                    <StyledTreeItem
-                                                        key={uuid()}
-                                                        nodeId={uuid()}
-                                                        labelText={item.nombre}
-                                                        labelIcon={
-                                                            (item.tipo == "archivo") ? Archive : Folder
-                                                        }
-                                                        tipoArchivo={item.tipo}
-                                                        handleshowFileLoad={handleshowFileLoad}
-                                                        src={item.src}
-                                                        handlessetSrc={handlessrcFileLoad} container = {model.containerneptuno}
-                                                    >
+                                        datosNeptuno.map(function (item, indx) {
+
+                                            return (
+                                                <StyledTreeItem
+                                                    key={`${item.nombre}_${item.archivoId.toString()}`}
+                                                    nodeId={item.archivoId.toString()}
+                                                    labelText={item.nombre}
+                                                    labelIcon={
+                                                        (item.tipo == "archivo") ? Archive : Folder
+                                                    }
+                                                    tipoArchivo={item.tipo}
+                                                    handleshowFileLoad={handleshowFileLoad}
+                                                    src={item.src}
+                                                    handlessetSrc={handlessrcFileLoad} container={model.containerneptuno}
+                                                >
 
 
-                                                        {
-                                                            (item.hijos != null) && item.hijos.map(
-                                                                function (hijito, idx) {
-                                                                    
-                                                                    return getComponetsFromData({                                                                      
-                                                                        tipo: hijito.tipo,
-                                                                        nombre: hijito.nombre,
-                                                                        src: hijito.src ?? "",
-                                                                        hijos: hijito.hijos
-                                                                    }, handleshowFileLoad, handlessrcFileLoad,model.containerneptuno)
+                                                    {
+                                                        (item.hijos != null) && item.hijos.map(
+                                                            function (hijito, idx) {
+
+                                                                return getComponetsFromData({
+                                                                    archivoId: hijito.archivoId,
+                                                                    tipo: hijito.tipo,
+                                                                    nombre: hijito.nombre,
+                                                                    src: hijito.src ?? "",
+                                                                    hijos: hijito.hijos
+                                                                }, handleshowFileLoad, handlessrcFileLoad, model.containerneptuno)
 
 
-                                                                }
-                                                            )
-                                                        }
+                                                            }
+                                                        )
+                                                    }
 
-                                                    </StyledTreeItem>
-                                                )
-                                            })
+                                                </StyledTreeItem>
+                                            )
+                                        })
 
-                                        }
+                                    }
 
 
-                                    </TreeView>
-                                </Col>
+                                </TreeView>
+                            </Col>
 
-                            </Row>
-                      
+                        </Row>
+
                     </>
                 ) : (
                     <> </>
                 )}
 
-   {console.log(datosNeptuno,  "data neptuno")}
+
 
             </>
         );
