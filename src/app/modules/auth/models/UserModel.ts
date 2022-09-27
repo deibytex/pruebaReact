@@ -33,7 +33,7 @@ export interface UserModelSyscaf {
   username: string;
   password: string | undefined;
   email: string;
-  nombres: string;
+  Nombres: string;
   clienteid: string | undefined | null;
   exp: number;
   usuarioIds : number;
