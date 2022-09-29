@@ -1,25 +1,65 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Chart, { ChartConfiguration } from "chart.js";
 import { KTSVG, toAbsoluteUrl } from "../../../../_start/helpers";
 import { Dropdown1 } from "../../../../_start/partials";
 import { getCSSVariableValue } from "../../../../_start/assets/ts/_utils";
+import { datosFatigue } from "../dataFatigue";
 
 type Props = {
   className: string;
   innerPadding?: string;
+  tipoData?: number;
+  nameChart?: String;
+  titulo : string;
 };
 
-const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "" }) => {
+const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "", tipoData = 1, nameChart = "clasificacionFlota_", titulo }) => {
+  /* console.log( datosFatigue.getTotalFlota());
+   console.log( datosFatigue.getTotalPorCriticidad());
+    console.log( datosFatigue.getTimeLine());*/
+  const [totalDona, handlerTotalDona] = useState(0);
+  let total = 0;
+  
+  const color1 = getCSSVariableValue("--bs-success");
+  const color2 = getCSSVariableValue("--bs-warning");
+  const color3 = getCSSVariableValue("--bs-primary");
+  const color4 = getCSSVariableValue("--bs-danger");
+ 
+
+  let arrayChart: number[] = [];
+  let labelsArray: string[] = [];
+  let colorsArray: string[] = [];
+  let colorsArrayLabels: string[] = [];
+  let objectdata = {};
+  if (tipoData == 1) {
+    objectdata = datosFatigue.getTotalFlota();
+    arrayChart = Object.values(objectdata);
+    labelsArray= Object.keys(objectdata);
+    colorsArray = [color1, color3];
+    colorsArrayLabels = ["success", "primary"];
+    
+  } else if (tipoData == 2) {
+    objectdata = datosFatigue.getTotalPorCriticidad().operandoDivididos;
+    arrayChart = Object.values(objectdata);
+    labelsArray= Object.keys(objectdata);
+    colorsArray = [color4, color2,color3];
+    colorsArrayLabels = ["danger", "warning", "primary"];
+  
+
+  }
+
   useEffect(() => {
     const element = document.getElementById(
-      "kt_stats_widget_1_chart"
+      `${nameChart}kt_stats_widget_1_chart`
     ) as HTMLCanvasElement;
     if (!element) {
       return;
     }
 
-    const options = getChartOptions();
+    // actualiza la informacion de la dona
+    handlerTotalDona(arrayChart.reduce((a, b) => a + b, 0));
+    const options = getChartOptions(arrayChart, colorsArray, titulo, labelsArray);
     const ctx = element.getContext("2d");
     let myDoughnut: Chart | null;
     if (ctx) {
@@ -34,8 +74,6 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "" }) =>
 
   return (
     <div className={`card ${className}`}>
-
-
       {/* begin::Body */}
       <div className="card-body ">
         {/* begin::Chart */}
@@ -48,34 +86,30 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "" }) =>
           }}
         >
           <div className="fw-bolder fs-1 text-gray-800 position-absolute">
-            8,345
+            {totalDona}
           </div>
-          <canvas id="kt_stats_widget_1_chart"></canvas>
+          <canvas id={`${nameChart}kt_stats_widget_1_chart`}></canvas>
         </div>
         {/* end::Chart */}
 
         {/* begin::Items */}
         <div className="d-flex justify-content-around">
-          {/* begin::Item */}
-          <div className="">
-            <span className="fw-bolder text-gray-800 fs-8">48% Critico</span>
-            <span className="bg-info w-25px h-5px d-block rounded mt-1"></span>
-          </div>
-          {/* end::Item */}
 
-          {/* begin::Item */}
-          <div className="">
-            <span className="fw-bolder text-gray-800 fs-8">20% Mediano</span>
-            <span className="bg-primary w-25px h-5px d-block rounded mt-1"></span>
-          </div>
-          {/* end::Item */}
+          {
+               Object.entries(objectdata).map((entry,index) => {
 
-          {/* begin::Item */}
-          <div className="">
-            <span className="fw-bolder text-gray-800 fs-8">32% Bajo</span>
-            <span className="bg-warning w-25px h-5px d-block rounded mt-1"></span>
-          </div>
-          {/* end::Item */}
+                return (
+                  <div className="">
+                  <span className="fw-bolder text-gray-800 fs-8">{ `${entry[1]}-${entry[0]}`  }</span>
+                  <span className={`bg-${colorsArrayLabels[index]} w-25px h-5px d-block rounded mt-1`}></span>
+                </div>
+
+                )
+
+              })
+
+          }
+         
         </div>
         {/* end::Items */}
       </div>
@@ -86,24 +120,22 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "" }) =>
 
 export { ChartDonaVehiculo };
 
-function getChartOptions() {
+function getChartOptions(data: number[], colors: string[], titulo: string, labels:  string[]) {
   const tooltipBgColor = getCSSVariableValue("--bs-gray-200");
   const tooltipColor = getCSSVariableValue("--bs-gray-800");
 
-  const color1 = getCSSVariableValue("--bs-success");
-  const color2 = getCSSVariableValue("--bs-warning");
-  const color3 = getCSSVariableValue("--bs-primary");
+
 
   const options: ChartConfiguration = {
     type: "doughnut",
     data: {
       datasets: [
         {
-          data: [30, 40, 25],
-          backgroundColor: [color1, color2, color3],
+          data: data,
+          backgroundColor: colors,
         },
       ],
-      labels: ["Angular", "CSS", "HTML"],
+      labels: labels,
     },
     options: {
       cutoutPercentage: 75,
@@ -114,8 +146,8 @@ function getChartOptions() {
         position: "top",
       },
       title: {
-        display: false,
-        text: "Technology",
+        display: true,
+        text: titulo,
       },
       animation: {
         animateScale: true,

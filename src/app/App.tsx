@@ -31,7 +31,7 @@ const App: React.FC<Props> = ({ basename }) => {
           ) : (
             <>
               <MasterLayout>
-                <NeptunoRoutes />
+                <PrivateRoutes />
               </MasterLayout>
             </>
           )}

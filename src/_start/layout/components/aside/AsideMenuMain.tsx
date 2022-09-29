@@ -12,9 +12,7 @@ export function AsideMenuMain() {
               Neptuno
             </h4>
           </div>
-          <AsideMenuItem to="/neptuno/archivos" title="Archivos" />
-          <AsideMenuItem to="/neptuno/logs" title="Logs" />
-          <AsideMenuItem to="/neptuno/download" title="Descarga" />
+          <AsideMenuItem to="/neptuno/archivos" title="Archivos" />         
         </>
         <>
           <div className="menu-item">
@@ -22,7 +20,7 @@ export function AsideMenuMain() {
               Fatigue
             </h4>
           </div>
-          <AsideMenuItem to="/dashboard" title="DashBoard alternativa" />
+          <AsideMenuItem to="/fatigue/dashboard" title="DashBoard" />
         </>
 
       </>

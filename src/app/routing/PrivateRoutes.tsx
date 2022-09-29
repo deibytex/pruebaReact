@@ -6,6 +6,7 @@ import { StartDashboardWrapper } from "../pages/dashboards/start-dashboard/Start
 import { MenuTestPage } from "../pages/MenuTestPage";
 import {Bienvenidos} from "../pages/Principal"
 import Neptuno from "../pages/Neptuno/index"
+import fatigueDashboard from "../pages/Fatigue/dashboard";
 
 export function PrivateRoutes() {
   const ProfilePageWrapper = lazy(
@@ -23,7 +24,7 @@ export function PrivateRoutes() {
         <Route path="/neptuno/archivos" component={Neptuno} />      
         <Redirect from="/auth" to="/bienvenido" />
         <Redirect exact from="/" to="/bienvenido" />     
-        
+        <Route path="/fatigue/dashboard" component={fatigueDashboard} />    
       </Switch>
     </Suspense>
   );
