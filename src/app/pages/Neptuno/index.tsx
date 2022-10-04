@@ -27,7 +27,7 @@ import { RootState } from '../../../setup';
 import { useSelector } from 'react-redux';
 import { UserModelSyscaf } from '../../modules/auth/models/UserModel';
 import { Console } from 'console';
-import { v4 as uuid } from 'uuid';
+
 import { urlNeptunoDownloadFile, urlNeptunoGetDirectory, urlNeptunoUploadFile } from '../../../apiurlstore';
 
 declare module 'react' {
@@ -222,18 +222,12 @@ async function cargarArchivo(archivo: any, handleshowFileLoad: ((arg0: boolean) 
         url: urlNeptunoUploadFile,
         data: formData,
         headers: { 'Content-Type': 'multipart/form-data' }
-
     }).then(
-
-        t => {
-            console.log(t);
+        t => {            
             handleshowFileLoad(false);
             (async () => {
                 handlesdatosNeptuno(await DescargarDirectorio(contenedor, ""));
-
-
             })()
-
             // actualizar la data tree
             // colocar un mensaje de ok
         }
@@ -243,7 +237,6 @@ async function cargarArchivo(archivo: any, handleshowFileLoad: ((arg0: boolean) 
 // descarga la informacion del nodo del tree view
 // debe pasarle la ruta tal cual como se encuentra en el blog storgare no es caseSensitive
 async function DescargarArchivo(nombrearchivo: string, container: string) {
-
     const FileDownload = require('js-file-download');
     await axios({
         method: 'get',
@@ -251,33 +244,21 @@ async function DescargarArchivo(nombrearchivo: string, container: string) {
         params: { nombrearchivo, container },
         responseType: 'blob'
     }).then(
-
         t => {
-
             const archivo = nombrearchivo?.split("/");
-
-            FileDownload(t.data, archivo[archivo.length - 1]);
-            console.log(t);
-
+            FileDownload(t.data, archivo[archivo.length - 1]);  
         }
-    );
-
-
-
+    ).catch((c) =>  {
+        
+    });
 }
 async function DescargarDirectorio(container: string, filter: string) {
-
-
     const response = await axios.get(urlNeptunoGetDirectory, { params: { container, filter } });
-
     return (response.data as Array<neptunoDirectory>);
-
 }
 
 
 export default function Neptuno() {
-
-
 
     // informacion del usuario almacenado en el sistema
     const isAuthorized = useSelector<RootState>(

@@ -27,7 +27,7 @@ const TimeLineAlertas: React.FC<Props> = ({ className }) => {
                 <h3 className="card-title align-items-start flex-column">
                     <span className="fw-bolder text-dark fs-3">Linea Tiempo</span>
                     <span className="text-muted mt-2 fw-bold fs-6">
-                        Notificationes
+                        Notificationes sin gestionar
                     </span>
                 </h3>
                 {/*  <div className="card-toolbar">

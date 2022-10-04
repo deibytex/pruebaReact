@@ -1,30 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <link
-      href="//fonts.googleapis.com/css?family=Poppins:300,400,500,600,700"
-      rel="stylesheet"
-    />
-    <!-- SPLASH SCREEN-->
-    <link
-      rel="stylesheet"
-      id="layout-styles-anchor"
-      href="%PUBLIC_URL%/splash-screen.css"
-    />
-    <title>SYSCAF ANALYTICS</title>
-    <link rel="shortcut icon" href="%PUBLIC_URL%/media/logos/favicon.ico" />
-  </head>
-  <body id="kt_body" class="page-loading">
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <!--
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="Web site created using create-react-app" />
+  <link href="//fonts.googleapis.com/css?family=Poppins:300,400,500,600,700" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+  integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+  crossorigin="" />
+  <!-- SPLASH SCREEN-->
+  <link rel="stylesheet" id="layout-styles-anchor" href="%PUBLIC_URL%/splash-screen.css" />
+  <title>SYSCAF ANALYTICS</title>
+  <link rel="shortcut icon" href="%PUBLIC_URL%/media/logos/favicon.ico" />
+
+    
+</head>
+
+<body id="kt_body" class="page-loading">
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+  <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
 
@@ -34,10 +31,11 @@
       To begin the development, run `npm start` or `yarn start`.
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
-    <div id="splash-screen" class="splash-screen">
-      <img src="%PUBLIC_URL%/media/logos/logo-compact.svg" alt="Start logo" />
-      <span>Loading ...</span>
-    </div>
-    <div id="root-modals"></div>
-  </body>
+  <div id="splash-screen" class="splash-screen">
+    <img src="%PUBLIC_URL%/media/logos/logo-compact.svg" alt="Start logo" />
+    <span>Loading ...</span>
+  </div>
+  <div id="root-modals"></div>
+</body>
+
 </html>

@@ -27,17 +27,17 @@ export default function fatigueDashboard() {
                 <div className="col-xl-3">
                     <BaseIndicador className={"card-stretch mb-1 mb-xxl-2"}   >
                         {/*Contenido que quiero mostar dentro del indicador*/}
-                        <ChartDonaVehiculo className={"card-stretch mb-3 mb-xxl-4"} nameChart="Operando_Alertas" tipoData={2} titulo={"Flota Operando con Alertas"} />
+                        <ChartDonaVehiculo className={"card-stretch mb-3 mb-xxl-4"} nameChart="Operando_Alertas" tipoData={2} titulo={"Categorización por Riesgo"} />
                     </BaseIndicador>
                 </div>
                 <div className="col-xl-3">
-                    <BaseIndicador className={"card-stretch mb-1 mb-xxl-2"} titulo={"Indicador 2"} subtitulo={""}  >
+                    <BaseIndicador className={"card-stretch mb-1 mb-xxl-2"} titulo={"Panel Criticidad"} subtitulo={""}  >
                         {/*Contenido que quiero mostar dentro del indicador*/}
 
                     </BaseIndicador>
                 </div>
                 <div className="col-xl-3">
-                    <BaseIndicador className={"card-stretch mb-1 mb-xxl-2"} titulo={"Indicador 2"} subtitulo={""}  >
+                    <BaseIndicador className={"card-stretch mb-1 mb-xxl-2"} titulo={"Alertas sin Gestionar"} subtitulo={""}  >
                         {/*Contenido que quiero mostar dentro del indicador*/}
 
                     </BaseIndicador>
