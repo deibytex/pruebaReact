@@ -15,10 +15,20 @@ const TimeLineAlertas: React.FC<Props> = ({ className }) => {
     dataConAlertas.filter((m) => {
         return (m.Estado == "Operando" && m["Alertas"].length > 0);
     }).map((m) => {
-        Array.prototype.push.apply(arrayTotal, m["Alertas"]);
+      
         return m["Alertas"];
+    }).filter((m) => {
+        return (m.EsGestionado != 1);
+    }).map((m) => {
+        Array.prototype.push.apply(arrayTotal, m);
+      
     });
-
+    // ordena por fecha
+   arrayTotal.sort(function(a,b){
+        // Turn your strings into dates, and then subtract them
+        // to get a value that is either negative, positive, or zero.
+        return b["horaDatetime"] -a["horaDatetime"];
+      })
     let primeros15 = arrayTotal.slice(0, 8);
     return (
         <div className={`card ${className}`}>
@@ -27,7 +37,7 @@ const TimeLineAlertas: React.FC<Props> = ({ className }) => {
                 <h3 className="card-title align-items-start flex-column">
                     <span className="fw-bolder text-dark fs-3">Linea Tiempo</span>
                     <span className="text-muted mt-2 fw-bold fs-6">
-                        Notificationes sin gestionar
+                        Últimas sin gestionar
                     </span>
                 </h3>
                 {/*  <div className="card-toolbar">
@@ -54,9 +64,7 @@ const TimeLineAlertas: React.FC<Props> = ({ className }) => {
             <div className="card-body pt-3">
                 {/* <begin::Timeline */}
                 <div className="timeline-label">
-
                     {
-
                         primeros15.map((m) => {
                               
                             return (

@@ -3,6 +3,8 @@ import ApexCharts, { ApexOptions } from "apexcharts";
 import { useEffect, useState } from "react";
 import { getCSSVariableValue } from "../../../../_start/assets/ts/_utils";
 import { KTSVG, toAbsoluteUrl } from "../../../../_start/helpers";
+import CardContainer from "./baseCard";
+import CardContainerEventos from "./cardEventosDetallados";
 import { FAG_TablaPanelRiesgo } from "./TablaPanelRiesgo";
 import TabListPanelCentral from "./TabListPanelCentral";
 import { MapTab } from "./TabMap";
@@ -119,7 +121,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
               <li className="nav-item mb-3">
                 <a
                   id="tab2"
-                  className={`nav-link w-225px h-70px ${activeTab === "#tab2" ? "active btn-active-light" : ""
+                  className={`nav-link w-190px h-70px ${activeTab === "#tab2" ? "active btn-active-light" : ""
                     } fw-bolder me-2`}
                   onClick={() => setTab(2)}
                 >
@@ -140,7 +142,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
                       Mapa
                     </span>
                     <span className="text-muted fw-bold d-block pt-1">
-                      LeatFlex
+                      
                     </span>
                   </div>
                 </a>
@@ -149,7 +151,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
               <li className="nav-item mb-3">
                 <a
                   id="tab3"
-                  className={`nav-link w-225px h-70px ${activeTab === "#tab3" ? "active btn-active-light" : ""
+                  className={`nav-link w-200px h-70px ${activeTab === "#tab3" ? "active btn-active-light" : ""
                     } fw-bolder me-2`}
                   onClick={() => setTab(3)}
                 >
@@ -181,7 +183,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
               <li className="nav-item mb-5">
                 <a
                   id="tab4"
-                  className={`nav-link w-225px h-70px ${activeTab === "#tab4" ? "active btn-active-light" : ""
+                  className={`nav-link w-200px h-70px ${activeTab === "#tab4" ? "active btn-active-light" : ""
                     } fw-bolder me-2`}
                   onClick={() => setTab(4)}
                 >
@@ -202,7 +204,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
                       Alertas
                     </span>
                     <span className="text-muted fw-bold d-block pt-1">
-                      Detallada
+                      20 Sin revisar
                     </span>
                   </div>
                 </a>
@@ -212,7 +214,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
                   id="tab5"
                   className={`nav-link w-225px h-70px ${activeTab === "#tab4" ? "active btn-active-light" : ""
                     } fw-bolder me-2`}
-                  onClick={() => setTab(4)}
+                  onClick={() => setTab(5)}
                 >
                   <div className="nav-icon me-3">
                     <img
@@ -231,7 +233,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
                       Gestión
                     </span>
                     <span className="text-muted fw-bold d-block pt-1">
-
+                      30 Gestionado por tí
                     </span>
                   </div>
                 </a>
@@ -299,40 +301,12 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
                 }`}
               id="tab3_content"
             >
-              {/* begin::Content */}
-              <div className="d-flex justify-content-center mb-10">
-                {/* begin::Item */}
-                <div className="px-10">
-                  <span className="text-muted fw-bold fs-7">Sale</span>
-                  <span className="text-gray-800 fw-bolder fs-3 d-block">
-                    $350
-                  </span>
-                </div>
-                {/* end::Item */}
+           
 
-                {/* begin::Item */}
-                <div className="px-10">
-                  <span className="text-muted fw-bold fs-7">Comission</span>
-                  <span className="text-gray-800 fw-bolder fs-3 d-block">
-                    $1,200
-                  </span>
-                </div>
-                {/* end::Item */}
-
-                {/* begin::Item */}
-                <div className="px-10">
-                  <span className="text-muted fw-bold fs-7">Refers</span>
-                  <span className="text-gray-800 fw-bolder fs-3 d-block">
-                    5,500
-                  </span>
-                </div>
-                {/* end::Item */}
-              </div>
-              {/* end::Content  */}
-
-              {/* begin::Chart */}
-              <div id="tab3_chart" style={{ height: "250px" }} />
-              {/* end::Chart      */}
+              {/* begin::Cards */}
+              <div className="overflow-auto">   <CardContainerEventos /></div>
+            
+              {/* end::Cards      */}
             </div>
             {/* end::Tab Pane 3 */}
 
@@ -342,40 +316,18 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
                 }`}
               id="tab4_content"
             >
-              {/* begin::Content */}
-              <div className="d-flex justify-content-center mb-10">
-                {/* begin::Item */}
-                <div className="px-10">
-                  <span className="text-muted fw-bold fs-7">Sale</span>
-                  <span className="text-gray-800 fw-bolder fs-3 d-block">
-                    $450
-                  </span>
-                </div>
-                {/* end::Item */}
-
-                {/* begin::Item */}
-                <div className="px-10">
-                  <span className="text-muted fw-bold fs-7">Comission</span>
-                  <span className="text-gray-800 fw-bolder fs-3 d-block">
-                    $6,500
-                  </span>
-                </div>
-                {/* end::Item */}
-
-                {/* begin::Item */}
-                <div className="px-10">
-                  <span className="text-muted fw-bold fs-7">Refers</span>
-                  <span className="text-gray-800 fw-bolder fs-3 d-block">
-                    500
-                  </span>
-                </div>
-                {/* end::Item */}
-              </div>
-              {/* end::Content  */}
-
-              {/* begin::Chart */}
-              <div id="tab4_chart" style={{ height: "250px" }} />
-              {/* end::Chart      */}
+        
+ {/* begin::Cards */}
+ <div className="overflow-auto"> <CardContainer/></div>
+            
+            {/* end::Cards      */}
+             
+            </div>
+            <div
+              className={`tab-pane fade ${activeTab === "#tab5" ? "show active" : ""
+                }`}
+              id="tab5_content"
+            >             
             </div>
             {/* end::Tab Pane 4 */}
           </div>

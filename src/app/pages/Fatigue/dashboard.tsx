@@ -3,18 +3,31 @@ import { BaseIndicador } from "./partials/Indicadores";
 import * as React from 'react';
 import { PageTitle } from "../../../_start/layout/core";
 import { FAG_PanelCentral } from "./partials/panelCentral";
+import { IndicadorGestion } from "./partials/indicadorGestion";
+import { IndicadorPanelGeneral } from "./partials/indicadorPanelGeneral";
+import { datosFatigue } from "./dataFatigue";
 
 
 
 
 export default function fatigueDashboard() {
+    let arrayTotal: [] = [];
+    let arrayTotalSinGestionar: any[] = [];
+    let dataConAlertas = datosFatigue.getTimeLine();
+    dataConAlertas.filter((m) => {
+        return (m.Estado == "Operando" && m["Alertas"].length > 0);
+    }).map((m) => {
+        Array.prototype.push.apply(arrayTotal, m["Alertas"]);
+        return m["Alertas"];
+    });
 
-
+    arrayTotalSinGestionar =  arrayTotal.filter((m) => {
+        return (m["EsGestionado"] != 1);
+    });
 
     return (
 
         <>
-
             <PageTitle>Fatigue App</PageTitle>
             {/* begin::Row */}
             <div className="row g-0 g-xl-5 g-xxl-8">
@@ -31,15 +44,15 @@ export default function fatigueDashboard() {
                     </BaseIndicador>
                 </div>
                 <div className="col-xl-3">
-                    <BaseIndicador className={"card-stretch mb-1 mb-xxl-2"} titulo={"Panel Criticidad"} subtitulo={""}  >
+                    <BaseIndicador className={"card-stretch mb-1 mb-xxl-2"} titulo={""} subtitulo={""}  >
                         {/*Contenido que quiero mostar dentro del indicador*/}
-
+                        <IndicadorPanelGeneral className={""}/>
                     </BaseIndicador>
                 </div>
                 <div className="col-xl-3">
-                    <BaseIndicador className={"card-stretch mb-1 mb-xxl-2"} titulo={"Alertas sin Gestionar"} subtitulo={""}  >
+                    <BaseIndicador className={"card-stretch mb-1 mb-xxl-2"} titulo={""} subtitulo={""}  >
                         {/*Contenido que quiero mostar dentro del indicador*/}
-
+                        <IndicadorGestion className={""} alertas={`${arrayTotalSinGestionar.length}/${arrayTotal.length}`} />
                     </BaseIndicador>
                 </div>
             </div>

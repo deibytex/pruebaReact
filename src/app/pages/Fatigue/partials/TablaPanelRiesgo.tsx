@@ -114,12 +114,10 @@ const FAG_TablaPanelRiesgo: React.FC<Props> = ({ className, innerPadding = "" })
                                                 speaker={contenidoPopUp(m.RegistrationNumber)}
                                                 enterable
                                               >
-                                                <Button className="text-gray-800 fw-bolder  text-hover-primary fs-8" > {m.RegistrationNumber}</Button>
+                                                <Button className={`text-${m["color"]} fw-bolder bg-light-${m["color"]}  text-hover-primary fs-8`} > {m.RegistrationNumber}</Button>
                                               </Whisper>
                                       
-                                        <span className="text-muted text-center fw-bold d-block mt-1 fs-9">
-                                           {`Alertas(${m.TotalAlertas})` }
-                                        </span>
+                                      
                                       </td>
                                     )
 
