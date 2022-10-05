@@ -38,4 +38,5 @@ export interface UserModelSyscaf {
   exp: number;
   usuarioIds : number;
   containerneptuno : string;
+  fatigue : boolean | undefined | null ;
 }

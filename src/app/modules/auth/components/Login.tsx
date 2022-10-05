@@ -80,7 +80,7 @@ export function Login() {
       <div className="v-row mb-10 fv-plugins-icon-container">
         <label className="form-label fs-6 fw-bolder text-dark">Usuario</label>
         <input
-          placeholder="Email"
+          placeholder="Usuario"
           {...formik.getFieldProps("email")}
           className={clsx(
             "form-control form-control-lg form-control-solid",

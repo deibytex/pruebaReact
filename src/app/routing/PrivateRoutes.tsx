@@ -1,22 +1,21 @@
 import React, { Suspense, lazy } from "react";
 import { Redirect, Route, Switch } from "react-router-dom";
 import { FallbackView } from "../../_start/partials";
-import { LightDashboardWrapper } from "../pages/dashboards/light-dashboard/LightDashboardWrapper";
-import { StartDashboardWrapper } from "../pages/dashboards/start-dashboard/StartDashboardWrapper";
-import { MenuTestPage } from "../pages/MenuTestPage";
 import {Bienvenidos} from "../pages/Principal"
 import Neptuno from "../pages/Neptuno/index"
 import fatigueDashboard from "../pages/Fatigue/dashboard";
+import { useSelector } from "react-redux";
+import { RootState } from "../../setup";
+import { UserModelSyscaf } from "../modules/auth/models/UserModel";
+
 
 export function PrivateRoutes() {
-  const ProfilePageWrapper = lazy(
-    () => import("../modules/profile/ProfilePageWrapper")
+   // informacion del usuario almacenado en el sistema
+   const isAuthorized = useSelector<RootState>(
+    ({ auth }) => auth.user
   );
-  const GeneralPageWrapper = lazy(
-    () => import("../modules/general/GeneralPageWrapper")
-  );
-  const DocsPageWrapper = lazy(() => import("../modules/docs/DocsPageWrapper"));
-
+  // convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
+  const model = (isAuthorized as UserModelSyscaf);
   return (
     <Suspense fallback={<FallbackView />}>
       <Switch>
@@ -24,7 +23,10 @@ export function PrivateRoutes() {
         <Route path="/neptuno/archivos" component={Neptuno} />      
         <Redirect from="/auth" to="/bienvenido" />
         <Redirect exact from="/" to="/bienvenido" />     
-        <Route path="/fatigue/dashboard" component={fatigueDashboard} />    
+        {
+          (model.fatigue != null) && (  <Route path="/fatigue/dashboard" component={fatigueDashboard} />    )
+        }
+      
       </Switch>
     </Suspense>
   );
