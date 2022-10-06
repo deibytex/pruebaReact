@@ -14,11 +14,11 @@ const loginSchema = Yup.object().shape({
     /*.email("Wrong email format")
     .min(3, "Minimum 3 symbols")
     .max(50, "Maximum 50 symbols")*/
-    .required("Email is required"),
+    .required("Usuario es requerido"),
   password: Yup.string()
     .min(3, "Minimum 3 symbols")
     .max(50, "Maximum 50 symbols")
-    .required("Password is required"),
+    .required("Password es requerido"),
 });
 
 const initialValues = {
@@ -34,6 +34,7 @@ const initialValues = {
 
 export function Login() {
   const [loading, setLoading] = useState(false);
+  const [errorLogin, seterrorLogin] = useState("");
   const dispatch = useDispatch();
   const formik = useFormik({
     initialValues,
@@ -57,6 +58,9 @@ export function Login() {
             setLoading(false);
             setSubmitting(false);
             setStatus("Los detalles del login es incorrecto");
+          
+              seterrorLogin( (e.response != null)  ? e.response.data : e.toString())
+               
           });
       }, 1000);
     },
@@ -72,6 +76,9 @@ export function Login() {
       {/* begin::Title */}
       <div className="pb-lg-15">
         <h3 className="fw-bolder text-dark display-6">Bienvenido a Syscaf Analitycs</h3>        
+      </div>
+      <div className="pb-lg-15">
+        <h3 className="fw-bolder text-danger">{errorLogin}</h3>        
       </div>
 
 

@@ -1,0 +1,48 @@
+import { Container } from "react-bootstrap-v5";
+
+export default  function PoliticaPrivacidad(){
+
+return (<>
+<Container>
+<p className="text-center font-weight-bold">POLÍTICAS PARA EL TRATAMIENTO DE DATOS PERSONALES DE SISTEMAS DE CONTROL Y ADMINISTRACIÓN DE FLOTAS S.A.S.
+SYSCAF S.A.S.</p>
+
+<p className="text-justify">De conformidad con la Ley 1581 de 2012 y normatividad que la regula y desarrolla, SISTEMAS DE CONTROL Y ADMINISTRACIÓN DE FLOTAS SAS SYSCAF SAS SAS (en adelante “SYSCAF SAS”), pone en conocimiento de los Titulares sus Políticas para el Tratamiento de Datos Personales (la “Política”).
+En consecuencia, todo dato personal que sea solicitado y recolectado será tratado de conformidad con lo indicado en la presente Política. 1. Objeto de la Política. Poner en conocimiento de los Titulares los términos y condiciones por medio de los cuales, SYSCAF SAS, en pleno acogimiento y cumplimiento a las normas legales colombianas aplicables, desarrolla los derechos que tienen todos los titulares de conocer, actualizar, rectificar y suprimir los datos personales que sobre ellos se hayan recogido y su tratamiento.
+2. Identificación del encargado y responsable del tratamiento. Es SISTEMAS DE CONTROL Y ADMINISTRACIÓN DE FLOTAS S.A.S. “SYSCAF SAS”, sociedad domiciliada en la ciudad de Bogotá D.C., ubicada en la Calle 74A No. 23-10, correo electrónico: jefe.administrativo@syscaf.com.co y teléfono (1) 7466892.
+3. Tratamiento al cual serán sometidos los datos personales y finalidad del mismo. Tanto el tratamiento como su finalidad, así como la finalidad de la solicitud y recolección de datos, se limita a la gestión pertinente y adecuada que le permita a SYSCAF SAS desarrollar su objeto social en cumplimiento de las normas legales que lo rigen.
+A. Finalidad. Así pues, los datos personales que suministran los titulares son tratados en atención a las siguientes finalidades: • Clientes. La solicitud, recolección y tratamiento de datos personales se hace para fines directamente relacionados con la prestación de los servicios y actividad económica que ofrece y realiza SYSCAF SAS, así como la gestión comercial, percepción, promociones, contacto y comunicaciones.
+• Proveedores. La solicitud, recolección y tratamiento de los datos personales se hace para fines directamente relacionados con el contacto y contratación de proveedores para el funcionamiento de SYSCAF SAS.
+• Empleados. La solicitud, recolección y tratamiento de los datos personales se hace para fines directamente relacionados con su vinculación, ejecución y terminación de la relación laboral.
+</p>
+<p>
+• Candidatos de trabajo. La solicitud, recolección y tratamiento de los datos personales se hace para fines directamente relacionados con procesos de selección y contratación del personal.
+• Control de Ingreso. La solicitud, recolección y tratamiento de los datos personales se hace para fines de llevar un control y seguridad en el ingreso de personas a las instalaciones SYSCAF SAS.
+B. Tratamiento. De conformidad con los fines mencionados, el tratamiento que se da a los datos personales es el siguiente: (i) clasificación, almacenamiento y uso de la información a efectos que SYSCAF SAS pueda desarrollar su objeto social en cumplimiento de las normas legales que lo rigen; (ii) clasificación y almacenamiento en una o varias bases de datos, según corresponda, conforme la información suministrada y calidad del titular; (iii) verificar y validar la información suministrada por el titular; (iv) consultar y comparar la información suministrada por el titular con la información almacenada en otras bases de datos públicas o privadas a efectos de conocer los antecedentes judiciales, de seguridad o financieros del titular; y, (v) en general, almacenar, clasificar, comparar, validar y utilizar la información en cumplimiento y para el cumplimiento de las leyes y normatividad que rige a SYSCAF SAS.
+4. Derechos de los Titulares. Son derechos de los titulares: (i) Conocer, actualizar, rectificar y suprimir sus datos personales frente al encargado y responsable del tratamiento; (ii) solicitar prueba de la autorización otorgada al encargado y responsable del tratamiento, salvo excepción; (iii) ser informado por el encargado y responsable del tratamiento, previa solicitud, respecto del tratamiento que le ha dado a sus datos personales; (iv) presentar ante la Superintendencia de Industria y Comercio quejas por infracciones a lo dispuesto en la Ley 1581 de 2012 y normatividad que la desarrolla; (v) revocar la autorización y/o solicitar la supresión de los datos personales cuando en el tratamiento no se respeten los principios, derechos y garantías constitucionales y legales; y (vi) acceder en forma gratuita a sus datos personales que hayan sido objeto de tratamiento.
+5. Procedimiento para el ejercicio de los derechos de los titulares.
+A. Personas facultadas para ejercer los derechos de los titulares. Los derechos de los titulares podrán ejercerse por las siguientes personas: (i) por el titular, quien deberá acreditar tal calidad; (ii) por sus causahabientes, quienes deberán acreditar tal calidad y la calidad del titular; (iii) por el representante y/o apoderado del titular, previa acreditación de la representación o apoderamiento.
+</p>
+<p>
+B. Ejercicio de los derechos de los titulares de forma escrita. Las solicitudes, peticiones o consultas sobre los datos personales o tratamiento de los datos personales que presenten los titulares o las personas facultadas de forma escrita, deberán dirigirse a nombre de SYSCAF SAS, a la atención de la Dirección Administrativa y Financiera, y podrán enviarse al correo electrónico jefe.administrativo@syscaf.com.co o la dirección Calle 74A No. 23-10 en la ciudad de Bogotá D.C. La recepción física de las solicitudes se realizará en el horario de 8:00 a.m. a 12:00 p.m. y de 2:00 p.m. a 5:00 p.m.
+C. Ejercicio de los derechos de los titulares de forma oral. Las solicitudes, peticiones o consultas sobre los datos personales o tratamiento de los datos personales que presenten los titulares o las personas facultadas de forma verbal, deberán realizarse a través de la siguiente línea telefónica habilitada por SYSCAF SAS: (1) 7466892. Para la debida atención de las solicitudes así presentadas, el titular o la persona facultada deberán remitir a SYSCAF SAS los documentos respectivos que prueben la calidad de titular o persona facultada, según corresponda, lo anterior, siempre que ello no pueda verificarse de manera inmediata por SYSCAF SAS.
+D. Tiempo de respuesta por parte de SYSCAF SAS. Radicada la solicitud, petición, consulta o reclamo, SYSCAF SAS contará con un término máximo de diez (10) días hábiles contados a partir del recibo de la misma para su atención. Cuando no fuere posible atender la consulta dentro de dicho término o cuando siendo posible no fueren allegados los documentos respectivos que prueben la calidad de titular o persona facultada, SYSCAF SAS informará de ello al peticionario, expresando los motivos de la demora o abstención en la atención de la misma. En caso de demora en la atención, SYSCAF SAS indicará en la respectiva contestación la fecha en que se atenderá la consulta, la cual, en ningún caso podrá superar los cinco (5) días hábiles siguientes al vencimiento del primer término.
+E. Reclamos. Las solicitudes de corrección, actualización o supresión de datos personales o aquellas que adviertan un presunto incumplimiento a la Ley 1581 de 2012 y normatividad que la desarrolla, deberán radicarse por escrito y dirigirse a nombre de SYSCAF SAS, a la atención de la Dirección Administrativa y Financiera, y podrán enviarse al correo electrónico jefe.administrativo@syscaf.com.co o la dirección Calle 74A No. 23-10 en la ciudad de Bogotá D.C. La recepción física de las solicitudes se realizará en el horario de 8:00 a.m. a 12:00 p.m. y de 2:00 p.m. a 5:00 p.m.
+El término máximo para atender el reclamo será de 15 días hábiles contados a partir del día siguiente a la fecha de recibido. Si este tiempo no fuese suficiente, se informará al interesado los motivos de la demora y la
+
+</p>
+<p>
+fecha en que se atenderá su reclamo, la cual no podrá superar 8 días hábiles siguientes al vencimiento del primer término.
+6. Datos Sensibles. SYSCAF SAS se abstendrá dar tratamiento a datos sensibles que no sean autorizados por el titular. Se entenderá por Datos Sensibles aquellos que afectan la intimidad del titular o cuyo uso indebido puede generar su discriminación, tales como aquellos que revele el origen racial o étnico, la orientación política, las convicciones religiosas o filosóficas, la pertenencia a sindicatos, organizaciones sociales, de derechos humanos o que promueva intereses de cualquier partido político o que garantice los derechos y garantías de partidos políticos de oposición, así como los datos relativos a la salud, a la vida sexual y los datos biométricos.
+7. Datos de menores de edad. El tratamiento de datos personales de niños, niñas y adolescentes está prohibido, excepto cuando se trate de datos de naturaleza pública y su tratamiento responda y respete el interés superior de los niños, niñas y adolescentes y asegure el respeto de sus derechos fundamentes. En estos casos, se deberá contar con la autorización del representante legal del menor.
+8. Vigencia de la Política y de la Base de Datos. La presente Política rige a partir del día 31 de octubre del año 2016. La Base de Datos tendrá un periodo de vigencia igual a la existencia y funcionamiento SYSCAF SAS.
+
+SYSCAF
+Cl 74 a N. 23 - 10 Teléfonos: 7466892
+© Copyright 2007 e-mail: info@syscaf.com.co - Bogotá D.C. -
+COLOMBIA
+</p>
+</Container>
+</>);
+
+}
