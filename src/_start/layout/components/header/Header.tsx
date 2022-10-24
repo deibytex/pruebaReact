@@ -15,13 +15,13 @@ export function Header() {
       <div
         className={`${classes.headerContainer.join(
           " "
-        )} d-flex align-items-stretch justify-content-between`}
+        )}   d-flex align-items-stretch justify-content-between`}
         {...Object.fromEntries(Array.from(attributes.headerContainer))}
       >
         {/* begin::Left */}
         <div className="d-flex align-items-center">
           {config.aside.content && config.aside.content === "menu" && (
-            <h3 className="text-dark fw-bolder my-1 fs-2">{pageTitle}</h3>
+            <h3 className="text-syscaf-amarillo fw-bolder my-1 fs-2">{pageTitle}</h3>
           )}
           {config.aside.content && config.aside.content === "docs" && (
             <>

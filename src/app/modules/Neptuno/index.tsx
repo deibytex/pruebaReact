@@ -1,54 +1,21 @@
 import * as React from 'react';
-import { styled } from '@mui/material/styles';
-import Box from '@mui/material/Box';
 import TreeView from '@mui/lab/TreeView';
-import TreeItem, { TreeItemProps, treeItemClasses } from '@mui/lab/TreeItem';
-import Typography from '@mui/material/Typography';
-import { AddCircle, Download, Edit, Folder, Archive } from '@mui/icons-material';
-import InfoIcon from '@mui/icons-material/Info';
+import { Folder, Archive } from '@mui/icons-material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
-import { SvgIconProps } from '@mui/material/SvgIcon';
-import { Col, Container, Row, ButtonGroup, Button, ButtonToolbar, Modal } from 'react-bootstrap-v5';
-import { ErrorMessage, Field, Form, Formik, FormikHelpers, FormikValues } from "formik";
-import { dataArchivos } from "./dataNeptuno"
-import {
-    PageTitle,
-} from "../../../_start/layout/core";
-import { KTSVG, toAbsoluteUrl } from '../../../_start/helpers';
-import { useEffect, useRef, useState } from 'react';
-import { ImageInputComponent, defaultImageInputOptions } from '../../../_start/assets/ts/components/_ImageInputComponent';
+import { Col, Container, Row, Modal } from 'react-bootstrap-v5';
+import { ErrorMessage, Field, Form, Formik } from "formik";
+import { cargarArchivo, DescargarDirectorio } from "./data/dataNeptuno"
+import { PageTitle, } from "../../../_start/layout/core";
+import { KTSVG, } from '../../../_start/helpers';
+import { useEffect, useState } from 'react';
 import FormGroupImagen from '../../../_start/helpers/components/FormGroupFileUpload';
-import axios from 'axios';
-import * as Yup from 'yup'
-import { filterTree, expandFilteredNodes } from "./filtresTreeNode.js";
-
 import { RootState } from '../../../setup';
 import { useSelector } from 'react-redux';
-import { UserModelSyscaf } from '../../modules/auth/models/UserModel';
-import { Console } from 'console';
+import { UserModelSyscaf } from '../auth/models/UserModel';
+import { neptunoDirectory } from './models/neptunoDirectory';
+import { StyledTreeItem } from './components/StyledTreeItemProps';
 
-import { urlNeptunoDownloadFile, urlNeptunoGetDirectory, urlNeptunoUploadFile } from '../../../apiurlstore';
-
-declare module 'react' {
-    interface CSSProperties {
-        '--tree-view-color'?: string;
-        '--tree-view-bg-color'?: string;
-    }
-}
-
-
-
-type neptunoDirectory = {
-    archivoId: number;
-    nombre: string;
-    descripcion: string | undefined | null;
-    tipo: string;
-    src: string;
-    peso: number;
-    hijos: Array<neptunoDirectory> | null;
-
-};
 
 // definimos los campos a recibir de las propiedades
 type dataprops = {
@@ -59,113 +26,6 @@ type dataprops = {
     hijos: Array<dataprops> | null;
 
 };
-
-
-type StyledTreeItemProps = TreeItemProps & {
-    bgColor?: string;
-    color?: string;
-    labelIcon: React.ElementType<SvgIconProps>;
-    labelInfo?: string;
-    labelText: string;
-    tipoArchivo: string;
-    src: string;
-    handleshowFileLoad: ((arg0: boolean) => void);
-    handlessetSrc: ((arg0: string) => void);
-    container: string;
-};
-
-
-
-const StyledTreeItemRoot = styled(TreeItem)(({ theme }) => ({
-    color: theme.palette.text.secondary,
-    [`& .${treeItemClasses.content}`]: {
-        color: theme.palette.text.secondary,
-        borderTopRightRadius: theme.spacing(2),
-        borderBottomRightRadius: theme.spacing(2),
-        paddingRight: theme.spacing(1),
-        fontWeight: theme.typography.fontWeightMedium,
-        '&.Mui-expanded': {
-            fontWeight: theme.typography.fontWeightRegular,
-        },
-        '&:hover': {
-            backgroundColor: theme.palette.action.hover,
-        },
-        '&.Mui-focused, &.Mui-selected, &.Mui-selected.Mui-focused': {
-            backgroundColor: `var(--tree-view-bg-color, ${theme.palette.action.selected})`,
-            color: 'var(--tree-view-color)',
-        },
-        [`& .${treeItemClasses.label}`]: {
-            fontWeight: 'inherit',
-            color: 'inherit',
-        },
-    },
-    [`& .${treeItemClasses.group}`]: {
-        marginLeft: 0,
-        [`& .${treeItemClasses.content}`]: {
-            paddingLeft: theme.spacing(2),
-        },
-    },
-}));
-
-
-
-function StyledTreeItem(props: StyledTreeItemProps) {
-
-
-    const {
-        bgColor,
-        color,
-        labelIcon: LabelIcon,
-        labelInfo,
-        labelText, tipoArchivo, src, handleshowFileLoad, handlessetSrc, container,
-        ...other
-    } = props;
-
-    return (
-        <StyledTreeItemRoot
-            label={
-                <Box sx={{ display: 'flex', alignItems: 'center', p: 0.5, pr: 0 }}>
-                    <Box component={LabelIcon} color="inherit" sx={{ mr: 1 }} />
-                    <Typography variant="body2" sx={{ fontWeight: 'inherit', flexGrow: 1 }}>
-                        {labelText}
-                    </Typography>
-
-                    <ButtonToolbar aria-label="Toolbar with button groups">
-                        <ButtonGroup className="sm-1 " aria-label="First group">
-                            {(tipoArchivo == "archivo") && (
-                                <Formik
-                                    initialValues={{
-
-                                    }}
-                                    onSubmit={
-                                        values => {
-                                            DescargarArchivo(src, container);
-                                        }
-                                    } >
-                                    <Form>
-                                        <Button className="btn btn-icon btn-sm fw-bolder" type='submit'> <Download /></Button>
-                                    </Form>
-
-                                </Formik>)
-
-                            }{
-                                (tipoArchivo == "carpeta") && (<button className='btn btn-icon btn-sm  fw-bolder' onClick={() => { handleshowFileLoad(true); handlessetSrc(src); }}  > <AddCircle /></button>)
-                            }
-                        </ButtonGroup>
-                    </ButtonToolbar>
-                </Box>
-            }
-            style={{
-                '--tree-view-color': color,
-                '--tree-view-bg-color': bgColor,
-            }}
-            {...other}
-        />
-
-    );
-}
-
-
 
 // renderiza segun los datos el arbol de información
 // este método es recursivo, hay que tener cuidado con realizar cambios 
@@ -209,57 +69,7 @@ function getComponetsFromData(props: dataprops, handleshowFileLoad: ((arg0: bool
         </StyledTreeItem>
     );
 }
-
-async function cargarArchivo(archivo: any, handleshowFileLoad: ((arg0: boolean) => void), srcFileLoad: string, contenedor: string, handlesdatosNeptuno: React.Dispatch<React.SetStateAction<neptunoDirectory[]>>) {
-
-    const formData = new FormData();
-    formData.append("archivo", archivo);
-    formData.append("src", `${srcFileLoad}`);
-    formData.append("nombre", "desde el blob");
-    formData.append("contenedor", contenedor);
-    await axios({
-        method: 'post',
-        url: urlNeptunoUploadFile,
-        data: formData,
-        headers: { 'Content-Type': 'multipart/form-data' }
-    }).then(
-        t => {            
-            handleshowFileLoad(false);
-            (async () => {
-                handlesdatosNeptuno(await DescargarDirectorio(contenedor, ""));
-            })()
-            // actualizar la data tree
-            // colocar un mensaje de ok
-        }
-    );
-}
-
-// descarga la informacion del nodo del tree view
-// debe pasarle la ruta tal cual como se encuentra en el blog storgare no es caseSensitive
-async function DescargarArchivo(nombrearchivo: string, container: string) {
-    const FileDownload = require('js-file-download');
-    await axios({
-        method: 'get',
-        url: urlNeptunoDownloadFile,
-        params: { nombrearchivo, container },
-        responseType: 'blob'
-    }).then(
-        t => {
-            const archivo = nombrearchivo?.split("/");
-            FileDownload(t.data, archivo[archivo.length - 1]);  
-        }
-    ).catch((c) =>  {
-        
-    });
-}
-async function DescargarDirectorio(container: string, filter: string) {
-    const response = await axios.get(urlNeptunoGetDirectory, { params: { container, filter } });
-    return (response.data as Array<neptunoDirectory>);
-}
-
-
 export default function Neptuno() {
-
     // informacion del usuario almacenado en el sistema
     const isAuthorized = useSelector<RootState>(
         ({ auth }) => auth.user
@@ -267,39 +77,28 @@ export default function Neptuno() {
     const [isLoaded, setIsLoaded] = useState(false);
     // react hook para mostar o model de carga de archivos
     const [showFileLoad, handleshowFileLoad] = useState(false);
-
     // para guardar el src de los archivos a mandar al serviodr
     // se debe mandar contenedor asociado al usuario
     const [srcFileLoad, handlessrcFileLoad] = useState("");
     const [datosNeptuno, handlesdatosNeptuno] = useState<neptunoDirectory[]>([]);
     const [expanded, setExpanded] = React.useState<string[]>([]);
-
     // convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
     const model = (isAuthorized as UserModelSyscaf);
 
     useEffect(() => {
         (async () => {
-
             let data = await DescargarDirectorio(model.containerneptuno, "");
             handlesdatosNeptuno(data);
-
             setIsLoaded(true);
-
         })()
     }, []);
 
     if (model.containerneptuno) {
-
-
-
         // constantes para filtrar el arbol
         /*const [expanded, setExpanded] = React.useState(["root"]);
         const [selected, setSelected] = React.useState([]);
         const [subjectData, setSubjectData] = React.useState<object>();
         const [selectedSingleItem, setSelectedSingleItem] = React.useState("");*/
-
-
-
 
         /* INICIO FUNCIONES PARA FILTRAR */
         /*  const onFilterMouseUp = (e: { target: { value: any; }; }) => {
@@ -336,13 +135,6 @@ export default function Neptuno() {
               }
               // TODO: When `multiSelect` is true this takes an array of strings
             };*/
-
-
-
-
-
-
-
         return (
             <>
                 {isLoaded ? (
@@ -356,8 +148,6 @@ export default function Neptuno() {
                             contentClassName="shadow-none"
                             show={showFileLoad}
                         >
-
-
                             <div className="container rounded-2">
                                 <div className="modal-header d-flex align-items-center justify-content-between border-0">
                                     <div className="d-flex align-items-center">
@@ -387,7 +177,7 @@ export default function Neptuno() {
                                         onSubmit={
                                             values => {
 
-                                                let src = (values.carpeta != "") ? `${srcFileLoad}/` :  "";
+                                                let src = (values.carpeta != "") ? `${srcFileLoad}/` : "";
                                                 cargarArchivo(values.upload, handleshowFileLoad, `${src}${values.carpeta}`, model.containerneptuno, handlesdatosNeptuno);
                                             }
                                         }
@@ -397,7 +187,7 @@ export default function Neptuno() {
                                                 <div className="form-group">
                                                     <label>Nueva Carpeta: </label>
                                                     <Field
-                                                    className="ml-4"
+                                                        className="ml-4"
                                                         placeholder=""
                                                         name="carpeta"
                                                         autoComplete="off" type='text'
@@ -409,7 +199,6 @@ export default function Neptuno() {
                                                 <ErrorMessage name="upload">
                                                     {mensaje =>
                                                         <div className='text-danger' >{mensaje}</div>
-
                                                     }
                                                 </ErrorMessage>
                                                 <button type='submit'
@@ -417,52 +206,37 @@ export default function Neptuno() {
                                                     className="btn btn-primary -12 mt-2 mb-4">
                                                     <span className="indicator-label">Cargar</span> </button>
                                             </Container>
-
-
                                         </Form>
-
-                                    </Formik>
+                                                                            </Formik>
 
                                 </div>
-
                             </div>
-
                         </Modal>
-
-
                         <PageTitle>Neptuno App</PageTitle>
-
-
                         <Row>
                             <Col>
                                 <Container className='d-flex'>
-
                                     {/* begin::Form group */}
-
                                     <Formik
                                         initialValues={{
                                             Buscar: ''
                                         }}
                                         onSubmit={
                                             values => {
-
                                                 (async () => {
                                                     // descarga el directorio
                                                     let data = await DescargarDirectorio(model.containerneptuno, values.Buscar);
                                                     handlesdatosNeptuno(data);
                                                 })()
-
                                             }
                                         }
                                     >
-                                        {(Buscar) => (
-                                            <Form>
+                                        {() => (                                            <Form>
 
                                                 <div className="v-row mb-10 fv-plugins-icon-container d-flex flex-row-reverse">
                                                     <ErrorMessage name="upload">
                                                         {mensaje =>
                                                             <div className='text-danger' >{mensaje}</div>
-
                                                         }
                                                     </ErrorMessage>
                                                     <button
@@ -470,8 +244,6 @@ export default function Neptuno() {
                                                         id="nept_search_submit_button"
                                                         className="btn btn-primary -12">
                                                         <span className="indicator-label">Buscar</span>
-
-
                                                     </button>
                                                     {' '}
                                                     <Field
@@ -485,32 +257,20 @@ export default function Neptuno() {
                                             </Form>
                                         )}
                                     </Formik>
-
-
-
-
-
                                 </Container>
                             </Col>
-
-
                         </Row>
                         <Row>
                             <Col >
-
                                 <TreeView
                                     aria-label="gmail"
                                     defaultExpanded={['3']}
                                     defaultCollapseIcon={<ArrowDropDownIcon />}
                                     defaultExpandIcon={<ArrowRightIcon />}
                                     defaultEndIcon={<div style={{ width: 24 }} />}
-
                                 >
                                     {
-
-
-                                        datosNeptuno.map(function (item, indx) {
-
+                                        datosNeptuno.map(function (item) {
                                             return (
                                                 <StyledTreeItem
                                                     key={`${item.nombre}_${item.archivoId.toString()}`}
@@ -524,11 +284,9 @@ export default function Neptuno() {
                                                     src={item.src}
                                                     handlessetSrc={handlessrcFileLoad} container={model.containerneptuno}
                                                 >
-
-
                                                     {
                                                         (item.hijos != null) && item.hijos.map(
-                                                            function (hijito, idx) {
+                                                            function (hijito) {
 
                                                                 return getComponetsFromData({
                                                                     archivoId: hijito.archivoId,
@@ -537,8 +295,6 @@ export default function Neptuno() {
                                                                     src: hijito.src ?? "",
                                                                     hijos: hijito.hijos
                                                                 }, handleshowFileLoad, handlessrcFileLoad, model.containerneptuno)
-
-
                                                             }
                                                         )
                                                     }
@@ -546,22 +302,14 @@ export default function Neptuno() {
                                                 </StyledTreeItem>
                                             )
                                         })
-
                                     }
-
-
                                 </TreeView>
-                            </Col>
-
-                        </Row>
+                            </Col>                        </Row>
 
                     </>
                 ) : (
                     <> </>
                 )}
-
-
-
             </>
         );
     } else

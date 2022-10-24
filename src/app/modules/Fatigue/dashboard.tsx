@@ -1,10 +1,10 @@
-import { ChartDonaVehiculo } from "./partials/chart_dona_agrupadoCritico";
-import { BaseIndicador } from "./partials/Indicadores";
+import { ChartDonaVehiculo } from "./components/chart_dona_agrupadoCritico";
+import { BaseIndicador } from "./components/Indicadores";
 import * as React from 'react';
 import { PageTitle } from "../../../_start/layout/core";
-import { FAG_PanelCentral } from "./partials/panelCentral";
-import { IndicadorGestion } from "./partials/indicadorGestion";
-import { IndicadorPanelGeneral } from "./partials/indicadorPanelGeneral";
+import { FAG_PanelCentral } from "./components/panelCentral";
+import { IndicadorGestion } from "./components/indicadorGestion";
+import { IndicadorPanelGeneral } from "./components/indicadorPanelGeneral";
 import { datosFatigue } from "./dataFatigue";
 
 
@@ -28,9 +28,9 @@ export default function fatigueDashboard() {
     return (
 
         <>
-            <PageTitle>Fatigue App</PageTitle>
+            <PageTitle >Fatigue App</PageTitle>
             {/* begin::Row */}
-            <div className="row g-0 g-xl-5 g-xxl-8">
+            <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris">
                 <div className="col-xl-3">
                     <BaseIndicador className={"card-stretch mb-1 mb-xxl-2"}  pathIcon='' >
                         {/*Contenido que quiero mostar dentro del indicador*/}
@@ -57,7 +57,7 @@ export default function fatigueDashboard() {
                 </div>
             </div>
 
-            <div className="row g-0 g-xl-5 g-xxl-8">
+            <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris">
                 <div className="col-xl-12">
                     <FAG_PanelCentral className="card-stretch mb-5 mb-xxl-8"></FAG_PanelCentral>
                 </div>

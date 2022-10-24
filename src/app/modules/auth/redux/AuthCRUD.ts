@@ -1,25 +1,25 @@
 import axios from "axios";
-import { AuthModel } from "../models/AuthModel";
 import { UserModel } from "../models/UserModel";
+import { PaginacionDTO } from "../../../../_start/helpers/Models/PaginacionDTO"
 
 const API_URL = process.env.REACT_APP_API_URL || "api";
 
 export const GET_USER_BY_ACCESSTOKEN_URL = `${API_URL}/account/get-user`;
 export const LOGIN_URL = `${API_URL}/account/login`;
-export const REGISTER_URL = `${API_URL}/account/register`;
-export const REQUEST_PASSWORD_URL = `${API_URL}/account/forgot-password`;
-
+export const REGISTER_URL = `${API_URL}/account/Crear`;
+export const REQUEST_PASSWORD_URL = `${API_URL}/account/GetTokenRecuperarContrasenia`;
+export const USERLIST_URL = `${API_URL}/account/listadoUsuarios`;
 // Server should return AuthModel
 export function login(username: string, password: string) {
-  
-  
-  return    axios({
+
+
+  return axios({
     method: 'post',
     url: LOGIN_URL,
     data: { username, password },
     headers: { 'Content-Type': 'application/json' }
 
-}) ;
+  });
 }
 
 // Server should return AuthModel
@@ -27,13 +27,14 @@ export function register(
   email: string,
   firstname: string,
   lastname: string,
-  password: string
+  password: string,
+  PerfilId: Number
 ) {
-  return axios.post<AuthModel>(REGISTER_URL, {
+  return axios.post(REGISTER_URL, {
     email,
-    firstname,
-    lastname,
-    password,
+    Nombres: `${firstname} ${lastname}`,
+    Password: password,
+    PerfilId
   });
 }
 
@@ -46,4 +47,16 @@ export function getUserByToken() {
   // Authorization head should be fulfilled in interceptor.
   // Check common redux folder => setupAxios
   return axios.get<UserModel>(GET_USER_BY_ACCESSTOKEN_URL);
+}
+
+// retorna el listado de usuarios que se mostrara en la aplicacion
+export function getListUserByToken(PaginacionDTO: PaginacionDTO) {
+  // Authorization head should be fulfilled in interceptor.
+  // Check common redux folder => setupAxios
+  return axios({
+    method: 'get',
+    url: USERLIST_URL,
+    params: PaginacionDTO,
+    responseType: 'blob'
+  });
 }

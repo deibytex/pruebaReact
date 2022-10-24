@@ -11,6 +11,7 @@ type Props = {
   hasBullet?: boolean;
   free?: boolean;
   exclusive?: boolean;
+  iconClass?: string;
 };
 
 const AsideMenuItem: React.FC<Props> = ({
@@ -18,8 +19,8 @@ const AsideMenuItem: React.FC<Props> = ({
   to,
   title,
   hasBullet = false,
-  free = false,
-  exclusive = false,
+  free = true,
+  exclusive = false, iconClass = ""
 }) => {
   const { pathname } = useLocation();
   return (
@@ -28,14 +29,14 @@ const AsideMenuItem: React.FC<Props> = ({
         here: checkIsActive(pathname, to),
       })}
     >
-      {free ? (
+      {!free ? (
         <a data-kt-page="pro" className="menu-link py-2">
           {hasBullet && (
             <span className="menu-bullet">
               <span className="bullet bullet-dot"></span>
             </span>
           )}
-          <span className="menu-title">
+          <span className="menu-title text-white fs-7">
             {title}
             <span className="badge badge-pro badge-light-danger fw-bold fs-9 px-2 py-1 ms-1">
               Pro
@@ -45,11 +46,9 @@ const AsideMenuItem: React.FC<Props> = ({
       ) : (
         <Link className="menu-link py-2" to={to}>
           {hasBullet && (
-            <span className="menu-bullet">
-              <span className="bullet bullet-dot"></span>
-            </span>
+              <i className= {`fs-3  ${iconClass} m-1`}></i>
           )}
-          <span className="menu-title">{title}</span>
+          <span className="menu-title text-white fs-7">{title}</span>
           {exclusive && (
             <span className="badge badge-exclusive badge-light-success fw-bold fs-9 px-2 py-1 ms-1">
               Exclusive

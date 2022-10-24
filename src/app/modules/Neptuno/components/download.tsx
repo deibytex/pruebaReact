@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { PageTitle } from "../../../_start/layout/core";
+import { PageTitle } from "../../../../_start/layout/core";
 
  export default function GetFileFromLink(){
     

@@ -74,7 +74,7 @@ const IndicadorPanelGeneral: React.FC<Props> = ({ className, innerPadding = "" }
 
                 return (
 
-                  <div className={`carousel-item ${(index == 0) && "active"}`}>
+                  <div className={`carousel-item ${(index == 0) && "active"}`} key={`indicadorpanelgeneral_${element[1]}-${element[0]}`}>
                     <div className="flex-grow-1">
                       <h3 className="fs-3 text-gray-800 text-hover-primary fw-bolder cursor-pointer">
                         {`${element[0]}(${element[1]})`}
@@ -88,7 +88,7 @@ const IndicadorPanelGeneral: React.FC<Props> = ({ className, innerPadding = "" }
 
                             return (
                             
-                                <p className= {`text-gray-800  fw-bolder col-xl-3 fs-9 bg-light-${m["color"]} m-1`}> {m.RegistrationNumber} </p>
+                                <p key={`indicadorpanelgeneralp_${m.RegistrationNumber}`} className= {`text-gray-800  fw-bolder col-xl-3 fs-9 bg-light-${m["color"]} m-1`}> {m.RegistrationNumber} </p>
                               
                             )
                           })

@@ -6,7 +6,7 @@ import { useFormik } from "formik";
 import { requestPassword } from "../redux/AuthCRUD";
 
 const initialValues = {
-  email: "admin@demo.com",
+  email: "",
 };
 
 const forgotPasswordSchema = Yup.object().shape({
@@ -36,7 +36,7 @@ export function ForgotPassword() {
             setHasErrors(true);
             setLoading(false);
             setSubmitting(false);
-            setStatus("The login detail is incorrect");
+            setStatus("Los detalles del loguin son incorrectos");
           });
       }, 1000);
     },
@@ -84,7 +84,7 @@ export function ForgotPassword() {
           </label>
           <input
             type="email"
-            placeholder=""
+            placeholder="email@domain.com"
             autoComplete="off"
             {...formik.getFieldProps("email")}
             className={clsx(

@@ -68,7 +68,7 @@ const TimeLineAlertas: React.FC<Props> = ({ className }) => {
                         primeros15.map((m) => {
                               
                             return (
-                                <div className="timeline-item">
+                                <div className="timeline-item"  key={`timeline_${m["id"]}`}>
                                     {/* begin::Label */}
                                     <div className="timeline-label fw-bolder text-gray-800 fs-6">
                                       {m["hora"]}

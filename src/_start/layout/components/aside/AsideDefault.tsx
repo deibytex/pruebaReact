@@ -141,9 +141,9 @@ export function AsideDefault() {
           )}
 
           {config.aside.secondaryDisplay && (
-            <div className="aside-secondary d-flex flex-row-fluid bg-white">
+            <div className="aside-secondary d-flex flex-row-fluid bg-syscaf-gris">
               <div
-                className="aside-workspace my-7 ps-5 pe-4 ps-lg-10 pe-lg-6"
+                className="aside-workspace my-7 ps-5 pe-4 ps-lg-10 pe-lg-6  "
                 id="kt_aside_wordspace"
               >
                 {!config.aside.primaryDisplay ? (

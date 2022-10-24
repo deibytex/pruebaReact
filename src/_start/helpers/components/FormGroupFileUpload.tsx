@@ -13,8 +13,8 @@ export default function FormGroupImagen(props: formGroupImagen){
     const ManejarOnChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (e.currentTarget.files){
             const archivo = e.currentTarget.files[0];
-            const extension = e.currentTarget.files[0].name;
-          /*  aBase64(archivo)
+           /* const extension = e.currentTarget.files[0].name;
+            aBase64(archivo)
                 .then((representacionBase64: string) => setImagenBase64(representacionBase64))
                 .catch(error => console.error(error))*/
                 setImagenURL('');
@@ -23,14 +23,14 @@ export default function FormGroupImagen(props: formGroupImagen){
         }
     }
 
-    const aBase64 = (file: File) => {
+   /* const aBase64 = (file: File) => {
         return new Promise<string>((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = () => resolve(reader.result as string);
             reader.onerror = (error) => reject(error);
         })
-    }
+    }*/
 
     return (
         <div className="form-group">

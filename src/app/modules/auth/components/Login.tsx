@@ -6,7 +6,6 @@ import { Link } from "react-router-dom";
 import { useFormik } from "formik";
 import * as auth from "../redux/AuthRedux";
 import { login } from "../redux/AuthCRUD";
-import { toAbsoluteUrl } from "../../../../_start/helpers";
 import jwt_decode from "jwt-decode"
 import { UserModelSyscaf } from "../models/UserModel";
 const loginSchema = Yup.object().shape({
@@ -45,11 +44,8 @@ export function Login() {
 
        
         login(values.email, values.password)
-          .then(( data) => {  
-            
-          
-            var decoded = jwt_decode<UserModelSyscaf>(data.data.token);
-            console.log(decoded);
+          .then(( data) => {    
+            var decoded = jwt_decode<UserModelSyscaf>(data.data.token);      
             setLoading(false);
             dispatch(auth.actions.login(data.data.token));
             dispatch(auth.actions.fulfillUser(decoded));

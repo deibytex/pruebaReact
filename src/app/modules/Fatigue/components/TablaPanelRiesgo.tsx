@@ -43,7 +43,7 @@ const FAG_TablaPanelRiesgo: React.FC<Props> = ({ className, innerPadding = "" })
               Object.entries(indicadoresCriticidad.operandoDivididos).map((element, index) => {
 
                 return (
-                  <li className="nav-item">
+                  <li className="nav-item" key={`itemtablapanel_${element[1]}-${element[0]}`}>
                     <a
                       className={`nav-link btn btn-active-light btn-color-muted py-2 px-4 fw-bolder me-2 ${(index == 0) && "active"}`}
                       data-bs-toggle="tab"
@@ -72,6 +72,7 @@ const FAG_TablaPanelRiesgo: React.FC<Props> = ({ className, innerPadding = "" })
               let dividido = Math.trunc(totalElements / 6) + 1; // total de columnas 
               return (
                 <div
+                key={`tabpanel_${index + 1}`}
                   id={`kt_tab_pane_2_${index + 1}`}
                   role="tabpanel"
                   aria-labelledby={`kt_tab_pane_2_${index + 1}`}
@@ -96,7 +97,7 @@ const FAG_TablaPanelRiesgo: React.FC<Props> = ({ className, innerPadding = "" })
                             let inicio = (element == 1) ? 0 : 6 * (element - 1);
 
                             return (
-                              <tr>
+                              <tr  key={`tr_tabpanel_${element}`}>
                                 {
 
                                   dataGeneral.filter((f) => {
@@ -105,7 +106,7 @@ const FAG_TablaPanelRiesgo: React.FC<Props> = ({ className, innerPadding = "" })
                                   }).slice(inicio, 6 * element).map((m) => {
 
                                     return (
-                                      <td className="px-0">
+                                      <td className="px-0"  key={`td_tabpanel_${m.RegistrationNumber}`}>
 
                                         <Whisper                                        
                                                 placement="top"

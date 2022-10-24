@@ -2,8 +2,8 @@ import React, { Suspense, lazy } from "react";
 import { Redirect, Route, Switch } from "react-router-dom";
 import { FallbackView } from "../../_start/partials";
 import {Bienvenidos} from "../pages/Principal"
-import Neptuno from "../pages/Neptuno/index"
-import fatigueDashboard from "../pages/Fatigue/dashboard";
+import Neptuno from "../modules/Neptuno/index"
+import fatigueDashboard from "../modules/Fatigue/dashboard";
 
 
 

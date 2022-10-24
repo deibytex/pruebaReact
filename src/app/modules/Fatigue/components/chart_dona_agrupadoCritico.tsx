@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Chart, { ChartConfiguration } from "chart.js";
 import { KTSVG, toAbsoluteUrl } from "../../../../_start/helpers";
-import { Dropdown1 } from "../../../../_start/partials";
+
 import { getCSSVariableValue } from "../../../../_start/assets/ts/_utils";
 import { datosFatigue } from "../dataFatigue";
 
@@ -99,7 +99,7 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "", tipo
                Object.entries(objectdata).map((entry,index) => {
 
                 return (
-                  <div className="">
+                  <div key={`chardonavehiculo_${entry[1]}-${entry[0]}`}>
                   <span className="fw-bolder text-gray-800 fs-8">{ `${entry[1]}-${entry[0]}`  }</span>
                   <span className={`bg-${colorsArrayLabels[index]} w-25px h-5px d-block rounded mt-1`}></span>
                 </div>

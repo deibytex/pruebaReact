@@ -1,84 +1,90 @@
-import { Button, Card, Nav, Tab, Tabs } from "react-bootstrap-v5";
-import { string } from "yup";
+import { Button, Card,  Tab, Tabs } from "react-bootstrap-v5";
 import { eventos } from "../dataFatigue";
 import { v4 as uuid } from 'uuid';
 import Moment from 'moment';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import moment from "moment";
-type CardOptions =
-    {
-        titulo: string;
+import { EventoActivo } from "../models/EventosActivos";
+import { useUpdateEffect } from "rsuite/esm/utils";
 
-    }
+type Props ={
+ data : EventoActivo[];
+ isActive : boolean;
+ isDetails : boolean;
 
+}
 
-export default function CardContainerEventos() {
-
-
-    const [dataAlertas, setDataAlertas] = useState<any[]>(eventos);
-
+const CardContainerEventos : React.FC<Props> = ({ data , isActive ,isDetails   }) => { 
+   
+    const [dataAlertas, setDataAlertas] = useState<EventoActivo[]>(data);
     // funcion para cambiar el estado
     // de ver detalles para que se renderice el tab de ver mas
-    function setDetails(id: string) {
+    function setDetails(id: number) {
+        
         let datafiltrada = dataAlertas.map((item) => {
-            if (item["EventId"] == id)
+            if (item.EventId == id)
                 return { ...item, esVisibleTabs: !item["esVisibleTabs"] };
             return item;
         });
         setDataAlertas(datafiltrada);
+      
     }
 
     // gestiona las alertas generadas en el sistyema
-    function setGestionar(id: string) {
+    function setGestionar(id: number) {
+        
         // colocar su url axiox aqui
         let datafiltrada = dataAlertas.map((item) => {
-            if (item["EventId"] == id)
+            if (item.EventId == id)
                 return { ...item, EsGestionado: 1 };
             return item;
         });
         setDataAlertas(datafiltrada);
+    
     }
+   
+    
     return (
 
         <>
             {
+       
+            dataAlertas.map((item) => {
 
-                dataAlertas.map((item) => {
 
+                    const mediaurls = "";
 
-                    const mediaurls = JSON.parse(item["MediaUrls"]);
-
-                    const idUnique = item["EventId"];
+                    const idUnique = item.EventId;
                     const navID = `nav_${idUnique}`;
                     const bntId = `btn_${idUnique}`;
-                    let duration = moment.duration(Moment().diff(item["StartDateTime"]))
+                    let duration = moment.duration(Moment().diff(item.EventDateTime))
                     return (
 
                         <Card className="border" key={uuid()}>
                             <Card.Body  >
                                 <div className="row g-0 g-xl-5 g-xxl-8  bg-light-dark text-dark">
                                     <div className="col-xl-4">
-                                        <span> EventId: {item["EventId"]}</span>
+                                        <span> EventId: {idUnique}</span>
                                     </div>
                                     <div className="col-xl-3">
-                                        <span> Placa: {item["RegistrationNumber"] }</span>
+                                        <span> Placa: {item.description }</span>
                                     </div>
                                     <div className="col-xl-4">
-                                        <span> Evento: {item["Evento"]}</span>
+                                        <span> Evento: {item.descriptionevent}</span>
                                     </div>
                                 </div>
                                 <div className="row g-0 g-xl-5 g-xxl-8 ">
                                     <div className="col-xl-4">
-                                        <span> Operador:  {item["driver"]}</span>
+                                        <span> Operador:  {item.name}</span>
                                     </div>
                                     <div className="col-xl-3">
-                                        <span> Fecha: {Moment(item["StartDateTime"]).format('DD/MM/YYYY HH:mm:ss')}</span>
+                                        <span> Fecha: {Moment(item.EventDateTime).format('DD/MM/YYYY HH:mm:ss')}</span>
                                     </div>
                                     <div className="col-xl-2">
-                                        <span> Duracion: {item["TotalTimeSeconds"]}</span>
+                                        <span> Duracion:  N/A</span>
                                     </div>
                                     <div className="col-xl-2">
-                                        <span> Velocidad: {item["SpeedKilometresPerHour"]}</span>
+                                        <span> Velocidad: N/A</span>
                                     </div>
                                     <div className="col-xl-1">
                                         <span> Edad: {Moment(duration.asMilliseconds()).format("HH:mm")}</span>
@@ -86,7 +92,9 @@ export default function CardContainerEventos() {
                                 </div>
                                 
                                 <div className="row g-0 g-xl-5 g-xxl-8">
-                                    <div className="col-xl-3">
+                                   
+                                { (isDetails) && 
+                                    (<div className="col-xl-3">
                                         <Button id={bntId} className="btn-sm" variant="primary" value={bntId} onClick={(e) => {
                                             setDetails(idUnique);
                                         }} >{
@@ -95,8 +103,9 @@ export default function CardContainerEventos() {
                                             }{
                                                 (item["esVisibleTabs"]) && ("Cerrar Detalles")
                                             }</Button>
-                                    </div>
-                                    <div className="col-xl-3">
+                                    </div> ) }
+                                    { (!isActive) && 
+                                    ( <div className="col-xl-3">
                                         {
                                             (item["EsGestionado"] == 1) && (
                                                 <span className="text-primary"> Gestionado</span>
@@ -109,7 +118,8 @@ export default function CardContainerEventos() {
                                                 }} >Gestionar</Button>
                                             )
                                         }
-                                    </div>
+                                    </div>)}
+                                   
                                 </div>
 
                                 {
@@ -122,7 +132,7 @@ export default function CardContainerEventos() {
                                             <Tab eventKey="videos" title={`Videos (${Object.entries(mediaurls).length})`}>
                                                 <span>
                                                     
-                                            {
+                                            {    (mediaurls != null) &&
                                                      Object.entries(mediaurls).map((element, index) => {
 
                                                         return (
@@ -161,5 +171,6 @@ export default function CardContainerEventos() {
         </>
     );
 }
+export {CardContainerEventos}
 
 
