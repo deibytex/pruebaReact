@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosPromise, AxiosResponse } from "axios";
 import { ReactElement, useEffect, useState } from "react";
 import { Link } from 'react-router-dom';
 import confirmarDialog from './ConfirmDialog'
@@ -13,18 +13,23 @@ export default function IndiceEntidad<T>(props: indiceEntidadProps<T>) {
     const [recordsPorPagina, setRecordsPorPagina] = useState(10);
     const [pagina, setPagina] = useState(1);
 
-    useEffect(() => {
-        cargarDatos();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [pagina, recordsPorPagina])
+    
+        useEffect(() => {
+            cargarDatos();
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, [pagina, recordsPorPagina])
 
     function cargarDatos() {
-        axios.get(props.url, {
+        // por defecto se manda una [peticion get
+        // con los parametros en la url, se parametriza para que reciba un Axiospromise 
+        // para ejecutar cualquier peticion post, debe retornar una lista del objeto para que funcione
+        let genericRequest  =  (props.customRequest == null) ?  axios.get(props.url, {
             params: { pagina, recordsPorPagina }
-        })
-            .then((respuesta: AxiosResponse<T[]>) => {
+        }) : props.customRequest;
+       
+        genericRequest.then((respuesta: AxiosResponse<T[]>) => {
                 const totalDeRegistros =
-                    parseInt(respuesta.headers['cantidadtotalregistros'], 10);
+                    parseInt(respuesta.headers['totalregistros'], 10);                  
                 setTotalDePaginas(Math.ceil(totalDeRegistros / recordsPorPagina));
                 setEntidades(respuesta.data);
             })
@@ -50,9 +55,11 @@ export default function IndiceEntidad<T>(props: indiceEntidadProps<T>) {
     return (
         <>
             <h3>{props.titulo}</h3>
-            {props.urlCrear ?  <Link className="btn btn-primary" to={props.urlCrear}>
+            {props.urlCrear ?  (props.custonAddButton  != null) ?  
+            <button className="btn btn-primary" onClick={ () => { if(props.custonAddButton != null) props.custonAddButton(true); }} >  
+            Crear</button> :<Link className="btn btn-primary" to={props.urlCrear}>
                 Crear {props.nombreEntidad}
-            </Link> : null }
+            </Link>  : null }
 
             <div className="form-group" style={{ width: '150px' }}>
                 <label>Registros por página:</label>
@@ -89,4 +96,8 @@ interface indiceEntidadProps<T> {
         botones: (urlEditar: string, id: string) => ReactElement): ReactElement;
     titulo: string;
     nombreEntidad?: string;
+    // nueva propiedad que presonaliza el request para satisfacer los parametros complejos
+    customRequest : AxiosPromise<any> | null;
+    // nueva propiedad para personalizar los botones que se usaran en el aplicativo
+    custonAddButton :  ((arg0: boolean) => void) | null;
 }

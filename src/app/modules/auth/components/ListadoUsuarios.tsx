@@ -1,6 +1,8 @@
 
+import { ReactElement, JSXElementConstructor } from "react";
 import { Auth_EditarUsuario } from "../../../../apiurlstore";
 import IndiceEntidad from "../../../../_start/helpers/components/IndiceGeneral";
+import { PageTitle } from "../../../../_start/layout/core";
 import { UserDTO } from "../models/UserModel";
 import { USERLIST_URL } from "../redux/AuthCRUD";
 
@@ -9,10 +11,10 @@ import { USERLIST_URL } from "../redux/AuthCRUD";
 export default function IndiceUsuarios() {
     return (
         <>
+          <PageTitle > Listado Usuarios</PageTitle>
            <IndiceEntidad<UserDTO>
                 url={USERLIST_URL} urlCrear="registration" titulo="Usuarios"
-                nombreEntidad="Usuario"
-            >
+                nombreEntidad="Usuario"  customRequest={null}   custonAddButton={null}         >
                 {(usuarios, botones) => <>
                     <thead>
                         <tr>

@@ -1,14 +1,13 @@
 import axios from "axios";
-
-import { DWH_getconsultadinamicasprocedure } from "../../../../apiurlstore";
+import { CORE_getconsultadinamicas, NEP_InsertaArchivo } from "../../../../apiurlstore";
 import { ParamsEndPointDynamic } from "../../../../_start/helpers/Models/paramsConsultasDinamicas";
+import { NuevoArchivoDTO } from "../models/neptunoDirectory";
 
 
-export  function getEventosActivosPorDia(props: ParamsEndPointDynamic , body: any) {
+  export  function insertaArchivo(props: NuevoArchivoDTO ) {
     return  axios({
       method: 'post',
-      url: DWH_getconsultadinamicasprocedure,
-      data: JSON.stringify(body),
+      url: NEP_InsertaArchivo,      
       headers: { 'Content-Type': 'application/json' },
       params : props
     });

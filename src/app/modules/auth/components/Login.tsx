@@ -42,7 +42,7 @@ export function Login() {
       setLoading(true);
       setTimeout(() => {
 
-       
+       // llamdo al servidor de cor para validar el login
         login(values.email, values.password)
           .then(( data) => {    
             var decoded = jwt_decode<UserModelSyscaf>(data.data.token);      

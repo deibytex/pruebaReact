@@ -1,7 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from "react";
-import { KTSVG } from "../../../../_start/helpers";
-import { Dropdown1 } from "../../../../_start/partials";
+
 import { datosFatigue } from "../dataFatigue";
 
 

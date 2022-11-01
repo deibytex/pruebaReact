@@ -22,16 +22,20 @@ type Props = {
 
 
 const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => {
+
   const [width, setWidth] = useState("80px")
   const [activeTab, setActiveTab] = useState("#tab1");
   const [activeChart, setActiveChart] = useState<ApexCharts | undefined>();
   const [activeEvents, setactiveEvents] = useState<EventoActivo[]>([]);
+
+  // TRAE LA INFORMACION DE EVENTOS ACTIVOS POR DIA
   useEffect(() => {
 
     var params: { [id: string]: string; } = {};
-    params["Clienteids"] = "856";
+    params["Clienteids"] = "854";
     params["period"] = "102022";
-    params["Fecha"] = "20221013";
+    params["Fecha"] = "20221031";
+
     getEventosActivosPorDia({
       Clase: "FATGQueryHelper",
       NombreConsulta: "GetEventosActivosDiario"

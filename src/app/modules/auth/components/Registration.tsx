@@ -11,6 +11,7 @@ import { Col, Container, Form, Row } from "react-bootstrap-v5";
 import {  CommonAlertProvider, useCommonAlert } from "../../../../_start/helpers/components/Alert";
 
 import { AlertModal } from "../../../../_start/helpers/Models/AlertModel";
+import { PageTitle } from "../../../../_start/layout/core";
 
 const options = [
   { tipoid: "1", label: 'EMPLEADO' },
@@ -79,12 +80,8 @@ const RegistrationComponent: React.FC = () => {
     validationSchema: registrationSchema,
     onSubmit: (values, { setStatus, setSubmitting, resetForm }) => {
       setLoading(true);
-      setTimeout(() => {
-        setLoading(false);
-        
-        setError({ variant: "success", showDefault: true, Title: "Registro Usuario", Text: "Usuario Registrado Exitosamente." })
-        resetForm();
-        /*register(
+      setTimeout(() => {       
+        register(
           values.email,
           values.firstname,
           values.lastname,
@@ -93,22 +90,28 @@ const RegistrationComponent: React.FC = () => {
         )
           .then(({ data }) => {
             setLoading(false);
-
-            if(data.Exitoso)
+            if(data.Exitoso){
+              setError({ variant: "success", showDefault: true, Title: "Registro Usuario", Text: "Usuario Registrado Exitosamente." })
               resetForm();
+            }
            
           })
           .catch(() => {
             setLoading(false);
             setSubmitting(false);
             setStatus("Error al registrar usuario");
-          });*/
+             setError({ variant: "danger", showDefault: true, Title: "Registro Usuario", Text: "Error al registrar usuario." })
+          });
       }, 1000);
     },
   });
 
 
   return (
+    <>
+      <PageTitle >Nuevo Usuario</PageTitle>
+    
+   
     <Container style={{ border: '2px solid gray' }}>
      
       <form
@@ -118,8 +121,7 @@ const RegistrationComponent: React.FC = () => {
         onSubmit={formik.handleSubmit}
       >
         {/* begin::Title */}
-        <div className="pb-5 pb-lg-15">
-          <h3 className="fw-bolder text-dark display-6">Nuevo Usuario</h3>
+        <div className="pb-5 pb-lg-15">         
           <p className="text-muted fw-bold fs-3">
             Creación de usuarios principales con asignación de contraseña
           </p>
@@ -362,5 +364,6 @@ const RegistrationComponent: React.FC = () => {
         {/* end::Form group */}
       </form>
     </Container>
+    </>
   );
 }

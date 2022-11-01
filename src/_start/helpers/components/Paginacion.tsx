@@ -14,6 +14,7 @@ export default function Paginacion(props: paginacionProps) {
             activo: false
         });
 
+        console.log(props)
         for (let i = 1; i <= props.cantidadTotalDePaginas; i++) {
             if (i >= props.paginaActual - props.radio && i <= props.paginaActual + props.radio) {
                 links.push({
@@ -62,12 +63,16 @@ export default function Paginacion(props: paginacionProps) {
 
     return (
         <nav>
-            <ul className="pagination justify-content-center">
+            <ul 
+            className="pagination justify-content-center"
+            >
                 {listadoLinks.map(link => <li key={link.texto}
                  onClick={() => seleccionarPagina(link)}
                  className={`page-item cursor ${obtenerClase(link)}`}
                 >
-                    <span className="page-link">{link.texto}</span>
+                    <span 
+                   className="page-link"
+                    >{link.texto}</span>
                 </li>)}
             </ul>
         </nav>

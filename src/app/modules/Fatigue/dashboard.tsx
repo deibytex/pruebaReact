@@ -34,7 +34,7 @@ export default function fatigueDashboard() {
                 <div className="col-xl-3">
                     <BaseIndicador className={"card-stretch mb-1 mb-xxl-2"}  pathIcon='' >
                         {/*Contenido que quiero mostar dentro del indicador*/}
-                        <ChartDonaVehiculo className={"card-stretch mb-3 mb-xxl-4"} titulo="Clasificacion por Flota" />
+                        <ChartDonaVehiculo className={"card-stretch mb-3 mb-xxl-4"} titulo="Clasificacion por Flota"  />
                     </BaseIndicador>
                 </div>
                 <div className="col-xl-3">
