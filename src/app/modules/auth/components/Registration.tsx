@@ -346,7 +346,7 @@ const RegistrationComponent: React.FC = () => {
             {!loading && <span className="indicator-label">Registrar</span>}
             {loading && (
               <span className="indicator-progress" style={{ display: "block" }}>
-                Please wait...{" "}
+                Cargando...{" "}
                 <span className="spinner-border spinner-border-sm align-middle ms-2"></span>
               </span>
             )}

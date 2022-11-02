@@ -1,5 +1,6 @@
 export default function Cargando(){
-    return <img src="https://media3.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif?cid=ecf05e47uz06nfdowxn0wvey36z5wxqxw36vanplm24i46fi&rid=giphy.gif" 
-        alt="loading gif"
-    />
+    return  <span className="indicator-progress" style={{ display: "block" }}>
+    Cargando...{" "}
+    <span className="spinner-border spinner-border-sm align-middle ms-2"></span>
+  </span>
 }

@@ -1,7 +1,7 @@
 import axios, { AxiosPromise, AxiosResponse } from "axios";
 import { ReactElement, useEffect, useState } from "react";
 import { Link } from 'react-router-dom';
-import confirmarDialog from './ConfirmDialog'
+import confirmarDialog, { errorDialog } from './ConfirmDialog'
 import Paginacion from './Paginacion';
 import ListadoGenerico from './ListadoGenerico'
 import Button from "./Button";
@@ -32,6 +32,8 @@ export default function IndiceEntidad<T>(props: indiceEntidadProps<T>) {
                     parseInt(respuesta.headers['totalregistros'], 10);                  
                 setTotalDePaginas(Math.ceil(totalDeRegistros / recordsPorPagina));
                 setEntidades(respuesta.data);
+            }).catch( (e) => {
+                errorDialog(e, "<i>Favor comunicarse con su administrador.</i>");
             })
     }
 

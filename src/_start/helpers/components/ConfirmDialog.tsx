@@ -1,9 +1,10 @@
 import Swal from "sweetalert2";
+import { Content } from "../../layout/components/Content";
 
 export default function confirmarDialog(
-  onConfirm: any,
-  titulo: string = "¿Desea borrar el registro?",
-  textoBotonConfirmacion: string = "Borrar"
+    onConfirm: any,
+    titulo: string = "¿Desea borrar el registro?",
+    textoBotonConfirmacion: string = "Borrar"
 ) {
     Swal.fire({
         title: titulo,
@@ -13,8 +14,34 @@ export default function confirmarDialog(
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33'
     }).then(result => {
-        if (result.isConfirmed){
+        if (result.isConfirmed) {
             onConfirm();
         }
     })
 }
+
+export function errorDialog(titulo: string, content :string) {
+    Swal.fire({
+        title: titulo,
+        html : content,
+        icon: 'error',
+        showCloseButton: true
+    });
+}
+
+export function warningDialog(titulo: string, content :string) {
+    Swal.fire({
+        title: titulo,
+        icon: 'warning',
+        showCloseButton: true
+    });
+}
+
+export function successDialog(titulo: string, content :string) {
+    Swal.fire({
+        title: titulo,
+        icon: 'success',
+        showCloseButton: true
+    });
+}
+

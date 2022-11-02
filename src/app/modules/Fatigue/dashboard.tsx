@@ -1,6 +1,5 @@
 import { ChartDonaVehiculo } from "./components/chart_dona_agrupadoCritico";
 import { BaseIndicador } from "./components/Indicadores";
-import * as React from 'react';
 import { PageTitle } from "../../../_start/layout/core";
 import { FAG_PanelCentral } from "./components/panelCentral";
 import { IndicadorGestion } from "./components/indicadorGestion";

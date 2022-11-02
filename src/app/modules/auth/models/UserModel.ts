@@ -29,7 +29,7 @@ export interface UserModel {
 }
 
 export interface UserModelSyscaf {
-  id: string;
+  Id: string;
   username: string;
   password: string | undefined;
   email: string;

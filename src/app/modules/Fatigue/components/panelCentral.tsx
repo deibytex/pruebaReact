@@ -32,7 +32,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
   useEffect(() => {
 
     var params: { [id: string]: string; } = {};
-    params["Clienteids"] = "854";
+    params["Clienteids"] = "856";
     params["period"] = "102022";
     params["Fecha"] = "20221031";
 
@@ -99,7 +99,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
               path="/media/icons/duotone/Layout/Layout-4-blocks-2.svg"
             />
           </button>
-          <TabListPanelCentral />
+         
           {/* end::Dropdown */}
         </div>
       </div>
