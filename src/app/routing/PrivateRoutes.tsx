@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from "react";
+import  { Suspense } from "react";
 import { Redirect, Route, Switch } from "react-router-dom";
 import { FallbackView } from "../../_start/partials";
 import {Bienvenidos} from "../pages/Principal"

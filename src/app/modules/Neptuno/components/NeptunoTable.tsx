@@ -8,7 +8,7 @@ import { GetInformacionCuenta, GetArchivosPorCuenta, DescargarArchivo } from "..
 import { AreaDTO, configCampoDTO } from "../models/ConfigCampoDTO";
 import { ArchivoDTO } from "../models/neptunoDirectory";
 import Moment from 'moment';
-import { CreateFileModal } from "./CreateModal";
+import { CreateFileModal } from "./CreateModalTable";
 
 
 type Params = {
@@ -25,6 +25,7 @@ const NeptunoTable: React.FC<Params> = ({ contenedor }) => {
 
             // traemos la informacion de la cuenta, que campos se van a mostrar
             GetInformacionCuenta(contenedor).then(({ data }) => {
+                console.log(data)
                 SetConfigArea(data);
                 if (data[0].CamposCapturar != null) {
                     // deserializamos el objeto para poder saber los campos que estan en la cabecera    

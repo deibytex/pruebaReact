@@ -5,14 +5,12 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 import { Col, Container, Row, Modal } from 'react-bootstrap-v5';
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { cargarArchivo, DescargarDirectorio } from "../data/dataNeptuno"
+import {  DescargarDirectorio } from "../data/dataNeptuno"
 import { PageTitle, } from "../../../../_start/layout/core";
-import { KTSVG, } from '../../../../_start/helpers';
 import { useEffect, useState } from 'react';
-import FormGroupImagen from '../../../../_start/helpers/components/FormGroupFileUpload';
 import { neptunoDirectory } from '../models/neptunoDirectory';
-import { StyledTreeItem } from '../components/StyledTreeItemProps';
-import { ModalAddFile } from './AddFileModal';
+import { StyledTreeItem } from './StyledTreeItemPropsTree';
+import { ModalAddFile } from './AddFileModalTree';
 
 
 // definimos los campos a recibir de las propiedades

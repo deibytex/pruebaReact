@@ -5,14 +5,13 @@ import { KTSVG, toAbsoluteUrl } from "../../../../_start/helpers";
 import { getEventosActivosPorDia } from "../data/dashBoardData";
 import { listTabs } from "../data/tabListPanelCentral";
 import { EventoActivo } from "../models/EventosActivos";
-import CardContainer from "./baseCard";
+import CardContainer from "./baseCard_Tab4";
+import { CardContainerEventos } from "./cardEventosDetallados_Tab3";
+import { ListaDesplegableChart } from "./ListaDesplegableChart_Tab1";
+import { FAG_TablaPanelRiesgo } from "./TablaPanelRiesgo_Tab1";
 
-import { CardContainerEventos } from "./cardEventosDetallados";
-import { ListaDesplegableChart } from "./ListaDesplegableChart";
-import { FAG_TablaPanelRiesgo } from "./TablaPanelRiesgo";
-import TabListPanelCentral from "./TabListPanelCentral";
-import { MapTab } from "./TabMap";
-import { TimeLineAlertas } from "./TimeLineAlertas";
+import { MapTab } from "./TabMap_Tab2";
+import { TimeLineAlertas } from "./TimeLineAlertas_Tab1";
 
 type Props = {
   className: string;

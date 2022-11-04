@@ -1,9 +1,9 @@
-import { ChartDonaVehiculo } from "./components/chart_dona_agrupadoCritico";
-import { BaseIndicador } from "./components/Indicadores";
+import { ChartDonaVehiculo } from "./components/chart_dona_agrupadoCritico_Pc";
+import { BaseIndicador } from "./components/Indicadores_Pc";
 import { PageTitle } from "../../../_start/layout/core";
 import { FAG_PanelCentral } from "./components/panelCentral";
-import { IndicadorGestion } from "./components/indicadorGestion";
-import { IndicadorPanelGeneral } from "./components/indicadorPanelGeneral";
+import { IndicadorGestion } from "./components/indicadorGestion_Pc";
+import { IndicadorPanelGeneral } from "./components/indicadorPanelGeneral_Pc";
 import { datosFatigue } from "./dataFatigue";
 
 

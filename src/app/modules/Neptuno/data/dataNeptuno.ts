@@ -1,8 +1,7 @@
 import axios from 'axios'
 import { NEP_DownloadFile, NEP_GetDirectory, NEP_UploadFile } from '../../../../apiurlstore';
 import { Post_getconsultadinamicas } from '../../../../_start/helpers/Axios/CoreService';
-import { AreaDTO } from '../models/ConfigCampoDTO';
-import { ArchivoDTO, neptunoDirectory, NuevoArchivoDTO } from '../models/neptunoDirectory';
+import {  neptunoDirectory } from '../models/neptunoDirectory';
 
 // descarga la informacion del nodo del tree view
 // debe pasarle la ruta tal cual como se encuentra en el blog storgare no es caseSensitive

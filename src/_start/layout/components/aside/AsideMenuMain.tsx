@@ -44,6 +44,7 @@ export function AsideMenuMain() {
           </div>
           <AsideMenuItem to="/auth/registration" title="Nuevo Usuario" hasBullet={true} iconClass="bi-people"/>
           <AsideMenuItem to="/auth/listado" title="Listado Usuario" hasBullet={true} exclusive={true} iconClass="bi-table" />
+        
 
         </>
 
