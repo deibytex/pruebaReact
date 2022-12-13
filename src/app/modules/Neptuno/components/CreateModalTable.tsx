@@ -20,6 +20,7 @@ type Props = {
     handleClose: () => void;
     camposAdicionales: configCampoDTO[];
     AreaId : number;
+
 };
 
 export const CreateFileModal: React.FC<Props> = ({ show, handleClose, camposAdicionales, AreaId }) => {

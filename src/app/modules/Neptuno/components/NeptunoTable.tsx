@@ -1,15 +1,25 @@
 import { Delete, Download, Edit } from "@mui/icons-material";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "react-bootstrap-v5";
-import InputGroupButton from "rsuite/esm/InputGroup/InputGroupButton";
-import { NEP_ConsutlaListado, NEP_EditarArchivo, NEP_InsertaArchivo } from "../../../../apiurlstore";
-import IndiceEntidad from "../../../../_start/helpers/components/IndiceGeneral";
-import { GetInformacionCuenta, GetArchivosPorCuenta, DescargarArchivo } from "../data/dataNeptuno";
+import { GetInformacionCuenta, GetArchivosPorCuenta, DescargarArchivo, UpdateEstadoArchivo } from "../data/dataNeptuno";
 import { AreaDTO, configCampoDTO } from "../models/ConfigCampoDTO";
 import { ArchivoDTO } from "../models/neptunoDirectory";
 import Moment from 'moment';
-import { CreateFileModal } from "./CreateModalTable";
 
+import MaterialReactTable, { MaterialReactTableProps, MRT_Cell, MRT_ColumnDef, MRT_Row } from 'material-react-table';
+import type {
+  ColumnFiltersState,
+  PaginationState,
+  SortingState,
+} from '@tanstack/react-table';
+import axios, { AxiosResponse } from "axios";
+import { Box, IconButton, Tooltip, Typography } from "@mui/material";
+import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/helpers/components/ConfirmDialog";
+import { CreateFileModal } from "./CreateModalTable";
+import { NEP_InsertaArchivo } from "../../../../apiurlstore";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../setup";
+import { UserModelSyscaf } from "../../auth/models/UserModel";
 
 type Params = {
     contenedor: string;
@@ -20,112 +30,362 @@ const NeptunoTable: React.FC<Params> = ({ contenedor }) => {
     const [configArea, SetConfigArea] = useState<AreaDTO[]>([]);
     const [camposHeader, SetcamposHeader] = useState<configCampoDTO[]>([]);
 
-    useEffect(() => {
-        (async () => {
+   // informacion del usuario almacenado en el sistema
+   const isAuthorized = useSelector<RootState>(
+    ({ auth }) => auth.user
+);
 
-            // traemos la informacion de la cuenta, que campos se van a mostrar
-            GetInformacionCuenta(contenedor).then(({ data }) => {
-                console.log(data)
-                SetConfigArea(data);
-                if (data[0].CamposCapturar != null) {
-                    // deserializamos el objeto para poder saber los campos que estan en la cabecera    
-                    let campos = JSON.parse(data[0].CamposCapturar) as configCampoDTO[];
-                    SetcamposHeader(campos);
-                }
-
-            }).catch((error) => {
-                console.log(error);
-
-            });
-
-        })()
-    }, []);
+// convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
+const model = (isAuthorized as UserModelSyscaf);
 
     // react hook para mostar o model de carga de archivos
     const [showFileLoad, handleshowFileLoad] = useState(false);
 
+    const [data, setData] = useState<any[]>([]);
+    const [columnas, setColumnas] = useState<MRT_ColumnDef<any>[]>([]);
+    const [isError, setIsError] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isRefetching, setIsRefetching] = useState(false);
+    const [rowCount, setRowCount] = useState(0);
+
+     //table state
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [globalFilter, setGlobalFilter] = useState('');
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const [validationErrors, setValidationErrors] = useState<{
+    [cellId: string]: string;
+  }>({});
+  useEffect(() => {
+    (async () => {
+
+        // traemos la informacion de la cuenta, que campos se van a mostrar
+        GetInformacionCuenta(contenedor).then(({ data }) => {
+            
+            SetConfigArea(data);
+            if (data[0].CamposCapturar != null) {
+                // deserializamos el objeto para poder saber los campos que estan en la cabecera    
+                let campos = JSON.parse(data[0].CamposCapturar) as configCampoDTO[];
+                SetcamposHeader(campos);
+
+                const columnasTabla: MRT_ColumnDef<any>[]
+                    =[
+                        {
+                            accessorKey: 'Nombre',
+                            header: 'Archivo',
+                            muiTableBodyCellEditTextFieldProps: ({ cell  }) => ({
+                                ...getCommonEditTextFieldProps(cell),
+                              }),
+
+                              Cell({ cell, column, row, table, }) {
+                                  return (
+                                    <Button className="btn btn-primary btn-sm" onClick={() => {
+
+                                        DescargarArchivo(row.original.Src, contenedor);
+                                    }}  > <Download />{row.original.Nombre}</Button>
+
+                                  )
+                              },
+                              size: 250
+                          }, 
+                          {
+                            accessorKey: 'Descripcion',
+                            header: 'Descripción',
+                            muiTableBodyCellEditTextFieldProps: ({ cell  }) => ({
+                                ...getCommonEditTextFieldProps(cell),
+                              }),
+                              size: 250
+                          }, 
+                          ...campos.map((campo) => 
+                          {  
+                            let insideField : MRT_ColumnDef<any> = {
+
+                                accessorKey : campo.campo,
+                                header: campo.label,                                
+                                size: 100,                                
+                                muiTableBodyCellEditTextFieldProps: ({ cell  }) => ({
+                                    ...getCommonEditTextFieldProps(cell),
+                                  })
+                            };
+                          
+
+                        
+                            return insideField;
+                         }
+                          )
+                   
+                ] ;
+               
+                setColumnas(columnasTabla)
+            
+
+            GetArchivosPorCuenta(contenedor, pagination.pageIndex, pagination.pageSize).then((respuesta: AxiosResponse<ArchivoDTO[]>) => {
+                const totalDeRegistros =
+                    parseInt(respuesta.headers['totalregistros'] ?? 10, 10);    
+                    console.log("totalDeRegistros", respuesta.headers['totalregistros'])              
+                    setRowCount(totalDeRegistros );
+
+                    // necesitamos transformar la data para que los campos dinamicos queden como columnas
+                    let datosRecibidos  = respuesta.data;
+
+                    datosRecibidos.map((item, idx) => {
+                        if(item.DatosAdicionales != null)
+                        {
+                        // deserializamos la informacion
+                         let objectData = JSON.parse(item.DatosAdicionales);
+                         Object.entries(objectData).map((element, index) => {
+                            item[element[0]] = element[1];
+                         });
+                        }
+                    });
+
+                     setData(datosRecibidos);
+                     console.log(datosRecibidos)
+
+                    
+
+            }).catch( (e) => {
+                errorDialog(e, "<i>Favor comunicarse con su administrador.</i>");
+                setIsError(true);
+   
+                    return;
+            });
+        }
+
+            // inicializamos las otras variables
+
+            setIsError(false);
+            setIsLoading(false);
+            setIsRefetching(false);
+
+        }).catch((error) => {
+            console.log(error);
+
+        });
+
+    })()
+}, [
+    columnFilters,
+    globalFilter,
+    pagination.pageIndex,
+    pagination.pageSize,
+    sorting,
+  ]);
 
 
-    return (
-        <>
+  const getCommonEditTextFieldProps = useCallback(
+    (
+      cell: MRT_Cell<any>,
+    ): MRT_ColumnDef<any>['muiTableBodyCellEditTextFieldProps'] => {
+      return {
+        error: !!validationErrors[cell.id],
+        helperText: validationErrors[cell.id],
+       /* onBlur: (event) => {
+          const isValid =
+            cell.column.id === 'email'
+              ? validateEmail(event.target.value)
+              : cell.column.id === 'age'
+              ? validateAge(+event.target.value)
+              : validateRequired(event.target.value);
+          if (!isValid) {
+            //set validation error for cell if invalid
+            setValidationErrors({
+              ...validationErrors,
+              [cell.id]: `${cell.column.columnDef.header} is required`,
+            });
+          } else {
+            //remove validation error for cell if valid
+            delete validationErrors[cell.id];
+            setValidationErrors({
+              ...validationErrors,
+            });
+          }
+        },*/
+      };
+    },
+    [validationErrors],
+  );
 
-            {/*Verificamos que la cabecera de los campos tenga datos*/}
-            {(camposHeader.length > 0) && (
+  // EDICION DE LA INFORMACION SELECCIONADA
+  const handleSaveRowEdits: MaterialReactTableProps<any>['onEditingRowSave'] =
+  async ({ exitEditingMode, row, values }) => {
+    if (!Object.keys(validationErrors).length) {
+            const submit = () => {
+            // se necesita esta forma para ser pasado al servidor los archivos cargados
+            const formData = new FormData();      
+            // transformamos el objeto a los parametros que se necesitan pasar al servidor
+            let DatosAdicionales = {};
+            camposHeader.map((element) => {
+                DatosAdicionales[element.campo] = values[element.campo]        
+            });  
 
-                <>
-                    <CreateFileModal show={showFileLoad}
-                        handleClose={() => handleshowFileLoad(false)} camposAdicionales={camposHeader} AreaId={configArea[0].AreaId} />
+            formData.append('ArchivoId', row.original['ArchivoId']);  
+            formData.append('NombreArchivo', values['Nombre']); 
+            formData.append('Descripcion', values['Descripcion']);     
+            formData.append('DatosAdicionales', JSON.stringify(DatosAdicionales));    
+            formData.append('UsuarioId', model.Id);    
+            formData.append('AreaId', configArea[0].AreaId.toString());  
+            formData.append('Peso', "0");     
+            formData.append('MovimientoId', "2");     
+           
+            
+            // datosn modificados 
+            let changesData = "";
+            Object.entries(values).map((elem) => {
 
-                    <IndiceEntidad<ArchivoDTO>
-                        url={NEP_ConsutlaListado} urlCrear="nuevo" titulo="Nuevo"
-                        nombreEntidad="Archivo" customRequest={GetArchivosPorCuenta(contenedor)} custonAddButton={handleshowFileLoad} >
-                        {(archivos, botones) => <>
-                            <thead>
-                                <tr>
+                  if(elem[1] != row.original[elem[0]])  
+                  changesData += `(Campo =${elem[0]},  Valor de ${row.original[elem[0]] } a ${elem[1] } ), `
+            }); 
 
-                                    <th></th>
-                                    <th>Archivo</th>
-                                    {
-                                        camposHeader?.map(item => {
+            formData.append('DescripcionLog', changesData);   
 
-                                            return (<th>{item.label}</th>)
-                                        })
+             axios({
+                method: 'post',
+                url: NEP_InsertaArchivo,
+                data: formData,
+                headers: { 'Content-Type': 'multipart/form-data' },
+                params: {contenedor: "-1"}
+            }).then(
+                t => {            
+                    data[row.index] = values;
+                    setData([...data]);
+                    exitEditingMode(); //required to exit editing mode and close modal
 
-                                    }
-                                    <th>Usuario Creación</th>
-                                    <th>Fecha Creación</th>
-                                    <th>Usuario Act</th>
-                                    <th>Fecha Act</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {archivos?.map(archivo =>
+                    successDialog("Datos guardados exitosamente!", "");
+                }
+            ).catch( (e) => {
+                errorDialog(e, "<i>Favor comunicarse con su administrador.</i>");
+                
+            });
+         
+           
+        };
 
-                                    <tr key={`row_${archivo.Archivoid}`}>
+        submit();
+    
+    }
+  };
+  const handleCancelRowEdits = () => {
+    setValidationErrors({});
+  };
 
-                                        <td>
-                                        <InputGroupButton key={`inputgroup_${archivo.Archivoid}`} className="boder-0">
-                                                <Button className="btn btn-secondary btn-icon btn-sm fw-bolder"> <Edit /></Button>
-                                                <Button className="btn btn-danger btn-icon btn-sm fw-bolder"> <Delete /></Button>
-                                            </InputGroupButton>
-                                        </td>
-                                        <td className="text-truncate">
-                                            <Button key={`btndescargar${archivo.Archivoid}`} className="btn btn-primary btn-sm fw-bolder" onClick={() => {
 
-                                                DescargarArchivo(archivo.Src, contenedor);
-                                            }}  > <Download />{archivo.Nombre}</Button>
+  // ELIMINA LOGICAMENTE LA INFORMACION INGRESADA
+  const handleDeleteRow = useCallback(
+    (row: MRT_Row<any>) => {
+        
+        confirmarDialog(() =>  {
+            UpdateEstadoArchivo(row.original['ArchivoId'].toString()).then(() => {
+                data.splice(row.index, 1);
+                setData([...data]);
 
-                                        </td>
-                                        {
-                                            camposHeader?.map(item => {
-                                                return (<td>{JSON.parse(archivo.DatosAdicionales)[item.campo]}</td>)
-                                            })
+                successDialog("Archivo Eliminado Exitosamente!", "");
+            }).catch( (e) => {
+                errorDialog(e, "<i>Favor comunicarse con su administrador.</i>");
+                
+            });
+        } ,  `Esta seguro que desea eliminar el archivo : ${row.getValue('Nombre')}`);
+            
+    },
+    [data],
+  );
 
-                                        }
-                                        <td>
-                                            {archivo.UsuarioActualizacion}
-                                        </td>
-                                        <td>
-                                        {Moment(archivo.FechaSistema).format('DD/MM/YYYY HH:mm:ss')}
-                                           
-                                        </td>
-                                        <td>
-                                            {archivo.UsuarioActualizacion}
-                                        </td>
-                                        <td>
-                                            {archivo.UltFechaActualizacion}
-                                        </td>
-                                    </tr>)}
-                            </tbody>
-                        </>}
+return (
 
-                    </IndiceEntidad>
-                </>
-            )}
-        </>
-    )
+    <>
+  
+    
+    <MaterialReactTable
+    displayColumnDefOptions={{
+        'mrt-row-actions': {
+          muiTableHeadCellProps: {
+            align: 'center',
+          },
+          size: 120,
+        },
+      }}
+      columns={columnas}
+      data={data}      
+      editingMode="modal" //default
+      enableColumnOrdering
+      enableEditing
+      onEditingRowSave={handleSaveRowEdits}
+      onEditingRowCancel={handleCancelRowEdits}
+      
+      muiToolbarAlertBannerProps={
+        isError
+          ? {
+              color: 'error',
+              children: 'Error al cargar información',
+            }
+          : undefined
+      }
+      onColumnFiltersChange={setColumnFilters}
+      onGlobalFilterChange={setGlobalFilter}
+      onPaginationChange={setPagination}
+      onSortingChange={setSorting}
+      rowCount={rowCount}
+      renderRowActions={({ row, table }) => (
+        <Box sx={{ display: 'flex', gap: '1rem' }}>
+          <Tooltip arrow placement="left" title="Editar">
+            <IconButton onClick={() => table.setEditingRow(row)}>
+              <Edit />
+            </IconButton>
+          </Tooltip>
+          <Tooltip arrow placement="right" title="Eliminar">
+            <IconButton color="error" onClick={() => handleDeleteRow(row)}>
+              <Delete />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      )}
+      renderTopToolbarCustomActions={() => (
+        <Button
+         className="btn btn-primary btn-xs"
+          onClick={() => handleshowFileLoad(true)}
+          variant="contained"
+        >
+          Nuevo 
+        </Button>
+      )}
+      renderDetailPanel={({ row }) => (
+        <Box
+          sx={{
+            display: 'grid',
+            margin: 'auto',
+            gridTemplateColumns: '1fr 1fr',
+            width: '100%',
+          }}
+        >
+          <Typography>Usuario Creación: {row.original.UsuarioCreacion}</Typography>
+          <Typography>Fecha Creación: { Moment(row.original.FechaSistema).format('DD/MM/YYYY HH:mm:ss') }</Typography>
+          <Typography>Usuario Actualización: {row.original.UsuarioActualizacion}</Typography>
+          <Typography>Fecha Actualización: { Moment(row.original.UltFechaActualizacion).format('DD/MM/YYYY HH:mm:ss')}</Typography>
+        </Box>
+      )}
+      state={{
+        columnFilters,
+        globalFilter,
+        isLoading,
+        pagination,
+        showAlertBanner: isError,
+        showProgressBars: isRefetching,
+        sorting,
+      }}
+    />
 
-}
+{ (configArea.length > 0) && (
+    <CreateFileModal show={showFileLoad}
+        handleClose={() => handleshowFileLoad(false)} camposAdicionales={camposHeader} AreaId={configArea[0].AreaId}  />
+)}
+
+     
+    </>
+  );
+};
 
 export { NeptunoTable }
 

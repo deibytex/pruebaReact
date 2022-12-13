@@ -17,7 +17,11 @@ export default function confirmarDialog(
         if (result.isConfirmed) {
             onConfirm();
         }
+
+        return result.isConfirmed;
     })
+
+    return false;
 }
 
 export function errorDialog(titulo: string, content :string) {

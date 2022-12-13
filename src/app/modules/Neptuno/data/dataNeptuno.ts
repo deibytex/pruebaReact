@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { NEP_DownloadFile, NEP_GetDirectory, NEP_UploadFile } from '../../../../apiurlstore';
-import { Post_getconsultadinamicas } from '../../../../_start/helpers/Axios/CoreService';
+import { Post_ExecProcedureByTipoConsulta, Post_getconsultadinamicas } from '../../../../_start/helpers/Axios/CoreService';
 import {  neptunoDirectory } from '../models/neptunoDirectory';
 
 // descarga la informacion del nodo del tree view
@@ -58,19 +58,29 @@ export async function GetInformacionCuenta(container: string) {
     params["container"] = container;
     params["EsActivo"] = "1";
     // hacemos la consulta 
-    return  await Post_getconsultadinamicas({    Clase : "NEPQueryHelper",  NombreConsulta: "GetAreaInformacion" }, params);
+    return  await Post_getconsultadinamicas({    Clase : "NEPQueryHelper",  NombreConsulta: "GetAreaInformacion", Pagina :null, RecordsPorPagina :null}, params);
 
 }
 
 
-export  function GetArchivosPorCuenta(container: string) {
+export  function GetArchivosPorCuenta(container: string,Pagina: number, RecordsPorPagina: number) {
     var params: { [id: string]: string | null; } = {};
     params["ArchivoId"] =null;
     params["container"] = container;
+ 
     // hacemos la consulta 
-    return  Post_getconsultadinamicas({    Clase : "NEPQueryHelper",  NombreConsulta: "GetArchivos" }, params);
+    return  Post_getconsultadinamicas({    Clase : "NEPQueryHelper",  NombreConsulta: "GetArchivos", Pagina , RecordsPorPagina }, params);
    
 }
+
+export  function UpdateEstadoArchivo(ArchivoId: string) {
+    var params: { [id: string]: string | null; } = {};
+    params["ArchivoId"] =ArchivoId;
+    // hacemos la consulta 
+    return  Post_ExecProcedureByTipoConsulta({    Clase : "NEPQueryHelper",  NombreConsulta: "UpdateEstadoArchivo", Pagina :null, RecordsPorPagina :null}, params);
+   
+}
+
 
 
 

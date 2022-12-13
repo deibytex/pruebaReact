@@ -38,7 +38,7 @@ export const defaultNuevoArchivoDTO: NuevoArchivoDTO = {
 
 export interface ArchivoDTO
 {
-    Archivoid : number;
+    ArchivoId : number;
     Nombre: string;
     Descripcion: string;
     Peso: number;

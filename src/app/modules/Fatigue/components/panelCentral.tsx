@@ -37,7 +37,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
 
     getEventosActivosPorDia({
       Clase: "FATGQueryHelper",
-      NombreConsulta: "GetEventosActivosDiario"
+      NombreConsulta: "GetEventosActivosDiario", Pagina : null, RecordsPorPagina : null
     },
       params).
       then((response) => {
