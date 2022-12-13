@@ -45,7 +45,9 @@ export function Login() {
        // llamdo al servidor de cor para validar el login
         login(values.email, values.password)
           .then(( data) => {    
-            var decoded = jwt_decode<UserModelSyscaf>(data.data.token);      
+            var decoded = jwt_decode<UserModelSyscaf>(data.data.token);     
+            
+           
             setLoading(false);
             dispatch(auth.actions.login(data.data.token));
             dispatch(auth.actions.fulfillUser(decoded));

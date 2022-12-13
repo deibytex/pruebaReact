@@ -40,7 +40,8 @@ export interface UserModelSyscaf {
   containerneptuno : string;
   fatigue : boolean | undefined | null ;
   auth?: AuthModel;
-  tipoClienteid?: TipoUsuario
+  tipoClienteid?: TipoUsuario;
+  menu : string
 }
 export interface UserDTO{
   id: string;
