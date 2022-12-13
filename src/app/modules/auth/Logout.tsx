@@ -12,7 +12,7 @@ export function Logout() {
 
   return (
     <Switch>
-      <Redirect to="/auth/login" />
+      <Redirect to="/" />
     </Switch>
   );
 }

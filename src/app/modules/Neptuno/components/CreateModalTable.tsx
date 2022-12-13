@@ -17,13 +17,13 @@ import { defaultNuevoArchivoDTO, NuevoArchivoDTO } from "../models/neptunoDirect
 
 type Props = {
     show: boolean;
-    handleClose: () => void;
+    handleClose: () => void;   
     camposAdicionales: configCampoDTO[];
     AreaId : number;
-
+    AfterSafe: () => void;
 };
 
-export const CreateFileModal: React.FC<Props> = ({ show, handleClose, camposAdicionales, AreaId }) => {
+export const CreateFileModal: React.FC<Props> = ({ show, handleClose, camposAdicionales, AreaId,AfterSafe }) => {
 
      // informacion del usuario almacenado en el sistema
      const isAuthorized = useSelector<RootState>(
@@ -103,9 +103,7 @@ export const CreateFileModal: React.FC<Props> = ({ show, handleClose, camposAdic
 
     const navigate = useHistory();
 
-const refreshPage = () => {
-    navigate.go(0);
-}
+
     // funcion que consulta y finaliza el trabajo
     const submit = () => {
         // se necesita esta forma para ser pasado al servidor los archivos cargados
@@ -127,7 +125,8 @@ const refreshPage = () => {
             params: {contenedor: model.containerneptuno}
         }).then(
             t => {            
-                refreshPage();
+                AfterSafe();
+                handleClose();
             }
         );
      

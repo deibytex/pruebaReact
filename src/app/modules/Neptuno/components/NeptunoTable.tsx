@@ -61,6 +61,41 @@ const NeptunoTable: React.FC<Params> = ({ contenedor }) => {
   const [validationErrors, setValidationErrors] = useState<{
     [cellId: string]: string;
   }>({});
+
+  const consultaDatos = () => {
+
+    GetArchivosPorCuenta(contenedor, pagination.pageIndex, pagination.pageSize).then((respuesta: AxiosResponse<ArchivoDTO[]>) => {
+      const totalDeRegistros =
+        parseInt(respuesta.headers['totalregistros'] ?? 10, 10);
+      console.log("totalDeRegistros", respuesta.headers['totalregistros'])
+      setRowCount(totalDeRegistros);
+
+      // necesitamos transformar la data para que los campos dinamicos queden como columnas
+      let datosRecibidos = respuesta.data;
+
+      datosRecibidos.map((item, idx) => {
+        if (item.DatosAdicionales != null) {
+          // deserializamos la informacion
+          let objectData = JSON.parse(item.DatosAdicionales);
+          Object.entries(objectData).map((element, index) => {
+            item[element[0]] = element[1];
+          });
+        }
+      });
+
+      setData(datosRecibidos);
+      console.log(datosRecibidos)
+
+
+
+    }).catch((e) => {
+      errorDialog(e, "<i>Favor comunicarse con su administrador.</i>");
+      setIsError(true);
+
+      return;
+    });
+
+  }
   useEffect(() => {
     (async () => {
 
@@ -127,38 +162,8 @@ const NeptunoTable: React.FC<Params> = ({ contenedor }) => {
             ];
 
           setColumnas(columnasTabla)
+          consultaDatos();
 
-
-          GetArchivosPorCuenta(contenedor, pagination.pageIndex, pagination.pageSize).then((respuesta: AxiosResponse<ArchivoDTO[]>) => {
-            const totalDeRegistros =
-              parseInt(respuesta.headers['totalregistros'] ?? 10, 10);
-            console.log("totalDeRegistros", respuesta.headers['totalregistros'])
-            setRowCount(totalDeRegistros);
-
-            // necesitamos transformar la data para que los campos dinamicos queden como columnas
-            let datosRecibidos = respuesta.data;
-
-            datosRecibidos.map((item, idx) => {
-              if (item.DatosAdicionales != null) {
-                // deserializamos la informacion
-                let objectData = JSON.parse(item.DatosAdicionales);
-                Object.entries(objectData).map((element, index) => {
-                  item[element[0]] = element[1];
-                });
-              }
-            });
-
-            setData(datosRecibidos);
-            console.log(datosRecibidos)
-
-
-
-          }).catch((e) => {
-            errorDialog(e, "<i>Favor comunicarse con su administrador.</i>");
-            setIsError(true);
-
-            return;
-          });
         }
 
         // inicializamos las otras variables
@@ -397,7 +402,7 @@ const NeptunoTable: React.FC<Params> = ({ contenedor }) => {
 
       {(configArea.length > 0) && (
         <CreateFileModal show={showFileLoad}
-          handleClose={() => handleshowFileLoad(false)} camposAdicionales={camposHeader} AreaId={configArea[0].AreaId} />
+          handleClose={() => {handleshowFileLoad(false); }} camposAdicionales={camposHeader} AreaId={configArea[0].AreaId}  AfterSafe ={() => { consultaDatos()}} />
       )}
 
 
