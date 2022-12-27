@@ -1,34 +1,31 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React from "react";
-
-import { datosFatigue } from "../dataFatigue";
+import moment from "moment";
+import React, { useEffect, useState } from "react";
+import { uuid } from "uuidv4";
+import { useDataFatigue } from "../core/provider";
+import { EventoActivo } from "../models/EventosActivos";
 
 
 type Props = {
     className: string;
 };
-let arrayTotal: [] = [];
+let arrayTotal: EventoActivo[] = [];
 const TimeLineAlertas: React.FC<Props> = ({ className }) => {
 
-    let dataConAlertas = datosFatigue.getTimeLine();
-    dataConAlertas.filter((m) => {
-        return (m.Estado == "Operando" && m["Alertas"].length > 0);
-    }).map((m) => {
-      
-        return m["Alertas"];
-    }).filter((m) => {
-        return (m.EsGestionado != 1);
-    }).map((m) => {
-        Array.prototype.push.apply(arrayTotal, m);
-      
-    });
-    // ordena por fecha
-   arrayTotal.sort(function(a,b){
-        // Turn your strings into dates, and then subtract them
-        // to get a value that is either negative, positive, or zero.
-        return b["horaDatetime"] -a["horaDatetime"];
-      })
-    let primeros15 = arrayTotal.slice(0, 8);
+    const {listadoEventosActivos} = useDataFatigue();
+    // creamos el estado que nos permitira reemprimir los datos si estos se han actualizado
+     const [ultimosRegistros, setUltimosRegistros] = useState<any[]>([]);
+   
+  
+    // mantenemos actualizado los registrs cuando los datos 
+    // generales se actualicen
+    useEffect(() =>{
+        arrayTotal = [];
+        (listadoEventosActivos ?? []).map((m ) => {        
+            arrayTotal.push(m);      
+        });
+        setUltimosRegistros(arrayTotal.slice(0, 8));
+    },[listadoEventosActivos])
     return (
         <div className={`card ${className}`}>
             {/* begin::Header */}
@@ -36,7 +33,7 @@ const TimeLineAlertas: React.FC<Props> = ({ className }) => {
                 <h3 className="card-title align-items-start flex-column">
                     <span className="fw-bolder text-dark fs-3">Linea Tiempo</span>
                     <span className="text-muted mt-2 fw-bold fs-6">
-                        Últimas sin gestionar
+                        Últimas Eventos Generados
                     </span>
                 </h3>
                 {/*  <div className="card-toolbar">
@@ -64,13 +61,13 @@ const TimeLineAlertas: React.FC<Props> = ({ className }) => {
                 {/* <begin::Timeline */}
                 <div className="timeline-label">
                     {
-                        primeros15.map((m) => {
+                        ultimosRegistros.map((m) => {
                               
                             return (
-                                <div className="timeline-item"  key={`timeline_${m["id"]}`}>
+                                <div className="timeline-item"  key={`timeline_${uuid()}`}>
                                     {/* begin::Label */}
                                     <div className="timeline-label fw-bolder text-gray-800 fs-6">
-                                      {m["hora"]}
+                                      {moment(m.EventDateTime).format("DD HH:mm")}
                                     </div>
                                     {/* end::Label */}
 
@@ -82,8 +79,8 @@ const TimeLineAlertas: React.FC<Props> = ({ className }) => {
 
                                     {/* begin::Content */}
                                     <div className="timeline-content d-flex">
-                                        <span className="fw-bolder text-gray-800 ps-3">{m["vehiculo"]}</span>
-                                        <span className="fw-bolder text-danger ps-2">{m["alerta"]}</span>                                        
+                                        <span className="fw-bolder text-gray-800 ps-3">{m.registrationnumber}</span>
+                                        <span className="fw-bolder text-danger ps-2">{m.descriptionevent}</span>                                        
                                     </div>
                                     {/* end::Content */}
                                 </div>

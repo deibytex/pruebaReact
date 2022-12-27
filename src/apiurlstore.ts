@@ -10,6 +10,7 @@ export const Auth_GetMenuUsuario = `${apiURL}/account/GetMenuUsuario`
 
 
 export const DWH_getconsultadinamicasprocedure = `${apiURLDWH}/portal/getconsultasdinamicasproced`
+export const DWH_GetConsultasDinamicas = `${apiURLDWH}/portal/GetConsultasDinamicas`
 export const CORE_getconsultadinamicas = `${apiURL}/Adm/GetConsultasDinamicas`
 export const CORE_ExecProcedureByTipoConsulta = `${apiURL}/Adm/ExecProcedureByTipoConsulta`
 
@@ -24,3 +25,10 @@ export const NEP_ConsutlaListado = `${apiURL}/Archivos/GetArchivos`
 export const NEP_GetDirectory = `${apiURL}/archivos/getDirectorio`
 export const NEP_UploadFile = `${apiURL}/archivos/blobservice`
 export const NEP_DownloadFile = `${apiURL}/archivos/DownloadFileFromBlob`
+
+/* CLIENTES */
+
+export const CLIENTE_GetClientes = `${apiURLDWH}/Cliente/GetClientes`//[Required] int Estado, long? ClienteId, int? ClienteIds
+
+export const ASSET_GetClientesClienteId = `${apiURLDWH}/Asset/GetAssets/ClienteId` //long? ClienteId,string UsertState
+export const ASSET_GetClientesClienteIds = `${apiURLDWH}/Asset/GetAssets/ClienteIds` //int? ClienteIds, string UsertState

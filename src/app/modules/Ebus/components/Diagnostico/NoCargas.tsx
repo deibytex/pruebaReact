@@ -1,88 +1,49 @@
-
-import MaterialReactTable, { MRT_Cell, MRT_ColumnDef } from "material-react-table";
-import { ReactElement, JSXElementConstructor, useState, useEffect } from "react";
-import { Auth_EditarUsuario } from "../../../../apiurlstore";
-
-import { PageTitle } from "../../../../_start/layout/core";
-import { UserDTO } from "../models/UserModel";
-import { getListUserByToken, USERLIST_URL } from "../redux/AuthCRUD";
+import { useEffect, useState } from "react";
+import { NoCargaDTO } from "../../models/Carga";
 import type {
     ColumnFiltersState,
     PaginationState,
     SortingState,
   } from '@tanstack/react-table';
+import { GetListadoNoCarga } from "../../data/diagnostico";
+
 import { AxiosResponse } from "axios";
-import { Box, IconButton, Tooltip } from "@mui/material";
-import { Edit } from "react-feather";
-import { EsPermitido, Operaciones, PermisosOpcion, Post_getconsultadinamicas } from "../../../../_start/helpers/Axios/CoreService";
-import { Button } from "react-bootstrap-v5";
 
+import { PageTitle } from "../../../../../_start/layout/core";
+import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
+import moment from "moment";
+import { Box, Typography } from "@mui/material";
+//Import Material React Table Translations
+import { MRT_Localization_ES } from 'material-react-table/locales/es';
 
-export default function IndiceUsuarios() {
+// construimos el contenedor
+export const NoCargas: React.FC= ({  }) => {
 
-    const [data, setData] = useState<UserDTO[]>([]);
-  
     const [isError, setIsError] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isRefetching, setIsRefetching] = useState(false);
     const [rowCount, setRowCount] = useState(0);
+    const [data, setData] = useState<NoCargaDTO[]>([]);
+      //table state
+      const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+      const [globalFilter, setGlobalFilter] = useState('');
+      const [sorting, setSorting] = useState<SortingState>([]);
+      const [pagination, setPagination] = useState<PaginationState>({
+        pageIndex: 0,
+        pageSize: 10,
+      });
+
+      const FechaInicial =   moment(new Date()).add(-1, 'days').startOf('day').add(19, 'hours').toDate();
+      const FechaFinal =    new Date();
+    //GetListadoNoCarga
   
-    //table state
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-    const [globalFilter, setGlobalFilter] = useState('');
-    const [sorting, setSorting] = useState<SortingState>([]);
-    const [pagination, setPagination] = useState<PaginationState>({
-      pageIndex: 0,
-      pageSize: 10,
-    });
-    const [validationErrors, setValidationErrors] = useState<{
-      [cellId: string]: string;
-    }>({});
-  
 
-    const columnasTabla: MRT_ColumnDef<UserDTO>[]
-    = [
-      {
-        accessorKey: 'nombres',
-        header: 'Nombres',
-        size: 250
-      },
-      {
-        accessorKey: 'email',
-        header: 'Correo',
-        size: 250
-      }
-      ,
-      {
-        accessorKey: 'perfilTexto',
-        header: 'Perfil',
-        size: 80
-      }
-      ,
-      {
-        accessorKey: 'ClienteNombre',
-        header: 'Cliente',
-        size: 80
-      }
-    ];
+    useEffect(() => {    
 
-
-    useEffect(() => {
-
-       
-
-        getListUserByToken({
-            Pagina:pagination.pageIndex,
-            RecordsPorPagina: pagination.pageSize
-        } ).then((response: AxiosResponse<UserDTO[]>) => {
+        GetListadoNoCarga("914", FechaInicial, FechaFinal).then((response: AxiosResponse<NoCargaDTO[]>) => {
                     // asignamos los datos a el user state para que se visualicen los datos
                     setData(response.data);
-                    // llamamos la informacion de los perfiles
-                    var params: { [id: string]: string | null; } = {};
-                    params["Sigla"] = "SYS_PER";
-                    params["SiglaD"] = null;
-                    Post_getconsultadinamicas({    Clase : "PortalQueryHelper",  NombreConsulta: "GetDetallesListaBySisglas", Pagina : 1 , RecordsPorPagina : 100},
-                     params)
+                    // llamamos la informacion de los perfiles            
         });
 
     },
@@ -95,23 +56,52 @@ export default function IndiceUsuarios() {
         sorting,
       ])
 
-      const permisosopcion = PermisosOpcion("Archivos");
+      
+    const columnasTabla: MRT_ColumnDef<NoCargaDTO>[]
+    = [
+      {
+        accessorKey: 'Vehiculo',
+        header: 'Vehículo',
+        size: 250
+      },
+      {
+        accessorKey: 'FechaInicioRecarga',
+        header: 'Fecha Inicio Carga ',
+        size: 250,
+        Cell({ cell, column, row, table, }) {
+           return moment(row.original.FechaInicioRecarga).format('DD/MM/YYYY HH:mm:ss')
+        },
+      }
+      ,
+      {
+        accessorKey: 'SocInicial',
+        header: 'Soc Inicial',
+        size: 80
+      }
+      
+    ];
+
+   
       return (
 
         <>
     
-          <PageTitle >ADMINISTRACIÓN - USUARIOS</PageTitle>
-          <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris ">
-            {(EsPermitido(permisosopcion, Operaciones.Adicionar)) && (<Button
-              className="btn btn-primary btn-xs col-xs-4 col-xl-1 col-md-2 mb-2 mt-1"
-             // onClick={() => handleshowFileLoad(true)}
-              variant="contained"
-            >
-              Nuevo
-            </Button>)}
-    
-          </div>
-          <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris">
+          <PageTitle >EBUS - LISTADO NO CARGA</PageTitle>
+          <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-azul  text-white mb-1">
+            <h3> Fechas Consultas</h3>
+          <Box
+                  sx={{
+                    display: 'grid',
+                    margin: 'auto',
+                    gridTemplateColumns: '1fr 1fr',
+                    width: '100%',
+                  }} 
+                >                 
+                  <Typography >Fecha Inicio: {moment(FechaInicial).format('DD/MM/YYYY HH:mm')}</Typography>                 
+                  <Typography>Fecha Fin: {moment(FechaFinal).format('DD/MM/YYYY HH:mm')}</Typography>
+                </Box>
+            </div>
+          <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-azul">
             <MaterialReactTable
               displayColumnDefOptions={{
                 'mrt-row-actions': {
@@ -142,6 +132,7 @@ export default function IndiceUsuarios() {
               onPaginationChange={setPagination}
               onSortingChange={setSorting}
               rowCount={rowCount}
+              localization={MRT_Localization_ES}
            /*   renderRowActions={({ row, table }) => (
     
                 <Box sx={{ display: 'flex', gap: '1rem' }}>
@@ -193,7 +184,4 @@ export default function IndiceUsuarios() {
     
         </>
       );
-    };
-    
-
-
+};

@@ -11,6 +11,8 @@ export function AsideMenuMain() {
   );
   // convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
   const model = (isAuthorized as UserModelSyscaf);
+
+  
   return (
     <>
       {" "}
@@ -33,9 +35,18 @@ export function AsideMenuMain() {
             <AsideMenuItem to="/fatigue/dashboard" title="DashBoard" hasBullet={true}  iconClass="bi-speedometer2"/>
             <AsideMenuItem to="/fatigue/suspendereventos" title="Suspension Eventos" hasBullet={true} iconClass="bi-speedometer2" />
             <AsideMenuItem to="/fatigue/event" title="Eventos Detallados" hasBullet={true}  iconClass="bi-speedometer2"/>
+
+            <div className="menu-item">
+              <h4 className="menu-content text-syscaf-amarillo mb-0 fs-6 fw-bold text-uppercase">
+                EBUS
+              </h4>
+            </div>
+            <AsideMenuItem to="/ebus/diagnostico" title="No Carga" hasBullet={true}  iconClass="bi-table"/>
           </>)
         }
-        <>
+
+{
+        (model.email == "yulibeth.gonzalez@syscaf.com.co") && (<>
           <div className="menu-item">
             <h4 className="menu-content text-syscaf-amarillo mb-0 fs-6 fw-bold text-uppercase">
               Administración
@@ -46,9 +57,9 @@ export function AsideMenuMain() {
           <AsideMenuItem to="/auth/listado" title="Listado Usuario" hasBullet={true} exclusive={true} iconClass="bi-table" />
         
 
-        </>
+        </>)
 
-      
+}
 
       </>
     </>

@@ -17,7 +17,7 @@ const MasterLayout: React.FC = ({ children }) => {
         <div className="page d-flex flex-row flex-column-fluid">
           <AsideDefault />
           <div
-            className="bg-light-dark wrapper d-flex flex-column flex-row-fluid"
+            className="bg-light-dark wrapper d-flex flex-column flex-row-fluid "
             id="kt_wrapper"
           >
             <HeaderWrapper />

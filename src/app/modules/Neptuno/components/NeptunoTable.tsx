@@ -5,7 +5,8 @@ import { GetInformacionCuenta, GetArchivosPorCuenta, DescargarArchivo, UpdateEst
 import { AreaDTO, configCampoDTO } from "../models/ConfigCampoDTO";
 import { ArchivoDTO } from "../models/neptunoDirectory";
 import Moment from 'moment';
-
+//Import Material React Table Translations
+import { MRT_Localization_ES } from 'material-react-table/locales/es';
 import MaterialReactTable, { MaterialReactTableProps, MRT_Cell, MRT_ColumnDef, MRT_Row } from 'material-react-table';
 import type {
   ColumnFiltersState,
@@ -324,6 +325,7 @@ const NeptunoTable: React.FC<Params> = ({ contenedor }) => {
       </div>
       <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris">
         <MaterialReactTable
+         localization={MRT_Localization_ES}
           displayColumnDefOptions={{
             'mrt-row-actions': {
               muiTableHeadCellProps: {

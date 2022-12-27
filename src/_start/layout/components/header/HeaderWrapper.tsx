@@ -67,7 +67,7 @@ export function HeaderWrapper() {
       )}
 
       {!header.fixed.desktop && !header.fixed.tabletAndMobile && (
-        <div id="kt_header" className={`header  ${classes.header}`}>
+        <div id="kt_header" className={`header  ${classes.header} `}>
           <Header></Header>
         </div>
       )}

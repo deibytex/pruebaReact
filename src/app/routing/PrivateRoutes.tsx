@@ -11,6 +11,7 @@ import PoliticaPrivacidad from "../pages/Politica/politicaprivacidad";
 import { Registration } from "../modules/auth/components/Registration";
 import { ForgotPassword } from "../modules/auth/components/ForgotPassword";
 import IndiceUsuarios from "../modules/auth/components/ListadoUsuarios";
+import { NoCargas } from "../modules/Ebus/components/Diagnostico/NoCargas";
 
 
 export function PrivateRoutes() {
@@ -34,6 +35,7 @@ export function PrivateRoutes() {
        <Route path="/auth/registration" component={Registration} /> 
        <Route path="/auth/forgot" component={ForgotPassword} /> 
        <Route path="/auth/listado" component={IndiceUsuarios} /> 
+       <Route path="/ebus/diagnostico" component={NoCargas} />
        
       </Switch>
     </Suspense>

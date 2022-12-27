@@ -1,8 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Carousel } from "bootstrap";
 import { datosFatigue, dataGeneral } from "../dataFatigue";
+import { useDataFatigue } from "../core/provider";
 
 type Props = {
   className: string;
@@ -10,8 +11,15 @@ type Props = {
 };
 
 const IndicadorPanelGeneral: React.FC<Props> = ({ className, innerPadding = "" }) => {
+  const { listadoEventosActivos, ListadoVehiculoSinOperacion } = useDataFatigue();
+  const [indicadoresCriticidad, setIndicadoresCriticidad] = useState<any>({});
+
+ 
+
+
   const carouselRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
+    setIndicadoresCriticidad(datosFatigue.getTotalPorCriticidad(listadoEventosActivos ?? [], ListadoVehiculoSinOperacion));
     const element = carouselRef.current;
     if (!element) {
       return;
@@ -21,12 +29,14 @@ const IndicadorPanelGeneral: React.FC<Props> = ({ className, innerPadding = "" }
     return function cleanUp() {
       carousel.dispose();
     };
-  }, []);
+  }, [listadoEventosActivos, ListadoVehiculoSinOperacion]);
 
-  // traemos la informacion dummy
-  let indicadoresCriticidad = datosFatigue.getTotalPorCriticidad();
 
-  return (
+
+  return (<>
+  
+    {(JSON.stringify(indicadoresCriticidad)  != '{}') && (
+ 
     <div className={`card ${className}`}>
       {/* begin::Body */}
       <div className={`card-body ${innerPadding}`}>
@@ -74,17 +84,14 @@ const IndicadorPanelGeneral: React.FC<Props> = ({ className, innerPadding = "" }
 
                 return (
 
-                  <div className={`carousel-item ${(index == 0) && "active"}`} key={`indicadorpanelgeneral_${element[1]}-${element[0]}`}>
+                  <div className={`carousel-item ${(index == 0) && "active"}`} key={`indicadorpanelgeneral_${(element[1] as any[]).length}-${element[0]}`}>
                     <div className="flex-grow-1">
                       <h3 className="fs-3 text-gray-800 text-hover-primary fw-bolder cursor-pointer">
-                        {`${element[0]}(${element[1]})`}
+                        {`${element[0]}(${(element[1] as any[]).length})`}
                       </h3>
                       <div className="row">
                         {
-                          dataGeneral.filter((f) => {
-
-                            return (f["Alerta"] == element[0] && f.Estado == "Operando")
-                          }).slice(0, 8).map((m) => {
+                          (element[1] as any[]).slice(0, 8).map((m) => {
 
                             return (
                             
@@ -113,7 +120,9 @@ const IndicadorPanelGeneral: React.FC<Props> = ({ className, innerPadding = "" }
 
 
     </div>
-  );
+)}
+</>
+);
 };
 
 export { IndicadorPanelGeneral };

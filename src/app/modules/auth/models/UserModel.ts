@@ -50,6 +50,8 @@ export interface UserDTO{
   nombres: string;
   clienteId: string | undefined | null;
   perfilId: number;
+  perfilTexto : string;
+  ClienteNombre : string;
   usuarioIdS : number | null;
   
 }

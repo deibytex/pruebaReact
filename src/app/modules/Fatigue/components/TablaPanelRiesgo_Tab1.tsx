@@ -1,8 +1,12 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { datosFatigue, dataGeneral } from "../dataFatigue";
 import "rsuite/dist/rsuite.min.css";
 import { Button, Popover, Whisper } from "rsuite";
+import { useDataFatigue } from "../core/provider";
+import _ from "lodash";
+import { Box, Typography } from "@mui/material";
+
 
 type Props = {
   className: string;
@@ -10,31 +14,59 @@ type Props = {
 };
 
 const FAG_TablaPanelRiesgo: React.FC<Props> = ({ className, innerPadding = "" }) => {
+  const { listadoEventosActivos, ListadoVehiculoSinOperacion } = useDataFatigue();
+  const [indicadoresCriticidad, setIndicadoresCriticidad] = useState<any>({});
 
-  let indicadoresCriticidad = datosFatigue.getTotalPorCriticidad();
-  indicadoresCriticidad.operandoDivididos["No Operando"] = 23;
-
-  const contenidoPopUp = (title: string) => { return  (
-    <Popover title={title}>
-      <p>This is a default Popover </p>
-      <p>Content</p>
-      <p>
-        <a>link</a>
-      </p>
-    </Popover>
-  )
-};
-  return (
-    
-    <div className={`card ${className}`}>
+  useEffect(() => {
+    setIndicadoresCriticidad(datosFatigue.getTotalPorCriticidad(listadoEventosActivos ?? [], ListadoVehiculoSinOperacion));
    
+  }, [listadoEventosActivos, ListadoVehiculoSinOperacion]);
+
+  const contenidoPopUp = (title: string, body: any | undefined | null) => {
+    if (body == null || body == undefined)
+      body = [];
+    return (
+      <Popover title={title}>
+        <h3>Eventos Identificados </h3>
+
+        <Box
+          sx={{
+            display: 'grid',
+            margin: 'auto',
+            gridTemplateColumns: '1fr 1fr',
+            width: '100%',
+          }}
+        >
+
+          {Object.entries(body).map((elemento) => {
+
+            return (
+              <>
+                <Typography>
+                  {elemento[0]}</Typography>
+                <Typography> {`: (${(elemento[1] as any[]).length})`}</Typography>
+              </>
+            )
+          })}
+
+        </Box>
+      </Popover>
+    )
+  };
+  return (<>
+  
+   {(JSON.stringify(indicadoresCriticidad)  != '{}') && (
+
+
+    <div className={`card ${className}`}>
+
       {/* begin::Header */}
       <div className={`card-header border-0 pt-5 ${innerPadding}`}>
         <h3 className="card-title align-items-start flex-column">
           <span className="card-label fw-bolder text-dark fs-3">
             Panel de Riesgo
           </span>
-          <span className="text-muted mt-2 fw-bold fs-6">{`Total Flota (${indicadoresCriticidad.TotalAlertasFlota})`}</span>
+          <span className="text-muted mt-2 fw-bold fs-6">{`Total Eventos (${indicadoresCriticidad.TotalAlertasFlota})`}</span>
         </h3>
         <div className="card-toolbar">
           <ul className="nav nav-pills nav-pills-sm nav-light">
@@ -43,13 +75,13 @@ const FAG_TablaPanelRiesgo: React.FC<Props> = ({ className, innerPadding = "" })
               Object.entries(indicadoresCriticidad.operandoDivididos).map((element, index) => {
 
                 return (
-                  <li className="nav-item" key={`itemtablapanel_${element[1]}-${element[0]}`}>
+                  <li className="nav-item" key={`itemtablapanel_${(element[1] as any[]).length}-${element[0]}`}>
                     <a
                       className={`nav-link btn btn-active-light btn-color-muted py-2 px-4 fw-bolder me-2 ${(index == 0) && "active"}`}
                       data-bs-toggle="tab"
                       href={`#kt_tab_pane_2_${index + 1}`}
                     >
-                      {`${element[0]}(${element[1]})`}
+                      {`${element[0]}(${(element[1] as any[]).length})`}
                     </a>
                   </li>
 
@@ -68,11 +100,12 @@ const FAG_TablaPanelRiesgo: React.FC<Props> = ({ className, innerPadding = "" })
 
           {
             Object.entries(indicadoresCriticidad.operandoDivididos).map((itemcritico, index) => {
-              let totalElements = itemcritico[1] as number;
+              let totalElements = (itemcritico[1] as any[]).length;
+              let elementosPorNivel = itemcritico[1] as any[];
               let dividido = Math.trunc(totalElements / 6) + 1; // total de columnas 
               return (
                 <div
-                key={`tabpanel_${index + 1}`}
+                  key={`tabpanel_${index + 1}`}
                   id={`kt_tab_pane_2_${index + 1}`}
                   role="tabpanel"
                   aria-labelledby={`kt_tab_pane_2_${index + 1}`}
@@ -97,35 +130,25 @@ const FAG_TablaPanelRiesgo: React.FC<Props> = ({ className, innerPadding = "" })
                             let inicio = (element == 1) ? 0 : 6 * (element - 1);
 
                             return (
-                              <tr  key={`tr_tabpanel_${element}`}>
-                                {
+                              <tr key={`tr_tabpanel_${element}`}>                                  {
 
-                                  dataGeneral.filter((f) => {
-
-                                    return (f["Alerta"] == itemcritico[0] && f.Estado == "Operando")
-                                  }).slice(inicio, 6 * element).map((m) => {
-
-                                    return (
-                                      <td className="px-0"  key={`td_tabpanel_${m.RegistrationNumber}`}>
-
-                                        <Whisper                                        
-                                                placement="top"
-                                                trigger="click"
-                                                controlId="control-id-click"
-                                                speaker={contenidoPopUp(m.RegistrationNumber)}
-                                                enterable
-                                              >
-                                                <Button className={`text-${m["color"]} fw-bolder bg-light-${m["color"]}  text-hover-primary fs-8`} > {m.RegistrationNumber}</Button>
-                                              </Whisper>
-                                      
-                                      
-                                      </td>
-                                    )
-
-
-                                  })
-
-                                }
+                                elementosPorNivel.slice(inicio, 6 * element).map((m) => {
+                                  let totalEventos = (m.TotalEventos == undefined) ? '' : `(${m.TotalEventos})`;
+                                  return (
+                                    <td className="px-0" key={`td_tabpanel_${m.RegistrationNumber}`}>
+                                      <Whisper
+                                        placement="top"
+                                        trigger="click"
+                                        controlId="control-id-click"
+                                        speaker={contenidoPopUp(m.RegistrationNumber, m.EventosAgrupados)}
+                                        enterable
+                                      >
+                                        <Button className={`text-${m["color"]} fw-bolder bg-light-${m["color"]}  text-hover-primary fs-8`} > {`${m.RegistrationNumber} ${totalEventos}`}</Button>
+                                      </Whisper>
+                                    </td>
+                                  )
+                                })
+                              }
                               </tr>
                             )
                           })
@@ -145,12 +168,14 @@ const FAG_TablaPanelRiesgo: React.FC<Props> = ({ className, innerPadding = "" })
 
 
 
-         
+
         </div>
       </div>
       {/* end::Body */}
     </div>
-  );
+
+)}
+</> );
 };
 
 export { FAG_TablaPanelRiesgo };

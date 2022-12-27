@@ -2,6 +2,7 @@ import ApexCharts, { ApexOptions } from "apexcharts";
 import { useEffect, useState } from "react";
 import { getCSSVariableValue } from "../../../../_start/assets/ts/_utils";
 import { KTSVG, toAbsoluteUrl } from "../../../../_start/helpers";
+import { useDataFatigue } from "../core/provider";
 import { getEventosActivosPorDia } from "../data/dashBoardData";
 import { listTabs } from "../data/tabListPanelCentral";
 import { EventoActivo } from "../models/EventosActivos";
@@ -27,32 +28,19 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
   const [activeChart, setActiveChart] = useState<ApexCharts | undefined>();
   const [activeEvents, setactiveEvents] = useState<EventoActivo[]>([]);
 
+  const {listadoEventosActivos} = useDataFatigue();
   // TRAE LA INFORMACION DE EVENTOS ACTIVOS POR DIA
   useEffect(() => {
-
-    var params: { [id: string]: string; } = {};
-    params["Clienteids"] = "856";
-    params["period"] = "102022";
-    params["Fecha"] = "20221031";
-
-    getEventosActivosPorDia({
-      Clase: "FATGQueryHelper",
-      NombreConsulta: "GetEventosActivosDiario", Pagina : null, RecordsPorPagina : null
-    },
-      params).
-      then((response) => {
-
-        setactiveEvents(response.data);
-        // cuando tengamos los datos activamos todo el trabajo pesado
-        setTab(1);
-      }).catch((e) => { console.log(e) });;
+    
+    setTab(parseInt(activeTab.replace('#tab', '')));
+    setactiveEvents(listadoEventosActivos ?? []);
   
     return function cleanUp() {
       if (activeChart) {
         activeChart.destroy();
       }
     };
-  }, []);
+  }, [listadoEventosActivos]);
 
   const setTab = (tabNumber: number) => {
     setActiveTab(`#tab${tabNumber}`);
@@ -221,7 +209,8 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
               id="tab2_content"
             >
               <div style={{ height: width }}></div>
-              <MapTab />
+              
+               {/* <MapTab /> */}
 
             </div>
             {/* end::Tab Pane 2 */}

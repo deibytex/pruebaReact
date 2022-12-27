@@ -5,6 +5,7 @@ import { KTSVG, toAbsoluteUrl } from "../../../../_start/helpers";
 
 import { getCSSVariableValue } from "../../../../_start/assets/ts/_utils";
 import { datosFatigue } from "../dataFatigue";
+import { useDataFatigue } from "../core/provider";
 
 type Props = {
   className: string;
@@ -31,23 +32,30 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "", tipo
   let labelsArray: string[] = [];
   let colorsArray: string[] = [];
   let colorsArrayLabels: string[] = [];
-  let objectdata = {};
-  if (tipoData == 1) {
-    objectdata = datosFatigue.getTotalFlota();
-    arrayChart = Object.values(objectdata);
-    labelsArray= Object.keys(objectdata);
-    colorsArray = [color1, color3];
-    colorsArrayLabels = ["success", "primary"];
-    
-  } else if (tipoData == 2) {
-    objectdata = datosFatigue.getTotalPorCriticidad().operandoDivididos;
-    arrayChart = Object.values(objectdata);
-    labelsArray= Object.keys(objectdata);
-    colorsArray = [color4, color2,color3];
-    colorsArrayLabels = ["danger", "warning", "primary"];
-  
 
+  const {vehiculosOperacion,listadoEventosActivos, ListadoVehiculoSinOperacion} = useDataFatigue() ;   
+  let objectdata = (tipoData == 1) ? vehiculosOperacion : datosFatigue.getTotalPorCriticidad(listadoEventosActivos ?? [],ListadoVehiculoSinOperacion, true);
+
+  // segun el tipo se determina que informacion se necesita
+  if(tipoData == 1)
+  arrayChart = Object.values(objectdata);
+  else 
+  // para la categorizacion por riesgo se usa el agrupado de los operando divididos 
+  // para mostrar la informacion en la dona
+  arrayChart = Object.entries(objectdata.operandoDivididos).map((element) =>{
+      return (element[1] as any[]).length;
+  });
+  
+  // se determina de que tipo se necesita la informacion para mostrarla en los indicadores
+  labelsArray= Object.keys((tipoData == 1) ? objectdata : objectdata.operandoDivididos);
+  if (tipoData == 1) {
+     colorsArray = [color1, color3];
+    colorsArrayLabels = ["success", "primary"];    
+  } else if (tipoData == 2) {   
+    colorsArray = [color4, color2,color3,color1];
+    colorsArrayLabels = ["danger", "warning", "primary", "success"]; 
   }
+
 
   useEffect(() => {
     const element = document.getElementById(
@@ -56,13 +64,16 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "", tipo
     if (!element) {
       return;
     }
-
+   
     // actualiza la informacion de la dona
-    handlerTotalDona(arrayChart.reduce((a, b) => a + b, 0));
+    let totalDona =   arrayChart.reduce((a, b) => a + b, 0);
+  
+    handlerTotalDona(totalDona);
     const options = getChartOptions(arrayChart, colorsArray, titulo, labelsArray);
     const ctx = element.getContext("2d");
     let myDoughnut: Chart | null;
-    if (ctx) {
+  
+    if (ctx && labelsArray.length > 0) {   
       myDoughnut = new Chart(ctx, options);
     }
     return function cleanUp() {
@@ -70,7 +81,7 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "", tipo
         myDoughnut.destroy();
       }
     };
-  }, []);
+  }, [vehiculosOperacion,listadoEventosActivos, ListadoVehiculoSinOperacion]);
 
   return (
     <div className={`card ${className}`}>
@@ -96,11 +107,11 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "", tipo
         <div className="d-flex justify-content-around">
 
           {
-               Object.entries(objectdata).map((entry,index) => {
-
+               Object.entries((tipoData==1) ? objectdata : objectdata.operandoDivididos).map((entry,index) => {
+                let totalCategoria  = (tipoData == 1) ? entry[1] : (entry[1] as any[]).length;
                 return (
-                  <div key={`chardonavehiculo_${entry[1]}-${entry[0]}`}>
-                  <span className="fw-bolder text-gray-800 fs-8">{ `${entry[1]}-${entry[0]}`  }</span>
+                  <div key={`chardonavehiculo_${totalCategoria}-${entry[0]} m-1`}>
+                  <span className="fw-bolder text-gray-800 fs-8">{ `${totalCategoria}-${entry[0]}`  }</span>
                   <span className={`bg-${colorsArrayLabels[index]} w-25px h-5px d-block rounded mt-1`}></span>
                 </div>
 
@@ -138,12 +149,12 @@ function getChartOptions(data: number[], colors: string[], titulo: string, label
       labels: labels,
     },
     options: {
-      cutoutPercentage: 75,
+      cutoutPercentage: 65,
       responsive: true,
       maintainAspectRatio: false,
       legend: {
         display: false,
-        position: "top",
+        position: "bottom",
       },
       title: {
         display: true,

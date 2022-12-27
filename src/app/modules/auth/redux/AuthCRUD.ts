@@ -56,7 +56,6 @@ export function getListUserByToken(PaginacionDTO: PaginacionDTO) {
   return axios({
     method: 'get',
     url: USERLIST_URL,
-    params: PaginacionDTO,
-    responseType: 'blob'
+    params: PaginacionDTO
   });
 }
