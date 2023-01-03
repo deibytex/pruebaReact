@@ -1,7 +1,7 @@
 import { Action } from "@reduxjs/toolkit";
 import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-import { put, takeLatest } from "redux-saga/effects";
+import { put,  takeEvery, takeLatest } from "redux-saga/effects";
 import {  UserModelSyscaf } from "../models/UserModel";
 
 
@@ -31,7 +31,7 @@ export interface IAuthState {
 export const reducer = persistReducer(
   { storage, key: "v100-demo1-usuario", whitelist: ["user", "accessToken"] },
   (state: IAuthState = initialAuthState, action: ActionWithPayload<IAuthState>) => {
-    console.log(action.type, "action.type")
+
     switch (action.type) {
       
       case actionTypes.Login: {
@@ -97,3 +97,5 @@ export function* saga() {
     yield put(actions.fulfillUser(user));
   });*/
 }
+
+

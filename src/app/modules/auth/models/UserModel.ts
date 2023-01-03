@@ -35,7 +35,7 @@ export interface UserModelSyscaf {
   email: string;
   Nombres: string;
   clienteid: string | undefined | null;
-  exp: number;
+  exp: Date;
   usuarioIds : number;
   containerneptuno : string;
   fatigue : boolean | undefined | null ;

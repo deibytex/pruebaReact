@@ -81,7 +81,7 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
         var params: { [id: string]: string; } = {};
         params["Clienteids"] = children;
         params["period"] = moment(FechaServidor).format("MMYYYY");
-        params["Fecha"] = moment(FechaServidor).add(-4, 'days').format("YYYYMMDD");
+        params["Fecha"] = moment(FechaServidor).add(-1, 'days').format("YYYYMMDD");
 
         getEventosActivosPorDia({
             Clase: "FATGQueryHelper",
@@ -106,7 +106,7 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
                 idinterval = window.setInterval(() => {
                     consulta(children.toString());
                     consultaEventsActivos(children.toString());
-                }, 60000)
+                }, 360000)
             }
         }
 

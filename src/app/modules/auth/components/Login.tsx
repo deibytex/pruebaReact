@@ -8,6 +8,7 @@ import * as auth from "../redux/AuthRedux";
 import { login } from "../redux/AuthCRUD";
 import jwt_decode from "jwt-decode"
 import { UserModelSyscaf } from "../models/UserModel";
+import { decode } from "querystring";
 const loginSchema = Yup.object().shape({
   email: Yup.string()
     /*.email("Wrong email format")
@@ -45,9 +46,10 @@ export function Login() {
        // llamdo al servidor de cor para validar el login
         login(values.email, values.password)
           .then(( data) => {    
-            var decoded = jwt_decode<UserModelSyscaf>(data.data.token);     
-            
-           
+            var decoded = jwt_decode<UserModelSyscaf>(data.data.token);   
+            // fecha de expiracion  
+            decoded.exp = data.data.Expiracion;
+         
             setLoading(false);
             dispatch(auth.actions.login(data.data.token));
             dispatch(auth.actions.fulfillUser(decoded));

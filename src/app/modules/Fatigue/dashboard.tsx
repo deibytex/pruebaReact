@@ -31,7 +31,7 @@ export default function fatigueDashboard() {
             */}
             <FatigueProvider>
                 <PageTitle >Fatigue App - Messer Líquidos</PageTitle>
-                <DataVehiculoOperando>864</DataVehiculoOperando>
+                <DataVehiculoOperando>862</DataVehiculoOperando>
                 {/* begin::Row */}
                 <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris">
                     <div className="col-xl-3">
