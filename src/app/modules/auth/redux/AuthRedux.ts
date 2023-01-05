@@ -16,32 +16,43 @@ export const actionTypes = {
   UserRequested: "[Request User] Action",
   UserLoaded: "[Load User] Auth API",
   SetUser: "[Set User] Action",
+  RefreshToken: "[RefreshToken] Action",
 };
 
 const initialAuthState: IAuthState = {
   user: undefined,
-  accessToken: undefined
+  accessToken: undefined,
+  refreshToken: undefined
 };
 
 export interface IAuthState {
   user?: UserModelSyscaf; 
   accessToken?: string;
+  refreshToken?: string;
 }
 
 export const reducer = persistReducer(
-  { storage, key: "v100-demo1-usuario", whitelist: ["user", "accessToken"] },
+  { storage, key: "v100-demo1-usuario", whitelist: ["user", "accessToken", "refreshToken"] },
   (state: IAuthState = initialAuthState, action: ActionWithPayload<IAuthState>) => {
 
     switch (action.type) {
       
       case actionTypes.Login: {
         const accessToken = action.payload?.accessToken;
-        return { accessToken, user: undefined };
+        const refreshToken = action.payload?.refreshToken;
+        return { accessToken, user: undefined, refreshToken };
       }
 
+      case actionTypes.RefreshToken: {
+        const accessToken = action.payload?.accessToken;
+        const refreshToken = action.payload?.refreshToken;
+        const user = action.payload?.user;
+        return { accessToken, user, refreshToken };
+      }
       case actionTypes.Register: {
         const accessToken = action.payload?.accessToken;
-        return { accessToken, user: undefined };
+        const refreshToken = action.payload?.refreshToken;
+        return { accessToken, user: undefined , refreshToken};
       }
 
       case actionTypes.Logout: {
@@ -70,10 +81,10 @@ export const reducer = persistReducer(
 );
 
 export const actions = {
-  login: (accessToken: string) => ({ type: actionTypes.Login, payload: { accessToken } }),
-  register: (accessToken: string) => ({
+  login: (accessToken: string, refreshToken : string) => ({ type: actionTypes.Login, payload: { accessToken ,refreshToken} }),
+  register: (accessToken: string, refreshToken : string) => ({
     type: actionTypes.Register,
-    payload: { accessToken },
+    payload: { accessToken,refreshToken },
   }),
   logout: () => ({ type: actionTypes.Logout }),
   requestUser: () => ({
@@ -81,20 +92,22 @@ export const actions = {
   }),
   fulfillUser: (user: UserModelSyscaf) => ({ type: actionTypes.UserLoaded, payload: { user } }),
   setUser: (user: UserModelSyscaf) => ({ type: actionTypes.SetUser, payload: { user } }),
+  setRefreshToken: (user: UserModelSyscaf, accessToken: string, refreshToken : string) => ({ type: actionTypes.RefreshToken, payload: { user , accessToken, refreshToken} }),
 };
 
 export function* saga() {
   yield takeLatest(actionTypes.Login, function* loginSaga() {
     yield put(actions.requestUser());
+ 
   });
 
   yield takeLatest(actionTypes.Register, function* registerSaga() {
-    yield put(actions.requestUser());
+    yield put(actions.requestUser());   
   });
 
- /*yield takeLatest(actionTypes.UserRequested, function* userRequested() {
-    const { data: user } = yield getUserByToken();
-    yield put(actions.fulfillUser(user));
+ 
+/*yield takeLatest(actionTypes.UserRequested, function* userRequested() {
+     
   });*/
 }
 

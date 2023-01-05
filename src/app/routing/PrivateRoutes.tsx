@@ -3,7 +3,7 @@ import { Redirect, Route, Switch } from "react-router-dom";
 import { FallbackView } from "../../_start/partials";
 import {Bienvenidos} from "../pages/Principal"
 import Neptuno from "../modules/Neptuno/index"
-import fatigueDashboard from "../modules/Fatigue/dashboard";
+import FatigueDashboard from "../modules/Fatigue/dashboard";
 import { useSelector } from "react-redux";
 import { RootState } from "../../setup";
 import { UserModelSyscaf } from "../modules/auth/models/UserModel";
@@ -29,7 +29,7 @@ export function PrivateRoutes() {
         
         <Redirect exact from="/" to="/bienvenido" />     
         {
-          (model.fatigue != null) && (  <Route path="/fatigue/dashboard" component={fatigueDashboard} />    )
+          (model.fatigue != null) && (  <Route path="/fatigue/dashboard" component={FatigueDashboard} />    )
         }
        <Route path="/politicaprivacidad" component={PoliticaPrivacidad} /> 
        <Route path="/auth/registration" component={Registration} /> 

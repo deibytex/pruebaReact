@@ -7,12 +7,13 @@ const apiURLDWH = process.env.REACT_APP_API_DWH_URL;
 export const Auth_EditarUsuario = `${apiURL}/account/editar`
 export const Auth_ModificarPassword = `${apiURL}/account/RessetPassword`
 export const Auth_GetMenuUsuario = `${apiURL}/account/GetMenuUsuario`
+export const Auth_RefreshToken = `${apiURL}/account/refresh-token`
 
 
 export const DWH_getconsultadinamicasprocedure = `${apiURLDWH}/portal/getconsultasdinamicasproced`
 export const DWH_GetConsultasDinamicas = `${apiURLDWH}/portal/GetConsultasDinamicas`
-export const CORE_getconsultadinamicas = `${apiURL}/Adm/GetConsultasDinamicas`
-export const CORE_ExecProcedureByTipoConsulta = `${apiURL}/Adm/ExecProcedureByTipoConsulta`
+export const CORE_getconsultadinamicas = `${apiURL}/Adm/auth/GetConsultasDinamicas`
+export const CORE_ExecProcedureByTipoConsulta = `${apiURL}/Adm/auth/ExecProcedureByTipoConsulta`
 
 
 

@@ -4,6 +4,7 @@ import { CORE_ExecProcedureByTipoConsulta, CORE_getconsultadinamicas } from "../
 import { UserModelSyscaf } from "../../../app/modules/auth/models/UserModel";
 import { RootState } from "../../../setup";
 import { ParamsEndPointDynamic } from "../Models/paramsConsultasDinamicas";
+import jwt_decode from "jwt-decode"
 
 export function Post_getconsultadinamicas(props: ParamsEndPointDynamic, body: any) {
   return axios({
@@ -102,5 +103,28 @@ export enum Operaciones {
   Ingresar = "ING", 
   Consultar = "SEARCH", 
   Modificar = "UPD"
+}
+
+
+export const  isRefresh = (accessToken : string) => {
+  const decoded =  jwt_decode<any>(accessToken)    
+  // verifica que el token no haya espirado, si falta unos minutos antes de 
+  // expirar refresca el token para que continue navegando
+  // el token se refresca cada 30 minutos esto con el fin de que se vuelva a loguer 
+  // para poder volver a ver la informacion
+  let diffTime = ((decoded.exp * 1000)  -Date.now()  ) / 60000; // determinamos los minutos que faltan para cumplirse el tiempo de expiracion
+   console.log(diffTime , (diffTime >= 0 && diffTime <= 10))
+  return (diffTime >= 0 && diffTime <= 10) ;  // si esta dentro de los 10  minutos refrescamos el token de lo contrario se debera loguear nuevamente 
+}
+
+export const  isExpire = (accessToken : string) => {
+  const decoded =  jwt_decode<any>(accessToken)    
+  // verifica que el token no haya espirado, si falta unos minutos antes de 
+  // expirar refresca el token para que continue navegando
+  // el token se refresca cada 30 minutos esto con el fin de que se vuelva a loguer 
+  // para poder volver a ver la informacion
+   let diffTime = ((decoded.exp * 1000)  -Date.now()  ) / 60000; // determinamos los minutos que faltan para cumplirse el tiempo de expiracion
+   console.log(diffTime , (diffTime >= 0 && diffTime <= 10))
+  return (diffTime < 0) ;  // si esta dentro de los 10  minutos refrescamos el token de lo contrario se debera loguear nuevamente 
 }
 

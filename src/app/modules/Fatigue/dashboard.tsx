@@ -5,9 +5,9 @@ import { FAG_PanelCentral } from "./components/panelCentral";
 import { IndicadorGestion } from "./components/indicadorGestion_Pc";
 import { IndicadorPanelGeneral } from "./components/indicadorPanelGeneral_Pc";
 import { datosFatigue } from "./dataFatigue";
-import { DataVehiculoOperando, FatigueProvider } from "./core/provider";
+import { DataVehiculoOperando, FatigueProvider, useDataFatigue } from "./core/provider";
 
-export default function fatigueDashboard() {
+export default function FatigueDashboard() {
     let arrayTotal: [] = [];
     let arrayTotalSinGestionar: any[] = [];
     let dataConAlertas = datosFatigue.getTimeLine();
@@ -21,6 +21,7 @@ export default function fatigueDashboard() {
     arrayTotalSinGestionar = arrayTotal.filter((m) => {
         return (m["EsGestionado"] != 1);
     });
+    const { iserror } = useDataFatigue();
 
     return (
 
@@ -29,6 +30,8 @@ export default function fatigueDashboard() {
              * nos garantiza que todos los datos que se obtengan sus hijos tengan acceso a consultarlo sin necesidad de pasarlo
              * con parametros o sesiones
             */}
+
+
             <FatigueProvider>
                 <PageTitle >Fatigue App - Messer Líquidos</PageTitle>
                 <DataVehiculoOperando>862</DataVehiculoOperando>

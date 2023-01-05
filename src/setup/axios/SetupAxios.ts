@@ -1,20 +1,77 @@
+import { isExpire, isRefresh } from "../../_start/helpers/Axios/CoreService";
+import * as auth from "../../app/modules/auth/redux/AuthRedux";
+import { Auth_RefreshToken } from "../../apiurlstore";
+import axios from "axios";
 import jwt_decode from "jwt-decode"
+import { UserModelSyscaf } from "../../app/modules/auth/models/UserModel";
 
+// resetea el token 
+async function resetTokenAndReattemptRequest(error: any, store: any) {
+  const { dispatch } = store;
+  const {
+    auth: { accessToken, refreshToken }
+  } = store.getState();
+  try {
 
+    const { response: errorResponse } = error;
+    if (!refreshToken) {
+      return Promise.reject("No existe resset token");
+    }
+ 
 
+    if (!isAlreadyFetchingAccessToken) {
+      isAlreadyFetchingAccessToken = true;
 
+  
+        return await axios.post(Auth_RefreshToken, { AccessToken :accessToken, RefreshToken: refreshToken }).then(
+
+        (data) => {
+          // adiciona una nuevas credenciales de refresco
+          if (!data.data) {
+            const newTokens = data.data;
+            var decoded = jwt_decode<UserModelSyscaf>(newTokens.token);
+            // fecha de expiracion  
+            decoded.exp = newTokens.Expiracion;
+            dispatch(auth.actions.setRefreshToken(decoded, newTokens.token, newTokens.refreshToken));
+            isAlreadyFetchingAccessToken = false;
+            onAccessTokenFetched(newTokens);  
+
+            document.location.reload();
+            
+          }         
+        }
+      ).catch( (error) => {
+        // si hay algun error debe desloguearse y reiniciar la aplicacion
+        console.log("refreshtiken", error)
+        document.location.replace('/logout');
+      })
+      
+      
+    
+    }
+    
+  } catch (err) {
+    return Promise.reject(err);
+  }
+}
+let isAlreadyFetchingAccessToken = false;
+let subscribers: any[] = [];
+
+function onAccessTokenFetched(tokens: any) {
+  subscribers.forEach(callback => callback(tokens));
+  subscribers = [];
+}
+
+function addSubscriber(callback: (tokens: any) => void) {
+  subscribers.push(callback);
+}
+function isTokenExpiredError(errorResponse: any) {
+  if (errorResponse.status === 401) {
+    return true
+  }
+}
 
 export default function setupAxios(axios: any, store: any) {
- 
-  const isRefresh = (accessToken : string) => {
-    const decoded =  jwt_decode<any>(accessToken)    
-    // verifica que el token no haya espirado, si falta unos minutos antes de 
-    // expirar refresca el token para que continue navegando
-    // el token se refresca cada 30 minutos esto con el fin de que se vuelva a loguer 
-    // para poder volver a ver la informacion
-     let diffTime = (Date.now() - (decoded.exp * 1000) ) / 60000; // determinamos los minutos que faltan para cumplirse el tiempo de expiracion
-    return (diffTime >= 0 && diffTime <= 10) ;  // si esta dentro de los 10  minutos refrescamos el token de lo contrario se debera loguear nuevamente 
-  }
 
   // cada vez que se hace una peticion se ejecuta este interceptor que verifica si se deba refrescar el token o que 
   // se le adicione el access token a todas las peticiones.
@@ -23,21 +80,26 @@ export default function setupAxios(axios: any, store: any) {
       const {
         auth: { accessToken }
       } = store.getState();
-      
-      if (accessToken) {  
-        // verifica si se tiene que volver a refrescar el token y se debe actualizar los datos en el store 
-        // para que actualice informacion claims, menu y los datos que se trae
-        if(isRefresh(accessToken)){
-           return; // EN  IMPLEMENTACION
-         }   
-       
-        config.headers.Authorization = `Bearer ${accessToken}`;      
-      }
 
-     
+      if (accessToken) {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+      }
       return config;
     },
     (err: any) => Promise.reject(err)
+  );
+
+  axios.interceptors.response.use(
+    function (response: any) {
+      return response
+    },
+    function (error: any) {
+      const errorResponse = error.response;
+      if (isTokenExpiredError(errorResponse)) {
+        return resetTokenAndReattemptRequest(errorResponse, store);
+      }
+      return Promise.reject(error);
+    }
   );
 
 }

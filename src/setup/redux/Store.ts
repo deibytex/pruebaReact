@@ -1,10 +1,13 @@
-import {configureStore, getDefaultMiddleware} from "@reduxjs/toolkit";
+import {Action, configureStore, getDefaultMiddleware} from "@reduxjs/toolkit";
 import createSagaMiddleware from "redux-saga";
 import {reduxBatch} from "@manaflair/redux-batch";
 import {persistStore} from "redux-persist";
 import {rootReducer, rootSaga} from "./RootReducer";
+import { takeEvery, takeLatest } from "redux-saga/effects";
+import { useDispatch } from "react-redux";
 
 const sagaMiddleware = createSagaMiddleware();
+const JWTMiddleware = createSagaMiddleware();
 const middleware = [
   ...getDefaultMiddleware({
     immutableCheck: false,
@@ -13,6 +16,7 @@ const middleware = [
   }),
   sagaMiddleware
 ];
+middleware.push(JWTMiddleware);
 
 const store = configureStore({
   reducer: rootReducer,
@@ -30,6 +34,15 @@ export type AppDispatch = typeof store.dispatch
 export const persistor = persistStore(store);
 
 sagaMiddleware.run(rootSaga);
+JWTMiddleware.run(jwtSaga);
+
+function* jwtSaga() {
+
+  yield takeEvery("*", function* registerToken (action : Action<string>) {
+    console.log(action, store.getState())
+ });
+  
+};
 
 
 

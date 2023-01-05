@@ -1,22 +1,26 @@
 import moment from "moment";
 import { createContext, useContext, useEffect, useState } from "react";
+import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
 import { FechaServidor } from "../../../../_start/helpers/Helper";
 import { getEventosActivosPorDia, getVehiculosOperando } from "../data/dashBoardData";
 import { EventoActivo } from "../models/EventosActivos";
 
 export interface FatigueContextModel {
     vehiculosOperacion?: any;
-    setvehiculosOperacion: (vehiculos: any) => void;  
-    listadoEventosActivos? : EventoActivo[];
+    setvehiculosOperacion: (vehiculos: any) => void;
+    listadoEventosActivos?: EventoActivo[];
     setlistadoEventosActivos: (eventos: EventoActivo[]) => void;
-    ListadoVehiculoSinOperacion? :  any[];
+    ListadoVehiculoSinOperacion?: any[];
     setListadoVehiculoSinOperacion: (lstvehiculos: any[]) => void;
+    iserror?: any;
+    setError: (error: any) => void;
 }
 
 const FatigueContext = createContext<FatigueContextModel>({
-    setvehiculosOperacion: (vehiculos: any) => { },   
+    setvehiculosOperacion: (vehiculos: any) => { },
     setlistadoEventosActivos: (eventos: EventoActivo[]) => { },
-    setListadoVehiculoSinOperacion: (lstvehiculos: any[]) => {}
+    setListadoVehiculoSinOperacion: (lstvehiculos: any[]) => { },
+    setError: (error: any) => { }
 });
 
 
@@ -24,13 +28,14 @@ const FatigueProvider: React.FC = ({ children }) => {
     const [vehiculosOperacion, setvehiculosOperacion] = useState<any>({});
     const [listadoEventosActivos, setlistadoEventosActivos] = useState<EventoActivo[]>([]);
     const [ListadoVehiculoSinOperacion, setListadoVehiculoSinOperacion] = useState<any[]>([]);
+    const [iserror, setError] = useState<any>({});
     const value: FatigueContextModel = {
         vehiculosOperacion,
         setvehiculosOperacion,
         listadoEventosActivos,
         setlistadoEventosActivos,
         ListadoVehiculoSinOperacion,
-        setListadoVehiculoSinOperacion
+        setListadoVehiculoSinOperacion, iserror, setError
     };
     return (
         <FatigueContext.Provider value={value}>
@@ -48,10 +53,10 @@ function useDataFatigue() {
 // segun parametrización que debe realizarse
 
 const DataVehiculoOperando: React.FC = ({ children }) => {
-    const { setvehiculosOperacion, setlistadoEventosActivos,setListadoVehiculoSinOperacion } = useDataFatigue();
+    const { setvehiculosOperacion, setlistadoEventosActivos, setListadoVehiculoSinOperacion, setError, iserror } = useDataFatigue();
     let idinterval: number = 0;
 
- 
+
     //CONSULTA VEHICULOS OPERANDO
     let consulta = (children: string) => {
         // consultamos en la base de datos la informacion de vehiculos operando
@@ -59,7 +64,7 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
 
             (response) => {
                 let datos = response.data[0];
-                console.log(datos)
+
                 // traemos la informacion del  objeto a traer y la seteamos 
                 // al objeto que tendrá la información en el contexto                 
                 setvehiculosOperacion({
@@ -70,8 +75,7 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
             }
 
         ).catch((error) => {
-
-            console.log("Error en traer informacion chart vehiculos operando", error)
+            setError({ accion: "DataVehiculoOperando", error });
         })
 
     }
@@ -85,29 +89,34 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
 
         getEventosActivosPorDia({
             Clase: "FATGQueryHelper",
-            NombreConsulta: "GetEventosActivosDiario", Pagina : null, RecordsPorPagina : null
-          },
+            NombreConsulta: "GetEventosActivosDiario", Pagina: null, RecordsPorPagina: null
+        },
             params).
             then((response) => {
-          
+
                 setlistadoEventosActivos(response.data);
-              // cuando tengamos los datos activamos todo el trabajo pesado
-             
-            }).catch((e) => { console.log(e) });;
+                // cuando tengamos los datos activamos todo el trabajo pesado
+
+            }).catch((e) => {
+                setError({ accion: "consultaEventsActivos", error: "No hay datos para este cliente" });
+                errorDialog("Consulta eventos Activos", "No hay datos que mostrar");
+            });;
 
     }
-  
+
     useEffect(() => {
-        
+
         if (children) {
             consulta(children.toString());
             consultaEventsActivos(children.toString());
-            if (idinterval === 0) {
-                idinterval = window.setInterval(() => {
-                    consulta(children.toString());
-                    consultaEventsActivos(children.toString());
-                }, 360000)
-            }
+            // si no tiene error hace el interval
+            if (iserror === null || iserror === undefined)
+                if (idinterval === 0) {
+                    idinterval = window.setInterval(() => {
+                        consulta(children.toString());
+                        consultaEventsActivos(children.toString());
+                    }, 360000)
+                }
         }
 
         return () => {

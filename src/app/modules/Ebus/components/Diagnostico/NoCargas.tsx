@@ -77,6 +77,11 @@ export const NoCargas: React.FC= ({  }) => {
         accessorKey: 'SocInicial',
         header: 'Soc Inicial',
         size: 80
+      },
+      {
+        accessorKey: 'Clasificacion',
+        header: 'Clasificación',
+        size: 80
       }
       
     ];

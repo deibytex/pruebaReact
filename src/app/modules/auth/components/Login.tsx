@@ -48,16 +48,16 @@ export function Login() {
           .then(( data) => {    
             var decoded = jwt_decode<UserModelSyscaf>(data.data.token);   
             // fecha de expiracion  
-            decoded.exp = data.data.Expiracion;
+            decoded.exp = data.data.Expiracion;       
          
             setLoading(false);
-            dispatch(auth.actions.login(data.data.token));
+            dispatch(auth.actions.login(data.data.token, data.data.refreshToken));
             dispatch(auth.actions.fulfillUser(decoded));
           })
           .catch((e) => {          
             setLoading(false);
             setSubmitting(false);
-            setStatus("Los detalles del login es incorrecto");
+            setStatus("Los detalles del login son incorrecto");
           
               seterrorLogin( (e.response != null)  ? e.response.data : e.toString())
                
