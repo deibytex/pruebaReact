@@ -11,3 +11,10 @@ export interface EventoActivo {
     Longitud: number;
 
 }
+
+export interface ClientesFatiga 
+{
+    ClienteIdS : number; 
+    ClienteId : number; 
+    clienteNombre : string;
+}

@@ -107,6 +107,7 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
     useEffect(() => {
 
         if (children) {
+        
             consulta(children.toString());
             consultaEventsActivos(children.toString());
             // si no tiene error hace el interval

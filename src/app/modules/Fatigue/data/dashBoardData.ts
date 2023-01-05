@@ -33,15 +33,11 @@ export  function getEventosActivosPorDia(props: ParamsEndPointDynamic , body: an
     });
   }
 
-  export  function GetClientesFatiga( ClienteIds: string, Fecha : Date) {
-
+  export  function GetClientesFatiga( ) {
     var params: { [id: string]: string | null; } = {};
-    params["ClienteIds"] =ClienteIds;
-    params["Fecha"] = moment(Fecha).format("YYYYMMDD");
- 
     return  axios({
       method: 'post',
-      url: DWH_getconsultadinamicasprocedure,
+      url: DWH_getconsultadinamicasprocedure,   
       data: JSON.stringify(params),
       headers: { 'Content-Type': 'application/json' },
       params : { Clase: "FATGQueryHelper" , NombreConsulta : "GetClientesFatiga" }
