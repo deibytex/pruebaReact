@@ -84,7 +84,7 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
     let consultaEventsActivos = (children: string) => {
         var params: { [id: string]: string; } = {};
         params["Clienteids"] = children;
-        params["period"] = moment(FechaServidor).format("MMYYYY");
+        params["period"] = moment(FechaServidor).format("MYYYY");
         params["Fecha"] = moment(FechaServidor).add(-1, 'days').format("YYYYMMDD");
 
         getEventosActivosPorDia({
