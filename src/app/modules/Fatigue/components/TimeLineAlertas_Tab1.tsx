@@ -67,7 +67,7 @@ const TimeLineAlertas: React.FC<Props> = ({ className }) => {
                                 <div className="timeline-item"  key={`timeline_${uuid()}`}>
                                     {/* begin::Label */}
                                     <div className="timeline-label fw-bolder text-gray-800 fs-6">
-                                      {moment(m.EventDateTime).format("DD HH:mm")}
+                                      {moment(m.EventDateTime).format("HH:mm")}
                                     </div>
                                     {/* end::Label */}
 
@@ -78,9 +78,10 @@ const TimeLineAlertas: React.FC<Props> = ({ className }) => {
                                     {/* end::Badge */}
 
                                     {/* begin::Content */}
-                                    <div className="timeline-content d-flex">
+                                    <div className="timeline-content d-flex text-truncate">
                                         <span className="fw-bolder text-gray-800 ps-3">{m.registrationnumber}</span>
-                                        <span className="fw-bolder text-danger ps-2">{m.descriptionevent}</span>                                        
+                                        <span className="fw-bolder text-danger ps-2">{m.descriptionevent}</span>  
+                                                                    
                                     </div>
                                     {/* end::Content */}
                                 </div>

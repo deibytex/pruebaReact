@@ -17,6 +17,13 @@ import { Console } from "console";
 export default function FatigueDashboard() {
     const [lstClientes, setLstClientes] = useState<ClientesFatiga[]>([]);
     const [clienteSeleccionado, setclienteSeleccionado] = useState<ClientesFatiga>();
+    const [tipoSeguimiento, settipoSeguimiento] = useState<number>(0);
+
+    let TiposSeguimientos: any[] = [];
+    TiposSeguimientos.push({ TipoId: 1, Tipo : "Eventos"});
+    TiposSeguimientos.push({ TipoId: 2, Tipo : "Alarmas"});
+
+
     let arrayTotal: [] = [];
     let arrayTotalSinGestionar: any[] = [];
     let dataConAlertas = datosFatigue.getTimeLine();
@@ -50,15 +57,29 @@ export default function FatigueDashboard() {
                     let cliente = lstClientes.filter((value, index) => {
                         return value.ClienteIdS === Number.parseInt(e.currentTarget.value)
 
-                    })
-                   
+                    })                   
                     setclienteSeleccionado(cliente[0])
                 }} aria-label="Default select example">
-                    <option>Seleccione el Cliente</option>
+                    <option>Seleccione</option>
                     {
                         lstClientes.map((element) => {
                                 let flag = (element.ClienteIdS === clienteSeleccionado?.ClienteIdS)
                             return (<option selected={flag} value={element.ClienteIdS}>{element.clienteNombre}</option>)
+                        })
+                    }
+                </Form.Select>               
+        );
+    }
+    function TipoSeguiminento() {
+        return (           
+                <Form.Select   className=" mb-3 " onChange={(e) => {                   
+                    settipoSeguimiento(Number.parseInt(e.currentTarget.value))
+                }} aria-label="Default select example">
+                    <option>Seleccione</option>
+                    {
+                        TiposSeguimientos.map((element) => {
+                                let flag = (element.TipoId === tipoSeguimiento)
+                            return (<option selected={flag} value={element.TipoId}>{element.Tipo}</option>)
                         })
                     }
                 </Form.Select>               
@@ -77,11 +98,16 @@ export default function FatigueDashboard() {
                 <PageTitle >Fatigue App </PageTitle>
                 <DataVehiculoOperando>{clienteSeleccionado?.ClienteIdS}</DataVehiculoOperando>
                 {/* begin::Row */}
-                <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris">
+                <div className=" card-stretch row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris">
                
-                <div className="d-inline-flex col-xl-12">
-                <h3 className="text-white m-3">Cliente:</h3>
+                <div className="d-inline-flex col-xl-6">
+                <h6 className="text-white m-3">Cliente:</h6>
                   <CargaListadoClientes/>
+                  </div>
+                
+                <div className="d-inline-flex col-xl-6">
+                <h6 className="text-white m-3">Tipo:</h6>
+                  <TipoSeguiminento/>
                   </div>
                 </div>
                 <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris">

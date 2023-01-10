@@ -5,6 +5,7 @@ import { FechaServidor } from "../../../../_start/helpers/Helper";
 import { getEventosActivosPorDia, getVehiculosOperando } from "../data/dashBoardData";
 import { EventoActivo } from "../models/EventosActivos";
 
+// clase con los funciones  y datos a utiilizar
 export interface FatigueContextModel {
     vehiculosOperacion?: any;
     setvehiculosOperacion: (vehiculos: any) => void;
