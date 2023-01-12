@@ -6,7 +6,7 @@ const apiURLDWH = process.env.REACT_APP_API_DWH_URL;
 
 export const Auth_EditarUsuario = `${apiURL}/account/editar`
 export const Auth_ModificarPassword = `${apiURL}/account/RessetPassword`
-export const Auth_GetMenuUsuario = `${apiURL}/account/GetMenuUsuario`
+export const Auth_GetMenuUsuario = `${apiURL}/account/react/GetMenuUsuario`
 export const Auth_RefreshToken = `${apiURL}/account/refresh-token`
 
 
