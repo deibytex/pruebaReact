@@ -92,8 +92,11 @@ export default function setupAxios(axios: any, store: any) {
     (err: any) => Promise.reject(err)
   );
 
-  /*axios.interceptors.response.use(
-    function (response: any) {
+  /*
+  por algunar azon no funcionas
+  axios.interceptors.response.use(
+    
+    unction (response: any) {
       return response
     },
     function (error: any) {
@@ -104,7 +107,7 @@ export default function setupAxios(axios: any, store: any) {
       }
       return Promise.reject(error);
     }
-  );*/
+  );*/ 
 
 }
 
