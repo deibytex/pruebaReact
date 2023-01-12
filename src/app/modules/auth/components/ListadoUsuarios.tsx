@@ -1,5 +1,6 @@
 
 import MaterialReactTable, { MRT_Cell, MRT_ColumnDef } from "material-react-table";
+import { MRT_Localization_ES } from 'material-react-table/locales/es';
 import { ReactElement, JSXElementConstructor, useState, useEffect } from "react";
 import { Auth_EditarUsuario } from "../../../../apiurlstore";
 
@@ -137,6 +138,7 @@ export default function IndiceUsuarios() {
                   }
                   : undefined
               }
+              localization={MRT_Localization_ES}
               onColumnFiltersChange={setColumnFilters}
               onGlobalFilterChange={setGlobalFilter}
               onPaginationChange={setPagination}

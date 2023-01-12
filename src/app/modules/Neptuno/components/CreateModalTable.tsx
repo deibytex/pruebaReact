@@ -353,7 +353,8 @@ export const CreateFileModal: React.FC<Props> = ({ show, handleClose, camposAdic
                                         {
 
                                             camposAdicionales.map((campos) => {
-                                                return (<div className="fv-row mb-12">
+                                                return (
+                                                <div className="fv-row mb-12" key={`campos--${campos.campo}`}>
                                                     <label className="fs-6 fw-bolder text-dark form-label">
                                                         {campos.label}
                                                     </label>
@@ -374,7 +375,7 @@ export const CreateFileModal: React.FC<Props> = ({ show, handleClose, camposAdic
                                                     />
 
                                                 {!data.DatosAdicionales[campos.campo] && hasError && (
-                                                <div className="fv-plugins-message-container">
+                                                <div   key={`validacion-campos-${campos.campo}`} className="fv-plugins-message-container">
                                                     <div
                                                         data-field="appname"
                                                         data-validator="notEmpty"
@@ -428,14 +429,14 @@ export const CreateFileModal: React.FC<Props> = ({ show, handleClose, camposAdic
                                         {
                                                  camposAdicionales.map((campos) => {
                                                     return (
-                                                    <>
+                                                    
                                                     <div  key={`complete_${campos.campo}`}>
                                                         <h4 className="fw-bolder mb-3">{campos.label}</h4>
                                                         <div className="text-gray-600 fw-bold lh-lg mb-8">
                                                             <div>{data.DatosAdicionales[campos.campo]}</div>
                                                         </div>
                                                         </div>
-                                                        </>
+                                                        
                                                   )
     
                                                 })

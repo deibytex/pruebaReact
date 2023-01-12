@@ -14,6 +14,7 @@ import IndiceUsuarios from "../modules/auth/components/ListadoUsuarios";
 import { NoCargas } from "../modules/Ebus/components/Diagnostico/NoCargas";
 
 
+
 export function PrivateRoutes() {
    // informacion del usuario almacenado en el sistema
    const isAuthorized = useSelector<RootState>(
@@ -29,7 +30,11 @@ export function PrivateRoutes() {
         
         <Redirect exact from="/" to="/bienvenido" />     
         {
-          (model.fatigue != null) && (  <Route path="/fatigue/dashboard" component={FatigueDashboard} />    )
+          (model.fatigue != null) && (  
+            <>
+            <Route path="/fatigue/dashboard" component={FatigueDashboard} /> 
+            </>
+           )
         }
        <Route path="/politicaprivacidad" component={PoliticaPrivacidad} /> 
        <Route path="/auth/registration" component={Registration} /> 

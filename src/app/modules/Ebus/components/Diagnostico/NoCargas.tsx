@@ -17,7 +17,7 @@ import { Box, Typography } from "@mui/material";
 import { MRT_Localization_ES } from 'material-react-table/locales/es';
 
 // construimos el contenedor
-export const NoCargas: React.FC= ({  }) => {
+export function NoCargas (){
 
     const [isError, setIsError] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -76,6 +76,10 @@ export const NoCargas: React.FC= ({  }) => {
       {
         accessorKey: 'SocInicial',
         header: 'Soc Inicial',
+        size: 80
+      },{
+        accessorKey: 'Soc',
+        header: 'Soc Final',
         size: 80
       },
       {

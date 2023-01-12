@@ -60,3 +60,16 @@ export interface TipoUsuario {
   id: number;
   descripcion: string;
 }
+
+
+export interface Opciones{
+nombreOpcion : string;
+accion: string;
+controlador: string;
+logo: string;
+esVisible : true;
+lstOperacion : any[];
+parametrosAdicionales : string;
+opcionPadreId: number;
+opcionId : number;
+}

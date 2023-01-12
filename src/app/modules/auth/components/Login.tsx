@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { useDispatch } from "react-redux";
 import * as Yup from "yup";
 import clsx from "clsx";
@@ -8,7 +8,7 @@ import * as auth from "../redux/AuthRedux";
 import { login } from "../redux/AuthCRUD";
 import jwt_decode from "jwt-decode"
 import { UserModelSyscaf } from "../models/UserModel";
-import { decode } from "querystring";
+
 const loginSchema = Yup.object().shape({
   email: Yup.string()
     /*.email("Wrong email format")
@@ -52,7 +52,7 @@ export function Login() {
          
             setLoading(false);
             dispatch(auth.actions.login(data.data.token, data.data.refreshToken));
-            dispatch(auth.actions.fulfillUser(decoded));
+            dispatch(auth.actions.setUser(decoded));
           })
           .catch((e) => {          
             setLoading(false);

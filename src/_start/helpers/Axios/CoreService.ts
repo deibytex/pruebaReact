@@ -29,19 +29,17 @@ export function Post_ExecProcedureByTipoConsulta(props: ParamsEndPointDynamic, b
 
 export function EsAutorizadoIngresar(NombreOpcion: string) {
 
-  // informacion del usuario almacenado en el sistema
-  const isAuthorized = useSelector<RootState>(
-    ({ auth }) => auth.user
+  const menuString = useSelector<RootState>(
+    ({ auth }) => auth.menu
   );
 
-  // convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
-  const model = (isAuthorized as UserModelSyscaf);
-  //convertimos el objeto en un array de objeto desconocido para poder tratar los datos 
-  const menu = JSON.parse(model.menu) as any[];
+  const menu = menuString as any[];
+  
   let tienePermiso = false;
+
   menu.map((elemnt) => {
 
-    const nombre: string = elemnt["NombreOpcion"];
+    const nombre: string = elemnt["nombreOpcion"];
     if (nombre.toLowerCase() === NombreOpcion.toLowerCase()) {
 
       let operaciones = elemnt["lstOperacion"] as any[];
@@ -61,23 +59,18 @@ export function EsAutorizadoIngresar(NombreOpcion: string) {
 export function PermisosOpcion(NombreOpcion: string) {
 
   // informacion del usuario almacenado en el sistema
-  const isAuthorized = useSelector<RootState>(
-    ({ auth }) => auth.user
+  const menuString = useSelector<RootState>(
+    ({ auth }) => auth.menu
   );
-
-  // convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
-  const model = (isAuthorized as UserModelSyscaf);
-  //convertimos el objeto en un array de objeto desconocido para poder tratar los datos 
-  const menu = JSON.parse(model.menu) as any[];
+  const menu = menuString as any[];
   let operaciones : any[]= [];
   menu.map((elemnt) => {
 
-    const nombre: string = elemnt["NombreOpcion"];
+    const nombre: string = elemnt["nombreOpcion"];
     if (nombre.toLowerCase() === NombreOpcion.toLowerCase()) {
        operaciones = elemnt["lstOperacion"] as any[];      
     }
   })
-
   return  operaciones;
   ;
 
@@ -89,7 +82,7 @@ export function EsPermitido(Operaciones : any[], operacion : string){
 let espermitido = false;
 Operaciones.map( (oper) => {
 
-    if(oper["Operacion"] === operacion)
+    if(oper["operacion"] === operacion)
     espermitido = true;
 })
 
@@ -113,7 +106,7 @@ export const  isRefresh = (accessToken : string) => {
   // el token se refresca cada 30 minutos esto con el fin de que se vuelva a loguer 
   // para poder volver a ver la informacion
   let diffTime = ((decoded.exp * 1000)  -Date.now()  ) / 60000; // determinamos los minutos que faltan para cumplirse el tiempo de expiracion
-   console.log(diffTime , (diffTime >= 0 && diffTime <= 10))
+ 
   return (diffTime >= 0 && diffTime <= 10) ;  // si esta dentro de los 10  minutos refrescamos el token de lo contrario se debera loguear nuevamente 
 }
 
@@ -124,7 +117,7 @@ export const  isExpire = (accessToken : string) => {
   // el token se refresca cada 30 minutos esto con el fin de que se vuelva a loguer 
   // para poder volver a ver la informacion
    let diffTime = ((decoded.exp * 1000)  -Date.now()  ) / 60000; // determinamos los minutos que faltan para cumplirse el tiempo de expiracion
-   console.log(diffTime , (diffTime >= 0 && diffTime <= 10))
+
   return (diffTime < 0) ;  // si esta dentro de los 10  minutos refrescamos el token de lo contrario se debera loguear nuevamente 
 }
 

@@ -26,6 +26,7 @@ async function resetTokenAndReattemptRequest(error: any, store: any) {
         return await axios.post(Auth_RefreshToken, { AccessToken :accessToken, RefreshToken: refreshToken }).then(
 
         (data) => {
+          console.log("data en refreshtoken", data)
           // adiciona una nuevas credenciales de refresco
           if (!data.data) {
             const newTokens = data.data;
@@ -33,6 +34,8 @@ async function resetTokenAndReattemptRequest(error: any, store: any) {
             // fecha de expiracion  
             decoded.exp = newTokens.Expiracion;
             dispatch(auth.actions.setRefreshToken(decoded, newTokens.token, newTokens.refreshToken));
+
+
             isAlreadyFetchingAccessToken = false;
             onAccessTokenFetched(newTokens);  
 

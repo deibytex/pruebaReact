@@ -1,67 +1,82 @@
-import { useSelector } from "react-redux";
-import { UserModelSyscaf } from "../../../../app/modules/auth/models/UserModel";
+import { useDispatch, useSelector } from "react-redux";
+import { Opciones, UserModelSyscaf } from "../../../../app/modules/auth/models/UserModel";
 import { RootState } from "../../../../setup";
 import { AsideMenuItem } from "./AsideMenuItem";
-
-
+import { useEffect, useState } from "react"
+import store from "../../../../setup/redux/Store";
+import { getMenuByUser } from "../../../../app/modules/auth/redux/AuthCRUD";
+import { errorDialog } from "../../../helpers/components/ConfirmDialog";
+import * as auth from "../../../../app/modules/auth/redux/AuthRedux";
+import { put } from "redux-saga/effects";
 export function AsideMenuMain() {
   // informacion del usuario almacenado en el sistema
   const isAuthorized = useSelector<RootState>(
     ({ auth }) => auth.user
   );
-  // convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
+
+  const menu = useSelector<RootState>(
+    ({ auth }) => auth.menu
+  );
   const model = (isAuthorized as UserModelSyscaf);
+ 
+  const [opcionesPadres, setOpciones] = useState<Opciones[]>([]);
+  const [opcionesFiltradas, setopcionesFiltradas] = useState<Opciones[]>([]);
+
+  useEffect(()=> {
+
+
+      const lstOpciones = (menu as Opciones[]);
+    
+      if(lstOpciones != undefined){
+      
+  
+        setopcionesFiltradas(lstOpciones.filter((element) => element.esVisible));
+        // opciones que son padres para poder restructurar el meniu
+      
+        setOpciones(lstOpciones.filter((element) => element.opcionPadreId == null));
+
+      }
+
 
   
+
+  }, [menu]);
+
+  // convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
+
+
+
+
+  function ImprimirHijos( padreId : number) {
+
+
+      let filterHijos = opcionesFiltradas.filter((element) => element.opcionPadreId == padreId);
+      return filterHijos.map((element) => {
+
+        return (<AsideMenuItem key={`menu-hijo-${element.opcionId}`} to={element.controlador} title={element.nombreOpcion} hasBullet={true} iconClass={element.logo} />)
+      });
+  }
+
   return (
     <>
-      {" "}
-      <>
-        <>
-          <div className="menu-item ">
+
+      {  opcionesPadres.map((element) => {
+
+        return (
+          <div key={`menu-padre${element.opcionId}`}className="menu-item ">
             <h4 className="menu-content text-syscaf-amarillo mb-0 fs-6 fw-bold text-uppercase">
-              Neptuno
+              {element.nombreOpcion}
             </h4>
+
+            {/* IMPRIMIMOS LOS HIJOS DE LA SEGUNDA LINEA */}
+             { ImprimirHijos(element.opcionId)}
           </div>
-          <AsideMenuItem to="/neptuno/archivos" title="Archivos" hasBullet={true} iconClass="bi-grid" />
-        </>
-        {
-          (model.fatigue != null) && (<>
-            <div className="menu-item">
-              <h4 className="menu-content text-syscaf-amarillo mb-0 fs-6 fw-bold text-uppercase">
-                Fatigue
-              </h4>
-            </div>
-            <AsideMenuItem to="/fatigue/dashboard" title="DashBoard" hasBullet={true}  iconClass="bi-speedometer2"/>
-            <AsideMenuItem to="/fatigue/suspendereventos" title="Suspension Eventos" hasBullet={true} iconClass="bi-speedometer2" />
-            <AsideMenuItem to="/fatigue/event" title="Eventos Detallados" hasBullet={true}  iconClass="bi-speedometer2"/>
+        )
 
-            <div className="menu-item">
-              <h4 className="menu-content text-syscaf-amarillo mb-0 fs-6 fw-bold text-uppercase">
-                EBUS
-              </h4>
-            </div>
-            <AsideMenuItem to="/ebus/diagnostico" title="No Carga" hasBullet={true}  iconClass="bi-table"/>
-          </>)
-        }
+      })}
 
-{
-        (model.email == "yulibeth.gonzalez@syscaf.com.co") && (<>
-          <div className="menu-item">
-            <h4 className="menu-content text-syscaf-amarillo mb-0 fs-6 fw-bold text-uppercase">
-              Administración
-            </h4>
-            
-          </div>
-          <AsideMenuItem to="/auth/registration" title="Nuevo Usuario" hasBullet={true} iconClass="bi-people"/>
-          <AsideMenuItem to="/auth/listado" title="Listado Usuario" hasBullet={true} exclusive={true} iconClass="bi-table" />
-        
-
-        </>)
-
-}
-
-      </>
     </>
   );
 }
+
+

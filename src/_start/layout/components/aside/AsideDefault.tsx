@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React from "react";
+
 import { Link } from "react-router-dom";
 import clsx from "clsx";
 import { useTheme } from "../../core";
@@ -7,9 +7,9 @@ import { KTSVG, toAbsoluteUrl } from "../../../helpers";
 import { AsideMenu } from "./AsideMenu";
 import { Dropdown1 } from "../../../partials";
 
+
 export function AsideDefault() {
   const { config, classes } = useTheme();
-
   return (
     <>
       {config.aside.display && (

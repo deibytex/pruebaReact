@@ -3,6 +3,7 @@ import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { put,  takeEvery, takeLatest } from "redux-saga/effects";
 import {  UserModelSyscaf } from "../models/UserModel";
+import { getMenuByUser } from "./AuthCRUD";
 
 
 export interface ActionWithPayload<T> extends Action {
@@ -14,7 +15,7 @@ export const actionTypes = {
   Logout: "[Logout] Action",
   Register: "[Register] Action",
   UserRequested: "[Request User] Action",
-  UserLoaded: "[Load User] Auth API",
+  UserLoaded: "[Load User Menu] Auth API",
   SetUser: "[Set User] Action",
   RefreshToken: "[RefreshToken] Action",
 };
@@ -22,17 +23,19 @@ export const actionTypes = {
 const initialAuthState: IAuthState = {
   user: undefined,
   accessToken: undefined,
-  refreshToken: undefined
+  refreshToken: undefined,
+  menu : undefined
 };
 
 export interface IAuthState {
   user?: UserModelSyscaf; 
   accessToken?: string;
   refreshToken?: string;
+  menu? :any[]
 }
 
 export const reducer = persistReducer(
-  { storage, key: "v100-demo1-usuario", whitelist: ["user", "accessToken", "refreshToken"] },
+  { storage, key: "usuario-sistema", whitelist: ["user", "accessToken", "refreshToken", "menu"] },
   (state: IAuthState = initialAuthState, action: ActionWithPayload<IAuthState>) => {
 
     switch (action.type) {
@@ -47,12 +50,12 @@ export const reducer = persistReducer(
         const accessToken = action.payload?.accessToken;
         const refreshToken = action.payload?.refreshToken;
         const user = action.payload?.user;
-        return { accessToken, user, refreshToken };
+        return { ...state,accessToken, user, refreshToken };
       }
       case actionTypes.Register: {
         const accessToken = action.payload?.accessToken;
         const refreshToken = action.payload?.refreshToken;
-        return { accessToken, user: undefined , refreshToken};
+        return { ...state,accessToken, user: undefined , refreshToken};
       }
 
       case actionTypes.Logout: {
@@ -65,8 +68,9 @@ export const reducer = persistReducer(
       }
 
       case actionTypes.UserLoaded: {
-        const user = action.payload?.user;
-        return { ...state, user  };
+        const menu = action.payload?.menu;
+       
+        return { ...state, menu  };
       }
 
       case actionTypes.SetUser: {
@@ -90,7 +94,7 @@ export const actions = {
   requestUser: () => ({
     type: actionTypes.UserRequested
   }),
-  fulfillUser: (user: UserModelSyscaf) => ({ type: actionTypes.UserLoaded, payload: { user } }),
+  fulfillUser: (menu :any[]) => ({ type: actionTypes.UserLoaded, payload: { menu } }),
   setUser: (user: UserModelSyscaf) => ({ type: actionTypes.SetUser, payload: { user } }),
   setRefreshToken: (user: UserModelSyscaf, accessToken: string, refreshToken : string) => ({ type: actionTypes.RefreshToken, payload: { user , accessToken, refreshToken} }),
 };
@@ -100,13 +104,15 @@ export function* saga() {
     yield put(actions.requestUser());
  
   });
-
-  yield takeLatest(actionTypes.Register, function* registerSaga() {
-    yield put(actions.requestUser());   
+ 
+  yield takeLatest(actionTypes.UserRequested, function* userRequested() {
+    const { data: user } = yield getMenuByUser();
+    
+    yield put(actions.fulfillUser(user));
   });
 
- 
-/*yield takeLatest(actionTypes.UserRequested, function* userRequested() {
+/*
+yield takeLatest(actionTypes.UserRequested, function* userRequested() {
      
   });*/
 }

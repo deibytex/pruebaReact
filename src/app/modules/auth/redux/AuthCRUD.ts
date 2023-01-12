@@ -1,6 +1,7 @@
 import axios from "axios";
 import { UserModel } from "../models/UserModel";
 import { PaginacionDTO } from "../../../../_start/helpers/Models/PaginacionDTO"
+import { Auth_GetMenuUsuario } from "../../../../apiurlstore";
 
 const API_URL = process.env.REACT_APP_API_URL || "api";
 
@@ -46,7 +47,13 @@ export function requestPassword(email: string) {
 export function getUserByToken() {
   // Authorization head should be fulfilled in interceptor.
   // Check common redux folder => setupAxios
-  return axios.get<UserModel>(GET_USER_BY_ACCESSTOKEN_URL);
+  return axios.get<any>(GET_USER_BY_ACCESSTOKEN_URL);
+}
+
+export function getMenuByUser() {
+  // Authorization head should be fulfilled in interceptor.
+  // Check common redux folder => setupAxios
+  return axios.get<any[]>(Auth_GetMenuUsuario,{ params: { EsReact : true}});
 }
 
 // retorna el listado de usuarios que se mostrara en la aplicacion
