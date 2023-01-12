@@ -99,7 +99,8 @@ export default function setupAxios(axios: any, store: any) {
     function (error: any) {
       const errorResponse = error.response;
       if (isTokenExpiredError(errorResponse)) {
-        return resetTokenAndReattemptRequest(errorResponse, store);
+        document.location.replace('/logout');
+        //return resetTokenAndReattemptRequest(errorResponse, store);
       }
       return Promise.reject(error);
     }
