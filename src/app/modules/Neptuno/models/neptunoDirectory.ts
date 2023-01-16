@@ -50,4 +50,5 @@ export interface ArchivoDTO
     UsuarioActualizacion: string|null;
     UltFechaActualizacion: Date|null;
     UsuarioCreacion: string|null;
+    EsActivo: boolean;
 }

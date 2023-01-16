@@ -468,7 +468,7 @@ export const CreateFileModal: React.FC<Props> = ({ show, handleClose, camposAdic
                                             data-kt-stepper-action="submit"
                                             onClick={submit}
                                         >
-                                            Submit{" "}
+                                            Guardar{" "}
                                             <KTSVG
                                                 path="/media/icons/duotone/Navigation/Right-2.svg"
                                                 className="svg-icon-3 ms-2"

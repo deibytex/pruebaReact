@@ -1,0 +1,1 @@
+export const TituloNeptuno = "NEPTUNO - Gestor Documental.";

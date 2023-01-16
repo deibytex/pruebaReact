@@ -67,6 +67,7 @@ export  function GetArchivosPorCuenta(container: string,Pagina: number, RecordsP
     var params: { [id: string]: string | null; } = {};
     params["ArchivoId"] =null;
     params["container"] = container;
+    params["EsActivo"] = null;
  
     // hacemos la consulta 
     return  Post_getconsultadinamicas({    Clase : "NEPQueryHelper",  NombreConsulta: "GetArchivos", Pagina , RecordsPorPagina }, params);

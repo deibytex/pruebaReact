@@ -26,22 +26,14 @@ export function PrivateRoutes() {
     <Suspense fallback={<FallbackView />}>
       <Switch>
          <Route path="/bienvenido" component={Bienvenidos} />       
-        <Route path="/neptuno/archivos" component={Neptuno} />      
-        
+        <Route path="/neptuno/archivos" component={Neptuno} />    
         <Redirect exact from="/" to="/bienvenido" />     
-        {
-          (model.fatigue != null) && (  
-            <>
-            <Route path="/fatigue/dashboard" component={FatigueDashboard} /> 
-            </>
-           )
-        }
+       <Route path="/fatigue/dashboard" component={FatigueDashboard} /> 
        <Route path="/politicaprivacidad" component={PoliticaPrivacidad} /> 
        <Route path="/auth/registration" component={Registration} /> 
        <Route path="/auth/forgot" component={ForgotPassword} /> 
        <Route path="/auth/listado" component={IndiceUsuarios} /> 
-       <Route path="/ebus/diagnostico" component={NoCargas} />
-       
+       <Route path="/ebus/diagnostico" component={NoCargas} />       
       </Switch>
     </Suspense>
   );

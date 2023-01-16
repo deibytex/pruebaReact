@@ -23,6 +23,7 @@ import { RootState } from "../../../../setup";
 import { UserModelSyscaf } from "../../auth/models/UserModel";
 import { PageTitle } from "../../../../_start/layout/core";
 import { EsPermitido, Operaciones, PermisosOpcion } from "../../../../_start/helpers/Axios/CoreService";
+import { TituloNeptuno } from "../../../../_start/helpers/Texts/textosPorDefecto";
 
 type Params = {
   contenedor: string;
@@ -32,6 +33,7 @@ const NeptunoTable: React.FC<Params> = ({ contenedor }) => {
   // contiene la informacion de la cuenta, con los campos a utilziar  
   const [configArea, SetConfigArea] = useState<AreaDTO[]>([]);
   const [camposHeader, SetcamposHeader] = useState<configCampoDTO[]>([]);
+  const [tituloPagina, setTituloPagina]= useState<string>(TituloNeptuno);
 
   // informacion del usuario almacenado en el sistema
   const isAuthorized = useSelector<RootState>(
@@ -68,7 +70,7 @@ const NeptunoTable: React.FC<Params> = ({ contenedor }) => {
     GetArchivosPorCuenta(contenedor, pagination.pageIndex, pagination.pageSize).then((respuesta: AxiosResponse<ArchivoDTO[]>) => {
       const totalDeRegistros =
         parseInt(respuesta.headers['totalregistros'] ?? 10, 10);
-      console.log("totalDeRegistros", respuesta.headers['totalregistros'])
+      console.log("totalDeRegistros", respuesta.headers)
       setRowCount(totalDeRegistros);
 
       // necesitamos transformar la data para que los campos dinamicos queden como columnas
@@ -85,10 +87,6 @@ const NeptunoTable: React.FC<Params> = ({ contenedor }) => {
       });
 
       setData(datosRecibidos);
-      console.log(datosRecibidos)
-
-
-
     }).catch((e) => {
       errorDialog(e, "<i>Favor comunicarse con su administrador.</i>");
       setIsError(true);
@@ -97,6 +95,14 @@ const NeptunoTable: React.FC<Params> = ({ contenedor }) => {
     });
 
   }
+  useEffect(() => {
+    consultaDatos();
+  },[
+    columnFilters,
+    globalFilter,
+    pagination.pageIndex,
+    pagination.pageSize,
+    sorting]);
   useEffect(() => {
     (async () => {
 
@@ -107,10 +113,16 @@ const NeptunoTable: React.FC<Params> = ({ contenedor }) => {
         if (data[0].CamposCapturar != null) {
           // deserializamos el objeto para poder saber los campos que estan en la cabecera    
           let campos = JSON.parse(data[0].CamposCapturar) as configCampoDTO[];
+          let configuracionArea =  JSON.parse(data[0].ConfiguracionArea) as any;
+           if(configuracionArea["titulo"] != null) setTituloPagina(configuracionArea["titulo"]);
+
+       
+
           SetcamposHeader(campos);
 
-          const columnasTabla: MRT_ColumnDef<any>[]
-            = [
+          let listadoCampos: MRT_ColumnDef<any>[] =
+
+           [
               {
                 accessorKey: 'Nombre',
                 header: 'Archivo',
@@ -145,27 +157,89 @@ const NeptunoTable: React.FC<Params> = ({ contenedor }) => {
               },
               ...campos.map((campo) => {
                 let insideField: MRT_ColumnDef<any> = {
-
                   accessorKey: campo.campo,
                   header: campo.label,
-                  size: 100,
                   muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
                     ...getCommonEditTextFieldProps(cell),
-                  })
+                  }),
+                  size: 100
                 };
-
-
-
                 return insideField;
               }
-              )
+              ),
+              {
+                accessorKey: 'FechaSistema',
+                header: 'Fecha Creación',
+                muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+                  ...getCommonEditTextFieldProps(cell),
+                }),
+
+                Cell({ cell, column, row, table, }) {
+                  
+                  return (
+                    <>
+                      {
+                        Moment(row.original.FechaSistema).format('DD/MM/YYYY HH:mm:ss')
+                      }  
+                    </>
+
+                  )
+                },
+                size: 100
+              }, {
+                accessorKey: 'EsActivo',
+                header: 'Estado',
+                muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+                  ...getCommonEditTextFieldProps(cell),
+                }),
+
+                Cell({ cell, column, row, table, }) {
+
+                 let label = (row.original.EsActivo) ? "Activo" : "Inactivo"
+                  return (
+                    <> {
+                      label
+                    }
+                    </>
+
+                  )
+                },
+                size: 80
+              }
 
             ];
 
-          setColumnas(columnasTabla)
-          consultaDatos();
+         
+
+          // traemos el titulo
+
+          const columnasTabla: MRT_ColumnDef<any>[]
+          = [];
+        
+          let ordenColumna =configuracionArea["ordenCol"] as string[];
+      
+          ordenColumna.map((col) => {
+
+              let columFiltrada = listadoCampos.filter((campo)=> campo["accessorKey"] === col  );
+
+            
+              if(columFiltrada[0] != undefined)
+              columnasTabla.push(columFiltrada[0]);
+          });
+        
+          setColumnas(columnasTabla);
+       
 
         }
+      /*  ,
+       
+        
+          
+        
+        */
+
+      
+
 
         // inicializamos las otras variables
 
@@ -182,11 +256,6 @@ const NeptunoTable: React.FC<Params> = ({ contenedor }) => {
 
 
   }, [
-    columnFilters,
-    globalFilter,
-    pagination.pageIndex,
-    pagination.pageSize,
-    sorting,
   ]);
 
 
@@ -312,7 +381,7 @@ const NeptunoTable: React.FC<Params> = ({ contenedor }) => {
 
     <>
 
-      <PageTitle >NEPTUNO  - Gestor Documental</PageTitle>
+      <PageTitle >{tituloPagina}</PageTitle>
       <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris ">
         {(EsPermitido(permisosopcion, Operaciones.Adicionar)) && (<Button
           className="btn btn-primary btn-xs col-xs-4 col-xl-1 col-md-2 mb-2 mt-1"
@@ -337,11 +406,13 @@ const NeptunoTable: React.FC<Params> = ({ contenedor }) => {
           columns={columnas}
           data={data}
           editingMode="modal" //default         
-          enableTopToolbar={false}
+          enableTopToolbar
           enableColumnOrdering
           enableEditing
           onEditingRowSave={handleSaveRowEdits}
           onEditingRowCancel={handleCancelRowEdits}
+          enableFilters
+          enableColumnFilters={false}
           muiToolbarAlertBannerProps={
             isError
               ? {

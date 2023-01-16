@@ -21,4 +21,5 @@ export interface AreaDTO {
     Nombre: string;
     container: string;
     CamposCapturar: string;
+    ConfiguracionArea:string;
 };
