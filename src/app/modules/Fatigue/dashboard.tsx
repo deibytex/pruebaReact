@@ -21,7 +21,7 @@ export default function FatigueDashboard() {
 
     let TiposSeguimientos: any[] = [];
     TiposSeguimientos.push({ TipoId: 1, Tipo : "Eventos"});
-    TiposSeguimientos.push({ TipoId: 2, Tipo : "Alarmas"});
+   // TiposSeguimientos.push({ TipoId: 2, Tipo : "Alarmas"});
 
 
     let arrayTotal: [] = [];
@@ -59,12 +59,12 @@ export default function FatigueDashboard() {
 
                     })                   
                     setclienteSeleccionado(cliente[0])
-                }} aria-label="Default select example">
+                }} aria-label="Default select example" defaultValue={clienteSeleccionado?.ClienteIdS} >
                     <option>Seleccione</option>
                     {
                         lstClientes.map((element) => {
-                                let flag = (element.ClienteIdS === clienteSeleccionado?.ClienteIdS)
-                            return (<option selected={flag} value={element.ClienteIdS}>{element.clienteNombre}</option>)
+                              
+                            return (<option key={`listadocliente_${element.ClienteIdS}`} value={element.ClienteIdS}>{element.clienteNombre}</option>)
                         })
                     }
                 </Form.Select>               
@@ -75,11 +75,11 @@ export default function FatigueDashboard() {
                 <Form.Select   className=" mb-3 " onChange={(e) => {                   
                     settipoSeguimiento(Number.parseInt(e.currentTarget.value))
                 }} aria-label="Default select example">
-                    <option>Seleccione</option>
+                   
                     {
                         TiposSeguimientos.map((element) => {
                                 let flag = (element.TipoId === tipoSeguimiento)
-                            return (<option selected={flag} value={element.TipoId}>{element.Tipo}</option>)
+                            return (<option key={`opcion${element.TipoId}`} selected={flag} value={element.TipoId}>{element.Tipo}</option>)
                         })
                     }
                 </Form.Select>               

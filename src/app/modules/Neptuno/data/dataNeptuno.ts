@@ -5,7 +5,7 @@ import {  neptunoDirectory } from '../models/neptunoDirectory';
 
 // descarga la informacion del nodo del tree view
 // debe pasarle la ruta tal cual como se encuentra en el blog storgare no es caseSensitive
-export async function DescargarArchivo(nombrearchivo: string, container: string) {
+export async function DescargarArchivo(nombrearchivo: string, container: string, nombreDescarga : string) {
     const FileDownload = require('js-file-download');
     await axios({
         method: 'get',
@@ -13,9 +13,10 @@ export async function DescargarArchivo(nombrearchivo: string, container: string)
         params: { nombrearchivo, container },
         responseType: 'blob'
     }).then(
-        t => {
-            const archivo = nombrearchivo?.split("/");
-            FileDownload(t.data, archivo[archivo.length - 1]);  
+        t => {    
+            nombreDescarga =   (nombreDescarga.length > 0) ? nombreDescarga : nombrearchivo;       
+            console.log(nombreDescarga , nombrearchivo)
+            FileDownload(t.data, nombreDescarga);  
         }
     ).catch((c) =>  {
         

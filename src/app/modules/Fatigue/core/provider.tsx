@@ -15,6 +15,7 @@ export interface FatigueContextModel {
     setListadoVehiculoSinOperacion: (lstvehiculos: any[]) => void;
     iserror?: any;
     setError: (error: any) => void;
+ 
 }
 
 const FatigueContext = createContext<FatigueContextModel>({
@@ -117,7 +118,7 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
                     idinterval = window.setInterval(() => {
                         consulta(children.toString());
                         consultaEventsActivos(children.toString());
-                    }, 360000)
+                    }, 120000)
                 }
         }
 

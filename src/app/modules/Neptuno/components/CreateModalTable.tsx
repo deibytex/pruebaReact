@@ -122,7 +122,7 @@ export const CreateFileModal: React.FC<Props> = ({ show, handleClose, camposAdic
             url: NEP_InsertaArchivo,
             data: formData,
             headers: { 'Content-Type': 'multipart/form-data' },
-            params: {contenedor: model.containerneptuno}
+            params: {contenedor: model.containerneptuno[1]}
         }).then(
             t => {            
                 AfterSafe();
@@ -255,13 +255,18 @@ export const CreateFileModal: React.FC<Props> = ({ show, handleClose, camposAdic
                                                 placeholder=""                                               
                                                 onChange={(e: ChangeEvent<HTMLInputElement>) => {
                                                     if( (e.target.files != null))
+                                                    {
+                                                        let NombreArchivo = e.target.files[0].name;
+
                                                     updateData({
                                                         archivo:  e.target.files[0] ,
                                                         Src:  e.target.files[0].name ,
                                                         Peso:  e.target.files[0].size ,
-                                                        NombreArchivo :  e.target.files[0].name,
+                                                        NombreArchivo :  NombreArchivo.split('.')[0],
                                                         Tipo : e.target.files[0].type,
+                                                        Extension:`.${NombreArchivo.split('.').pop()}` 
                                                     });
+                                                  }
                                                 }
                                                 }
                                             />

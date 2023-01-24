@@ -179,7 +179,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
                       className="svg-icon-1"
                     />
                   </button>
-                  <ListaDesplegableChart />
+                 
                   {/* end::Dropdown */}
         </div>
                   {/* begin::Chart */}
@@ -228,7 +228,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
 
                 {
                   // verificamos que exista datos para poder ingresar los datos en el contenedor 
-                  (activeEvents.length > 0) && (<CardContainerEventos data={activeEvents} isActive={true} isDetails={false} />)
+                  (activeEvents.length > 0) && (<CardContainerEventos isActive={true} isDetails={false} />)
                 }
               </div>
 

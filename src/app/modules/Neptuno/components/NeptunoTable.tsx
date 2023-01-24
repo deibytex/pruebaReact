@@ -26,15 +26,27 @@ import { EsPermitido, Operaciones, PermisosOpcion } from "../../../../_start/hel
 import { TituloNeptuno } from "../../../../_start/helpers/Texts/textosPorDefecto";
 
 type Params = {
-  contenedor: string;
+  contenedorString: string;
 }
 
-const NeptunoTable: React.FC<Params> = ({ contenedor }) => {
+const NeptunoTable: React.FC<Params> = ({ contenedorString }) => {
   // contiene la informacion de la cuenta, con los campos a utilziar  
   const [configArea, SetConfigArea] = useState<AreaDTO[]>([]);
   const [camposHeader, SetcamposHeader] = useState<configCampoDTO[]>([]);
   const [tituloPagina, setTituloPagina]= useState<string>(TituloNeptuno);
 
+  // verificamos que el contenedor sea un o varios debemos determinar que
+  // o es uno que será un string o varios un array de strings
+  let contenedor : string = "";
+  if(Array.isArray(contenedorString))
+  {
+
+    contenedor =contenedorString[1]; 
+  }
+  else
+  contenedor =contenedorString; 
+
+ console.log(contenedor);
   // informacion del usuario almacenado en el sistema
   const isAuthorized = useSelector<RootState>(
     ({ auth }) => auth.user
@@ -137,7 +149,7 @@ const NeptunoTable: React.FC<Params> = ({ contenedor }) => {
                     <>
                       {(EsPermitidoxx) ? (<Button className="btn btn-primary btn-sm" onClick={() => {
 
-                        DescargarArchivo(row.original.Src, contenedor);
+                        DescargarArchivo(row.original.Src, contenedor, (row.original.Nombre + row.original.Extension));
                       }}  > <Download />{row.original.Nombre}</Button>) : (<div>{row.original.Nombre}</div>)}
 
 
@@ -170,10 +182,6 @@ const NeptunoTable: React.FC<Params> = ({ contenedor }) => {
               {
                 accessorKey: 'FechaSistema',
                 header: 'Fecha Creación',
-                muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-                  ...getCommonEditTextFieldProps(cell),
-                }),
-
                 Cell({ cell, column, row, table, }) {
                   
                   return (
@@ -188,11 +196,7 @@ const NeptunoTable: React.FC<Params> = ({ contenedor }) => {
                 size: 100
               }, {
                 accessorKey: 'EsActivo',
-                header: 'Estado',
-                muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
-                  ...getCommonEditTextFieldProps(cell),
-                }),
-
+                header: 'Estado',           
                 Cell({ cell, column, row, table, }) {
 
                  let label = (row.original.EsActivo) ? "Activo" : "Inactivo"

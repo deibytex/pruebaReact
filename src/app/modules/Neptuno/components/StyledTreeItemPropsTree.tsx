@@ -93,7 +93,7 @@ export function StyledTreeItem(props: StyledTreeItemProps) {
                                     }}
                                     onSubmit={
                                         values => {
-                                            DescargarArchivo(src, container);
+                                            DescargarArchivo(src, container, "");
                                         }
                                     } >
                                     <Form>

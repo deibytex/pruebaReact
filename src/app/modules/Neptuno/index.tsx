@@ -14,6 +14,8 @@ export default function Neptuno() {
     // convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
     const model = (isAuthorized as UserModelSyscaf);
 
+
+
     if (model.containerneptuno) {
 
         return (
@@ -24,7 +26,7 @@ export default function Neptuno() {
 
                 ) : (
                     <> 
-                        <NeptunoTable contenedor={model.containerneptuno} />
+                        <NeptunoTable contenedorString={model.containerneptuno} />
                     </>
                 )}
             </>

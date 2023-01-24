@@ -20,6 +20,7 @@ export interface NuevoArchivoDTO
     MovimientoId: number;
     DatosAdicionales: any;
     archivo : any  |null;
+    Extension : string;
 }
 
 export const defaultNuevoArchivoDTO: NuevoArchivoDTO = {
@@ -32,7 +33,8 @@ export const defaultNuevoArchivoDTO: NuevoArchivoDTO = {
     Src: "",
     MovimientoId: 1,  
     DatosAdicionales: { },
-    archivo: null
+    archivo: null,
+    Extension : ""
 };
   
 
@@ -43,6 +45,7 @@ export interface ArchivoDTO
     Descripcion: string;
     Peso: number;
     Tipo: string;
+    Extension: string;
     Orden: number |null;
     Src: string;
     DatosAdicionales: string;

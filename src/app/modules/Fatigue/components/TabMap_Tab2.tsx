@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import { Icon } from "leaflet";
 import { datamapa } from "../dataFatigue";
-import { eventos } from "../dataFatigue";
-export function MapTab() {
+import { useDataFatigue } from "../core/provider";
+import { EventoActivo } from "../models/EventosActivos";
 
-    const [dataEventos, handlerdataEventos] = useState<any[]>(eventos);
+export function MapTab() {
+    const {listadoEventosActivos} = useDataFatigue();
+    const [dataEventos, handlerdataEventos] = useState<EventoActivo[]>(listadoEventosActivos ?? []);
     const here = {
         apiKey: 'h7cWVY3eEiZeilhreUhv07kKMJMizDl6elWoN7cb8wg'
     }
@@ -20,7 +22,7 @@ export function MapTab() {
         iconSize: [25, 25]
     });
     const [map, setMap] = useState<any>(null);
-    const [activePark, setActivePark] = useState<any>(null);
+    const [activePark, setActivePark] = useState<EventoActivo>();
 
 
     setTimeout(function () {      
@@ -29,7 +31,7 @@ export function MapTab() {
     }, 1000);
 
     return (
-        <MapContainer id="mapcontainter" center={[dataEventos[0]["Latitud"], dataEventos[0]["Longitud"]]} zoom={15}
+        <MapContainer id="mapcontainter" center={[dataEventos[0].Latitud, dataEventos[0].Longitud]} zoom={15}
             whenCreated={setMap}
         >
             <TileLayer
@@ -38,36 +40,22 @@ export function MapTab() {
             {activePark && (
                 <Popup
                     position={[
-                        activePark["Latitud"],
-                        activePark["Longitud"]
+                        activePark.Latitud,
+                        activePark.Longitud
                     ]}
                     onClose={() => {
-                        setActivePark(null);
+                        let evento = {}
+                       // setActivePark();
                     }}
                 >
                     <div>
-                        <h2>Evento: {activePark["Evento"]}</h2>
-                        <p>Placa:{activePark["RegistrationNumber"]}</p>
-                        <p>Conductor:{activePark["driver"]}</p>
-                        <p>FechaHora:{activePark["StartDateTime"]}</p>
-                        <p>Velocidad:{activePark["SpeedKilometresPerHour"]}</p>
+                        <h2>Evento: {activePark.descriptionevent}</h2>
+                        <p>Placa:{activePark.description}</p>
+                        <p>Conductor:{activePark.name}</p>
+                        <p>FechaHora:{activePark.EventDateTime}</p>
+                        <p>Velocidad:N/A</p>
                         <p> Videos:
-                            {
-                                Object.entries(JSON.parse(activePark["MediaUrls"])).map((element, index) => {
-
-                                    return (
-                                        <a
-                                            className={`nav-link btn btn-active-light btn-color-muted py-2 px-4 fw-bolder me-2`}
-                                            target="_blank"
-                                            href={element[1] as string}
-
-                                        >
-                                            {element[0]}
-                                        </a>
-                                    )
-                                })
-
-                            }
+                           
                         </p>
                     </div>
                 </Popup>
@@ -75,10 +63,10 @@ export function MapTab() {
             {dataEventos.map(park => (
                 <Marker
 
-                    key={park["EventId"]}
+                    key={park.EventId}
                     position={[
-                        park["Latitud"],
-                        park["Longitud"]
+                        park.Latitud,
+                        park.Longitud
                     ]}
                     eventHandlers={{
                         click: (e: any) => {
