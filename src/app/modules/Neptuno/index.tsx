@@ -5,6 +5,7 @@ import { NeptunoTree } from './components/NeptunoTree';
 import { NeptunoTable } from './components/NeptunoTable';
 
 
+
 export default function Neptuno() {
     // informacion del usuario almacenado en el sistema
     const isAuthorized = useSelector<RootState>(
@@ -22,6 +23,7 @@ export default function Neptuno() {
             <>
                 {(model.containerneptuno === "serviciotecnico") ? (<>
                     <NeptunoTree contenedor={model.containerneptuno} />
+                   
                 </>
 
                 ) : (

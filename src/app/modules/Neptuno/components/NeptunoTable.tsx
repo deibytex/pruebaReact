@@ -1,7 +1,7 @@
 import { Delete, Download, Edit } from "@mui/icons-material";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Button } from "react-bootstrap-v5";
-import { GetInformacionCuenta, GetArchivosPorCuenta, DescargarArchivo, UpdateEstadoArchivo } from "../data/dataNeptuno";
+import { Button, Form } from "react-bootstrap-v5";
+import { GetInformacionCuenta, GetArchivosPorCuenta, DescargarArchivo, UpdateEstadoArchivo, ListarArchivosEstado } from "../data/dataNeptuno";
 import { AreaDTO, configCampoDTO } from "../models/ConfigCampoDTO";
 import { ArchivoDTO } from "../models/neptunoDirectory";
 import Moment from 'moment';
@@ -24,7 +24,8 @@ import { UserModelSyscaf } from "../../auth/models/UserModel";
 import { PageTitle } from "../../../../_start/layout/core";
 import { EsPermitido, Operaciones, PermisosOpcion } from "../../../../_start/helpers/Axios/CoreService";
 import { TituloNeptuno } from "../../../../_start/helpers/Texts/textosPorDefecto";
-
+import { string } from "yup/lib/locale";
+import { NeptunoProvider, useDataNeptuno } from '../../Neptuno/core/NeptunoProvider';
 type Params = {
   contenedorString: string;
 }
@@ -34,24 +35,26 @@ const NeptunoTable: React.FC<Params> = ({ contenedorString }) => {
   const [configArea, SetConfigArea] = useState<AreaDTO[]>([]);
   const [camposHeader, SetcamposHeader] = useState<configCampoDTO[]>([]);
   const [tituloPagina, setTituloPagina]= useState<string>(TituloNeptuno);
-
+const [contenedor, setcontenedor] = useState((Array.isArray(contenedorString)?contenedorString[0]:contenedorString));
+const {containerNeptuno, setcontainerNeptuno} = useDataNeptuno();
   // verificamos que el contenedor sea un o varios debemos determinar que
   // o es uno que será un string o varios un array de strings
-  let contenedor : string = "";
-  if(Array.isArray(contenedorString))
-  {
+  // let  : string = ;
+  // if(Array.isArray(contenedorString))
+  // {
 
-    contenedor =contenedorString[1]; 
-  }
-  else
-  contenedor =contenedorString; 
+  //   contenedor =contenedorString[1]; 
+  // }
+  // else
+  // contenedor =contenedorString; 
 
- console.log(contenedor);
+
   // informacion del usuario almacenado en el sistema
   const isAuthorized = useSelector<RootState>(
     ({ auth }) => auth.user
   );
   const permisosopcion = PermisosOpcion("Archivos");
+  const operacionesPermisos = Operaciones;
   // convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
   const model = (isAuthorized as UserModelSyscaf);
 
@@ -79,10 +82,10 @@ const NeptunoTable: React.FC<Params> = ({ contenedorString }) => {
 
   const consultaDatos = () => {
 
-    GetArchivosPorCuenta(contenedor, pagination.pageIndex, pagination.pageSize).then((respuesta: AxiosResponse<ArchivoDTO[]>) => {
+    ListarArchivosEstado(null,contenedor).then((respuesta: AxiosResponse<ArchivoDTO[]>) => {
       const totalDeRegistros =
         parseInt(respuesta.headers['totalregistros'] ?? 10, 10);
-      console.log("totalDeRegistros", respuesta.headers)
+      //console.log("totalDeRegistros", respuesta.headers)
       setRowCount(totalDeRegistros);
 
       // necesitamos transformar la data para que los campos dinamicos queden como columnas
@@ -109,15 +112,17 @@ const NeptunoTable: React.FC<Params> = ({ contenedorString }) => {
   }
   useEffect(() => {
     consultaDatos();
+    setcontainerNeptuno(contenedor);
   },[
     columnFilters,
     globalFilter,
     pagination.pageIndex,
     pagination.pageSize,
-    sorting]);
+    sorting,
+    contenedor]);
   useEffect(() => {
     (async () => {
-
+      setcontainerNeptuno(contenedor);
       // traemos la informacion de la cuenta, que campos se van a mostrar
       GetInformacionCuenta(contenedor).then(({ data }) => {
 
@@ -182,6 +187,10 @@ const NeptunoTable: React.FC<Params> = ({ contenedorString }) => {
               {
                 accessorKey: 'FechaSistema',
                 header: 'Fecha Creación',
+               enableEditing:false,
+               Edit:({ cell, column, row, table, })=>{
+                cell.column.getIsVisible();
+              },
                 Cell({ cell, column, row, table, }) {
                   
                   return (
@@ -196,10 +205,14 @@ const NeptunoTable: React.FC<Params> = ({ contenedorString }) => {
                 size: 100
               }, {
                 accessorKey: 'EsActivo',
-                header: 'Estado',           
+                header: 'Estado',    
+                enableEditing:false,    
+                Edit:({ cell, column, row, table, })=>{
+                  cell.column.getIsVisible();
+                },
                 Cell({ cell, column, row, table, }) {
 
-                 let label = (row.original.EsActivo) ? "Activo" : "Inactivo"
+                 let label = (row.original.EsActivo) ? <span className="badge bg-primary">Activo</span>:<span className="badge bg-danger">Inactivo</span>
                   return (
                     <> {
                       label
@@ -232,7 +245,6 @@ const NeptunoTable: React.FC<Params> = ({ contenedorString }) => {
           });
         
           setColumnas(columnasTabla);
-       
 
         }
       /*  ,
@@ -259,7 +271,7 @@ const NeptunoTable: React.FC<Params> = ({ contenedorString }) => {
     })()
 
 
-  }, [
+  }, [contenedorString
   ]);
 
 
@@ -270,13 +282,10 @@ const NeptunoTable: React.FC<Params> = ({ contenedorString }) => {
       return {
         error: !!validationErrors[cell.id],
         helperText: validationErrors[cell.id],
-        /* onBlur: (event) => {
+        
+      /* onBlur: (event) => {
            const isValid =
-             cell.column.id === 'email'
-               ? validateEmail(event.target.value)
-               : cell.column.id === 'age'
-               ? validateAge(+event.target.value)
-               : validateRequired(event.target.value);
+             cell.column.id === 'FechaSistema' ? '':  cell.column.id;
            if (!isValid) {
              //set validation error for cell if invalid
              setValidationErrors({
@@ -380,20 +389,71 @@ const NeptunoTable: React.FC<Params> = ({ contenedorString }) => {
     [data],
   );
 
-
+//El container;
+function SelectContainer() {
+  if(Array.isArray(contenedorString))
+  {
+    return (           
+      <Form.Select   className="input input-sm mb-3 " onChange={(e) => {
+          // buscamos el objeto completo para tenerlo en el sistema
+          let containerfilter =  contenedorString?.filter((value) => {
+              return value === e.currentTarget.value
+          })  
+          if(containerfilter != undefined || containerfilter)
+            setcontenedor(containerfilter[0]);
+      }} aria-label="Default select example">
+          <option value="" disabled>Seleccione</option>
+          {                        
+              contenedorString?.map((element) => {
+                  let flag = (element === contenedor)
+                  return (<option key={element} selected={flag}  value={element}>{element}</option>)
+              })
+          }
+      </Form.Select>               
+  ); }
+  else{
+    return (     
+        <Form.Select   className="input input-sm mb-3 " onChange={(e) => {
+            // buscamos el objeto completo para tenerlo en el sistema
+            setcontenedor(contenedorString);
+        }} aria-label="Default select example">
+            {        
+              (<option key={contenedorString}  value={contenedorString}>{contenedorString}</option>)
+            }
+        </Form.Select>               
+  );}
+}
   return (
 
     <>
-
+    <NeptunoProvider>
       <PageTitle >{tituloPagina}</PageTitle>
       <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris ">
-        {(EsPermitido(permisosopcion, Operaciones.Adicionar)) && (<Button
-          className="btn btn-primary btn-xs col-xs-4 col-xl-1 col-md-2 mb-2 mt-1"
-          onClick={() => handleshowFileLoad(true)}
-          variant="contained"
-        >
-          Nuevo
-        </Button>)}
+        <div className="row" style={{width:'100%'}}>
+          <div className="col-sm-4 col-md-4 col-xs-4">
+            <div style={{paddingTop:'5px'}}>
+              {(EsPermitido(permisosopcion, operacionesPermisos.Adicionar)) && (<Button
+                className="btn btn-primary btn-xs  mb-2 mt-1"
+                onClick={() => handleshowFileLoad(true)}
+                variant="contained"
+              >
+                Nuevo
+              </Button>  
+              )}
+            </div>
+          </div>
+          <div className="col-sm-4 col-md-4 col-xs-4" >
+            <div style={{float: 'right', paddingTop:'15px'}}>
+              <label className="control-label label-sm"><span style={{color:'white', fontWeight:'bold'}}>Contenedor: </span></label>
+            </div>
+               
+          </div>
+          <div className="col-sm-4 col-md-4 col-xs-4" style={{paddingTop:'10px'}} >
+            {(EsPermitido(permisosopcion, operacionesPermisos.Adicionar)) && (
+            <SelectContainer/>)}
+          </div>
+        </div>
+       
 
       </div>
       <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris">
@@ -434,13 +494,16 @@ const NeptunoTable: React.FC<Params> = ({ contenedorString }) => {
 
             <Box sx={{ display: 'flex', gap: '1rem' }}>
 
-              {(EsPermitido(permisosopcion, Operaciones.Modificar)) && (<Tooltip arrow placement="left" title="Editar">
-                <IconButton onClick={() => table.setEditingRow(row)} >
+              {(EsPermitido(permisosopcion, operacionesPermisos.Modificar)) && (<Tooltip arrow placement="left" title="Editar">
+                <IconButton onClick={() => 
+
+                  table.setEditingRow(row)
+                  } >
                   <Edit />
                 </IconButton>
               </Tooltip>)}
 
-              {(EsPermitido(permisosopcion, Operaciones.Eliminar)) && ( <Tooltip arrow placement="right" title="Eliminar">
+              {(EsPermitido(permisosopcion, operacionesPermisos.Eliminar)) && ( <Tooltip arrow placement="right" title="Eliminar">
             <IconButton color="error" onClick={() => handleDeleteRow(row)}>
               <Delete />
             </IconButton>
@@ -479,10 +542,10 @@ const NeptunoTable: React.FC<Params> = ({ contenedorString }) => {
 
       {(configArea.length > 0) && (
         <CreateFileModal show={showFileLoad}
-          handleClose={() => {handleshowFileLoad(false); }} camposAdicionales={camposHeader} AreaId={configArea[0].AreaId}  AfterSafe ={() => { consultaDatos()}} />
+          handleClose={() => {handleshowFileLoad(false); }} camposAdicionales={camposHeader} AreaId={configArea[0].AreaId}  AfterSafe ={() => { consultaDatos()}}  container={contenedor}/>
       )}
 
-
+  </NeptunoProvider>
     </>
   );
 };

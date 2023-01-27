@@ -14,6 +14,7 @@ export const DWH_getconsultadinamicasprocedure = `${apiURLDWH}/portal/getconsult
 export const DWH_GetConsultasDinamicas = `${apiURLDWH}/portal/GetConsultasDinamicas`
 export const CORE_getconsultadinamicas = `${apiURL}/Adm/auth/GetConsultasDinamicas`
 export const CORE_ExecProcedureByTipoConsulta = `${apiURL}/Adm/auth/ExecProcedureByTipoConsulta`
+export const CORE_getconsultadinamicasUser = `${apiURL}/Adm/auth/GetConsultasDinamicasConAutorizacionUser`
 
 
 

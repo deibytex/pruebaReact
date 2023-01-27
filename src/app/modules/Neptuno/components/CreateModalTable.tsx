@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import axios from "axios";
-import React, { useState, useRef, ChangeEvent } from "react";
+import React, { useState, useRef, ChangeEvent, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { Modal } from "react-bootstrap-v5";
 import { useSelector } from "react-redux";
@@ -13,7 +13,7 @@ import { KTSVG } from "../../../../_start/helpers";
 import { UserModelSyscaf } from "../../auth/models/UserModel";
 import { configCampoDTO } from "../models/ConfigCampoDTO";
 import { defaultNuevoArchivoDTO, NuevoArchivoDTO } from "../models/neptunoDirectory";
-
+import { NeptunoProvider, useDataNeptuno } from '../../Neptuno/core/NeptunoProvider';
 
 type Props = {
     show: boolean;
@@ -21,10 +21,12 @@ type Props = {
     camposAdicionales: configCampoDTO[];
     AreaId : number;
     AfterSafe: () => void;
+    container:string;
 };
 
-export const CreateFileModal: React.FC<Props> = ({ show, handleClose, camposAdicionales, AreaId,AfterSafe }) => {
-
+export const CreateFileModal: React.FC<Props> = ({ show, handleClose, camposAdicionales, AreaId,AfterSafe, container }) => {
+    //contenerdor global
+    const {containerNeptuno, setcontainerNeptuno} = useDataNeptuno();
      // informacion del usuario almacenado en el sistema
      const isAuthorized = useSelector<RootState>(
         ({ auth }) => auth.user
@@ -37,7 +39,8 @@ export const CreateFileModal: React.FC<Props> = ({ show, handleClose, camposAdic
     const stepper = useRef<StepperComponent | null>(null);
     const [data, setData] = useState<NuevoArchivoDTO>(defaultNuevoArchivoDTO);
     const [hasError, setHasError] = useState(false);
-
+    const [TipoArchivo, setTipoArchivo] = useState("");
+    
     const loadStepper = () => {
         stepper.current = StepperComponent.createInsance(
             stepperRef.current as HTMLDivElement
@@ -116,13 +119,13 @@ export const CreateFileModal: React.FC<Props> = ({ show, handleClose, camposAdic
         
         formData.append('UsuarioId', model.Id);    
         formData.append('AreaId', `${AreaId}`);     
-        
+        console.log(containerNeptuno);
          axios({
             method: 'post',
             url: NEP_InsertaArchivo,
             data: formData,
             headers: { 'Content-Type': 'multipart/form-data' },
-            params: {contenedor: model.containerneptuno[1]}
+            params: {contenedor: (containerNeptuno == "" || containerNeptuno == undefined || containerNeptuno == null)? model.containerneptuno[1]:containerNeptuno}
         }).then(
             t => {            
                 AfterSafe();
@@ -132,6 +135,9 @@ export const CreateFileModal: React.FC<Props> = ({ show, handleClose, camposAdic
      
        
     };
+    useEffect(() =>{
+        setcontainerNeptuno(container);
+    },[])
 
     return (
         <Modal
@@ -257,7 +263,7 @@ export const CreateFileModal: React.FC<Props> = ({ show, handleClose, camposAdic
                                                     if( (e.target.files != null))
                                                     {
                                                         let NombreArchivo = e.target.files[0].name;
-
+                                                    setTipoArchivo(e.target.files[0].type);
                                                     updateData({
                                                         archivo:  e.target.files[0] ,
                                                         Src:  e.target.files[0].name ,

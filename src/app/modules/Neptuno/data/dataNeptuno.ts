@@ -1,6 +1,6 @@
 import axios from 'axios'
-import { NEP_DownloadFile, NEP_GetDirectory, NEP_UploadFile } from '../../../../apiurlstore';
-import { Post_ExecProcedureByTipoConsulta, Post_getconsultadinamicas } from '../../../../_start/helpers/Axios/CoreService';
+import { CORE_getconsultadinamicasUser, NEP_DownloadFile, NEP_GetDirectory, NEP_UploadFile } from '../../../../apiurlstore';
+import { Post_ExecProcedureByTipoConsulta, Post_getconsultadinamicasUser, Post_getconsultadinamicas } from '../../../../_start/helpers/Axios/CoreService';
 import {  neptunoDirectory } from '../models/neptunoDirectory';
 
 // descarga la informacion del nodo del tree view
@@ -84,7 +84,18 @@ export  function UpdateEstadoArchivo(ArchivoId: string) {
 }
 
 
-
+export  function ListarArchivosEstado(ArchivoId: string|null, Container:string) {
+    var params: { [id: string]: string | null; } = {};
+    params["ArchivoId"] =ArchivoId;
+    params["Container"] =Container;
+    // hacemos la consulta 
+    return  Post_getconsultadinamicasUser({
+        Clase: "NEPQueryHelper", NombreConsulta: "GetArchivosPorUser",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, params);
+   
+}
 
 
 
