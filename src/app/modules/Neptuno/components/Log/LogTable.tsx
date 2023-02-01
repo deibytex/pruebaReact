@@ -16,7 +16,7 @@ import moment from "moment";
 import { RootState } from "../../../../../setup";
 import { useSelector } from "react-redux";
 import { UserModelSyscaf } from "../../../auth/models/UserModel";
-
+import { MRT_Localization_ES } from 'material-react-table/locales/es';
 
 type Props = {
   };
@@ -56,14 +56,19 @@ type Props = {
     [
        {
          accessorKey: 'NombreArchivo',
-         header: 'Archivo',
-         size: 250
+         header: 'Nombre archivo',
+         size: 200
        },
        {
          accessorKey: 'Descripcion',
          header: 'Descripción',
-         size: 250
+         size: 200
        },
+       {
+        accessorKey: 'Usuario',
+        header: 'Usuario',
+        size: 200
+      },
        {
          accessorKey: 'FechaSistema',
          header: 'Fecha Creación',
@@ -73,7 +78,7 @@ type Props = {
           }
        }, {
          accessorKey: 'EstadoArchivo',
-         header: 'Estado',    
+         header: 'Estado archivo',    
          size: 80,
          Cell({ cell, column, row, table, }) {
             return (cell.getValue() == true )? <span className="badge bg-primary">Activo</span>:<span className="badge bg-danger">Inactivo</span>
@@ -96,34 +101,43 @@ type Props = {
 
        
     },[contenedor]);
- const ConsultarIndicadoresLog = (UsuarioSeleccionado:string|null) =>{
-    ConsultarIndicadores(UsuarioSeleccionado).then(
-        (response: AxiosResponse<any>) =>{
-            if(response.data.length>0){
-                (response.data[0] != undefined? setSubido(response.data[0]['Cantidad']):setSubido(0));
-                (response.data[1] != undefined ? setDownload(response.data[1]['Cantidad']):setDownload(0));
-                (response.data[2] != undefined ? setModificado(response.data[2]['Cantidad']): setModificado(0));
-            }else{
-                setSubido(0);
-                setDownload(0);
-                setModificado(0);
+
+const AgruparArrayByPropiedad = (arrayRespuesta : LogDTO[]) =>{
+    //Creamos un nuevo objeto donde vamos a almacenar por indicadores. 
+    let nuevoObjeto = {}
+    //Recorremos el arreglo 
+    arrayRespuesta.forEach( x => {
+    //Si tipo o  NombreMovimiento no existe en nuevoObjeto entonces
+    //la creamos e inicializamos el arreglo de indicadores. 
+        if( !nuevoObjeto.hasOwnProperty(x.NombreMovimiento)){
+            nuevoObjeto[x.NombreMovimiento] = {
+            Indicadores: []
             }
         }
-        ).catch(
-            (error) =>{
-                errorDialog("Consultar usuarios", "Error al consultar usuarios, no se puede desplegar informacion");
-            }
-        )
- }
+        //Agregamos los datos de los movimientos. 
+        nuevoObjeto[x.NombreMovimiento].Indicadores.push({
+        nombre: x.NombreMovimiento,
+        })
+    
+    })
+    return nuevoObjeto;
+}
+
     const ConsultarLog = () =>{
         if(validarcampos()){
             ConsultarLogs(FechaInicial,FechaFinal,(UsuarioSeleccionado != undefined ?  UsuarioSeleccionado.UsuarioId : "")).then((respuesta: AxiosResponse<LogDTO[]>) =>{
                 setData(respuesta.data);
-                if(UsuarioSeleccionado)
-                    ConsultarIndicadoresLog(UsuarioSeleccionado.UsuarioId);
+                //se agrupa por movimientos
+                let Indicadores = AgruparArrayByPropiedad(respuesta.data);
+                 //Se setean los indicadores
+                (Indicadores['Carga'] != undefined ? setSubido(Indicadores['Carga']['Indicadores'].length):setSubido(0));
+                (Indicadores['Descarga'] != undefined ? setDownload(Indicadores['Descarga']['Indicadores'].length):setDownload(0));
+                (Indicadores['Modificacion'] != undefined ? setModificado(Indicadores['Modificacion']['Indicadores'].length): setModificado(0));
+                setRowCount(respuesta.data.length);
             }).catch((error) =>{
                 errorDialog("<i>Ha ocurrido un error<i/>","");
             })
+           
         }
             
     }
@@ -238,118 +252,119 @@ function SelectContainer() {
     );}
   }
     return ( 
-        <div>
-            <LogProvider>
-                <div className="row">
-                <div className="col-sm-2 col-md-2 col-xs-2">
-                       <label className="control-label label label-sm"  style={{fontWeight:'bold'}}>Fecha inicial</label>
-                       <FechaInicialControl/>
-                    </div>
-                    <div className="col-sm-2 col-md-2 col-xs-2">
-                        <label className="control-label label label-sm" style={{fontWeight:'bold'}}>Fecha final</label>
-                        <FechaFinalControl/>
-                    </div>
-                    <div  className="col-sm-3 col-md-3 col-xs-3">
-                        <label className="control-label label label-sm"  style={{fontWeight:'bold'}}>Contenedor</label>
-                        <SelectContainer/>
-                    </div>
-                    <div className="col-sm-3 col-md-3 col-xs-3">
-                        <label className="control-label label label-sm"  style={{fontWeight:'bold'}}>Usuarios</label>
-                        <CargaListadoUsuarios/>
-                    </div>
-                    <div className="col-sm-1 col-md-1 col-xs-1">
-                        <label className="control-label label label-sm"></label>
-                        <div className="">
-                            <button className="btn btn-sm btn-primary" title="Consultar" type="button" onClick={ConsultarLog}><i className="bi-search"></i></button>
+        <LogProvider>
+            <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris" style={{padding:'5px'}}>
+                    <div className="row rounded" style={{border:'1px solid #d1e7dd', margin:'1px'}}>
+                        <div className="col-sm-2 col-md-2 col-xs-2">
+                            <label className="control-label label text-white label-sm"  style={{fontWeight:'bold'}}>Fecha inicial</label>
+                            <FechaInicialControl/>
+                        </div>
+                        <div className="col-sm-2 col-md-2 col-xs-2">
+                            <label className="control-label label text-white label-sm" style={{fontWeight:'bold'}}>Fecha final</label>
+                            <FechaFinalControl/>
+                        </div>
+                        <div  className="col-sm-3 col-md-3 col-xs-3">
+                            <label className="control-label label text-white label-sm"  style={{fontWeight:'bold'}}>Contenedor</label>
+                            <SelectContainer/>
+                        </div>
+                        <div className="col-sm-3 col-md-3 col-xs-3">
+                            <label className="control-label label text-white label-sm"  style={{fontWeight:'bold'}}>Usuarios</label>
+                            <CargaListadoUsuarios/>
+                        </div>
+                        <div className="col-sm-1 col-md-1 col-xs-1">
+                            <label className="control-label label label-sm"></label>
+                            <div className="">
+                                <button className="btn btn-sm btn-success" title="Consultar" type="button" onClick={ConsultarLog}><i className="bi-search"></i></button>
+                            </div>
+                        </div>
+                        <div className="col-sm-1 col-md-1 col-xs-1">
+                            <label className="control-label label label-sm"></label>
+                            <div className="">
+                            <ExportarExcel DatosExel={Data} NombreArchivo={"Logs"}/>
+                            </div>
                         </div>
                     </div>
-                    <div className="col-sm-1 col-md-1 col-xs-1">
-                        <label className="control-label label label-sm"></label>
-                        <div className="">
-                         <ExportarExcel DatosExel={Data} NombreArchivo={"Logs"}/>
+                    <div className="row">
+                        <div className="col-sm-4 col-md-4 col-xs-4" style={{ textAlign:'center'}}>
+                            <label className="control-label label label-sm text-white"  style={{fontWeight:'bold', textAlign:'center'}}>Cargados</label>
+                            <div className="card text-black mb-3" style={{marginTop:'5px', textAlign:'center',flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height:'100px', backgroundColor:'#d1e7dd'}}>
+                                <span style={{fontWeight:'bold', fontSize:'30px'}}>{subido}</span>
+                            </div>
+                        </div>
+                        <div className="col-sm-4 col-md-4 col-xs-4" style={{ textAlign:'center'}}>
+                            <label className="control-label label label-sm text-white" style={{fontWeight:'bold', textAlign:'center'}}>Modificados</label>
+                            <div className="card text-black mb-3" style={{marginTop:'5px', textAlign:'center',flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height:'100px', backgroundColor:'#f8d7da'}}>
+                                <span style={{fontWeight:'bold', fontSize:'30px'}}>{mmodificado}</span>
+                            </div>
+                        </div>
+                        <div className="col-sm-4 col-md-4 col-xs-4" style={{ textAlign:'center'}}>
+                        <label className="control-label label label-sm text-white"  style={{fontWeight:'bold', textAlign:'center'}}>Descargados</label>
+                        <div className="card text-black mb-3" style={{marginTop:'5px', textAlign:'center',flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height:'100px', backgroundColor:'#b6effb'}}>
+                                <span style={{fontWeight:'bold', fontSize:'30px'}}>{download}</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div className="row">
-                    <div className="col-sm-4 col-md-4 col-xs-4" style={{ textAlign:'center'}}>
-                       <label className="control-label label label-sm"  style={{fontWeight:'bold', textAlign:'center'}}>Total descargas</label>
-                       <div className="card text-white bg-primary mb-3" style={{textAlign:'center',flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height:'100px'}}>
-                            <span style={{fontWeight:'bold', fontSize:'30px'}}>{download}</span>
-                        </div>
-                    </div>
-                    <div className="col-sm-4 col-md-4 col-xs-4" style={{ textAlign:'center'}}>
-                        <label className="control-label label label-sm" style={{fontWeight:'bold', textAlign:'center'}}>Total modificados</label>
-                        <div className="card text-white bg-primary mb-3" style={{textAlign:'center',flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height:'100px'}}>
-                            <span style={{fontWeight:'bold', fontSize:'30px'}}>{mmodificado}</span>
-                        </div>
-                    </div>
-                    <div className="col-sm-4 col-md-4 col-xs-4" style={{ textAlign:'center'}}>
-                        <label className="control-label label label-sm"  style={{fontWeight:'bold', textAlign:'center'}}>Total subidos</label>
-                        <div className="card text-white bg-primary mb-3" style={{textAlign:'center',flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height:'100px'}}>
-                            <span style={{fontWeight:'bold', fontSize:'30px'}}>{subido}</span>
-                        </div>
-                    </div>
-                </div>
-            <MaterialReactTable
-                displayColumnDefOptions={{
-                'mrt-row-actions': {
-                    muiTableHeadCellProps: {
-                    align: 'center',
+                <MaterialReactTable
+                    localization={MRT_Localization_ES}
+                    displayColumnDefOptions={{
+                    'mrt-row-actions': {
+                        muiTableHeadCellProps: {
+                        align: 'center',
+                        },
+                        size: 120,
                     },
-                    size: 120,
-                },
-                }}
-                columns={listadoCampos}
-                data={Data}
-            // editingMode="modal" //default         
-                enableTopToolbar={false}
-                enableColumnOrdering
-                // enableEditing
-            /* onEditingRowSave={handleSaveRowEdits}
-                onEditingRowCancel={handleCancelRowEdits}*/
-                muiToolbarAlertBannerProps={
-                isError
-                    ? {
-                    color: 'error',
-                    children: 'Error al cargar información',
+                    }}
+                    columns={listadoCampos}
+                    data={Data}
+                // editingMode="modal" //default         
+                    enableTopToolbar={false}
+                    enableColumnOrdering
+                    // enableEditing
+                /* onEditingRowSave={handleSaveRowEdits}
+                    onEditingRowCancel={handleCancelRowEdits}*/
+                    muiToolbarAlertBannerProps={
+                    isError
+                        ? {
+                        color: 'error',
+                        children: 'Error al cargar información',
+                        }
+                        : undefined
                     }
-                    : undefined
-                }
-                onColumnFiltersChange={setColumnFilters}
-                onGlobalFilterChange={setGlobalFilter}
-                onPaginationChange={setPagination}
-                onSortingChange={setSorting}
-                rowCount={rowCount}
-                // renderRowActions={({ row, table }) => (
-    
-                // <Box sx={{ display: 'flex', gap: '1rem' }}>
-                // <Tooltip arrow placement="left" title="Editar registro" className="bg-primary">
-                //     <IconButton onClick={() => EditarCondicion(row)} >
-                //         <Edit />
-                //     </IconButton>
-                //     </Tooltip>
-                //     <Tooltip arrow placement="top" title="Eliminar registro" className="bg-danger">
-                //     <IconButton  onClick={() =>   EliminarCondicion(row)} >
-                //         <Delete />
-                //     </IconButton>
-                //     </Tooltip>
-    
-                // </Box>
-                // )
-                // }
-    
-                state={{
-                columnFilters,
-                globalFilter,
-                isLoading,
-                pagination,
-                showAlertBanner: isError,
-                showProgressBars: isRefetching,
-                sorting,
-                }}
-            />
-            </LogProvider>
-        </div>
+                    onColumnFiltersChange={setColumnFilters}
+                    onGlobalFilterChange={setGlobalFilter}
+                    onPaginationChange={setPagination}
+                    onSortingChange={setSorting}
+                    rowCount={rowCount}
+                    // renderRowActions={({ row, table }) => (
+        
+                    // <Box sx={{ display: 'flex', gap: '1rem' }}>
+                    // <Tooltip arrow placement="left" title="Editar registro" className="bg-primary">
+                    //     <IconButton onClick={() => EditarCondicion(row)} >
+                    //         <Edit />
+                    //     </IconButton>
+                    //     </Tooltip>
+                    //     <Tooltip arrow placement="top" title="Eliminar registro" className="bg-danger">
+                    //     <IconButton  onClick={() =>   EliminarCondicion(row)} >
+                    //         <Delete />
+                    //     </IconButton>
+                    //     </Tooltip>
+        
+                    // </Box>
+                    // )
+                    // }
+        
+                    state={{
+                    columnFilters,
+                    globalFilter,
+                    isLoading,
+                    pagination,
+                    showAlertBanner: isError,
+                    showProgressBars: isRefetching,
+                    sorting,
+                    }}
+                />
+            </div>
+        </LogProvider>
     )
 
 }

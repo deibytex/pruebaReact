@@ -8,9 +8,11 @@ export async function ConsultarUsuarios(Container: string) {
     // hacemos la consulta 
     return  Post_getconsultadinamicas({    Clase : "NEPQueryHelper",  NombreConsulta: "GetUsuariosNeptuno", Pagina :null, RecordsPorPagina :null}, params);
 };
-export async function ConsultarIndicadores(UsuarioId: string | null) {
+export async function ConsultarIndicadores(UsuarioId: string | null, FechaInicial: string, FechaFinal: string) {
     var params: { [id: string]: string | null; } = {};
     params["UsuarioId"] = UsuarioId;
+    params["FechaInicial"] = FechaInicial;
+    params["FechaFinal"] = FechaFinal;
     // hacemos la consulta 
     return  Post_getconsultadinamicas({    Clase : "NEPQueryHelper",  NombreConsulta: "GetIndicadoresLog", Pagina :null, RecordsPorPagina :null}, params);
 };

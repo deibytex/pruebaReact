@@ -9,6 +9,7 @@ export interface LogDTO
     CamposCapturar: string;
     UsuarioId: string;
     FechaSistema: Date ;
+    Usuario:string;
 }
 
 export interface UsuariosDTO
