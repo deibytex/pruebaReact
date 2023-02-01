@@ -375,9 +375,12 @@ const {containerNeptuno, setcontainerNeptuno} = useDataNeptuno();
 
       confirmarDialog(() => {
         UpdateEstadoArchivo(row.original['ArchivoId'].toString()).then(() => {
-          data.splice(row.index, 1);
-          setData([...data]);
+          //Quito esta parte de aqui, para reconsultar los datos ya que se necesita saber si tiene acceso o no
+          //a los archivos que estan inactivos, esto se maneja segun el perfil
 
+          // data.splice(row.index, 1);
+          // setData([...data]);
+          consultaDatos();
           successDialog("Archivo Eliminado Exitosamente!", "");
         }).catch((e) => {
           errorDialog(e, "<i>Favor comunicarse con su administrador.</i>");

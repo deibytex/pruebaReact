@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { CORE_getconsultadinamicasUser, NEP_DownloadFile, NEP_GetDirectory, NEP_UploadFile } from '../../../../apiurlstore';
 import { Post_ExecProcedureByTipoConsulta, Post_getconsultadinamicasUser, Post_getconsultadinamicas } from '../../../../_start/helpers/Axios/CoreService';
+import { successDialog } from '../../../../_start/helpers/components/ConfirmDialog';
 import {  neptunoDirectory } from '../models/neptunoDirectory';
 
 // descarga la informacion del nodo del tree view

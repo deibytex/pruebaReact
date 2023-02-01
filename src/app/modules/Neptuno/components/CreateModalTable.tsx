@@ -14,6 +14,7 @@ import { UserModelSyscaf } from "../../auth/models/UserModel";
 import { configCampoDTO } from "../models/ConfigCampoDTO";
 import { defaultNuevoArchivoDTO, NuevoArchivoDTO } from "../models/neptunoDirectory";
 import { NeptunoProvider, useDataNeptuno } from '../../Neptuno/core/NeptunoProvider';
+import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/helpers/components/ConfirmDialog";
 
 type Props = {
     show: boolean;
@@ -40,7 +41,8 @@ export const CreateFileModal: React.FC<Props> = ({ show, handleClose, camposAdic
     const [data, setData] = useState<NuevoArchivoDTO>(defaultNuevoArchivoDTO);
     const [hasError, setHasError] = useState(false);
     const [TipoArchivo, setTipoArchivo] = useState("");
-    
+    const [disable, setDisable] = useState(false);
+
     const loadStepper = () => {
         stepper.current = StepperComponent.createInsance(
             stepperRef.current as HTMLDivElement
@@ -109,6 +111,7 @@ export const CreateFileModal: React.FC<Props> = ({ show, handleClose, camposAdic
 
     // funcion que consulta y finaliza el trabajo
     const submit = () => {
+        setDisable(true);
         // se necesita esta forma para ser pasado al servidor los archivos cargados
         const formData = new FormData();      
         // transformamos el objeto a los parametros que se necesitan pasar al servidor
@@ -120,20 +123,29 @@ export const CreateFileModal: React.FC<Props> = ({ show, handleClose, camposAdic
         formData.append('UsuarioId', model.Id);    
         formData.append('AreaId', `${AreaId}`);     
         console.log(containerNeptuno);
-         axios({
-            method: 'post',
-            url: NEP_InsertaArchivo,
-            data: formData,
-            headers: { 'Content-Type': 'multipart/form-data' },
-            params: {contenedor: (containerNeptuno == "" || containerNeptuno == undefined || containerNeptuno == null)? model.containerneptuno[1]:containerNeptuno}
-        }).then(
-            t => {            
-                AfterSafe();
-                handleClose();
-            }
-        );
-     
-       
+
+        confirmarDialog(() => {
+            axios({
+                method: 'post',
+                url: NEP_InsertaArchivo,
+                data: formData,
+                headers: { 'Content-Type': 'multipart/form-data' },
+                params: {contenedor: (containerNeptuno == "" || containerNeptuno == undefined || containerNeptuno == null)? model.containerneptuno[1]:containerNeptuno}
+            }).then(
+                t => {
+                  
+                    if(t.data['exitoso'])
+                        successDialog(t.data['mensaje'],"");
+                    else
+                        errorDialog("Tipo de archivo invalido","");
+                    
+                    //la siguiente funcion actualizar la tabla y cierra el modal, asi se la da mas tiempo que lleguen los datos.         
+                    AfterSafe();
+                    setDisable(false);
+                    handleClose();
+                }
+            );
+        }, `Esta seguro que desea guardar el archivo`, 'Guardar');
     };
     useEffect(() =>{
         setcontainerNeptuno(container);
@@ -478,6 +490,7 @@ export const CreateFileModal: React.FC<Props> = ({ show, handleClose, camposAdic
                                             className="btn btn-lg btn-primary fw-bolder py-4 ps-8 me-3"
                                             data-kt-stepper-action="submit"
                                             onClick={submit}
+                                            disabled={disable}
                                         >
                                             Guardar{" "}
                                             <KTSVG
