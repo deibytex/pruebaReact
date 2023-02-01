@@ -1,5 +1,7 @@
 import React, { useState } from "react";
+
 import { KTSVG } from "../../../helpers";
+
 import {
   HeaderNotificationsMenu,
   SearchModal,
@@ -12,7 +14,7 @@ export function Topbar() {
   const { config } = useTheme();
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [showInboxComposeModal, setShowInboxComposeModal] = useState(false);
-
+ 
   return (
     <>
       {/* begin::Search 
@@ -88,7 +90,6 @@ export function Topbar() {
         <button
           className="btn btn-icon btn-sm btn-active-bg-accent d-lg-none ms-1 ms-lg-6"
           id="kt_sidebar_toggler"
-          onClick={() =>{console.log("niiiiiiii")}}
         >
           <KTSVG
             path="/media/icons/duotone/Text/Menu.svg"

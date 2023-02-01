@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { UserModelSyscaf } from "../../../../app/modules/auth/models/UserModel";
 import { Perfil } from "../../../../app/modules/auth/Perfil";
-
-
-
+import { errorDialog } from "../../../helpers/components/ConfirmDialog";
+import { GetDataUser } from "../../../../app/modules/auth/data/datPerfil";
 import { RootState } from "../../../../setup";
 import { KTSVG, toAbsoluteUrl } from "../../../helpers";
 
@@ -16,9 +15,6 @@ export function HeaderUserMenu() {
     ({ auth }) => auth.user
   );
 
-  const handleShow = () =>{
-
-  };
   const handleClose = () =>{
     setShow(false);
   };
@@ -29,6 +25,14 @@ export function HeaderUserMenu() {
   // convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
   const model = (isAuthorized as UserModelSyscaf);
 
+  const [path, setPath] = useState<string|undefined>("/media/svg/avatars/001-boy.svg")
+  useEffect(() =>{
+    GetDataUser().then((response) =>{
+        setPath((response.data[0].pic == "")?"/media/svg/avatars/001-boy.svg": response.data[0].pic);
+    }).catch((error) =>{
+        errorDialog("<i>Error comuniquese con el adminisrador<i/>","");
+    })
+},[]);
   return (
     <>
       {(model.Nombres != "") &&
@@ -45,10 +49,10 @@ export function HeaderUserMenu() {
             }}
           >
             <div className="symbol symbol-45px mx-5 py-5">
-              <span className="symbol-label bg-primary align-items-end">
+              <span className="symbol-label bg-primary">
                 <img
                   alt="Logo"
-                  src={toAbsoluteUrl("/media/svg/avatars/001-boy.svg")}
+                  src={toAbsoluteUrl((path != undefined ? path: "/media/svg/avatars/001-boy.svg"))}
                   className="mh-35px"
                   style={{cursor:'pointer'}}
                   onClick={showModal}
