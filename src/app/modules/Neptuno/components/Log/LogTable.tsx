@@ -13,12 +13,24 @@ import { AxiosResponse } from "axios";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 import { ExportarExcel } from "./exportarExcel";
 import moment from "moment";
+import { RootState } from "../../../../../setup";
+import { useSelector } from "react-redux";
+import { UserModelSyscaf } from "../../../auth/models/UserModel";
 
 
 type Props = {
   };
 
   export const LogTable: React.FC<Props> =  () => {
+
+    const isAuthorized = useSelector<RootState>(
+        ({ auth }) => auth.user
+    );
+    
+    // convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
+    const model = (isAuthorized as UserModelSyscaf);
+
+
     //table state
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [globalFilter, setGlobalFilter] = useState('');
@@ -37,6 +49,8 @@ type Props = {
    const [download, setDownload] = useState(0);
    const [mmodificado, setModificado] = useState(0);
    const [subido, setSubido] = useState(0);
+   const [contenedor, setcontenedor] = useState<string>((Array.isArray(model.containerneptuno)?Array.from(model.containerneptuno)[0]:model.containerneptuno));
+   
     let listadoCampos: MRT_ColumnDef<LogDTO>[] =
 
     [
@@ -71,7 +85,7 @@ type Props = {
 
     useEffect(() =>{
         //cambiar contenedor
-        ConsultarUsuarios("desarrollodev").then(
+        ConsultarUsuarios(contenedor).then(
             (response) => {
               setUsuarios(response.data);
               setUsuarioSeleccionado(response.data[0]);
@@ -81,7 +95,7 @@ type Props = {
         });
 
        
-    },[]);
+    },[contenedor]);
  const ConsultarIndicadoresLog = (UsuarioSeleccionado:string|null) =>{
     ConsultarIndicadores(UsuarioSeleccionado).then(
         (response: AxiosResponse<any>) =>{
@@ -89,6 +103,10 @@ type Props = {
                 (response.data[0] != undefined? setSubido(response.data[0]['Cantidad']):setSubido(0));
                 (response.data[1] != undefined ? setDownload(response.data[1]['Cantidad']):setDownload(0));
                 (response.data[2] != undefined ? setModificado(response.data[2]['Cantidad']): setModificado(0));
+            }else{
+                setSubido(0);
+                setDownload(0);
+                setModificado(0);
             }
         }
         ).catch(
@@ -184,23 +202,60 @@ type Props = {
             }}  />        
         )
     }
-
+//El container;
+function SelectContainer() {
+    let Contenedor = model.containerneptuno;
+    if(Array.isArray(Contenedor))
+    {
+      return (           
+        <Form.Select   className="input input-sm mb-3 " onChange={(e) => {
+            // buscamos el objeto completo para tenerlo en el sistema
+            let containerfilter =  Array.from(Contenedor).filter((value) => {
+                return value === e.currentTarget.value
+            })  
+            if(containerfilter != undefined || containerfilter)
+              setcontenedor(containerfilter[0]);
+        }} aria-label="Default select example">
+            <option value="" disabled>Seleccione</option>
+            {                        
+                Contenedor?.map((element) => {
+                    let flag = (element === contenedor)
+                    return (<option key={element} selected={flag}  value={element}>{element}</option>)
+                })
+            }
+        </Form.Select>               
+    ); }
+    else{
+      return (     
+          <Form.Select   className="input input-sm mb-3 " onChange={(e) => {
+              // buscamos el objeto completo para tenerlo en el sistema
+              setcontenedor(Contenedor);
+          }} aria-label="Default select example">
+              {        
+                (<option key={Contenedor}  value={Contenedor}>{Contenedor}</option>)
+              }
+          </Form.Select>               
+    );}
+  }
     return ( 
         <div>
             <LogProvider>
                 <div className="row">
-                <div className="col-sm-3 col-md-3 col-xs-3">
+                <div className="col-sm-2 col-md-2 col-xs-2">
                        <label className="control-label label label-sm"  style={{fontWeight:'bold'}}>Fecha inicial</label>
                        <FechaInicialControl/>
                     </div>
-                    <div className="col-sm-3 col-md-3 col-xs-3">
+                    <div className="col-sm-2 col-md-2 col-xs-2">
                         <label className="control-label label label-sm" style={{fontWeight:'bold'}}>Fecha final</label>
                         <FechaFinalControl/>
+                    </div>
+                    <div  className="col-sm-3 col-md-3 col-xs-3">
+                        <label className="control-label label label-sm"  style={{fontWeight:'bold'}}>Contenedor</label>
+                        <SelectContainer/>
                     </div>
                     <div className="col-sm-3 col-md-3 col-xs-3">
                         <label className="control-label label label-sm"  style={{fontWeight:'bold'}}>Usuarios</label>
                         <CargaListadoUsuarios/>
-                      
                     </div>
                     <div className="col-sm-1 col-md-1 col-xs-1">
                         <label className="control-label label label-sm"></label>
@@ -208,7 +263,7 @@ type Props = {
                             <button className="btn btn-sm btn-primary" title="Consultar" type="button" onClick={ConsultarLog}><i className="bi-search"></i></button>
                         </div>
                     </div>
-                    <div className="col-sm-2 col-md-2 col-xs-2">
+                    <div className="col-sm-1 col-md-1 col-xs-1">
                         <label className="control-label label label-sm"></label>
                         <div className="">
                          <ExportarExcel DatosExel={Data} NombreArchivo={"Logs"}/>

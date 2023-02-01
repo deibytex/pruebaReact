@@ -52,7 +52,7 @@ const CargaInicialParametros: React.FC = ({children}) => {
     console.log(UsuarioSeleccionado);
 useEffect(() =>{
    
-    ConsultarUsuarios("desarrollodev").then(
+    ConsultarUsuarios("null").then(
       (response) => {
         setUsuarios(response.data);
         setUsuarioSeleccionado(response.data[0]);
