@@ -1,18 +1,34 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { UserModelSyscaf } from "../../../../app/modules/auth/models/UserModel";
+import { Perfil } from "../../../../app/modules/auth/Perfil";
+
+
+
 import { RootState } from "../../../../setup";
 import { KTSVG, toAbsoluteUrl } from "../../../helpers";
 
 export function HeaderUserMenu() {
+  const [show, setShow] = useState(false)
   // informacion del usuario almacenado en el sistema
   const isAuthorized = useSelector<RootState>(
     ({ auth }) => auth.user
   );
 
+  const handleShow = () =>{
+
+  };
+  const handleClose = () =>{
+    setShow(false);
+  };
+  const showModal = () =>{
+    setShow(true);
+  }
+ 
   // convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
   const model = (isAuthorized as UserModelSyscaf);
+
   return (
     <>
       {(model.Nombres != "") &&
@@ -34,6 +50,8 @@ export function HeaderUserMenu() {
                   alt="Logo"
                   src={toAbsoluteUrl("/media/svg/avatars/001-boy.svg")}
                   className="mh-35px"
+                  style={{cursor:'pointer'}}
+                  onClick={showModal}
                 />
               </span>
             </div>
@@ -98,6 +116,7 @@ export function HeaderUserMenu() {
           {/* end::Row */}
         </div>
       }
+      <Perfil show={show}  handleClose={handleClose} title={"Edicion de perfil"}/>
     </>
   );
 }

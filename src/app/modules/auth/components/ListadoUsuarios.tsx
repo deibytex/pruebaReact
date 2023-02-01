@@ -1,20 +1,17 @@
 
-import MaterialReactTable, { MRT_Cell, MRT_ColumnDef } from "material-react-table";
+import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { MRT_Localization_ES } from 'material-react-table/locales/es';
-import { ReactElement, JSXElementConstructor, useState, useEffect } from "react";
-import { Auth_EditarUsuario } from "../../../../apiurlstore";
+import { useState, useEffect } from "react";
 
 import { PageTitle } from "../../../../_start/layout/core";
 import { UserDTO } from "../models/UserModel";
-import { getListUserByToken, USERLIST_URL } from "../redux/AuthCRUD";
+import { getListUserByToken } from "../redux/AuthCRUD";
 import type {
     ColumnFiltersState,
     PaginationState,
     SortingState,
   } from '@tanstack/react-table';
 import { AxiosResponse } from "axios";
-import { Box, IconButton, Tooltip } from "@mui/material";
-import { Edit } from "react-feather";
 import { EsPermitido, Operaciones, PermisosOpcion, Post_getconsultadinamicas } from "../../../../_start/helpers/Axios/CoreService";
 import { Button } from "react-bootstrap-v5";
 
@@ -127,7 +124,7 @@ export default function IndiceUsuarios() {
              // editingMode="modal" //default         
               enableTopToolbar={false}
               enableColumnOrdering
-             // enableEditing
+              // enableEditing
              /* onEditingRowSave={handleSaveRowEdits}
               onEditingRowCancel={handleCancelRowEdits}*/
               muiToolbarAlertBannerProps={
