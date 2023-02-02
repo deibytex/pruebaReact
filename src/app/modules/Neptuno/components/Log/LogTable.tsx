@@ -17,6 +17,8 @@ import { RootState } from "../../../../../setup";
 import { useSelector } from "react-redux";
 import { UserModelSyscaf } from "../../../auth/models/UserModel";
 import { MRT_Localization_ES } from 'material-react-table/locales/es';
+import { TituloNeptunoLogs } from "../../../../../_start/helpers/Texts/textosPorDefecto";
+import { PageTitle } from "../../../../../_start/layout/core";
 
 type Props = {
   };
@@ -57,13 +59,18 @@ type Props = {
        {
          accessorKey: 'NombreArchivo',
          header: 'Nombre archivo',
-         size: 200
+         size: 100
        },
        {
          accessorKey: 'Descripcion',
          header: 'Descripción',
          size: 200
        },
+       {
+        accessorKey: 'NombreMovimiento',
+        header: 'Tipo movimiento',
+        size: 80
+      },
        {
         accessorKey: 'Usuario',
         header: 'Usuario',
@@ -72,7 +79,7 @@ type Props = {
        {
          accessorKey: 'FechaSistema',
          header: 'Fecha Creación',
-         size: 100,
+         size: 80,
          Cell({ cell, column, row, table, }) {
             return (moment(row.original.FechaSistema).format('DD/MM/YYYY HH:mm:ss'))
           }
@@ -253,6 +260,7 @@ function SelectContainer() {
   }
     return ( 
         <LogProvider>
+            <PageTitle >{TituloNeptunoLogs}</PageTitle>
             <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris" style={{padding:'5px'}}>
                     <div className="row rounded" style={{border:'1px solid #d1e7dd', margin:'1px'}}>
                         <div className="col-sm-2 col-md-2 col-xs-2">
