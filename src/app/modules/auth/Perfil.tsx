@@ -93,7 +93,7 @@ const CargarDatos = (Data:PerfilDTO) =>{
             <div className="row">
                 <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                     <div className="form-control" style={{textAlign:'center',flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height:'100px'}}>
-                        <img   className="svg-icon-3x me-n1" src={path} alt="logo" height={"80"}></img>
+                        <img   className="svg-icon-3x me-n1" src={path} alt="logo" height={"80"} width={"100"}></img>
                     </div>
                 </div>
                 <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
