@@ -33,6 +33,7 @@ const model = (isAuthorized as UserModelSyscaf);
         setData(response.data[0]);
         setvalueNombre(response.data[0].fullname);
         setvalueTelefono(response.data[0].phone);
+        setImagen((response.data[0].pic == "")?null: response.data[0].pic)
         setPath((response.data[0].pic == "")?"/media/svg/avatars/001-boy.svg": response.data[0].pic);
     }).catch((error) =>{
         errorDialog("<i>Error comuniquese con el adminisrador<i/>","");

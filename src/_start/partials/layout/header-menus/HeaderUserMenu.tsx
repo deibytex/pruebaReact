@@ -114,7 +114,7 @@ export function HeaderUserMenu() {
                 className="svg-icon-3x me-n1"
                 path="/media/icons/duotone/Navigation/Sign-out.svg"
               />
-              <span className="fw-bolder fs-6 d-block pt-3">Sign Out</span>
+              <span className="fw-bolder fs-6 d-block pt-3">Desconectar</span>
             </Link>
           </div>
           {/* end::Row */}
