@@ -12,7 +12,7 @@ import { Registration } from "../modules/auth/components/Registration";
 import { ForgotPassword } from "../modules/auth/components/ForgotPassword";
 import IndiceUsuarios from "../modules/auth/components/ListadoUsuarios";
 import { NoCargas } from "../modules/Ebus/components/Diagnostico/NoCargas";
-
+import Logs from "../modules/Neptuno/log"
 
 
 export function PrivateRoutes() {
@@ -27,6 +27,7 @@ export function PrivateRoutes() {
       <Switch>
          <Route path="/bienvenido" component={Bienvenidos} />       
         <Route path="/neptuno/archivos" component={Neptuno} />    
+        <Route path="/neptuno/log" component={Logs} />   
         <Redirect exact from="/" to="/bienvenido" />     
        <Route path="/fatigue/dashboard" component={FatigueDashboard} /> 
        <Route path="/politicaprivacidad" component={PoliticaPrivacidad} /> 
