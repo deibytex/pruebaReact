@@ -1,6 +1,6 @@
 import Swal from "sweetalert2";
 import { Content } from "../../layout/components/Content";
-
+import "./style.css";
 export default function confirmarDialog(
     onConfirm: any,
     titulo: string = "¿Desea borrar el registro?",

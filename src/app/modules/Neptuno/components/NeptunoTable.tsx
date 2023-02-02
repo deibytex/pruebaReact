@@ -13,7 +13,7 @@ import type {
   PaginationState,
   SortingState,
 } from '@tanstack/react-table';
-import axios, { AxiosResponse } from "axios";
+
 import { Box, IconButton, Tooltip, Typography } from "@mui/material";
 import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/helpers/components/ConfirmDialog";
 import { CreateFileModal } from "./CreateModalTable";
@@ -26,6 +26,7 @@ import { EsPermitido, Operaciones, PermisosOpcion } from "../../../../_start/hel
 import { TituloNeptuno } from "../../../../_start/helpers/Texts/textosPorDefecto";
 import { string } from "yup/lib/locale";
 import { NeptunoProvider, useDataNeptuno } from '../../Neptuno/core/NeptunoProvider';
+import axios, { AxiosResponse } from "axios";
 type Params = {
   contenedorString: string;
 }
@@ -309,6 +310,11 @@ const {containerNeptuno, setcontainerNeptuno} = useDataNeptuno();
   const handleSaveRowEdits: MaterialReactTableProps<any>['onEditingRowSave'] =
     async ({ exitEditingMode, row, values }) => {
       if (!Object.keys(validationErrors).length) {
+        confirmarDialog(() => {
+
+
+
+
         const submit = () => {
           // se necesita esta forma para ser pasado al servidor los archivos cargados
           const formData = new FormData();
@@ -337,30 +343,35 @@ const {containerNeptuno, setcontainerNeptuno} = useDataNeptuno();
           });
 
           formData.append('DescripcionLog', changesData);
-
-          axios({
-            method: 'post',
-            url: NEP_InsertaArchivo,
-            data: formData,
-            headers: { 'Content-Type': 'multipart/form-data' },
-            params: { contenedor: "-1" }
-          }).then(
-            t => {
-              data[row.index] = values;
-              setData([...data]);
-              exitEditingMode(); //required to exit editing mode and close modal
-
-              successDialog("Datos guardados exitosamente!", "");
-            }
-          ).catch((e) => {
-            errorDialog(e, "<i>Favor comunicarse con su administrador.</i>");
-
-          });
-
-
+         
+            axios({
+              method: 'post',
+              url: NEP_InsertaArchivo,
+              data: formData,
+              headers: { 'Content-Type': 'multipart/form-data' },
+              params: { contenedor: "-1" }
+            }).then(
+              t => {
+                data[row.index] = values;
+                setData([...data]);
+                exitEditingMode(); //required to exit editing mode and close modal
+  
+                successDialog("Datos guardados exitosamente!", "");
+              }
+            ).catch((e) => {
+              errorDialog(e, "<i>Favor comunicarse con su administrador.</i>");
+  
+            });
+         
         };
 
         submit();
+
+
+      }, `¿Esta seguro que desea editar el registro?`, 'Guardar');
+
+
+
 
       }
     };
