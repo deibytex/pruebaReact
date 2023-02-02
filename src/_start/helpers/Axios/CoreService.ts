@@ -16,6 +16,16 @@ export function Post_getconsultadinamicas(props: ParamsEndPointDynamic, body: an
   });
 }
 
+export function Post_getconsultadinamicasUser(props: ParamsEndPointDynamic, body: any) {
+  return axios({
+    method: 'post',
+    url: CORE_getconsultadinamicasUser,
+    data: JSON.stringify(body),
+    headers: { 'Content-Type': 'application/json' },
+    params: props
+  });
+}
+
 export function Post_ExecProcedureByTipoConsulta(props: ParamsEndPointDynamic, body: any) {
   return axios({
     method: 'post',
@@ -26,15 +36,7 @@ export function Post_ExecProcedureByTipoConsulta(props: ParamsEndPointDynamic, b
   });
 }
 
-export function Post_getconsultadinamicasUser(props: ParamsEndPointDynamic, body: any) {
-  return axios({
-    method: 'post',
-    url: CORE_getconsultadinamicasUser,
-    data: JSON.stringify(body),
-    headers: { 'Content-Type': 'application/json' },
-    params: props
-  });
-}
+
 
 export function EsAutorizadoIngresar(NombreOpcion: string) {
 
