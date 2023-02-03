@@ -103,6 +103,7 @@ const {containerNeptuno, setcontainerNeptuno} = useDataNeptuno();
       });
 
       setData(datosRecibidos);
+      setRowCount(datosRecibidos.length)
     }).catch((e) => {
       errorDialog(e, "<i>Favor comunicarse con su administrador.</i>");
       setIsError(true);
@@ -117,7 +118,6 @@ const {containerNeptuno, setcontainerNeptuno} = useDataNeptuno();
   },[
     columnFilters,
     globalFilter,
-    pagination.pageIndex,
     pagination.pageSize,
     sorting,
     contenedor]);
