@@ -272,7 +272,7 @@ const {containerNeptuno, setcontainerNeptuno} = useDataNeptuno();
     })()
 
 
-  }, [contenedorString
+  }, [contenedorString,contenedor
   ]);
 
 
