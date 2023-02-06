@@ -60,8 +60,7 @@
     "sheetjs-style": "^0.15.8",
     "socicon": "^3.0.5",
     "styled-components": "^5.3.5",
-    "sweetalert2": "^10.16.0",
-    "typescript": "^4.9.4",
+    "sweetalert2": "^10.16.0",    
     "uuidv4": "^6.2.13",
     "web-vitals": "^0.2.4",
     "yup": "^0.32.8"
