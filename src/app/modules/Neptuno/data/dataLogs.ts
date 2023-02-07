@@ -17,8 +17,8 @@ export async function ConsultarIndicadores(UsuarioId: string | null, FechaInicia
     return  Post_getconsultadinamicas({    Clase : "NEPQueryHelper",  NombreConsulta: "GetIndicadoresLog", Pagina :null, RecordsPorPagina :null}, params);
 };
 
-export async function ConsultarLogs(FechaInicial: string|undefined, FechaFinal :string|undefined, UsuarioId:  string) {
-    var params: { [id: string]: string | undefined; } = {};
+export async function ConsultarLogs(FechaInicial: string|undefined, FechaFinal :string|undefined, UsuarioId:  string|null) {
+    var params: { [id: string]: string | undefined | null; } = {};
     params["FechaInicial"] =FechaInicial;
     params["FechaFinal"] =FechaFinal;
     params["UsuarioId"] =UsuarioId;

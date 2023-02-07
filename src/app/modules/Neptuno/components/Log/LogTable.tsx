@@ -109,6 +109,19 @@ type Props = {
        
     },[contenedor]);
 
+    useEffect(() =>{
+        setFechaInicial(moment().format("DD/MM/YYYY"));
+        let UltimodiaMes = ultimoDiaMes(moment().format("DD/MM/YYYY"));
+        setFechaFinal(moment().add(UltimodiaMes, 'days').format("DD/MM/YYYY"));
+    },[FechaInicial,FechaFinal])
+    const ultimoDiaMes = (fecha:any) =>{
+        let arrayFecha = fecha.split('/');
+        let fechaUltimo = new Date(arrayFecha[0], arrayFecha[1]) 
+        fechaUltimo.setDate(fechaUltimo.getDate() - 1)
+      
+        return fechaUltimo.getDate().toString();
+      } 
+
 const AgruparArrayByPropiedad = (arrayRespuesta : LogDTO[]) =>{
     //Creamos un nuevo objeto donde vamos a almacenar por indicadores. 
     let nuevoObjeto = {}
@@ -132,7 +145,7 @@ const AgruparArrayByPropiedad = (arrayRespuesta : LogDTO[]) =>{
 
     const ConsultarLog = () =>{
         if(validarcampos()){
-            ConsultarLogs(FechaInicial,FechaFinal,(UsuarioSeleccionado != undefined ?  UsuarioSeleccionado.UsuarioId : "")).then((respuesta: AxiosResponse<LogDTO[]>) =>{
+            ConsultarLogs(FechaInicial,FechaFinal,(UsuarioSeleccionado != undefined ?  UsuarioSeleccionado.UsuarioId : null)).then((respuesta: AxiosResponse<LogDTO[]>) =>{
                 setData(respuesta.data);
                 //se agrupa por movimientos
                 let Indicadores = AgruparArrayByPropiedad(respuesta.data);
@@ -156,10 +169,6 @@ const AgruparArrayByPropiedad = (arrayRespuesta : LogDTO[]) =>{
         }
         if(FechaFinal == null || FechaFinal == undefined || FechaFinal == ""){
             errorDialog("Seleccione una fecha final","");
-            return false;
-        }
-        if(UsuarioSeleccionado == null || UsuarioSeleccionado == undefined || UsuarioSeleccionado.UsuarioId == ""){
-            errorDialog("Seleccione un usuario","");
             return false;
         }
         if(restaFechas(FechaInicial,FechaFinal)>30){
@@ -193,7 +202,7 @@ const AgruparArrayByPropiedad = (arrayRespuesta : LogDTO[]) =>{
                     if(lstUsuariosselect)
                         setUsuarioSeleccionado(lstUsuariosselect[0]);
                 }} aria-label="Default select example">
-                    <option value="">Seleccione</option>
+                    <option value={0}>Todos</option>
                     {                        
                         Usuarios?.map((element,i) => {
                                 let flag = (element.UsuarioId === UsuarioSeleccionado?.UsuarioId)
