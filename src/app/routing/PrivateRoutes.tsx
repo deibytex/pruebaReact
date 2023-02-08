@@ -14,7 +14,7 @@ import IndiceUsuarios from "../modules/auth/components/ListadoUsuarios";
 import { NoCargas } from "../modules/Ebus/components/Diagnostico/NoCargas";
 import Logs from "../modules/Neptuno/log"
 import Usuarios from "../modules/auth/components/ListadoUsuarios";
-
+import React from "react";
 
 
 export function PrivateRoutes() {
