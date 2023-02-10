@@ -15,7 +15,7 @@ export const DWH_GetConsultasDinamicas = `${apiURLDWH}/portal/GetConsultasDinami
 export const CORE_getconsultadinamicas = `${apiURL}/Adm/auth/GetConsultasDinamicas`
 export const CORE_ExecProcedureByTipoConsulta = `${apiURL}/Adm/auth/ExecProcedureByTipoConsulta`
 export const CORE_getconsultadinamicasUser = `${apiURL}/Adm/auth/GetConsultasDinamicasConAutorizacionUser`
-
+export const CORE_getconsultadinamicasUserDWH = `${apiURL}/Adm/auth/GetConsultasDinamicasConAutorizacionUserDWH`
 
 
 
@@ -34,3 +34,5 @@ export const CLIENTE_GetClientes = `${apiURLDWH}/Cliente/GetClientes`//[Required
 
 export const ASSET_GetClientesClienteId = `${apiURLDWH}/Asset/GetAssets/ClienteId` //long? ClienteId,string UsertState
 export const ASSET_GetClientesClienteIds = `${apiURLDWH}/Asset/GetAssets/ClienteIds` //int? ClienteIds, string UsertState
+export const EBUS_GetClientesUsuarios = `${apiURLDWH}/Ebus/GetClientesUsuarios` //int? ClienteIds, string UsertState
+export const EBUS_getEventActiveViajesByDayAndClient = `${apiURLDWH}/Ebus/GetEventosActivosByClienteIds` 
