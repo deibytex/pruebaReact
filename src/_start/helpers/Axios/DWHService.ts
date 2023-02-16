@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ASSET_GetClientesClienteIds, CORE_getconsultadinamicasUser, CORE_getconsultadinamicasUserDWH, DWH_GetConsultasDinamicas, EBUS_GetClientesUsuarios, EBUS_getEventActiveViajesByDayAndClient } from "../../../apiurlstore";
+import { ASSET_GetClientesClienteIds, CORE_getconsultadinamicasUser, CORE_getconsultadinamicasUserDWH, DWH_GetConsultasDinamicas, EBUS_GetClientesUsuarios, EBUS_GetColumnasDatatable, EBUS_getEventActiveViajesByDayAndClient, EBUS_GetTiempoActualizacion, EBUS_SetColumnasDatatable } from "../../../apiurlstore";
 import { ParamsEndPointDynamic } from "../Models/paramsConsultasDinamicas";
 
 export function Post_GetConsultasDinamicas(props: ParamsEndPointDynamic, body: any) {
@@ -64,4 +64,27 @@ export function Post_GetConsultasDinamicas(props: ParamsEndPointDynamic, body: a
     });
   }
 
-  
+  export  function Post_SetColumnasDatatable(props:any) {
+    return  axios({
+      method: 'post',
+      url: EBUS_SetColumnasDatatable,     
+      headers: { 'Content-Type': 'application/json' },
+      params : props
+    });
+  }
+  export  function Post_GetColumnasDatatable(props:any) {
+    return  axios({
+      method: 'post',
+      url: EBUS_GetColumnasDatatable,     
+      headers: { 'Content-Type': 'application/json' },
+      params : props
+    });
+  }
+  export  function Post_GetTiempoActualizacion(props:any) {
+    return  axios({
+      method: 'post',
+      url: EBUS_GetTiempoActualizacion,     
+      headers: { 'Content-Type': 'application/json' },
+      params : props
+    });
+  }

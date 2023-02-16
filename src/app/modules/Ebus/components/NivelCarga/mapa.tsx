@@ -30,9 +30,18 @@ const Mapa : React.FC<Props> =  ({ListadoVehiculos}) =>{
         if(map != null)
         map.invalidateSize();
     }, 1000);
-
+    const getIconSoc = (data:any) => {
+        return (
+          (data <= 100 && data >= 80)? <><i className="bi-battery-full" style={{ color:'#00B050'}}></i><span style={{fontSize:"15px"}}> {data == null ? "" : data.toFixed(0)}%</span></>:
+           data <= 79 && data >= 60 ? <><i className="bi-battery-full rotate-45-verde" style={{color:'#92D050'}}></i><span style={{fontSize:"15px"}}>{data == null ? "" : data.toFixed(0)}%</span></>:
+          (data <= 59 && data >= 40 ? <><span><i className="bi-battery-half rotate-45-yellow" style={{fontSize:"15px", color:'#ff0'}}></i></span><span style={{fontSize:"15px"}}>{data == null ? "" : data.toFixed(0)}%</span></>:
+          (data <= 39 && data >= 20 ? <><span><i className="bi-battery-half rotate-45-naranja" style={{color:'#ffa500'}}></i></span><span style={{fontSize:"15px"}}>{data == null ? "" : data.toFixed(0)}%</span></>:
+          (data <= 19 && data >= 0 ? <><span><i className="bi-battery-half" ></i></span><span style={{fontSize:"15px"}}>{data == null ? "" : data.toFixed(0)}%</span></>:
+          <><span><i className="bi-battery-half"></i></span> <span style={{fontSize:"15px"}}>{data == null ? "" : data.toFixed(0)}%</span></>)))
+        );
+    }
     return (
-        <MapContainer id="mapcontainter" center={[Number.parseFloat(ListadoVehiculos[0].Latitud), Number.parseFloat(ListadoVehiculos[0].Longitud)]} zoom={15}
+        <MapContainer id="mapcontainter" center={[Number.parseFloat(ListadoVehiculos[0].latitud), Number.parseFloat(ListadoVehiculos[0].longitud)]} zoom={12}
             whenCreated={setMap}
         >
             <TileLayer
@@ -41,8 +50,8 @@ const Mapa : React.FC<Props> =  ({ListadoVehiculos}) =>{
             {activePark && (
                 <Popup
                     position={[
-                        Number.parseFloat(activePark.Latitud),
-                        Number.parseFloat(activePark.Longitud)
+                        Number.parseFloat(activePark.latitud),
+                        Number.parseFloat(activePark.longitud)
                     ]}
                     onClose={() => {
                         let evento = {}
@@ -50,19 +59,19 @@ const Mapa : React.FC<Props> =  ({ListadoVehiculos}) =>{
                     }}
                 >
                     <div>
-                        <h2>Soc: {activePark.Soc}</h2>
-                        <p>Movil:{activePark.Placa}</p>
-                        <p>Operador:{activePark.Driver}</p>
+                        <p>Soc: {getIconSoc(activePark.soc)}</p>
+                        <p>Movil:{activePark.placa}</p>
+                        <p>Operador:{activePark.driver}</p>
                     </div>
                 </Popup>
             )}
             {ListadoVehiculos.map(park => (
                 <Marker
 
-                    key={park.AssetId}
+                    key={park.assetId}
                     position={[
-                        Number.parseFloat(park.Latitud),
-                        Number.parseFloat(park.Longitud)
+                        Number.parseFloat(park.latitud),
+                        Number.parseFloat(park.longitud)
                     ]}
                     eventHandlers={{
                         click: (e: any) => {

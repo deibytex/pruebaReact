@@ -10,13 +10,13 @@ type Props = {
     show:boolean;
     handleClose: () => void;
     title?:string;
-    CLienteIds:number;
+    CLienteIds:number | null;
 };
 const Vehiculos : React.FC<Props> =  ({show,handleClose,title,CLienteIds}) => {
 const [vehiculos, setvehiculos] = useState<dualListDTO[]>([]);
 const [selected, setSelected] = useState([]);
 useEffect(() =>{
-    GetVehiculos(CLienteIds.toString()).then((response:AxiosResponse<any>) =>{
+    GetVehiculos((CLienteIds != null ? CLienteIds.toString(): null)).then((response:AxiosResponse<any>) =>{
         let dual = response.data.map((item:AssetsDTO)=>{
             return {"value":item.assetId, "label":item.registrationNumber};
         })
