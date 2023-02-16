@@ -67,8 +67,8 @@ function useDataNivelCarga() {
     return useContext(NivelCargaContext);
 }
 
-const Indicador : React.FC <Props>= ({Visible}) =>{
-    return <>{CargarIndicador(Visible)}</>
+const Indicador : React.FC = ({children}) =>{
+    return <>{CargarIndicador({children})}</>
 }
 const DataEventosTiempoClientes: React.FC = ({ children }) => {
     const { Visible, DatosMapa, Clientes, ClienteSeleccionado, dataTable,setVisible,  setDatosMapa, setClienteSeleccionado, setClientes, setPeriodo, setdataTable } = useDataNivelCarga();
@@ -80,6 +80,7 @@ const DataEventosTiempoClientes: React.FC = ({ children }) => {
             setVisible(false);
         }).catch((error) =>{
             console.log(error);
+            setVisible(false);
             errorDialog("<i>Eror al consultar los eventos</i>","")
         })
     }
@@ -143,7 +144,8 @@ function CargaListadoClientes(Clientes:any, ClienteSeleccionado:any, setClienteS
             </Form.Select>               
     );
   }
-  function CargarIndicador (Visible:boolean){
+  function CargarIndicador (children:any){
+    const { Visible } = useDataNivelCarga();
     return (
         <> <Watch
         height={30}
@@ -152,6 +154,7 @@ function CargaListadoClientes(Clientes:any, ClienteSeleccionado:any, setClienteS
         ariaLabel="watch-loading"
         wrapperStyle={{}}
         visible={Visible}
+       
     /></>
     )
  }

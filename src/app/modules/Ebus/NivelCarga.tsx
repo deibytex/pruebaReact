@@ -1,11 +1,11 @@
 
 import moment from "moment";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TituloNivelCarga } from "../../../_start/helpers/Texts/textosPorDefecto";
 import { PageTitle } from "../../../_start/layout/core/PageData";
 import { Principal } from "./components/NivelCarga/principal";
 
-import { DataEventosTiempoClientes, Indicador, NivelCargaProvider } from "./core/NivelCargaProvider";
+import { DataEventosTiempoClientes, Indicador, NivelCargaProvider, useDataNivelCarga } from "./core/NivelCargaProvider";
 
 
 type Props = {
@@ -14,7 +14,11 @@ type Props = {
  const  NivelCarga: React.FC<Props> = () => {
     const [tamaMapa, settamaMapa] = useState("50%");
     const [tamaTabla, settamaTabla] = useState("50%");
-    const [Visible, setVisible]  = useState(true);
+    const [VisibleL, setVisibleL]  = useState(true);
+    const {Visible} = useDataNivelCarga()
+    useEffect(() =>{
+        setVisibleL((Visible == undefined ? false:Visible));
+    },[Visible])
      //Funcion  para la tabla 100% o 50%
      const ExpandirContraerTabla = () =>{
         //Tabla
@@ -39,7 +43,8 @@ type Props = {
                         <DataEventosTiempoClientes>{moment().format("MYYYY").toString()}</DataEventosTiempoClientes>
                     </div>
                     <div  className="col-sm-1 col-md-1 col-xs-1">
-                         <Indicador Visible={Visible }></Indicador>
+                        <div></div>
+                        <Indicador>{VisibleL}</Indicador>
                     </div>
                 </div>
 
