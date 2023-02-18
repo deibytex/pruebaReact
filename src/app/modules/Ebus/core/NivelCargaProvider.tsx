@@ -7,7 +7,7 @@ import { FechaServidor } from "../../../../_start/helpers/Helper";
 import { getEventosActivosPorDia } from "../../Fatigue/data/dashBoardData";
 import { GetClientesEsomos, PostEventActiveViajesByDayAndClient, ValidarTiempoActualizacion } from "../data/NivelCarga";
 import { ClienteDTO, InicioCliente, InicioTabla, MapaDTO, MapaInicial, TablaDTO } from "../models/NivelcargaModels";
-import { Watch } from "react-loader-spinner";
+import { CirclesWithBar, Vortex, Watch } from "react-loader-spinner";
 import { type } from "os";
 // clase con los funciones  y datos a utiilizar
 type Props  = {
@@ -26,6 +26,12 @@ export interface NivelCargaContextModel {
     setPeriodo: (Periodo:string) => void;
     Visible?:boolean;
     setVisible : (visible:boolean)  => void;
+    DatosMapaIndividual?: any;
+    setDatosMapaIndividual: (MapaIndividual:any) => void;
+    EsTotal?: any;
+    setEstotal : (EsTotal:any) =>void;
+    ResetearValores?:boolean;
+    setResetearValores: (Resetear:any) =>void;
 }
 const NivelCargaContext = createContext<NivelCargaContextModel>({
     setDatosMapa: (Data: any) => {},
@@ -33,7 +39,11 @@ const NivelCargaContext = createContext<NivelCargaContextModel>({
     setClienteSeleccionado: (Data: any) => {},
     setPeriodo: (Periodo: string) => {},
     setdataTable:(Data:any) => {},
-    setVisible:(Visible:boolean) =>{}
+    setVisible:(Visible:boolean) =>{},
+    setDatosMapaIndividual:(MapaIndividual:any) =>{},
+    setEstotal:(EsTotal:any) =>{},
+    setResetearValores:(Resetear:any) =>{},
+
 });
 const NivelCargaProvider: React.FC = ({ children }) => {
     const [DatosMapa, setDatosMapa] = useState<[]>([]);
@@ -42,7 +52,9 @@ const NivelCargaProvider: React.FC = ({ children }) => {
     const [dataTable, setdataTable] = useState<TablaDTO[]>([])
     const [Periodo, setPeriodo] = useState<string>("");
     const [Visible, setVisible] = useState<boolean>(true);
-
+    const [DatosMapaIndividual, setDatosMapaIndividual] = useState<[]>([]);
+    const [EsTotal, setEstotal] = useState<boolean>(false);
+    const [ResetearValores, setResetearValores] = useState<boolean>(false);    
     const value: NivelCargaContextModel = {
        DatosMapa,
        setClientes,
@@ -55,7 +67,13 @@ const NivelCargaProvider: React.FC = ({ children }) => {
        dataTable,
        setdataTable,
        Visible,
-       setVisible
+       setVisible,
+       DatosMapaIndividual,
+       setDatosMapaIndividual,
+       EsTotal,
+       setEstotal,
+       ResetearValores,
+       setResetearValores
     };
     return (
         <NivelCargaContext.Provider value={value}>
@@ -66,18 +84,21 @@ const NivelCargaProvider: React.FC = ({ children }) => {
 function useDataNivelCarga() {
     return useContext(NivelCargaContext);
 }
-
 const Indicador : React.FC = ({children}) =>{
     return <>{CargarIndicador({children})}</>
 }
+const IndicadorCargado : React.FC = ({children}) =>{
+    return <>{CargarIndicadorCargado({children})}</>
+}
 const DataEventosTiempoClientes: React.FC = ({ children }) => {
-    const { Visible, DatosMapa, Clientes, ClienteSeleccionado, dataTable,setVisible,  setDatosMapa, setClienteSeleccionado, setClientes, setPeriodo, setdataTable } = useDataNivelCarga();
+    const { ResetearValores, Visible, DatosMapa, Clientes, ClienteSeleccionado, dataTable, DatosMapaIndividual,setResetearValores, setDatosMapaIndividual, setVisible,setEstotal,  setDatosMapa, setClienteSeleccionado, setClientes, setPeriodo, setdataTable } = useDataNivelCarga();
     const CargarEventos = (clienteIdS:string,Periodo: string) =>{
         setVisible(true)
         PostEventActiveViajesByDayAndClient(clienteIdS,Periodo).then((response:AxiosResponse<any>) =>{
             setDatosMapa(response.data);
             setdataTable(response.data);
             setVisible(false);
+            setEstotal(true);
         }).catch((error) =>{
             console.log(error);
             setVisible(false);
@@ -112,6 +133,7 @@ const DataEventosTiempoClientes: React.FC = ({ children }) => {
             setClienteSeleccionado(response.data[0])
             setPeriodo(children);
             GetTiempo(response.data[0].clienteIdS);
+            setEstotal(true);
         }).catch((error) =>{
             console.log(error);
             errorDialog("<i>Eror al consultar los clientes</i>","")
@@ -124,6 +146,8 @@ const DataEventosTiempoClientes: React.FC = ({ children }) => {
     }, [children]);
     return <>{(CargaListadoClientes(Clientes,ClienteSeleccionado, setClienteSeleccionado))}</>;
 };
+
+
 function CargaListadoClientes(Clientes:any, ClienteSeleccionado:any, setClienteSeleccionado: ((arg0: ClienteDTO) => void) ) {
     return (           
             <Form.Select   className=" mb-3 " onChange={(e) => {
@@ -158,5 +182,22 @@ function CargaListadoClientes(Clientes:any, ClienteSeleccionado:any, setClienteS
     /></>
     )
  }
-
-export { NivelCargaProvider, useDataNivelCarga, DataEventosTiempoClientes, Indicador}
+ function CargarIndicadorCargado (children:any){
+    const { Visible } = useDataNivelCarga();
+    return (
+        <>
+         <CirclesWithBar
+        height="30"
+        width="30"
+        color="#4fa94d"
+        wrapperStyle={{}}
+        wrapperClass=""
+        visible={!Visible}
+        outerCircleColor=""
+        innerCircleColor=""
+        barColor=""
+        ariaLabel='circles-with-bar-loading'
+      /></>
+    )
+ }
+export { NivelCargaProvider, useDataNivelCarga, DataEventosTiempoClientes, Indicador, IndicadorCargado}

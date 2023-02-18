@@ -1,8 +1,9 @@
 import { Icon } from "leaflet";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { render } from "react-dom";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import { getCSSVariableValue } from "../../../../../_start/assets/ts/_utils";
-import { MapaDTO } from "../../models/NivelcargaModels";
+import { MapaDTO, MapaInicial } from "../../models/NivelcargaModels";
 
 type Props =  {
     ListadoVehiculos : MapaDTO[];
@@ -25,7 +26,6 @@ const Mapa : React.FC<Props> =  ({ListadoVehiculos}) =>{
     const [map, setMap] = useState<any>(null);
     const [activePark, setActivePark] = useState<MapaDTO>();
 
-
     setTimeout(function () {      
         if(map != null)
         map.invalidateSize();
@@ -44,6 +44,7 @@ const Mapa : React.FC<Props> =  ({ListadoVehiculos}) =>{
         <MapContainer id="mapcontainter" center={[Number.parseFloat(ListadoVehiculos[0].latitud), Number.parseFloat(ListadoVehiculos[0].longitud)]} zoom={12}
             whenCreated={setMap}
         >
+           
             <TileLayer
                 url={CapaBasicNight}
             />
@@ -83,7 +84,8 @@ const Mapa : React.FC<Props> =  ({ListadoVehiculos}) =>{
 
                 />
             ))}
-        </MapContainer>);      
+        </MapContainer>);    
+      
 }
 
 export {Mapa};

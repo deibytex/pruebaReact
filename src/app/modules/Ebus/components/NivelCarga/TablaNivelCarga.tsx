@@ -3,18 +3,21 @@ import moment from "moment";
 import { useEffect, useState } from "react";
 import { LogDTO } from "../../../Neptuno/models/logModel";
 import { MRT_Localization_ES } from 'material-react-table/locales/es';
-import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
+import { ColumnFiltersState, PaginationState, SortingState, VisibilityState } from "@tanstack/react-table";
 import { TablaDTO } from "../../models/NivelcargaModels";
 import { Mapa } from "./mapa";
 import { NivelCargaProvider, useDataNivelCarga } from "../../core/NivelCargaProvider";
 import { MapaDTO } from "../../models/NivelcargaModels";
+import { Principal } from "./principal";
 type Props = {
-  data:TablaDTO[]
+  data:TablaDTO[],
+  cargarMapaIndividual:(row:any) =>{}
 };
 
-const TablaNivelCarga : React.FC<Props> =  ({data}) =>{
-  const {DatosMapa, dataTable,  ClienteSeleccionado, setClientes, setClienteSeleccionado, setDatosMapa, setdataTable, setPeriodo} = useDataNivelCarga()
-       //table state
+const TablaNivelCarga : React.FC<Props> =  ({cargarMapaIndividual,data}) =>{
+  
+  const [MapaIndividualL, setMapaIndividualL] = useState<TablaDTO[]>([])     
+  //table state
        const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
        const [globalFilter, setGlobalFilter] = useState('');
        const [sorting, setSorting] = useState<SortingState>([]);
@@ -26,6 +29,8 @@ const TablaNivelCarga : React.FC<Props> =  ({data}) =>{
        const [isLoading, setIsLoading] = useState(false);
        const [isRefetching, setIsRefetching] = useState(false);
        const [isError, setIsError] = useState(false);
+     
+  
       // fin table state
       let Driver = [];
      if(data[0].driver != null)
@@ -39,13 +44,17 @@ const TablaNivelCarga : React.FC<Props> =  ({data}) =>{
       useEffect(()=>{
         setRowCount(data.length);
       })
+
       let listadoCampos: MRT_ColumnDef<TablaDTO>[] =
 
     [
        {
          accessorKey: 'fechaString',
          header: 'Fecha',
-         size: 5,
+         enableHiding: false,
+         size: 10,
+         minSize: 10, //min size enforced during resizing
+         maxSize: 10,
          Cell({ cell, column, row, table, }) {
           return (moment(row.original.fechaString).format("DD/MM/YYYY"));
         }
@@ -53,17 +62,25 @@ const TablaNivelCarga : React.FC<Props> =  ({data}) =>{
        {
          accessorKey: 'placa',
          header: 'Móvil',
+         enableHiding: false,
+         enableClickToCopy:true,
          Cell({ cell, column, row, table, }) {
           return (cell.getValue() != null)? <a style={{cursor: 'pointer'}}  data-rel={row.original.placa} href="#" id="MapaIndividual" onClick={cargarMapaIndividual} className="MapaIndividual"> {(row.original.placa == null ? "" : row.original.placa)}</a>:"" ;
         },
-        size: 3
+       
+        minSize: 10, //min size enforced during resizing
+         maxSize: 10,
+        size: 10
        },
        {
         accessorKey: 'driver',
         header: 'Operador',
         filterVariant: 'select',
         filterSelectOptions:  Driver,
-        size: 20
+        enableHiding: false,
+        minSize: 10, //min size enforced during resizing
+         maxSize: 10,
+        size: 10
       },
        {
         accessorKey: 'socInicial',
@@ -73,7 +90,10 @@ const TablaNivelCarga : React.FC<Props> =  ({data}) =>{
         },
         filterVariant: 'range',
         filterFn: 'betweenInclusive',
-        size: 3
+        enableHiding: false,
+        minSize: 5, //min size enforced during resizing
+         maxSize: 5,
+        size: 5
       },
       {
         accessorKey: 'soc',
@@ -83,12 +103,15 @@ const TablaNivelCarga : React.FC<Props> =  ({data}) =>{
         },
         filterVariant: 'range',
         filterFn: 'betweenInclusive',
-        size: 3
+        enableHiding: false,
+        minSize: 5, //min size enforced during resizing
+         maxSize: 5,
+        size: 5
       },
       {
         accessorKey: 'kms',
         header: 'Distancia',
-        Header:<text>Distancia<br/>[km]</text>,
+        Header:<span>Distancia<br/>[km]</span>,
         Cell({ cell, column, row, table, }) {
           return (row.original.kms?.toFixed(1)) ;
         },
@@ -97,7 +120,7 @@ const TablaNivelCarga : React.FC<Props> =  ({data}) =>{
       {
         accessorKey: 'eficiencia',
         header: `Eficiencia`,
-        Header: <text>Eficiencia<br/>[km/kWh]</text>,
+        Header: <span>Eficiencia<br/>[km/kWh]</span>,
         Cell({ cell, column, row, table, }) {
           return (row.original.eficiencia?.toFixed(1)) ;
         },
@@ -106,7 +129,7 @@ const TablaNivelCarga : React.FC<Props> =  ({data}) =>{
       {
         accessorKey: 'porRegeneracion',
         header: 'Regeneración',
-        Header: <text>Regeneración<br/>[%]</text>,
+        Header: <span>Regeneración<br/>[%]</span>,
         Cell({ cell, column, row, table, }) {
           return (row.original.porRegeneracion?.toFixed(1)) ;
         },
@@ -115,7 +138,7 @@ const TablaNivelCarga : React.FC<Props> =  ({data}) =>{
       {
         accessorKey: 'autonomia',
         header: 'Autonomia',
-        Header:<text>Autonomia<br/> [Km]</text>,
+        Header:<span>Autonomia<br/> [Km]</span>,
         Cell({ cell, column, row, table, }) {
           return (row.original.autonomia?.toFixed(1)) ;
         },
@@ -124,7 +147,7 @@ const TablaNivelCarga : React.FC<Props> =  ({data}) =>{
       {
         accessorKey: 'energia',
         header: 'Energia',
-        Header:<text>Energía<br/> [kWh]</text>,
+        Header:<span>Energía<br/> [kWh]</span>,
         Cell({ cell, column, row, table, }) {
           return (row.original.energia?.toFixed(1)) ;
         },
@@ -133,7 +156,7 @@ const TablaNivelCarga : React.FC<Props> =  ({data}) =>{
       {
         accessorKey: 'energiaDescargada',
         header: 'Energia descargada',
-        Header:<text>E.Descargada<br/> [kWh]</text>,
+        Header:<span>E.Descargada<br/> [kWh]</span>,
         Cell({ cell, column, row, table, }) {
           return (row.original.energiaDescargada?.toFixed(1)) ;
         },
@@ -142,7 +165,7 @@ const TablaNivelCarga : React.FC<Props> =  ({data}) =>{
       {
         accessorKey: 'energiaRegenerada',
         header: 'E.Regenerada',
-        Header: <text>E.Regenerada<br/> [kWh]</text>,
+        Header: <span>E.Regenerada<br/> [kWh]</span>,
         Cell({ cell, column, row, table, }) {
           return (row.original.energiaRegenerada?.toFixed(1)) ;
         },
@@ -151,7 +174,7 @@ const TablaNivelCarga : React.FC<Props> =  ({data}) =>{
       {
         accessorKey: 'odometro',
         header: 'Odómetro',
-        Header: <text>Odómetro<br/> [km]</text>,
+        Header: <span>Odómetro<br/> [km]</span>,
         Cell({ cell, column, row, table, }) {
           return (row.original.odometro?.toFixed(1)) ;
         },
@@ -160,20 +183,18 @@ const TablaNivelCarga : React.FC<Props> =  ({data}) =>{
       {
         accessorKey: 'velocidadPromedio',
         header: 'Velocidad',
-        Header: <text>Velocidad<br/> Prom</text>,
+        Header: <span>Velocidad<br/> Prom</span>,
         Cell({ cell, column, row, table, }) {
           return (row.original.velocidadPromedio?.toFixed(1)) ;
         },
         size: 10
       }
      ];
-const cargarMapaIndividual = (row: any) =>{
-  let MapaIdnividual = data.filter((item) =>{
-    return (item.placa == row.target.dataset.rel);
-  })
-  setDatosMapa(MapaIdnividual);
-  console.log(row);
-};
+     const {setEstotal, setDatosMapaIndividual} = useDataNivelCarga()
+     useEffect(() => {
+      return 
+    }, []);
+
 
 const getIconSoc = (data:any) => {
       return (
@@ -202,27 +223,25 @@ const getIconSoc = (data:any) => {
     porRegeneracion: false , 
     velocidadPromedio:false
   }; 
-     
+
     return (
         <div>
            <NivelCargaProvider>
            <MaterialReactTable
                     localization={MRT_Localization_ES}
                     displayColumnDefOptions={{
-                      
                     'mrt-row-actions': {
                         muiTableHeadCellProps: {
                         align: 'center',
                         },
-                        size: 10,
+                        size: 3,
                     },
-                   
                   }
                   }
                     columns={listadoCampos}
                     data={data}
-                    
                     enableTopToolbar={true}
+                    enableDensityToggle
                     enableColumnOrdering
                     onColumnFiltersChange={setColumnFilters}
                     onGlobalFilterChange={setGlobalFilter}
@@ -250,9 +269,11 @@ const getIconSoc = (data:any) => {
                     }}
                     initialState={{columnVisibility:VisibilidadColumnas, showColumnFilters: true}}
                 /> 
+               
                 </NivelCargaProvider>
         </div>
     )
    
 }
+
 export {TablaNivelCarga};
