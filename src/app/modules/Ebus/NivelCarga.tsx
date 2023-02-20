@@ -12,16 +12,18 @@ type Props = {
 };
 
  const  NivelCarga: React.FC<Props> = () => {
+    //Para los use state
     const [tamaMapa, settamaMapa] = useState("50%");
     const [tamaTabla, settamaTabla] = useState("50%");
     const [VisibleL, setVisibleL]  = useState(true);
     const {Visible, setResetearValores, ResetearValores} = useDataNivelCarga()
     const [Reset, setReset]  = useState(false);
+    //el  useEffect
     useEffect(() =>{
         (Reset ? setReset(true):setReset(false));
         setVisibleL((Visible == undefined ? false:Visible));
     },[Reset])
-     //Funcion  para la tabla 100% o 50%
+     //Funcion  para la tabla expandir, contraer al  100% o 50%
      const ExpandirContraerTabla = () =>{
         //Tabla
          if(tamaTabla == '50%')
@@ -34,10 +36,12 @@ type Props = {
          else
              settamaMapa('50%')
      }
+     //funcion para resetear los datos o devolverlos al normal
      const ResetearDatos = () =>{
         setReset(!Reset);
         setResetearValores(Reset)
      }
+     //se retorna la pagina o los botones para expandir/contraer la tabla y resetear datos
     return(
             <NivelCargaProvider>
                 <PageTitle >{TituloNivelCarga}</PageTitle>

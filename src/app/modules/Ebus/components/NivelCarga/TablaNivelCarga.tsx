@@ -195,7 +195,7 @@ const TablaNivelCarga : React.FC<Props> =  ({cargarMapaIndividual,data}) =>{
       return 
     }, []);
 
-
+//funcion para retornar los iconos de la tabla de soc y soc inicial
 const getIconSoc = (data:any) => {
       return (
         (data <= 100 && data >= 80)? <><i className="bi-battery-full" style={{ color:'#00B050'}}></i><span style={{fontSize:"15px"}}> {data == null ? "" : data.toFixed(0)}%</span></>:
@@ -206,7 +206,7 @@ const getIconSoc = (data:any) => {
         <><span><i className="bi-battery-half"></i></span> <span style={{fontSize:"15px"}}>{data == null ? "" : data.toFixed(0)}%</span></>)))
       );
   }
-
+//para visibilidad de las columnas
   let VisibilidadColumnas = { 
     fechaString: true,
     placa:true,
@@ -223,7 +223,7 @@ const getIconSoc = (data:any) => {
     porRegeneracion: false , 
     velocidadPromedio:false
   }; 
-
+//retorna la tabla
     return (
         <div>
            <NivelCargaProvider>
@@ -250,6 +250,7 @@ const getIconSoc = (data:any) => {
                     rowCount={rowCount}
                     enableFilters
                     enableColumnFilters={true}
+                    globalFilterFn="Filter" //set the global filter function to myCustomFilterFn
                     muiToolbarAlertBannerProps={
                       isError
                         ? {

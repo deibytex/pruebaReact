@@ -90,6 +90,7 @@ const Indicador : React.FC = ({children}) =>{
 const IndicadorCargado : React.FC = ({children}) =>{
     return <>{CargarIndicadorCargado({children})}</>
 }
+//Hace toda la magia de ir al servidor, traerse los datos y setearlos
 const DataEventosTiempoClientes: React.FC = ({ children }) => {
     const { ResetearValores, Visible, DatosMapa, Clientes, ClienteSeleccionado, dataTable, DatosMapaIndividual,setResetearValores, setDatosMapaIndividual, setVisible,setEstotal,  setDatosMapa, setClienteSeleccionado, setClientes, setPeriodo, setdataTable } = useDataNivelCarga();
     const CargarEventos = (clienteIdS:string,Periodo: string) =>{
@@ -147,7 +148,7 @@ const DataEventosTiempoClientes: React.FC = ({ children }) => {
     return <>{(CargaListadoClientes(Clientes,ClienteSeleccionado, setClienteSeleccionado))}</>;
 };
 
-
+//Carga el listado de los clientes
 function CargaListadoClientes(Clientes:any, ClienteSeleccionado:any, setClienteSeleccionado: ((arg0: ClienteDTO) => void) ) {
     return (           
             <Form.Select   className=" mb-3 " onChange={(e) => {
@@ -168,6 +169,7 @@ function CargaListadoClientes(Clientes:any, ClienteSeleccionado:any, setClienteS
             </Form.Select>               
     );
   }
+  //para indicar que esta cargando
   function CargarIndicador (children:any){
     const { Visible } = useDataNivelCarga();
     return (
@@ -182,6 +184,7 @@ function CargaListadoClientes(Clientes:any, ClienteSeleccionado:any, setClienteS
     /></>
     )
  }
+ //para rellenar el espacio de cargado
  function CargarIndicadorCargado (children:any){
     const { Visible } = useDataNivelCarga();
     return (

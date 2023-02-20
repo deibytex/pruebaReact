@@ -30,6 +30,7 @@ const Mapa : React.FC<Props> =  ({ListadoVehiculos}) =>{
         if(map != null)
         map.invalidateSize();
     }, 1000);
+    //Funcion que ubica los iconos para el soc
     const getIconSoc = (data:any) => {
         return (
           (data <= 100 && data >= 80)? <><i className="bi-battery-full" style={{ color:'#00B050'}}></i><span style={{fontSize:"15px"}}> {data == null ? "" : data.toFixed(0)}%</span></>:

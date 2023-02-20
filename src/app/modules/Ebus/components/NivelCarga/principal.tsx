@@ -22,15 +22,16 @@ type Props = {
 
 };
 const  Principal: React.FC<Props> = ({ExpandirContraerTabla, tamaTabla, tamaMapa, ResetearDatos}) => {
-   
+    //Para obtener, setear los datos, los usestate
     const {Visible, ResetearValores, DatosMapa, dataTable,  ClienteSeleccionado, setdataTable, setDatosMapa, setEstotal, EsTotal, DatosMapaIndividual, setDatosMapaIndividual} = useDataNivelCarga()
     const [show, setShow] = useState(false);
     const [showSoc, setShowSoc] = useState(false);
     const [Vehiculo, setVehiculo] = useState("");
-useEffect(() =>{
-    (ResetearDatos?setEstotal(true):setEstotal(false))
-},[ResetearDatos])
-
+    //UseEffect
+    useEffect(() =>{
+        (ResetearDatos?setEstotal(true):setEstotal(false))
+    },[ResetearDatos])
+//Para cargar los datos del mapa individual
 const cargarMapaIndividual = (row: any) =>{
     setVehiculo(row.target.dataset.rel)
     setEstotal(false);
@@ -40,14 +41,9 @@ const cargarMapaIndividual = (row: any) =>{
     setDatosMapaIndividual(MapaIdnividual);
     return row.target.dataset.rel;
   };
+  //para retornar los datos de la tabla por componentes.
     return(
         <NivelCargaProvider>
-            <Soc show={showSoc} handleClose={function (): void {
-            setShowSoc(false);
-            } }/>
-            <Vehiculos CLienteIds={(ClienteSeleccionado != null ? ClienteSeleccionado?.clienteIdS: null )} show={show} handleClose={function (): void {
-                setShow(false);
-            } }/> 
             <div style={{display: 'flex', flexWrap: 'wrap', width:'100%'}}>
                 <div style={{width:`${tamaTabla}`}}>{(dataTable.length != 0) && (<TablaNivelCarga  data={dataTable} cargarMapaIndividual={cargarMapaIndividual}/>)}</div><div style={{width:`${tamaMapa}`}}>{( DatosMapa.length  != 0) && ( <Mapa ListadoVehiculos={(EsTotal ? DatosMapa: DatosMapaIndividual)}/>)}</div>
             </div>
