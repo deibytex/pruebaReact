@@ -48,7 +48,7 @@ type Props = {
                 <div className="row">
                     <div className="col-sm-6 col-md-6 col-xs-6">
                         <button className="btn btn-sm btn-primary" title="Expadir contraer tabla" onClick={ExpandirContraerTabla}><i className="bi-display"></i></button>
-                        <button className="btn btn-sm btn-primary" title="Resetear Mapa" onClick={ResetearDatos}><i className="bi-filter"></i></button>
+                        <button className="btn btn-sm btn-primary" title="Resetear Mapa" onClick={ResetearDatos}><i className="bi-filter"><span aria-hidden="true">&times;</span></i></button>
                     </div>
                     <div className="col-sm-5 col-md-5 col-xs-5">
                         <DataEventosTiempoClientes>{moment().format("MYYYY").toString()}</DataEventosTiempoClientes>
