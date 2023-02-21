@@ -15,6 +15,7 @@ import { NoCargas } from "../modules/Ebus/components/Diagnostico/NoCargas";
 import Logs from "../modules/Neptuno/log"
 import Usuarios from "../modules/auth/components/ListadoUsuarios";
 import { NivelCarga } from "../modules/Ebus/NivelCarga";
+import { ParqueoInteligente } from "../modules/Ebus/ParqueoInteligente";
 
 
 
@@ -40,6 +41,7 @@ export function PrivateRoutes() {
        <Route path="/auth/Usuario" component={Usuarios} /> 
        <Route path="/ebus/diagnostico" component={NoCargas} />       
        <Route path="/ebus/nivelcarga" component={NivelCarga} />    
+       <Route path="/ebus/ParqueoInteligente" component={ParqueoInteligente} />    
       </Switch>
     </Suspense>
   );
