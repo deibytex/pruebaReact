@@ -13,8 +13,8 @@ type Props = {
 
  const  NivelCarga: React.FC<Props> = () => {
     //Para los use state
-    const [tamaMapa, settamaMapa] = useState("50%");
-    const [tamaTabla, settamaTabla] = useState("50%");
+    const [tamaMapa, settamaMapa] = useState("47%");
+    const [tamaTabla, settamaTabla] = useState("47%");
     const [VisibleL, setVisibleL]  = useState(true);
     const {Visible, setResetearValores, ResetearValores} = useDataNivelCarga()
     const [Reset, setReset]  = useState(false);
@@ -26,15 +26,15 @@ type Props = {
      //Funcion  para la tabla expandir, contraer al  100% o 50%
      const ExpandirContraerTabla = () =>{
         //Tabla
-         if(tamaTabla == '50%')
+         if(tamaTabla == '47%')
            settamaTabla("100%");
          else
-           settamaTabla("50%");
+           settamaTabla("47%");
          //Mapa
-         if(tamaMapa == '50%')
+         if(tamaMapa == '47%')
              settamaMapa('0%')
          else
-             settamaMapa('50%')
+             settamaMapa('47%')
      }
      //funcion para resetear los datos o devolverlos al normal
      const ResetearDatos = () =>{
@@ -51,15 +51,19 @@ type Props = {
                         <button className="btn btn-sm btn-primary" title="Resetear Mapa" onClick={ResetearDatos}><i className="bi-filter"><span aria-hidden="true">&times;</span></i></button>
                     </div>
                     <div className="col-sm-5 col-md-5 col-xs-5">
-                        <DataEventosTiempoClientes>{moment().format("MYYYY").toString()}</DataEventosTiempoClientes>
+                        <div style={{float:'right'}}>
+                            <DataEventosTiempoClientes>{moment().format("MYYYY").toString()}</DataEventosTiempoClientes>
+                        </div>
                     </div>
                     <div  className="col-sm-1 col-md-1 col-xs-1">
-                        <div style={{paddingTop:'5px'}}></div>
-                        <Indicador>{VisibleL}</Indicador>
-                        <IndicadorCargado>{VisibleL}</IndicadorCargado>
+                        <div style={{float:'right'}}>
+                            <div style={{paddingTop:'6px'}}></div>
+                            <Indicador>{VisibleL}</Indicador>
+                            <IndicadorCargado>{VisibleL}</IndicadorCargado>
+                        </div>
                     </div>
                 </div>
-                <Principal ExpandirContraerTabla={ExpandirContraerTabla} tamaTabla={tamaTabla} tamaMapa={tamaMapa} ResetearDatos={Reset}  ></Principal>
+                <Principal ExpandirContraerTabla={ExpandirContraerTabla} tamaTabla={tamaTabla} tamaMapa={tamaMapa} ResetearDatos={Reset}></Principal>
             </NivelCargaProvider>
     )
 }

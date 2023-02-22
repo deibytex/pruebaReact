@@ -23,7 +23,7 @@ const TablaNivelCarga : React.FC<Props> =  ({cargarMapaIndividual,data}) =>{
        const [sorting, setSorting] = useState<SortingState>([]);
        const [pagination, setPagination] = useState<PaginationState>({
          pageIndex: 0,
-         pageSize: 10,
+         pageSize: 13,
        });
        const [rowCount, setRowCount] = useState(0);
        const [isLoading, setIsLoading] = useState(false);
@@ -198,7 +198,7 @@ const TablaNivelCarga : React.FC<Props> =  ({cargarMapaIndividual,data}) =>{
 //funcion para retornar los iconos de la tabla de soc y soc inicial
 const getIconSoc = (data:any) => {
       return (
-        (data <= 100 && data >= 80)? <><i className="bi-battery-full" style={{ color:'#00B050'}}></i><span style={{fontSize:"15px"}}> {data == null ? "" : data.toFixed(0)}%</span></>:
+        (data <= 100 && data >= 80)? <><i className="bi-battery-full" style={{ color:'#00B050'}}></i><span style={{fontSize:"15px"}}>{data == null ? "" : data.toFixed(0)}%</span></>:
          data <= 79 && data >= 60 ? <><i className="bi-battery-full rotate-45-verde" style={{color:'#92D050'}}></i><span style={{fontSize:"15px"}}>{data == null ? "" : data.toFixed(0)}%</span></>:
         (data <= 59 && data >= 40 ? <><span><i className="bi-battery-half rotate-45-yellow" style={{fontSize:"15px", color:'#ff0'}}></i></span><span style={{fontSize:"15px"}}>{data == null ? "" : data.toFixed(0)}%</span></>:
         (data <= 39 && data >= 20 ? <><span><i className="bi-battery-half rotate-45-naranja" style={{color:'#ffa500'}}></i></span><span style={{fontSize:"15px"}}>{data == null ? "" : data.toFixed(0)}%</span></>:
@@ -249,7 +249,7 @@ const getIconSoc = (data:any) => {
                     onSortingChange={setSorting}
                     rowCount={rowCount}
                     enableFilters
-                    enableColumnFilters={true}
+                    enableColumnFilters={false}
                     globalFilterFn="Filter" //set the global filter function to myCustomFilterFn
                     muiToolbarAlertBannerProps={
                       isError
@@ -268,7 +268,7 @@ const getIconSoc = (data:any) => {
                     showProgressBars: isRefetching,
                     sorting,
                     }}
-                    initialState={{columnVisibility:VisibilidadColumnas, showColumnFilters: true}}
+                    initialState={{columnVisibility:VisibilidadColumnas, showColumnFilters: true, density: 'compact'}}
                 /> 
                
                 </NivelCargaProvider>

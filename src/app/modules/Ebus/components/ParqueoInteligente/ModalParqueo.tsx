@@ -54,7 +54,7 @@ const  ModalParqueo: React.FC<Props> = ({show, title, handleClose, Data}) => {
             accessorKey: 'avl',
             header: 'Ultima posición',
             Cell({ cell, column, row, table, }) {
-                return (moment(row.original.avl).format("YYYY/MM/DD HH:MM")) ;
+                return (moment(row.original.avl).format("DD/MM/YYYY")) ;
                 },
             size: 5
         }

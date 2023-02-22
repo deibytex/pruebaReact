@@ -45,7 +45,11 @@ const cargarMapaIndividual = (row: any) =>{
     return(
         <NivelCargaProvider>
             <div style={{display: 'flex', flexWrap: 'wrap', width:'100%'}}>
-                <div style={{width:`${tamaTabla}`}}>{(dataTable.length != 0) && (<TablaNivelCarga  data={dataTable} cargarMapaIndividual={cargarMapaIndividual}/>)}</div><div style={{width:`${tamaMapa}`}}>{( DatosMapa.length  != 0) && ( <Mapa ListadoVehiculos={(EsTotal ? DatosMapa: DatosMapaIndividual)}/>)}</div>
+                <div style={{width:`${tamaTabla}`}}>{(dataTable.length != 0) && (<TablaNivelCarga  data={dataTable} cargarMapaIndividual={cargarMapaIndividual}/>)}</div>
+                    <div style={{width:'10px'}}>
+                        
+                    </div>
+                <div style={{width:`${tamaMapa}`}}>{( DatosMapa.length  != 0) && ( <Mapa ListadoVehiculos={(EsTotal ? DatosMapa: DatosMapaIndividual)}/>)}</div>
             </div>
         </NivelCargaProvider>
     )

@@ -71,7 +71,7 @@ const [EsMapaIndiviual, setEsMapaIndividual] = useState<boolean>(false);
             header: 'Localización',
             Header: () => (<div style={{textAlign:"center" }}>Localización</div>),
             Cell({ cell, column, row, table, }) {
-                return (row.original.localizacion == ''? <span title={_LocDefault} style={{fontSize:'10px'}}>{_LocDefault}</span>: <span title={row.original.localizacion} style={{fontSize:'10px'}}>{row.original.localizacion}</span>) ;
+                return (row.original.localizacion == ''? <span title={_LocDefault} style={{fontSize:'10px'}}>{_LocDefault}</span>: <span title={row.original.localizacion} style={{fontSize:'10px'}}>{(row.original.localizacion.length > 35 ? row.original.localizacion.substring(34,0): row.original.localizacion)}</span>) ;
                 },
             size: 5
         },
@@ -144,7 +144,7 @@ const [EsMapaIndiviual, setEsMapaIndividual] = useState<boolean>(false);
                             initialState={{ density: 'compact' }}
                         /> 
             </div>
-            <div style={{width:'5px'}}>
+            <div style={{width:'10px'}}>
             </div>
             <div style={{width:'47%'}}>
                 <MapContainer id="mapcontainter" center={[Number.parseFloat((EsMapaIndiviual) ? MapaIndiviual[0].latitud: DatosCopiados[0].latitud), Number.parseFloat((EsMapaIndiviual) ? MapaIndiviual[0].longitud :DatosCopiados[0].longitud)]} zoom={12} whenCreated={setMap} >
