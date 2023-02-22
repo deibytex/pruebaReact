@@ -1,10 +1,10 @@
 import moment from "moment";
 import { createContext, useContext, useEffect, useState } from "react";
 import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
-import { FechaServidor } from "../../../../_start/helpers/Helper";
-import { getVehiculosOperando } from "../data/dataPreoperacional";
+import { getVehiculosOperando, getEncabezados, getVehiculosSinPreoperacional } from "../data/dataPreoperacional";
 
 import React from "react";
+import { sinPreoperacional, Preoperacional } from "../models/respuestas";
 
 // clase con los funciones  y datos a utiilizar
 export interface PreoperacionalContextModel {
@@ -12,14 +12,21 @@ export interface PreoperacionalContextModel {
     setvehiculosOperacion: (vehiculos: any) => void;
     ListadoVehiculoSinOperacion?: any[];
     setListadoVehiculoSinOperacion: (lstvehiculos: any[]) => void;
+    Encabezados?: Preoperacional[];
+    setEncabezados: (lstencabezados: Preoperacional[]) => void;
+    vehiculosSinPreoperacional?: sinPreoperacional[];
+    setvehiculosSinPreoperacional: (lstSinPreoperacional: sinPreoperacional[]) => void;
+
     iserror?: any;
     setError: (error: any) => void;
- 
+
 }
 
 const PreoperacionalContext = createContext<PreoperacionalContextModel>({
     setvehiculosOperacion: (vehiculos: any) => { },
     setListadoVehiculoSinOperacion: (lstvehiculos: any[]) => { },
+    setEncabezados: (lstencabezados: Preoperacional[]) => { },
+    setvehiculosSinPreoperacional: (lstSinPreoperacional: sinPreoperacional[]) => { },
     setError: (error: any) => { }
 });
 
@@ -27,12 +34,21 @@ const PreoperacionalContext = createContext<PreoperacionalContextModel>({
 const PreoperacionalProvider: React.FC = ({ children }) => {
     const [vehiculosOperacion, setvehiculosOperacion] = useState<any>({});
     const [ListadoVehiculoSinOperacion, setListadoVehiculoSinOperacion] = useState<any[]>([]);
+
+    const [Encabezados, setEncabezados] = useState<Preoperacional[]>([]);
+    const [vehiculosSinPreoperacional, setvehiculosSinPreoperacional] = useState<sinPreoperacional[]>([]);
     const [iserror, setError] = useState<any>({});
     const value: PreoperacionalContextModel = {
         vehiculosOperacion,
         setvehiculosOperacion,
         ListadoVehiculoSinOperacion,
-        setListadoVehiculoSinOperacion, iserror, setError
+        setListadoVehiculoSinOperacion,
+        Encabezados,
+        setEncabezados,
+        vehiculosSinPreoperacional,
+        setvehiculosSinPreoperacional,
+        iserror,
+        setError
     };
     return (
         <PreoperacionalContext.Provider value={value}>
@@ -50,14 +66,13 @@ function useDataPreoperacional() {
 // segun parametrización que debe realizarse
 
 const DataVehiculoOperando: React.FC = ({ children }) => {
-    const { setvehiculosOperacion, setListadoVehiculoSinOperacion, setError, iserror } = useDataPreoperacional();
+    const { setvehiculosOperacion, setListadoVehiculoSinOperacion, setEncabezados, setvehiculosSinPreoperacional, setError, iserror } = useDataPreoperacional();
     let idinterval: number = 0;
 
-
     //CONSULTA VEHICULOS OPERANDO
-    let consulta = (children: string) => {
+    let consulta = (clienteIdS: string, fecha: string) => {
         // consultamos en la base de datos la informacion de vehiculos operando
-        getVehiculosOperando(children, FechaServidor).then(
+        getVehiculosOperando(clienteIdS, fecha).then(
 
             (response) => {
                 let datos = response.data[0];
@@ -77,23 +92,63 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
 
     }
 
-  
+    // CONSULTA EVENTOS ACTIVOS POR MINUTO
+    let consultaEncabezados = (clienteid: string, fecha: string) => {
+
+        getEncabezados(clienteid, fecha, 'null').then(
+
+            (response) => {
+
+                setEncabezados(response.data);
+                // cuando tengamos los datos activamos todo el trabajo pesado
+
+            }).catch((e) => {
+                setError({ accion: "DataVehiculoOperando", error: "No hay datos para este cliente" });
+                // errorDialog("Consulta preoperacional", "No hay datos que mostrar");
+            });;
+
+    }
+
+    // CONSULTA EVENTOS ACTIVOS POR MINUTO
+    let consultaSinPreoperacional = (clienteIdS: string, fecha: string) => {
+
+        getVehiculosSinPreoperacional(clienteIdS, fecha).then(
+
+            (response) => {
+
+                setvehiculosSinPreoperacional(response.data);
+                // cuando tengamos los datos activamos todo el trabajo pesado
+
+            }).catch((e) => {
+                setError({ accion: "DataVehiculoOperando", error: "No hay datos para este cliente" });
+                // errorDialog("Consulta preoperacional", "No hay datos que mostrar");
+            });;
+
+    }
+
     useEffect(() => {
 
         if (children) {
-        
-            consulta(children.toString());
+
+            consulta(children['clienteIdS'], children['fecha']);
+            consultaEncabezados(children['clienteid'], children['fecha']);
+            consultaSinPreoperacional(children['clienteIdS'], children['fecha']);
             // si no tiene error hace el interval
             if (iserror === null || iserror === undefined)
                 if (idinterval === 0) {
                     idinterval = window.setInterval(() => {
-                        consulta(children.toString());
+                        consulta(children['clienteIdS'], children['fecha']);
+                        consultaEncabezados(children['clienteid'], children['fecha']);
+                        consultaSinPreoperacional(children['clienteIdS'], children['fecha']);
                     }, 120000)
                 }
         }
 
         return () => {
             setvehiculosOperacion([]);
+            setListadoVehiculoSinOperacion([]);
+            setEncabezados([]);
+            setvehiculosSinPreoperacional([]);
         };
     }, [children]);
     return <></>;

@@ -1,49 +1,102 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
+import { useSelector } from "react-redux"
+import { RootState } from "../../../setup"
 import { PageTitle } from "../../../_start/layout/core"
-import { BaseIndicador } from "../Fatigue/components/Indicadores_Pc"
-import { DataVehiculoOperando } from "./core/provider"
+import { UserModelSyscaf } from "../auth/models/UserModel"
+import { DataVehiculoOperando, PreoperacionalProvider } from "./core/provider"
+import { Indicadores } from "./components/Indicadores"
+import { MOV_PanelCentral } from "./components/panelCentral"
+import { Form } from "react-bootstrap-v5"
+import moment from "moment"
+import { FechaServidor } from "../../../_start/helpers/Helper"
+import { TablaRespuestas } from "./components/TablaRespuestas"
+import { Observaciones } from "./components/Observaciones"
 
 export default function FatigueDashboard() {
 
+    const isAuthorized = useSelector<RootState>(
+        ({ auth }) => auth.user
+    );
+
+    const model = (isAuthorized as UserModelSyscaf);
+
+    const [Fecha, setFecha] = useState("");
+    const [Chidlren, setChildren] = useState("");
+
+    const [show, setShow] = useState(false)
+
+    const handleClose = () =>{
+        setShow(false);
+      };
+      const showModal = () =>{
+        setShow(true);
+      }
+
+    function FechaInicialControl() {
+        return (
+            <Form.Control className=" mb-3 " value={Fecha} type="date" name="fechaini" placeholder="Seleccione una fecha" onChange={(e) => {
+                // buscamos el objeto completo para tenerlo en el sistema
+                setFecha(e.currentTarget.value);
+            }} />
+        )
+    }
+
+    let params: any = {};
+
+    params = {
+        clienteid: (model.clienteid?.toString()),
+        clienteIdS: "895",
+        fecha: moment(FechaServidor).format("YYYYMMDD")
+    };
+
+    useEffect(() => {
+        setChildren(params);
+    }, [isAuthorized]);
+
+    const Consultar = () => {
+         let fecha = (Fecha === '') ? moment(FechaServidor).format("YYYYMMDD") : Fecha;
+        params = {
+            clienteid: (model.clienteid?.toString()),
+            clienteIdS: "895",
+            fecha: fecha          
+        };
+        setChildren(params);
+        showModal();
+    }
+
     return (
         <>
-        <PageTitle >Preoperacional App </PageTitle>
-        <DataVehiculoOperando>{895}</DataVehiculoOperando>
-                {/* begin::Row */}
-
-                <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris">
-                <div className="col-sm-3 col-md-3 col-xs-3" style={{ textAlign:'center'}}>
-                            <label className="control-label label label-sm text-white"  style={{fontWeight:'bold', textAlign:'center'}}>Total Vehículos</label>
-                            <div className="card text-black mb-3" style={{marginTop:'5px', textAlign:'center',flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height:'100px', backgroundColor:'#d1e7dd'}}>
-                                {/* <span style={{fontWeight:'bold', fontSize:'30px'}}>{subido}</span> */}
+            <PreoperacionalProvider>
+                <PageTitle >Preoperacional App</PageTitle>
+                <DataVehiculoOperando>{Chidlren}</DataVehiculoOperando>
+                <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris" style={{ padding: '5px' }}>
+                    <div className="row">
+                        <div className="col-sm-2 col-md-2 col-xs-2">
+                            <label className="control-label label text-white label-sm" style={{ fontWeight: 'bold' }}>Fecha inicial</label>
+                            <FechaInicialControl />
+                        </div>
+                        <div className="col-sm-2 col-md-2 col-xs-2">
+                            <label className="control-label label label-sm"></label>
+                            <div className=" ">
+                                <button className="btn btn-sm btn-success" title="Consultar" type="button" onClick={Consultar}><i className="bi-search"></i>Consultar</button>
                             </div>
                         </div>
-                        <div className="col-sm-3 col-md-3 col-xs-3" style={{ textAlign:'center'}}>
-                            <label className="control-label label label-sm text-white" style={{fontWeight:'bold', textAlign:'center'}}>Vehículos con Movimiento</label>
-                            <div className="card text-black mb-3" style={{marginTop:'5px', textAlign:'center',flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height:'100px', backgroundColor:'#f8d7da'}}>
-                                {/* <span style={{fontWeight:'bold', fontSize:'30px'}}>{modificado}</span> */}
-                            </div>
-                        </div>
-                        <div className="col-sm-3 col-md-3 col-xs-3" style={{ textAlign:'center'}}>
-                        <label className="control-label label label-sm text-white"  style={{fontWeight:'bold', textAlign:'center'}}>Vehículos con Preoperacional</label>
-                        <div className="card text-black mb-3" style={{marginTop:'5px', textAlign:'center',flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height:'100px', backgroundColor:'#b6effb'}}>
-                                {/* <span style={{fontWeight:'bold', fontSize:'30px'}}>{download}</span> */}
-                            </div>
-                        </div>
-                        <div className="col-sm-3 col-md-3 col-xs-3" style={{ textAlign:'center'}}>
-                        <label className="control-label label label-sm text-white"  style={{fontWeight:'bold', textAlign:'center'}}>Vehículos con Novedad</label>
-                        <div className="card text-black mb-3" style={{marginTop:'5px', textAlign:'center',flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height:'100px', backgroundColor:'#b6effb'}}>
-                                {/* <span style={{fontWeight:'bold', fontSize:'30px'}}>{download}</span> */}
-                            </div>
-                        </div>
-                </div>
-
-                <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris">
-                    <div className="col-xl-12">
                     </div>
-                </div>
-                {/* end::Row */}
 
+                    <div className="row">
+                        <Indicadores />
+                    </div>
+
+                    <div className="row">
+                        <div className="col-xl-12">
+                            <MOV_PanelCentral className="card-stretch mb-5 mb-xxl-8" />
+                        </div>
+                    </div>
+                    {/* <TablaRespuestas /> */}
+                    <Observaciones show={show} handleClose={handleClose} title={"Observaciones"}/>
+                </div>
+
+            </PreoperacionalProvider>
         </>
     )
 }
