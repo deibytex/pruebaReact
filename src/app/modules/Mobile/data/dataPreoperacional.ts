@@ -61,3 +61,32 @@ export  function getRespuestas(EncabezadoId: number){
     RecordsPorPagina :null}, 
     params);
 };
+
+export  function setGestor(UserId: string, Observaciones: string, EsGestionado: boolean, EncabezadoId: number){
+  var params: { [id: string]: string | null; } = {};
+  params["UserId"] = UserId;
+  params["Observaciones"] = Observaciones;
+  params["EsGestionado"] = EsGestionado.toString();
+  params["EncabezadoId"] = EncabezadoId.toString();
+  
+  // hacemos la consulta 
+  return  Post_getconsultadinamicas({    
+    Clase : "MOVQueryHelper",  
+    NombreConsulta: "SetGestor", 
+    Pagina :null, 
+    RecordsPorPagina :null}, 
+    params);
+};
+
+export  function setObservaciones(Observaciones: string){
+  var params: { [id: string]: string | null; } = {};
+  params["data"] = Observaciones;
+  
+  // hacemos la consulta 
+  return  Post_getconsultadinamicas({    
+    Clase : "MOVQueryHelper",  
+    NombreConsulta: "SetObservaciones", 
+    Pagina :null, 
+    RecordsPorPagina :null}, 
+    params);
+};

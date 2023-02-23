@@ -5,6 +5,7 @@ import { getVehiculosOperando, getEncabezados, getVehiculosSinPreoperacional } f
 
 import React from "react";
 import { sinPreoperacional, Preoperacional } from "../models/respuestas";
+import { setuid } from "process";
 
 // clase con los funciones  y datos a utiilizar
 export interface PreoperacionalContextModel {
@@ -16,6 +17,8 @@ export interface PreoperacionalContextModel {
     setEncabezados: (lstencabezados: Preoperacional[]) => void;
     vehiculosSinPreoperacional?: sinPreoperacional[];
     setvehiculosSinPreoperacional: (lstSinPreoperacional: sinPreoperacional[]) => void;
+    UserId?: string;
+    setUserId: (id: string) => void;
 
     iserror?: any;
     setError: (error: any) => void;
@@ -27,6 +30,7 @@ const PreoperacionalContext = createContext<PreoperacionalContextModel>({
     setListadoVehiculoSinOperacion: (lstvehiculos: any[]) => { },
     setEncabezados: (lstencabezados: Preoperacional[]) => { },
     setvehiculosSinPreoperacional: (lstSinPreoperacional: sinPreoperacional[]) => { },
+    setUserId: (id: string) => "",
     setError: (error: any) => { }
 });
 
@@ -37,6 +41,7 @@ const PreoperacionalProvider: React.FC = ({ children }) => {
 
     const [Encabezados, setEncabezados] = useState<Preoperacional[]>([]);
     const [vehiculosSinPreoperacional, setvehiculosSinPreoperacional] = useState<sinPreoperacional[]>([]);
+    const [UserId, setUserId] = useState("");
     const [iserror, setError] = useState<any>({});
     const value: PreoperacionalContextModel = {
         vehiculosOperacion,
@@ -47,6 +52,8 @@ const PreoperacionalProvider: React.FC = ({ children }) => {
         setEncabezados,
         vehiculosSinPreoperacional,
         setvehiculosSinPreoperacional,
+        UserId,
+        setUserId,
         iserror,
         setError
     };
@@ -66,7 +73,7 @@ function useDataPreoperacional() {
 // segun parametrización que debe realizarse
 
 const DataVehiculoOperando: React.FC = ({ children }) => {
-    const { setvehiculosOperacion, setListadoVehiculoSinOperacion, setEncabezados, setvehiculosSinPreoperacional, setError, iserror } = useDataPreoperacional();
+    const { setvehiculosOperacion, setListadoVehiculoSinOperacion, setEncabezados, setvehiculosSinPreoperacional, setUserId, setError, iserror } = useDataPreoperacional();
     let idinterval: number = 0;
 
     //CONSULTA VEHICULOS OPERANDO
@@ -126,6 +133,11 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
 
     }
 
+    let asignarUsuario = (userid: string) => {
+        
+        setUserId(userid);
+    }
+
     useEffect(() => {
 
         if (children) {
@@ -133,6 +145,7 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
             consulta(children['clienteIdS'], children['fecha']);
             consultaEncabezados(children['clienteid'], children['fecha']);
             consultaSinPreoperacional(children['clienteIdS'], children['fecha']);
+            asignarUsuario(children['userId']);
             // si no tiene error hace el interval
             if (iserror === null || iserror === undefined)
                 if (idinterval === 0) {
@@ -140,6 +153,7 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
                         consulta(children['clienteIdS'], children['fecha']);
                         consultaEncabezados(children['clienteid'], children['fecha']);
                         consultaSinPreoperacional(children['clienteIdS'], children['fecha']);
+                        asignarUsuario(children['userId'])
                     }, 120000)
                 }
         }
@@ -149,8 +163,10 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
             setListadoVehiculoSinOperacion([]);
             setEncabezados([]);
             setvehiculosSinPreoperacional([]);
+            asignarUsuario("");
         };
     }, [children]);
+
     return <></>;
 };
 

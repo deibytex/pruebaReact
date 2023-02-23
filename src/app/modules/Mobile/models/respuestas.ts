@@ -36,6 +36,7 @@ export interface children
     clienteid? : string; 
     clienteIdS : string;
     fecha : string;
+    userId: string;
 }
 
 export interface Respuestas {
@@ -59,4 +60,5 @@ export interface observaciones
     fecha : string; 
     value : string;
     notificar : string;
+    EsCerrado?: boolean
 }

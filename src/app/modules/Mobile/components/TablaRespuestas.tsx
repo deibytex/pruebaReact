@@ -15,12 +15,17 @@ import { Box, IconButton, Tooltip } from "@mui/material";
 import { FormatListBulleted, Message } from "@mui/icons-material";
 import { getRespuestas } from "../data/dataPreoperacional";
 import { AxiosResponse } from "axios";
+import { Button, Modal } from "react-bootstrap-v5";
 
 
 type Props = {
+    show:boolean;
+    handleClose: () => void;
+    title?:string;
+    EncabezadoId: number;
 };
 
-export const TablaRespuestas: React.FC<Props> = () => {
+export const TablaRespuestas: React.FC<Props> = ({show, handleClose,title, EncabezadoId }) => {
 
     const [lstRespuestas, setlstRespuestas] = useState<Respuestas[]>([]);
 
@@ -67,19 +72,27 @@ export const TablaRespuestas: React.FC<Props> = () => {
             }
         ];
 
-    getRespuestas(251).then((respuesta: AxiosResponse<Respuestas[]>) => {
-        setlstRespuestas(respuesta.data);
-        setRowCount(respuesta.data.length);
-    });
+        useEffect(() => {
 
-    // useEffect(() => {
-
-    // }, [Encabezados])
-
+            getRespuestas(EncabezadoId).then((respuesta: AxiosResponse<Respuestas[]>) => {
+                setlstRespuestas(respuesta.data);
+                setRowCount(respuesta.data.length);
+            });
+    
+        }, [EncabezadoId]) 
 
 
     return (
         <>
+         <Modal 
+      show={show} 
+      onHide={handleClose} 
+       size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>{title}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+            <div className="row">
             <MaterialReactTable
                 localization={MRT_Localization_ES}
                 displayColumnDefOptions={{
@@ -122,6 +135,15 @@ export const TablaRespuestas: React.FC<Props> = () => {
                     sorting,
                 }}
             />
+            </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button type="button" variant="secondary" onClick={handleClose}>
+            Cerrar
+          </Button>
+        </Modal.Footer>
+      </Modal>
+            
         </>
     )
 

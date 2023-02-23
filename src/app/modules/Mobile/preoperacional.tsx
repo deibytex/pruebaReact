@@ -9,8 +9,6 @@ import { MOV_PanelCentral } from "./components/panelCentral"
 import { Form } from "react-bootstrap-v5"
 import moment from "moment"
 import { FechaServidor } from "../../../_start/helpers/Helper"
-import { TablaRespuestas } from "./components/TablaRespuestas"
-import { Observaciones } from "./components/Observaciones"
 
 export default function FatigueDashboard() {
 
@@ -22,15 +20,6 @@ export default function FatigueDashboard() {
 
     const [Fecha, setFecha] = useState("");
     const [Chidlren, setChildren] = useState("");
-
-    const [show, setShow] = useState(false)
-
-    const handleClose = () =>{
-        setShow(false);
-      };
-      const showModal = () =>{
-        setShow(true);
-      }
 
     function FechaInicialControl() {
         return (
@@ -46,7 +35,8 @@ export default function FatigueDashboard() {
     params = {
         clienteid: (model.clienteid?.toString()),
         clienteIdS: "895",
-        fecha: moment(FechaServidor).format("YYYYMMDD")
+        fecha: moment(FechaServidor).format("YYYYMMDD"),
+        userId: (model.Id?.toString())
     };
 
     useEffect(() => {
@@ -58,12 +48,12 @@ export default function FatigueDashboard() {
         params = {
             clienteid: (model.clienteid?.toString()),
             clienteIdS: "895",
-            fecha: fecha          
+            fecha: fecha,
+            userId: (model.Id?.toString())          
         };
         setChildren(params);
-        showModal();
     }
-
+    
     return (
         <>
             <PreoperacionalProvider>
@@ -92,11 +82,11 @@ export default function FatigueDashboard() {
                             <MOV_PanelCentral className="card-stretch mb-5 mb-xxl-8" />
                         </div>
                     </div>
-                    {/* <TablaRespuestas /> */}
-                    <Observaciones show={show} handleClose={handleClose} title={"Observaciones"}/>
+                    
                 </div>
 
             </PreoperacionalProvider>
         </>
     )
 }
+
