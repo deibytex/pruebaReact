@@ -36,6 +36,7 @@ export const ASSET_GetClientesClienteId = `${apiURLDWH}/Asset/GetAssets/ClienteI
 export const ASSET_GetClientesClienteIds = `${apiURLDWH}/Asset/GetAssets/ClienteIds` //int? ClienteIds, string UsertState
 export const EBUS_GetClientesUsuarios = `${apiURLDWH}/Ebus/GetClientesUsuarios` //int? ClienteIds, string UsertState
 export const EBUS_getEventActiveViajesByDayAndClient = `${apiURLDWH}/Ebus/GetEventosActivosByClienteIds` 
+export const EBUS_getEventActiveRecargaByDayAndClient = `${apiURLDWH}/Ebus/GetEventosActivosRecargaByClienteIds` 
 export const EBUS_SetColumnasDatatable = `${apiURLDWH}/Ebus/SetColumnasDatatable` 
 export const EBUS_GetColumnasDatatable = `${apiURLDWH}/Ebus/GetColumnasDatatable` 
 export const EBUS_GetTiempoActualizacion = `${apiURLDWH}/Ebus/GetTiempoActualizacion` 

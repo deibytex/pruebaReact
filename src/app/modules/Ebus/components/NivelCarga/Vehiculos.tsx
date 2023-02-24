@@ -11,20 +11,44 @@ type Props = {
     handleClose: () => void;
     title?:string;
     CLienteIds:number | null;
+    RetornarValor?:() =>void;
+    Saved:any;
 };
-const Vehiculos : React.FC<Props> =  ({show,handleClose,title,CLienteIds}) => {
+const Vehiculos : React.FC<Props> =  ({show,handleClose,title,CLienteIds, RetornarValor,Saved}) => {
 const [vehiculos, setvehiculos] = useState<dualListDTO[]>([]);
 const [selected, setSelected] = useState([]);
+const {setVehiculosFiltrados, dataTable} = Saved();
+  
+
+  
 useEffect(() =>{
     GetVehiculos((CLienteIds != null ? CLienteIds.toString(): null)).then((response:AxiosResponse<any>) =>{
         let dual = response.data.map((item:AssetsDTO)=>{
-            return {"value":item.assetId, "label":item.registrationNumber};
+            return {"value":item.description, "label":item.description};
         })
         setvehiculos(dual);
     }).catch((error) =>{
         errorDialog("<i>Error al consultar los vehiculos</i>","");
     });
 },[CLienteIds])
+
+useEffect(() =>{
+    setVehiculosFiltrados(selected);
+    let a = filterObjeto(dataTable, selected);
+},[selected]);
+
+const filterObjeto = (list:any, compare:any)=> {
+    var ArrayNew = [];
+    var countProp = compare.length;
+    var countMatch = 0;
+    var valComp;
+    var valList;
+    for (var iList in list) {
+        if (list[iList].locationId == compare)
+        ArrayNew.push(list[iList]);
+    }
+    return ArrayNew;
+}
 
 function Widget () {
     return (
@@ -36,11 +60,7 @@ function Widget () {
     );
 }
 
-const RetornarValor =  (e:any) =>{
-    console.log(selected.join().toString());
-    handleClose();
-    return selected.join().toString();
-}
+
     return (
         <Modal 
         show={show} 
@@ -58,10 +78,10 @@ const RetornarValor =  (e:any) =>{
           </Modal.Body>
           <Modal.Footer>
             <Button type="button" variant="secondary" onClick={handleClose}>
-              Cerrar
+              Cancelar
             </Button>
             <Button type="button" variant="primary" onClick={RetornarValor}>
-              Guardar
+                Filtrar
             </Button>
           </Modal.Footer>
         </Modal>
