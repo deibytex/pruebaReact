@@ -7,9 +7,11 @@ import { toAbsoluteUrl } from "../../../../_start/helpers";
 type Props = {
     className: string;
     innerPadding?: string;
+    clienteid: string
+    fecha: string;
 };
 
-export const MOV_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => {
+export const MOV_PanelCentral: React.FC<Props> = ({ className, innerPadding = "", clienteid, fecha }) => {
     const [width, setWidth] = useState("0px")
     const [activeTab, setActiveTab] = useState("#tab1");
 
@@ -91,7 +93,7 @@ export const MOV_PanelCentral: React.FC<Props> = ({ className, innerPadding = ""
 
                                     <div className="overflow-auto">
 
-                                        <TablaProperacional />
+                                        <TablaProperacional clienteid={clienteid} fecha={fecha}/>
 
                                     </div>
 

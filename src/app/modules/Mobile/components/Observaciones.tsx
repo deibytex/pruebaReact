@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { useDataPreoperacional } from "../core/provider";
 import { observaciones, Preoperacional, sinPreoperacional } from "../models/respuestas";
 
-import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
+import MaterialReactTable, { MRT_ColumnDef, MRT_Row } from "material-react-table";
 import { MRT_Localization_ES } from 'material-react-table/locales/es';
 
 import type {
@@ -16,7 +16,7 @@ import { Box, IconButton, Tooltip } from "@mui/material";
 import { FormatListBulleted, Message } from "@mui/icons-material";
 import moment from "moment";
 import { FechaServidor, msToTime } from "../../../../_start/helpers/Helper";
-import { setObservaciones } from "../data/dataPreoperacional";
+import { getEncabezados, setObservaciones } from "../data/dataPreoperacional";
 import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/helpers/components/ConfirmDialog";
 
 
@@ -27,9 +27,11 @@ type Props = {
     observaciones: string
     encabezadoid: number;
     esgestionado: boolean;
+    clienteid: string;
+    fecha: string;
 };
 
-export const Observaciones: React.FC<Props> = ({ show, handleClose, title, observaciones, encabezadoid, esgestionado }) => {
+export const Observaciones: React.FC<Props> = ({ show, handleClose, title, observaciones, encabezadoid, esgestionado, clienteid, fecha }) => {
 
 
 
@@ -72,6 +74,7 @@ export const Observaciones: React.FC<Props> = ({ show, handleClose, title, obser
             if (observaciones != "" && observaciones !=null){
                 let json = JSON.parse(observaciones);
                 setData(json);
+                console.log('ori',json)
                 setRowCount(json.length);
             }
             else{
@@ -100,6 +103,15 @@ export const Observaciones: React.FC<Props> = ({ show, handleClose, title, obser
             setObservaciones(JSON.stringify(GestorObervaciones)).then((response) => 
             {
                 successDialog("Operación Éxitosa","");
+                getEncabezados(clienteid, fecha, 'null').then(
+
+                    (response) => {
+
+                         const dataFiltered = (response.data as Preoperacional[]).filter(s => s.EncabezadoId === encabezadoid)
+                         const obs = dataFiltered.map(obs => obs.Observaciones).toString();
+                        
+                         setData(JSON.parse(obs));
+                    });
                 if (escerrado == "true") handleClose();
             }).catch((error) => {
                 errorDialog("<i>Error comuniquese con el adminisrador<i/>","");

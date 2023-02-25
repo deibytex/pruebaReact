@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useDataPreoperacional } from "../core/provider";
 import { observaciones, Preoperacional } from "../models/respuestas";
 
-import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
+import MaterialReactTable, { MRT_ColumnDef, MRT_Row } from "material-react-table";
 import { MRT_Localization_ES } from 'material-react-table/locales/es';
 
 import type {
@@ -15,7 +15,7 @@ import { Box, IconButton, Tooltip } from "@mui/material";
 import { FormatListBulleted, Message, VerifiedUser } from "@mui/icons-material";
 import { TablaRespuestas } from "./TablaRespuestas";
 import { Observaciones } from "./Observaciones";
-import { setGestor, setObservaciones } from "../data/dataPreoperacional";
+import { getEncabezados, setGestor, setObservaciones } from "../data/dataPreoperacional";
 import { FechaServidor } from "../../../../_start/helpers/Helper";
 import { Console } from "console";
 import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/helpers/components/ConfirmDialog";
@@ -23,10 +23,11 @@ import { boolean } from "yup";
 
 
 type Props = {
-
+    clienteid: string
+    fecha: string;
 };
 
-export const TablaProperacional: React.FC<Props> = () => {
+export const TablaProperacional: React.FC<Props> = ({ clienteid, fecha }) => {
 
     const { Encabezados, UserId } = useDataPreoperacional();
     const [lstVehiculosConPreoperacional, setlstVehiculosConPreoperacional] = useState<Preoperacional[]>([]);
@@ -100,10 +101,10 @@ export const TablaProperacional: React.FC<Props> = () => {
                 header: 'Estado Gestion',
                 size: 80,
                 Cell({ cell, column, row, table, }) {
-                    return row.original.Estado == 1 && (cell.getValue() == true) ? <span className="badge bg-primary">Gestionado</span> : 
-                            row.original.Estado == 1 && (cell.getValue() == null) ? <span className="badge bg-danger">No Gestionado</span> : 
-                            row.original.Estado == 1 && (cell.getValue() == false) ? <span className="badge bg-warning">En Gestion</span>:
-                            ""
+                    return row.original.Estado == 1 && (cell.getValue() == true) ? <span className="badge bg-primary">Gestionado</span> :
+                        row.original.Estado == 1 && (cell.getValue() == null) ? <span className="badge bg-danger">No Gestionado</span> :
+                            row.original.Estado == 1 && (cell.getValue() == false) ? <span className="badge bg-warning">En Gestion</span> :
+                                ""
                 }
             },
             {
@@ -132,27 +133,34 @@ export const TablaProperacional: React.FC<Props> = () => {
         setesgestionado(EsGestionado);
         showModa2()
     }
-    
-    const setGestorPreoperacional = ( encabezadoId: number) => {
+
+    const setGestorPreoperacional = (encabezadoId: number) => {
 
         let GestorObervaciones: any = {};
-
-        GestorObervaciones =  { 
-            fecha: FechaServidor, 
-            value: "Gestor Asignado", 
+        GestorObervaciones = {
+            fecha: FechaServidor,
+            value: "Gestor Asignado",
             notificar: "false",
             EsCerrado: null
         };
 
         confirmarDialog(() => {
-            setGestor(UserId as string, '['+JSON.stringify(GestorObervaciones)+']', false, encabezadoId).then(() => {
-                successDialog("Operación Éxitosa.","");
-            }).catch(() => {
-                errorDialog("<i>Error comuniquese con el adminisrador<i/>",""); 
-            });
-        },`Desea usted gestionar este preoperacional`,"Sí");
+            setGestor(UserId as string, '[' + JSON.stringify(GestorObervaciones) + ']', false, encabezadoId).then(() => {
+                getEncabezados(clienteid, fecha, 'null').then(
 
-        
+                    (response) => {
+
+                        setlstVehiculosConPreoperacional(response.data);
+                        // cuando tengamos los datos activamos todo el trabajo pesado
+
+                    });
+                successDialog("Operación Éxitosa.", "");
+            }).catch(() => {
+                errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
+            });
+        }, `Desea usted gestionar este preoperacional`, "Sí");
+
+
 
     }
 
@@ -205,18 +213,18 @@ export const TablaProperacional: React.FC<Props> = () => {
                         <Box sx={{ display: 'flex', gap: '1rem' }}>
                             {(row.original.Estado == 1 && row.original.EsGestionado != null) ?
                                 <Tooltip arrow placement="left" title="Obervaciones">
-                                <IconButton
-                                    onClick={() => {
-                                        modalObervaciones(row.original.Observaciones, row.original.EncabezadoId, row.original.EsGestionado);
-                                    }}
-                                >
-                                    <Message />
-                                </IconButton>
-                            </Tooltip>:
-                            <></>
+                                    <IconButton
+                                        onClick={() => {
+                                            modalObervaciones(row.original.Observaciones, row.original.EncabezadoId, row.original.EsGestionado);
+                                        }}
+                                    >
+                                        <Message />
+                                    </IconButton>
+                                </Tooltip> :
+                                <></>
 
                             }
-                            
+
 
                         </Box>
                         <Box sx={{ display: 'flex', gap: '1rem' }}>
@@ -248,8 +256,9 @@ export const TablaProperacional: React.FC<Props> = () => {
                 }
             />
             <TablaRespuestas show={show} handleClose={handleClose} title={"Repuestas"} EncabezadoId={encabezadoId} />
-            <Observaciones show={show2} handleClose={handleClose2} title={"Observaciones"} observaciones={observaciones} 
-            encabezadoid={encabezadoId} esgestionado={esgestionado}  />
+            <Observaciones show={show2} handleClose={handleClose2} title={"Observaciones"} 
+                observaciones={observaciones}
+                encabezadoid={encabezadoId} esgestionado={esgestionado} clienteid={clienteid} fecha={fecha} />
         </>
     )
 

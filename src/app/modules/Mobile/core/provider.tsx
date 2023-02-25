@@ -112,7 +112,7 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
             }).catch((e) => {
                 setError({ accion: "DataVehiculoOperando", error: "No hay datos para este cliente" });
                 // errorDialog("Consulta preoperacional", "No hay datos que mostrar");
-            });;
+            });
 
     }
 
@@ -160,10 +160,6 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
 
         return () => {
             setvehiculosOperacion([]);
-            setListadoVehiculoSinOperacion([]);
-            setEncabezados([]);
-            setvehiculosSinPreoperacional([]);
-            asignarUsuario("");
         };
     }, [children]);
 

@@ -40,15 +40,15 @@ export default function FatigueDashboard() {
     };
 
     useEffect(() => {
+        setFecha(moment(FechaServidor).format("YYYYMMDD"));
         setChildren(params);
     }, [isAuthorized]);
 
     const Consultar = () => {
-         let fecha = (Fecha === '') ? moment(FechaServidor).format("YYYYMMDD") : Fecha;
         params = {
             clienteid: (model.clienteid?.toString()),
             clienteIdS: "895",
-            fecha: fecha,
+            fecha: Fecha,
             userId: (model.Id?.toString())          
         };
         setChildren(params);
@@ -79,12 +79,11 @@ export default function FatigueDashboard() {
 
                     <div className="row">
                         <div className="col-xl-12">
-                            <MOV_PanelCentral className="card-stretch mb-5 mb-xxl-8" />
+                            <MOV_PanelCentral className="card-stretch mb-5 mb-xxl-8" clienteid={model.clienteid as string} 
+                            fecha={Fecha} />
                         </div>
-                    </div>
-                    
+                    </div>                    
                 </div>
-
             </PreoperacionalProvider>
         </>
     )
