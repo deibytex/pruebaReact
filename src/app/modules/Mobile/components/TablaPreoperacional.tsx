@@ -25,11 +25,12 @@ import { boolean } from "yup";
 type Props = {
     clienteid: string
     fecha: string;
+    filtro: string
 };
 
-export const TablaProperacional: React.FC<Props> = ({ clienteid, fecha }) => {
+export const TablaProperacional: React.FC<Props> = ({ clienteid, fecha, filtro}) => {
 
-    const { Encabezados, UserId } = useDataPreoperacional();
+    const { Encabezados, UserId, setEncabezados } = useDataPreoperacional();
     const [lstVehiculosConPreoperacional, setlstVehiculosConPreoperacional] = useState<Preoperacional[]>([]);
     const [encabezadoId, setencabezadoId] = useState(0);
     const [observaciones, setobservaciones] = useState("");
@@ -116,11 +117,24 @@ export const TablaProperacional: React.FC<Props> = ({ clienteid, fecha }) => {
         ];
 
     useEffect(() => {
+        if (filtro === "2" || filtro === ""){
+            setlstVehiculosConPreoperacional(Encabezados as Preoperacional[]);
+            setRowCount((Encabezados as Preoperacional[]).length);
+        }
+        else if (filtro === "0"){
 
-        setlstVehiculosConPreoperacional(Encabezados as Preoperacional[]);
-        setRowCount((Encabezados as Preoperacional[]).length);
+            let encabezados = (Encabezados as Preoperacional[]).filter( est => est.Estado.toString() == filtro);            
+            setlstVehiculosConPreoperacional(encabezados as Preoperacional[]);
+            setRowCount(encabezados.length);
+        }
+        else{
+            let encabezados = (Encabezados as Preoperacional[]).filter( est => est.Estado.toString() == filtro);            
+            setlstVehiculosConPreoperacional(encabezados as Preoperacional[]);
+            setRowCount(encabezados.length);
+        }
+        
 
-    }, [Encabezados])
+    }, [Encabezados, filtro])
 
     const modalrespuetas = (encabezadoId: number) => {
         setencabezadoId(encabezadoId);
@@ -150,8 +164,7 @@ export const TablaProperacional: React.FC<Props> = ({ clienteid, fecha }) => {
 
                     (response) => {
 
-                        setlstVehiculosConPreoperacional(response.data);
-                        // cuando tengamos los datos activamos todo el trabajo pesado
+                        setEncabezados(response.data);
 
                     });
                 successDialog("Operación Éxitosa.", "");
@@ -226,8 +239,7 @@ export const TablaProperacional: React.FC<Props> = ({ clienteid, fecha }) => {
                             }
 
 
-                        </Box>
-                        <Box sx={{ display: 'flex', gap: '1rem' }}>
+                        
                             <Tooltip arrow placement="left" title="Respuestas">
                                 <IconButton
                                     onClick={() => {
@@ -237,9 +249,8 @@ export const TablaProperacional: React.FC<Props> = ({ clienteid, fecha }) => {
                                     <FormatListBulleted />
                                 </IconButton>
                             </Tooltip>
-                        </Box>
                         {(row.original.Estado == 1 && row.original.EsGestionado == null) ?
-                            <Box sx={{ display: 'flex', gap: '1rem' }}>
+                            
                                 <Tooltip arrow placement="left" title="Gestionar">
                                     <IconButton
                                         onClick={() => {
@@ -249,15 +260,15 @@ export const TablaProperacional: React.FC<Props> = ({ clienteid, fecha }) => {
                                         <VerifiedUser />
                                     </IconButton>
                                 </Tooltip>
-                            </Box> : <></>
+                             : <></>
                         }
+                        </Box>
                     </>
                 )
                 }
             />
             <TablaRespuestas show={show} handleClose={handleClose} title={"Repuestas"} EncabezadoId={encabezadoId} />
-            <Observaciones show={show2} handleClose={handleClose2} title={"Observaciones"} 
-                observaciones={observaciones}
+            <Observaciones show={show2} handleClose={handleClose2} title={"Observaciones"} observaciones={observaciones}
                 encabezadoid={encabezadoId} esgestionado={esgestionado} clienteid={clienteid} fecha={fecha} />
         </>
     )

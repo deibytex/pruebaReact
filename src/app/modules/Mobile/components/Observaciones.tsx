@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { Children, useCallback, useEffect, useState } from "react";
 
-import { useDataPreoperacional } from "../core/provider";
+import { DataVehiculoOperando, PreoperacionalProvider, useDataPreoperacional } from "../core/provider";
 import { observaciones, Preoperacional, sinPreoperacional } from "../models/respuestas";
 
 import MaterialReactTable, { MRT_ColumnDef, MRT_Row } from "material-react-table";
@@ -34,9 +34,10 @@ type Props = {
 export const Observaciones: React.FC<Props> = ({ show, handleClose, title, observaciones, encabezadoid, esgestionado, clienteid, fecha }) => {
 
 
-
+    const { setEncabezados } = useDataPreoperacional();
     const [Data, setData] = useState<observaciones[]>([]);
     const [obervacionGestion, setobervacionGestion] = useState("");
+    const [Chidlren, setChildren] = useState("");
     //table state
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [globalFilter, setGlobalFilter] = useState('');
@@ -49,6 +50,7 @@ export const Observaciones: React.FC<Props> = ({ show, handleClose, title, obser
     const [isLoading, setIsLoading] = useState(false);
     const [isRefetching, setIsRefetching] = useState(false);
     const [isError, setIsError] = useState(false);
+    const obervacion = 'Observaciones';
 
     let listadoCampos: MRT_ColumnDef<observaciones>[] =
 
@@ -69,56 +71,63 @@ export const Observaciones: React.FC<Props> = ({ show, handleClose, title, obser
 
         ];
 
-        useEffect(() => {
+    useEffect(() => {
 
-            if (observaciones != "" && observaciones !=null){
-                let json = JSON.parse(observaciones);
-                setData(json);
-                console.log('ori',json)
-                setRowCount(json.length);
-            }
-            else{
-                setData([]);
-                setRowCount(0);
-            }
-        }, [observaciones]) 
-        
-        const  getobservacion = (e:any) => {
-            setobervacionGestion(e.target.value)
+        if (observaciones != "" && observaciones != null) {
+            let json = JSON.parse(observaciones);
+            setData(json);
+            console.log('ori', json)
+            setRowCount(json.length);
+        }
+        else {
+            setData([]);
+            setRowCount(0);
+        }
+    }, [observaciones])
+
+    const getobservacion = (e: any) => {
+        setobervacionGestion(e.target.value)
+    };
+
+    const setObservacion = (observacion: string, escerrado?: string) => {
+
+        let GestorObervaciones: any = {};
+
+        GestorObervaciones = {
+            EncabezadoId: encabezadoid,
+            fecha: FechaServidor,
+            value: observacion,
+            notificar: "false",
+            EsCerrado: escerrado?.toString()
+
         };
-
-        const setObservacion = ( observacion: string, escerrado?: string) => {
-
-            let GestorObervaciones: any = {};
-    
-            GestorObervaciones =  {
-                EncabezadoId: encabezadoid,
-                fecha: FechaServidor, 
-                value: observacion, 
-                notificar: "false",
-                EsCerrado: escerrado?.toString()
-
-            };
-            confirmarDialog(() => {
-            setObservaciones(JSON.stringify(GestorObervaciones)).then((response) => 
-            {
-                successDialog("Operación Éxitosa","");
+        confirmarDialog(() => {
+            setObservaciones(JSON.stringify(GestorObervaciones)).then((response) => {
+                successDialog("Operación Éxitosa", "");
                 getEncabezados(clienteid, fecha, 'null').then(
 
                     (response) => {
 
-                         const dataFiltered = (response.data as Preoperacional[]).filter(s => s.EncabezadoId === encabezadoid)
-                         const obs = dataFiltered.map(obs => obs.Observaciones).toString();
-                        
-                         setData(JSON.parse(obs));
+                        const dataFiltered = (response.data as Preoperacional[]).filter(s => s.EncabezadoId === encabezadoid)
+                        const obs = dataFiltered.map(obs => obs.Observaciones).toString();
+
+                        setData(JSON.parse(obs));
+                        setobervacionGestion("");
+
+                        if (escerrado == "true") {
+
+                            setEncabezados(response.data);
+                            handleClose();
+                        }
                     });
-                if (escerrado == "true") handleClose();
+
+                
             }).catch((error) => {
-                errorDialog("<i>Error comuniquese con el adminisrador<i/>","");
+                errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
             });
-        },escerrado == "false" ? `Esta seguro que desea agregar el comentario`: `Esta seguro que terminar la gestión`
-        ,escerrado == "false" ? "Guardar":"Terminar")
-        }
+        }, escerrado == "false" ? `Esta seguro que desea agregar el comentario` : `Esta seguro que terminar la gestión`
+            , escerrado == "false" ? "Guardar" : "Terminar")
+    }
 
     return (
         <>
@@ -134,7 +143,7 @@ export const Observaciones: React.FC<Props> = ({ show, handleClose, title, obser
                         <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
                             <div className="">
                                 <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Adicionar Comentario:</label>
-                                <textarea className="form-control  input input-sm " id={"observacion"} onChange={getobservacion}></textarea>
+                                <textarea className="form-control  input input-sm " id={obervacion} onChange={getobservacion} rows={3} value={obervacionGestion}></textarea>
                             </div>
                         </div>
                     </div>
@@ -142,65 +151,65 @@ export const Observaciones: React.FC<Props> = ({ show, handleClose, title, obser
                     <div className="row">
                         <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
                             <Button type="button" variant="primary" onClick={() => {
-                                            setObservacion(obervacionGestion,'false');
-                                        }}>
+                                setObservacion(obervacionGestion, 'false');
+                            }}>
                                 Guardar
                             </Button>
                         </div>
                         <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
-                            {esgestionado == false ?<Button type="button" variant="danger" onClick={() => {
-                                            setObservacion('Cierre Gestión', 'true');
-                                        }}>
+                            {esgestionado == false ? <Button type="button" variant="danger" onClick={() => {
+                                setObservacion('Cierre Gestión', 'true');
+                            }}>
                                 Cerrar Gestion
-                            </Button>: <></>}
+                            </Button> : <></>}
                         </div>
                     </div>
 
                 </Modal.Body>
                 <Modal.Body>
-                <MaterialReactTable
-                localization={MRT_Localization_ES}
-                displayColumnDefOptions={{
-                    'mrt-row-actions': {
-                        muiTableHeadCellProps: {
-                            align: 'center',
-                        },
-                        size: 120,
-                    },
-                }}
-                columns={listadoCampos}
-                data={Data}
-                // editingMode="modal" //default         
-                enableTopToolbar={false}
-                enableColumnOrdering
-                // enableEditing
-                /* onEditingRowSave={handleSaveRowEdits}
-                    onEditingRowCancel={handleCancelRowEdits}*/
-                muiToolbarAlertBannerProps={
-                    isError
-                        ? {
-                            color: 'error',
-                            children: 'Error al cargar información',
+                    <MaterialReactTable
+                        localization={MRT_Localization_ES}
+                        displayColumnDefOptions={{
+                            'mrt-row-actions': {
+                                muiTableHeadCellProps: {
+                                    align: 'center',
+                                },
+                                size: 120,
+                            },
+                        }}
+                        columns={listadoCampos}
+                        data={Data}
+                        // editingMode="modal" //default         
+                        enableTopToolbar={false}
+                        enableColumnOrdering
+                        // enableEditing
+                        /* onEditingRowSave={handleSaveRowEdits}
+                            onEditingRowCancel={handleCancelRowEdits}*/
+                        muiToolbarAlertBannerProps={
+                            isError
+                                ? {
+                                    color: 'error',
+                                    children: 'Error al cargar información',
+                                }
+                                : undefined
                         }
-                        : undefined
-                }
-                onColumnFiltersChange={setColumnFilters}
-                onGlobalFilterChange={setGlobalFilter}
-                onPaginationChange={setPagination}
-                onSortingChange={setSorting}
-                rowCount={rowCount}
+                        onColumnFiltersChange={setColumnFilters}
+                        onGlobalFilterChange={setGlobalFilter}
+                        onPaginationChange={setPagination}
+                        onSortingChange={setSorting}
+                        rowCount={rowCount}
 
-                state={{
-                    columnFilters,
-                    globalFilter,
-                    isLoading,
-                    pagination,
-                    showAlertBanner: isError,
-                    showProgressBars: isRefetching,
-                    sorting,
-                }}
-                
-            />
+                        state={{
+                            columnFilters,
+                            globalFilter,
+                            isLoading,
+                            pagination,
+                            showAlertBanner: isError,
+                            showProgressBars: isRefetching,
+                            sorting,
+                        }}
+
+                    />
                 </Modal.Body>
                 <Modal.Footer>
                     <Button type="button" variant="secondary" onClick={handleClose}>
@@ -208,6 +217,9 @@ export const Observaciones: React.FC<Props> = ({ show, handleClose, title, obser
                     </Button>
                 </Modal.Footer>
             </Modal>
+            <PreoperacionalProvider>
+                <DataVehiculoOperando>{Chidlren}</DataVehiculoOperando>
+            </PreoperacionalProvider>
         </>
     );
 

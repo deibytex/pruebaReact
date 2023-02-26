@@ -20,6 +20,7 @@ export default function FatigueDashboard() {
 
     const [Fecha, setFecha] = useState("");
     const [Chidlren, setChildren] = useState("");
+    const [Filtro, setFiltro] = useState("");
 
     function FechaInicialControl() {
         return (
@@ -49,21 +50,35 @@ export default function FatigueDashboard() {
             clienteid: (model.clienteid?.toString()),
             clienteIdS: "895",
             fecha: Fecha,
-            userId: (model.Id?.toString())          
+            userId: (model.Id?.toString())
         };
         setChildren(params);
     }
-    
+
     return (
         <>
             <PreoperacionalProvider>
                 <PageTitle >Preoperacional App</PageTitle>
                 <DataVehiculoOperando>{Chidlren}</DataVehiculoOperando>
-                <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris" style={{ padding: '5px' }}>
+                <div className="row g-0 g-xl-10 g-xxl-8 bg-syscaf-gris" style={{ padding: '20px' }}>
                     <div className="row">
                         <div className="col-sm-2 col-md-2 col-xs-2">
                             <label className="control-label label text-white label-sm" style={{ fontWeight: 'bold' }}>Fecha inicial</label>
                             <FechaInicialControl />
+                        </div>
+                        <div className="col-sm-3 col-md-3 col-xs-3">
+                            <label className="form-check form-switch form-check-reverse">
+                                <input type="radio" name="tipofiltro" value={0} onChange={e => setFiltro(e.target.value)} />
+                                <span className="text-white"> Aprobados</span>
+                            </label>
+                            <label className="form-check form-switch form-check-reverse">
+                                <input type="radio" name="tipofiltro" value={1} onChange={e => setFiltro(e.target.value)} />
+                                <span className="text-white"> No Aprobados</span>
+                            </label>
+                            <label className="form-check form-switch form-check-reverse">
+                                <input type="radio" name="tipofiltro" value={2} defaultChecked={true} onChange={e => setFiltro(e.target.value)} />
+                                <span className="text-white"> Todos</span>
+                            </label>
                         </div>
                         <div className="col-sm-2 col-md-2 col-xs-2">
                             <label className="control-label label label-sm"></label>
@@ -79,10 +94,10 @@ export default function FatigueDashboard() {
 
                     <div className="row">
                         <div className="col-xl-12">
-                            <MOV_PanelCentral className="card-stretch mb-5 mb-xxl-8" clienteid={model.clienteid as string} 
-                            fecha={Fecha} />
+                            <MOV_PanelCentral className="card-stretch mb-5 mb-xxl-8" clienteid={model.clienteid as string}
+                                fecha={Fecha} filtro={Filtro} />
                         </div>
-                    </div>                    
+                    </div>
                 </div>
             </PreoperacionalProvider>
         </>

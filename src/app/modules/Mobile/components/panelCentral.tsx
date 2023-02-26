@@ -9,9 +9,10 @@ type Props = {
     innerPadding?: string;
     clienteid: string
     fecha: string;
+    filtro: string;
 };
 
-export const MOV_PanelCentral: React.FC<Props> = ({ className, innerPadding = "", clienteid, fecha }) => {
+export const MOV_PanelCentral: React.FC<Props> = ({ className, innerPadding = "", clienteid, fecha, filtro}) => {
     const [width, setWidth] = useState("0px")
     const [activeTab, setActiveTab] = useState("#tab1");
 
@@ -78,31 +79,22 @@ export const MOV_PanelCentral: React.FC<Props> = ({ className, innerPadding = ""
                     </div>
                     {/* end::Nav */}
                     {/* begin::Tab Pane 1 */}
-                    <div style={{ height: width }}>
                         <div
                             className={`tab-pane fade ${activeTab === "#tab1" ? "show active" : ""
                                 }`}
                             id="tab1_content"
                         >
 
-                            <div className="d-flex justify-content-center mb-10">
-
-                                <div className="row g-0 g-xl-12 g-xxl-12">
-                                    {/* begin::Cards */}
 
 
                                     <div className="overflow-auto">
 
-                                        <TablaProperacional clienteid={clienteid} fecha={fecha}/>
+                                        <TablaProperacional clienteid={clienteid} fecha={fecha} filtro={filtro}/>
 
                                     </div>
-
-                                </div>
                                 {/* end::Cards      */}
-                            </div>
                         </div>
                         {/* end::Tab Pane 1 */}
-                    </div>
 
 
                     {/* begin::Tab Pane 2 */}
@@ -117,9 +109,6 @@ export const MOV_PanelCentral: React.FC<Props> = ({ className, innerPadding = ""
                         <div className="overflow-auto">
 
                             <TablaSinProperacional />
-
-                        </div>
-                        <div style={{ height: width }}>
 
                         </div>
                         {/* end::Cards      */}
