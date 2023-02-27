@@ -1,5 +1,5 @@
 import { Soc } from "./components/NivelCarga/Soc";
-import { DataRecargaTiempoClientes, EventoCargaProvider, Indicador, IndicadorCargado, useDataEventoCarga } from "./core/EventoCargaProvider";
+import { BotonesFiltros, DataRecargaTiempoClientes, EventoCargaProvider, Indicador, IndicadorCargado, useDataEventoCarga } from "./core/EventoCargaProvider";
 import { useEffect, useState } from "react";
 
 import { EventoCargaPrincipal } from "./components/EventoCarga/EventoCargaPrincipal";
@@ -12,24 +12,19 @@ type Props = {
  const  EventoCarga: React.FC<Props> = () => {
     const [show, setShow] = useState<boolean>(false)
     const [showV, setShowV] = useState<boolean>(false)
-    let { ClienteSeleccionado, setClientes, Clientes, setClienteSeleccionado,dataTableFiltrada,  dataTable, setShowVehiculos, setIsFiltrado, IsFiltrado} = useDataEventoCarga()
-const AbrirModalVehiculos = () =>{
-    setShowV(true); 
-    setIsFiltrado(true);
-}
-
-   
+    const { ClienteSeleccionado, setClientes, Clientes, setClienteSeleccionado,dataTableFiltrada,  dataTable, setShowVehiculos, setIsFiltrado, IsFiltrado} = useDataEventoCarga()
     return(
     <>
         <EventoCargaProvider>
         <PageTitle >{TituloEventoCarga}</PageTitle>
             <div className="row">
                     <div className="col-sm-6 col-md-6 col-xs-6">
-                        <button type="button" title="Soc" className="btn btn-sm btn-primary" onClick={() => setShow(true)}><i className="bi-battery-charging" ></i></button>
+                        <BotonesFiltros></BotonesFiltros>
+                        {/* <button type="button" title="Soc" className="btn btn-sm btn-primary" onClick={() => setShow(true)}><i className="bi-battery-charging" ></i></button>
                         {<>&nbsp;</>}
-                        <button type="button" title="Vehiculos" className="btn btn-sm btn-danger" onClick={AbrirModalVehiculos}><i className="bi-car-front-fill" ></i></button>
+                        <button type="button" title="Vehiculos" className="btn btn-sm btn-danger" onClick={AbrirModalVehiculos}><i className="bi-car-front-fill" >{(IsFiltrado==true ? <span>&times;</span>:<span>no</span>)}</i></button>
                         {<>&nbsp;</>}
-                        <ExportarExcel NombreArchivo={"EventoCarga"} ></ExportarExcel>
+                        <ExportarExcel NombreArchivo={"EventoCarga"} ></ExportarExcel> */}
                     </div>
                     <div className="col-sm-5 col-md-5 col-xs-5">
                         <div  style={{float:'right'}}>
@@ -47,7 +42,7 @@ const AbrirModalVehiculos = () =>{
                 {/*Para insertar el componete secundario o la pagina que corresponde al principal*/}
                 <div className="row">
                     <div className="col-sm-12 col-md-12 col-xs-12">
-                      <EventoCargaPrincipal MostrarVehiculo={() => setShowV(false)} MostrarSoc={() => setShow(false)} SocShow={show} VehiculosShow={showV} ></EventoCargaPrincipal>
+                      <EventoCargaPrincipal  MostrarSoc={() => setShow(false)} SocShow={show}></EventoCargaPrincipal>
                     </div>
                 </div>
         </EventoCargaProvider>

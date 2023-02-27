@@ -12,6 +12,7 @@ import { AssetsDTO } from "../models/NivelcargaModels";
 import 'react-dual-listbox/lib/react-dual-listbox.css'
 import Nouislider from "nouislider-react";
 import "nouislider/distribute/nouislider.css";
+import { ExportarExcel } from "../components/EventoCarga/ExportarExcel";
 export interface EventoCargaContextModel {
     dataTable?:any;
     Clientes? : ClienteDTO[];
@@ -33,8 +34,9 @@ export interface EventoCargaContextModel {
     MaxSocCarga?:string;
     setMinSocCarga:(MinSoc:any) => void;
     setMaxSocCarga:(MaxSoc:any) =>void;
+    contador?:boolean;
+    setContador : (contador:boolean) =>void;
 }
-
 const EventoCargaContext = createContext<EventoCargaContextModel>({
     setClientes: (Cliente: any) => {},
     setClienteSeleccionado: (Data: any) => {},
@@ -45,9 +47,9 @@ const EventoCargaContext = createContext<EventoCargaContextModel>({
     setVehiculosFiltrados: (Vehiculos:any) =>{},
     setShowVehiculos:(showVehiculos:boolean) => {},
     setMinSocCarga:(MinSoc:any) => {},
-    setMaxSocCarga:(MaxSoc:any) => {}
+    setMaxSocCarga:(MaxSoc:any) => {},
+    setContador:(Contador:boolean) => {}
 });
-
 const EventoCargaProvider: React.FC = ({ children }) => {
     const [Clientes, setClientes] = useState<ClienteDTO[]>([]);
     const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente);
@@ -59,6 +61,7 @@ const EventoCargaProvider: React.FC = ({ children }) => {
     const [showVehiculos, setShowVehiculos] = useState<boolean>(false);
     const [MaxSocCarga, setMaxSocCarga] = useState<string>("")
     const [MinSocCarga, setMinSocCarga] = useState<string>("")
+    const [contador, setContador] = useState<boolean>(false)
 
     const value: EventoCargaContextModel = {
        setClientes,
@@ -80,7 +83,9 @@ const EventoCargaProvider: React.FC = ({ children }) => {
        MaxSocCarga,
        setMaxSocCarga,
        MinSocCarga,
-       setMinSocCarga
+       setMinSocCarga,
+       contador,
+       setContador
     };
     return (
         <EventoCargaContext.Provider value={value}>
@@ -91,7 +96,6 @@ const EventoCargaProvider: React.FC = ({ children }) => {
 function useDataEventoCarga() {
     return useContext(EventoCargaContext);
 }
-
 const DataRecargaTiempoClientes: React.FC = ({ children }) => {
     const { Visible, Clientes, ClienteSeleccionado, dataTable,  setVisible,  setClienteSeleccionado, setClientes, setdataTable } = useDataEventoCarga();
     const CargarEventos = (clienteIdS:string,Periodo: string) =>{
@@ -144,11 +148,9 @@ const DataRecargaTiempoClientes: React.FC = ({ children }) => {
     }, [children]);
     return <>{(CargaListadoClientes(Clientes,ClienteSeleccionado, setClienteSeleccionado))}</>;
 };
-
 const Indicador : React.FC = ({children}) =>{
     return <>{CargarIndicador({children})}</>
 };
-
 const IndicadorCargado : React.FC = ({children}) =>{
     return <>{CargarIndicadorCargado({children})}</>
 };
@@ -168,11 +170,10 @@ type Props = {
 const VehiculosFiltros : React.FC<Props> = ({clienteIds, show, handleClose, datatable, setdataTableFiltrada, setIsFiltrado, IsFiltrado}) =>{
     const [vehiculos, setvehiculos] = useState<dualListDTO[]>([]);
     const [selected, setSelected] = useState([]);
-
+const { setShowVehiculos, showVehiculos} = useDataEventoCarga();
     useEffect(()=>{
         console.log("cambio el filtrado");
     },[IsFiltrado])
-
     function Widget () {
         return (
             <DualListBox
@@ -366,6 +367,25 @@ function CargaListadoClientes(Clientes:any, ClienteSeleccionado:any, setClienteS
     );
   }
 
+  function BotonesFiltros () {
+    const { setIsFiltrado, IsFiltrado, setShowVehiculos, showVehiculos, setContador, contador} = useDataEventoCarga()
+    const [show, setShow] = useState<boolean>(false)
+   
+    const AbrirModalVehiculos = () =>{
+        setContador(true);
+        setShowVehiculos(true);
+        // (IsFiltrado == false ? setIsFiltrado(true):setIsFiltrado(false));
+    }
+    return (
+        <>
+            <button type="button" title="Soc" className="btn btn-sm btn-primary" onClick={() => setShow(true)}><i className="bi-battery-charging" ></i></button>
+            {<>&nbsp;</>}
+            <button type="button" title="Vehiculos" className="btn btn-sm btn-danger" onClick={AbrirModalVehiculos}><i className="bi-car-front-fill" >{(IsFiltrado==true ? <span>&times;</span>:<span>no</span>)}</i></button>
+            {<>&nbsp;</>}
+            <ExportarExcel NombreArchivo={"EventoCarga"} ></ExportarExcel>
+        </>
+    )
+  }
 
 
-export {EventoCargaProvider, useDataEventoCarga, DataRecargaTiempoClientes, Indicador, IndicadorCargado, VehiculosFiltros, SocFiltro}
+export {EventoCargaProvider, useDataEventoCarga, DataRecargaTiempoClientes, Indicador, IndicadorCargado, VehiculosFiltros, SocFiltro, BotonesFiltros}
