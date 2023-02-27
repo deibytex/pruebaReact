@@ -45,9 +45,10 @@ export const TablaRespuestas: React.FC<Props> = ({show, handleClose,title, Encab
     let listadoCampos: MRT_ColumnDef<Respuestas>[] =
 
         [
+
             {
-                accessorKey: 'Usuario',
-                header: 'Usuario',
+                accessorKey: 'Secuencia',
+                header: 'Secuencia',
                 size: 100
             },
             {
@@ -60,16 +61,6 @@ export const TablaRespuestas: React.FC<Props> = ({show, handleClose,title, Encab
                 header: 'Respuesta',
                 size: 80
             },
-            {
-                accessorKey: 'Secuencia',
-                header: 'Secuencia',
-                size: 100
-            },
-            {
-                accessorKey: 'Fecha',
-                header: 'Fecha',
-                size: 80
-            }
         ];
 
         useEffect(() => {

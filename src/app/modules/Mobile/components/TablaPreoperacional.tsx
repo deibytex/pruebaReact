@@ -179,7 +179,7 @@ export const TablaProperacional: React.FC<Props> = ({ clienteid, fecha, filtro }
     if ((Encabezados as Preoperacional[]).length > 0) {
         return (
             <>
-                <ExportarExcel NombreArchivo="ReporteVehiculosPreoperacional" tipoDescarga={0}/>
+                <ExportarExcel NombreArchivo="ReporteVehiculosPreoperacional" tipoDescarga={0} lstPreoperacional={lstVehiculosConPreoperacional}/>
                 <div className="mt-5">
                     <MaterialReactTable
                         localization={MRT_Localization_ES}

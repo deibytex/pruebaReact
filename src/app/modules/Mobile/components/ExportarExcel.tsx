@@ -13,33 +13,28 @@ import { object } from "yup";
 type Props = {
     NombreArchivo: string;
     tipoDescarga: number;
+    lstPreoperacional: Preoperacional[];
 }
-export const ExportarExcel: React.FC<Props> = ({ NombreArchivo, tipoDescarga }) => {
-    const { Encabezados, vehiculosSinPreoperacional } = useDataPreoperacional();
-    const [Respuestas, setRespuestas] = useState<Respuestas[]>([]);
+export const ExportarExcel: React.FC<Props> = ({ NombreArchivo, tipoDescarga, lstPreoperacional }) => {
+    const { vehiculosSinPreoperacional } = useDataPreoperacional();
     const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;carset=UTF-8';
     const fileExtension = '.XLSX';
     let listadoObjeto: any = [];
 
     const exportarExcel = async () => {
         if (tipoDescarga === 0) {
-            if ((Encabezados as Preoperacional[]).length > 0) {
+            if ((lstPreoperacional).length > 0) {
 
                 getRespuestas(null).then((respuesta: AxiosResponse<Respuestas[]>) => {
 
-
-                    getRespuestas(null).then((respuesta: AxiosResponse<Respuestas[]>) => {
-
-                        crearExcel(respuesta.data);
-
-                    })
-
+                    crearExcel(respuesta.data);
 
                 })
 
+
                 const crearExcel = (respuestas: Respuestas[]) => {
                     listadoObjeto = [];
-                    (Encabezados as Preoperacional[]).map((item) => {
+                    lstPreoperacional.map((item) => {
 
                         let filter = respuestas.filter(function (arr) {
                             return (arr.EncabezadoId == item.EncabezadoId)
@@ -51,8 +46,8 @@ export const ExportarExcel: React.FC<Props> = ({ NombreArchivo, tipoDescarga }) 
                         Objeto["Cliente"] = item.clienteNombre;
                         Objeto["Vehículo"] = item.Description;
                         Objeto["Gestor"] = item.GetorNombre;
-                        Objeto["Estado Gestión"] = item.Estado == 1 ? item.EsGestionado != null ? 
-                                                    item.EsGestionado ? "En Gestion" : "Gestionado" : "No Gestionado" : "";                        
+                        Objeto["Estado Gestión"] = item.Estado == 1 ? item.EsGestionado != null ?
+                            item.EsGestionado ? "En Gestion" : "Gestionado" : "No Gestionado" : "";
 
                         filter.map((arr) => {
 
