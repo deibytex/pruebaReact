@@ -1,6 +1,6 @@
-import React, { Children, useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import { DataVehiculoOperando, PreoperacionalProvider, useDataPreoperacional } from "../core/provider";
+import { useDataPreoperacional } from "../core/provider";
 import { observaciones, Preoperacional, sinPreoperacional } from "../models/respuestas";
 
 import MaterialReactTable, { MRT_ColumnDef, MRT_Row } from "material-react-table";
@@ -12,12 +12,11 @@ import type {
     SortingState,
 } from '@tanstack/react-table';
 import { Button, Modal } from "react-bootstrap-v5"
-import { Box, IconButton, Tooltip } from "@mui/material";
-import { FormatListBulleted, Message } from "@mui/icons-material";
 import moment from "moment";
-import { FechaServidor, msToTime } from "../../../../_start/helpers/Helper";
+import { FechaServidor } from "../../../../_start/helpers/Helper";
 import { getEncabezados, setObservaciones } from "../data/dataPreoperacional";
 import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/helpers/components/ConfirmDialog";
+import { DATERANGE_DISABLED_TARGET } from "rsuite/esm/utils";
 
 
 type Props = {
@@ -76,7 +75,6 @@ export const Observaciones: React.FC<Props> = ({ show, handleClose, title, obser
         if (observaciones != "" && observaciones != null) {
             let json = JSON.parse(observaciones);
             setData(json);
-            console.log('ori', json)
             setRowCount(json.length);
         }
         else {
@@ -101,27 +99,21 @@ export const Observaciones: React.FC<Props> = ({ show, handleClose, title, obser
             EsCerrado: escerrado?.toString()
 
         };
+        
         confirmarDialog(() => {
             setObservaciones(JSON.stringify(GestorObervaciones)).then((response) => {
                 successDialog("Operación Éxitosa", "");
-                getEncabezados(clienteid, fecha, 'null').then(
-
-                    (response) => {
-
-                        const dataFiltered = (response.data as Preoperacional[]).filter(s => s.EncabezadoId === encabezadoid)
-                        const obs = dataFiltered.map(obs => obs.Observaciones).toString();
-
-                        setData(JSON.parse(obs));
-                        setobervacionGestion("");
-
-                        if (escerrado == "true") {
-
+                setData([...Data, JSON.parse(JSON.stringify(GestorObervaciones))] as observaciones[]);
+                setobervacionGestion("");
+                if (escerrado == "true") {
+                    getEncabezados(clienteid, fecha, 'null').then( (response) => {
                             setEncabezados(response.data);
                             handleClose();
-                        }
-                    });
+                        });
+                }
 
-                
+
+
             }).catch((error) => {
                 errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
             });
@@ -217,9 +209,6 @@ export const Observaciones: React.FC<Props> = ({ show, handleClose, title, obser
                     </Button>
                 </Modal.Footer>
             </Modal>
-            <PreoperacionalProvider>
-                <DataVehiculoOperando>{Chidlren}</DataVehiculoOperando>
-            </PreoperacionalProvider>
         </>
     );
 
