@@ -57,11 +57,14 @@ const PreoperacionalProvider: React.FC = ({ children }) => {
         iserror,
         setError
     };
+    
     return (
+       
         <PreoperacionalContext.Provider value={value}>
             {children}
-        </PreoperacionalContext.Provider>
-    );
+        </PreoperacionalContext.Provider> 
+        
+    ); 
 };
 
 function useDataPreoperacional() {
@@ -165,35 +168,6 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
 
     return <></>;
 };
-
-type Props = {
-    clienteid:string;
-    fecha: string;
-}
-
-///Para consultar los filtros por vehiculos.
-
-// const VehiculosFiltros : React.FC<Props> = ({clienteid, fecha}) =>{
-//     const { setvehiculosOperacion, setListadoVehiculoSinOperacion, setEncabezados, setvehiculosSinPreoperacional, setUserId, setError, iserror } = useDataPreoperacional();
-
-//     let consultaEncabezados = (clienteid: string, fecha: string) => {
-
-//         getEncabezados(clienteid, fecha, 'null').then(
-
-//             (response) => {
-
-//                 setEncabezados(response.data);
-//                 // cuando tengamos los datos activamos todo el trabajo pesado
-
-//             }).catch((e) => {
-//                 setError({ accion: "DataVehiculoOperando", error: "No hay datos para este cliente" });
-//                 // errorDialog("Consulta preoperacional", "No hay datos que mostrar");
-//             });
-
-//     }
-
-//     return <></>
-// };
 
 
 export { PreoperacionalProvider, useDataPreoperacional, DataVehiculoOperando }

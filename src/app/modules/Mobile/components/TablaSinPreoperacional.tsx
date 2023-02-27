@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import {  useDataPreoperacional } from "../core/provider";
+import { useDataPreoperacional } from "../core/provider";
 import { Preoperacional, sinPreoperacional } from "../models/respuestas";
 
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
@@ -15,6 +15,8 @@ import { Box, IconButton, Tooltip } from "@mui/material";
 import { FormatListBulleted, Message } from "@mui/icons-material";
 import moment from "moment";
 import { msToTime } from "../../../../_start/helpers/Helper";
+import { Button } from "react-bootstrap-v5";
+import { ExportarExcel } from "./ExportarExcel";
 
 
 type Props = {
@@ -59,7 +61,10 @@ export const TablaSinProperacional: React.FC<Props> = () => {
             {
                 accessorKey: 'FechaViaje',
                 header: 'Fecha Viaje',
-                size: 100
+                size: 100,
+                Cell({ cell, column, row, table, }) {
+                    return moment(cell.getValue() as Date).format("DD-MM-YYYY HH:mm");
+                }
             },
             {
                 accessorKey: 'DistanciaRecorrida',
@@ -71,18 +76,18 @@ export const TablaSinProperacional: React.FC<Props> = () => {
                 header: 'Nro. Viajes',
                 size: 80
             },
-            {                
+            {
                 header: 'Edad',
                 Cell({ cell, column, row, table, }) {
-                    let duration  = moment.duration(moment().diff(row.original.FechaViaje))
-                  return (
-                    <>
-                      {
-                       `${msToTime(duration.asMilliseconds())}`
-                      }  
-                    </>
-      
-                  )
+                    let duration = moment.duration(moment().diff(row.original.FechaViaje))
+                    return (
+                        <>
+                            {
+                                `${msToTime(duration.asMilliseconds())}`
+                            }
+                        </>
+
+                    )
                 },
                 size: 80
             }
@@ -107,49 +112,52 @@ export const TablaSinProperacional: React.FC<Props> = () => {
 
     return (
         <>
-        <MaterialReactTable
+            <ExportarExcel NombreArchivo="ReporteVehiculosSinPreoperacional" tipoDescarga={1}/>
+            <div className="mt-5">
+                <MaterialReactTable
                     localization={MRT_Localization_ES}
                     displayColumnDefOptions={{
-                    'mrt-row-actions': {
-                        muiTableHeadCellProps: {
-                        align: 'center',
+                        'mrt-row-actions': {
+                            muiTableHeadCellProps: {
+                                align: 'center',
+                            },
+                            size: 120,
                         },
-                        size: 120,
-                    },
                     }}
                     columns={listadoCampos}
                     data={lstVehiculosSinPreoperacional}
-                // editingMode="modal" //default         
+                    // editingMode="modal" //default         
                     enableTopToolbar={false}
                     enableColumnOrdering
                     // enableEditing
-                /* onEditingRowSave={handleSaveRowEdits}
-                    onEditingRowCancel={handleCancelRowEdits}*/
+                    /* onEditingRowSave={handleSaveRowEdits}
+                        onEditingRowCancel={handleCancelRowEdits}*/
                     muiToolbarAlertBannerProps={
-                    isError
-                        ? {
-                        color: 'error',
-                        children: 'Error al cargar información',
-                        }
-                        : undefined
+                        isError
+                            ? {
+                                color: 'error',
+                                children: 'Error al cargar información',
+                            }
+                            : undefined
                     }
                     onColumnFiltersChange={setColumnFilters}
                     onGlobalFilterChange={setGlobalFilter}
                     onPaginationChange={setPagination}
                     onSortingChange={setSorting}
                     rowCount={rowCount}
-        
+
                     state={{
-                    columnFilters,
-                    globalFilter,
-                    isLoading,
-                    pagination,
-                    showAlertBanner: isError,
-                    showProgressBars: isRefetching,
-                    sorting,
+                        columnFilters,
+                        globalFilter,
+                        isLoading,
+                        pagination,
+                        showAlertBanner: isError,
+                        showProgressBars: isRefetching,
+                        sorting,
                     }}
-                    
+
                 />
+            </div>
         </>
     )
 

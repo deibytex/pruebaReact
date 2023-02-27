@@ -74,7 +74,7 @@ export const TablaRespuestas: React.FC<Props> = ({show, handleClose,title, Encab
 
         useEffect(() => {
 
-            getRespuestas(EncabezadoId).then((respuesta: AxiosResponse<Respuestas[]>) => {
+            getRespuestas(EncabezadoId.toString()).then((respuesta: AxiosResponse<Respuestas[]>) => {
                 setlstRespuestas(respuesta.data);
                 setRowCount(respuesta.data.length);
             });

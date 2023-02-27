@@ -49,9 +49,9 @@ export  function getVehiculosSinPreoperacional( ClienteIds: string, Fecha : stri
   });
 };
 
-export  function getRespuestas(EncabezadoId: number){
+export  function getRespuestas(EncabezadoId: string | null){
   var params: { [id: string]: string | null; } = {};
-  params["EncabezadoId"] = EncabezadoId.toString();
+  params["EncabezadoId"] = EncabezadoId;
   
   // hacemos la consulta 
   return  Post_getconsultadinamicas({    

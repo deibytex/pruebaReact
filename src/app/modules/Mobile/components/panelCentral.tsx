@@ -12,8 +12,8 @@ type Props = {
     filtro: string;
 };
 
-export const MOV_PanelCentral: React.FC<Props> = ({ className, innerPadding = "", clienteid, fecha, filtro}) => {
-    const [width, setWidth] = useState("0px")
+export const MOV_PanelCentral: React.FC<Props> = ({ className, innerPadding = "", clienteid, fecha, filtro }) => {
+
     const [activeTab, setActiveTab] = useState("#tab1");
 
     const setTab = (tabNumber: number) => {
@@ -25,11 +25,6 @@ export const MOV_PanelCentral: React.FC<Props> = ({ className, innerPadding = ""
         if (!element) {
             return;
         }
-
-        const height = parseInt(getCss(element, "height"));
-
-        if (tabNumber === 2)
-            setWidth("100px");
     };
 
     return (
@@ -78,58 +73,31 @@ export const MOV_PanelCentral: React.FC<Props> = ({ className, innerPadding = ""
                         </ul>
                     </div>
                     {/* end::Nav */}
-                    {/* begin::Tab Pane 1 */}
-                        <div
-                            className={`tab-pane fade ${activeTab === "#tab1" ? "show active" : ""
-                                }`}
-                            id="tab1_content"
-                        >
-
-
-
-                                    <div className="overflow-auto">
-
-                                        <TablaProperacional clienteid={clienteid} fecha={fecha} filtro={filtro}/>
-
-                                    </div>
-                                {/* end::Cards      */}
+                    {/* begin::Tab Content */}
+                    <div className="tab-content flex-grow-1">
+                        {/* begin::Tab Pane 1 */}
+                        <div className={`tab-pane fade ${activeTab === "#tab1" ? "show active" : ""}`} id="tab1_content" >
+                            {/* begin::Cards */}
+                            <div  className="overflow-auto">
+                            <TablaProperacional clienteid={clienteid} fecha={fecha} filtro={filtro} />
+                            </div>
+                            {/* end::Cards      */}
                         </div>
                         {/* end::Tab Pane 1 */}
 
-
-                    {/* begin::Tab Pane 2 */}
-                    <div
-                        className={`tab-pane fade ${activeTab === "#tab2" ? "show active" : ""
-                            }`}
-                        id="tab2_content"
-                    >
-
-
-                        {/* begin::Cards */}
-                        <div className="overflow-auto">
-
-                            <TablaSinProperacional />
-
+                        {/* begin::Tab Pane 2 */}
+                        <div className={`tab-pane fade ${activeTab === "#tab2" ? "show active" : ""}`} id="tab2_content">
+                            {/* begin::Cards */}
+                            <div className="overflow-auto">
+                                <TablaSinProperacional />
+                            </div>
+                            {/* end::Cards      */}
                         </div>
-                        {/* end::Cards      */}
+                        {/* end::Tab Pane 2 */}
                     </div>
-                    {/* end::Tab Pane 2 */}
+                    {/* end::Tab Content */}
                 </div>
-                {/* end: Card Body */}
             </div>
         </div>
     )
-}
-
-
-function getCss(el: HTMLElement, styleProp: string) {
-    const defaultView = (el.ownerDocument || document).defaultView;
-    if (!defaultView) {
-        return "";
-    }
-
-    // sanitize property name to css notation
-    // (hyphen separated words eg. font-Size)
-    styleProp = styleProp.replace(/([A-Z])/g, "-$1").toLowerCase();
-    return defaultView.getComputedStyle(el, null).getPropertyValue(styleProp);
 }

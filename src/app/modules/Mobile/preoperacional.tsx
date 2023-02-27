@@ -54,53 +54,57 @@ export default function FatigueDashboard() {
         };
         setChildren(params);
     }
-
-    return (
-        <>
-            <PreoperacionalProvider>
-                <PageTitle >Preoperacional App</PageTitle>
-                <DataVehiculoOperando>{Chidlren}</DataVehiculoOperando>
-                <div className="row g-0 g-xl-10 g-xxl-8 bg-syscaf-gris" style={{ padding: '20px' }}>
-                    <div className="row">
-                        <div className="col-sm-2 col-md-2 col-xs-2">
-                            <label className="control-label label text-white label-sm" style={{ fontWeight: 'bold' }}>Fecha inicial</label>
-                            <FechaInicialControl />
+    if (Chidlren !== ""){
+        return (
+            <>
+                <PreoperacionalProvider>
+                    <PageTitle >Preoperacional App</PageTitle>
+                    <DataVehiculoOperando>{Chidlren}</DataVehiculoOperando>
+                    <div className="row g-0 g-xl-10 g-xxl-8 bg-syscaf-gris" style={{ padding: '20px' }}>
+                        <div className="row">
+                            <div className="col-sm-2 col-md-2 col-xs-2">
+                                <label className="control-label label text-white label-sm" style={{ fontWeight: 'bold' }}>Fecha inicial</label>
+                                <FechaInicialControl />
+                            </div>
+                            <div className="col-sm-3 col-md-3 col-xs-3">
+                                <label className="form-check form-switch form-check-reverse">
+                                    <input type="radio" name="tipofiltro" value={0} onChange={e => setFiltro(e.target.value)} />
+                                    <span className="text-white"> Aprobados</span>
+                                </label>
+                                <label className="form-check form-switch form-check-reverse">
+                                    <input type="radio" name="tipofiltro" value={1} onChange={e => setFiltro(e.target.value)} />
+                                    <span className="text-white"> No Aprobados</span>
+                                </label>
+                                <label className="form-check form-switch form-check-reverse">
+                                    <input type="radio" name="tipofiltro" value={2} defaultChecked={true} onChange={e => setFiltro(e.target.value)} />
+                                    <span className="text-white"> Todos</span>
+                                </label>
+                            </div>
+                            <div className="col-sm-2 col-md-2 col-xs-2">
+                                <label className="control-label label label-sm"></label>
+                                <div className=" ">
+                                    <button className="btn btn-sm btn-success" title="Consultar" type="button" onClick={Consultar}><i className="bi-search"></i>Consultar</button>
+                                </div>
+                            </div>
                         </div>
-                        <div className="col-sm-3 col-md-3 col-xs-3">
-                            <label className="form-check form-switch form-check-reverse">
-                                <input type="radio" name="tipofiltro" value={0} onChange={e => setFiltro(e.target.value)} />
-                                <span className="text-white"> Aprobados</span>
-                            </label>
-                            <label className="form-check form-switch form-check-reverse">
-                                <input type="radio" name="tipofiltro" value={1} onChange={e => setFiltro(e.target.value)} />
-                                <span className="text-white"> No Aprobados</span>
-                            </label>
-                            <label className="form-check form-switch form-check-reverse">
-                                <input type="radio" name="tipofiltro" value={2} defaultChecked={true} onChange={e => setFiltro(e.target.value)} />
-                                <span className="text-white"> Todos</span>
-                            </label>
+    
+                        <div className="row">
+                            <Indicadores />
                         </div>
-                        <div className="col-sm-2 col-md-2 col-xs-2">
-                            <label className="control-label label label-sm"></label>
-                            <div className=" ">
-                                <button className="btn btn-sm btn-success" title="Consultar" type="button" onClick={Consultar}><i className="bi-search"></i>Consultar</button>
+    
+                        <div className="row">
+                            <div className="col-xl-12">
+                                <MOV_PanelCentral className="card-stretch mb-5 mb-xxl-8" clienteid={model.clienteid as string}
+                                    fecha={Fecha} filtro={Filtro} />
                             </div>
                         </div>
                     </div>
-
-                    <div className="row">
-                        <Indicadores />
-                    </div>
-
-                    <div className="row">
-                        <div className="col-xl-12">
-                            <MOV_PanelCentral className="card-stretch mb-5 mb-xxl-8" clienteid={model.clienteid as string}
-                                fecha={Fecha} filtro={Filtro} />
-                        </div>
-                    </div>
-                </div>
-            </PreoperacionalProvider>
-        </>
-    )
+                </PreoperacionalProvider>
+            </>
+            )
+    }else 
+    return <></>
+    
+    
 }
 

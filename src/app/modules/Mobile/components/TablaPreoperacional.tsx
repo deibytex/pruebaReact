@@ -20,6 +20,9 @@ import { FechaServidor } from "../../../../_start/helpers/Helper";
 import { Console } from "console";
 import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/helpers/components/ConfirmDialog";
 import { boolean } from "yup";
+import { Button } from "react-bootstrap-v5";
+import { ExportarExcel } from "./ExportarExcel";
+
 
 
 type Props = {
@@ -28,7 +31,7 @@ type Props = {
     filtro: string
 };
 
-export const TablaProperacional: React.FC<Props> = ({ clienteid, fecha, filtro}) => {
+export const TablaProperacional: React.FC<Props> = ({ clienteid, fecha, filtro }) => {
 
     const { Encabezados, UserId, setEncabezados } = useDataPreoperacional();
     const [lstVehiculosConPreoperacional, setlstVehiculosConPreoperacional] = useState<Preoperacional[]>([]);
@@ -117,22 +120,21 @@ export const TablaProperacional: React.FC<Props> = ({ clienteid, fecha, filtro})
         ];
 
     useEffect(() => {
-        if (filtro === "2" || filtro === ""){
+        if (filtro === "2" || filtro === "") {
             setlstVehiculosConPreoperacional(Encabezados as Preoperacional[]);
             setRowCount((Encabezados as Preoperacional[]).length);
         }
-        else if (filtro === "0"){
+        else if (filtro === "0") {
+            let encabezados = (Encabezados as Preoperacional[]).filter(est => est.Estado.toString() == filtro);
+            setlstVehiculosConPreoperacional(encabezados as Preoperacional[]);
+            setRowCount(encabezados.length);
+        }
+        else {
+            let encabezados = (Encabezados as Preoperacional[]).filter(est => est.Estado.toString() == filtro);
+            setlstVehiculosConPreoperacional(encabezados as Preoperacional[]);
+            setRowCount(encabezados.length);
+        }
 
-            let encabezados = (Encabezados as Preoperacional[]).filter( est => est.Estado.toString() == filtro);            
-            setlstVehiculosConPreoperacional(encabezados as Preoperacional[]);
-            setRowCount(encabezados.length);
-        }
-        else{
-            let encabezados = (Encabezados as Preoperacional[]).filter( est => est.Estado.toString() == filtro);            
-            setlstVehiculosConPreoperacional(encabezados as Preoperacional[]);
-            setRowCount(encabezados.length);
-        }
-        
 
     }, [Encabezados, filtro])
 
@@ -172,104 +174,114 @@ export const TablaProperacional: React.FC<Props> = ({ clienteid, fecha, filtro})
                 errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
             });
         }, `Desea usted gestionar este preoperacional`, "Sí");
-
-
-
     }
 
+    if ((Encabezados as Preoperacional[]).length > 0) {
+        return (
+            <>
+                <ExportarExcel NombreArchivo="ReporteVehiculosSinPreoperacional" tipoDescarga={0}/>
+                <div className="mt-5">
+                    <MaterialReactTable
+                        localization={MRT_Localization_ES}
+                        displayColumnDefOptions={{
+                            'mrt-row-actions': {
+                                muiTableHeadCellProps: {
+                                    align: 'center',
+                                },
+                                size: 120,
+                            },
+                        }}
+                        columns={listadoCampos}
+                        data={lstVehiculosConPreoperacional}
+                        // editingMode="modal" //default         
+                        enableTopToolbar={false}
+                        enableColumnOrdering
+                        enableEditing
+                        /* onEditingRowSave={handleSaveRowEdits}
+                            onEditingRowCancel={handleCancelRowEdits}*/
+                        muiToolbarAlertBannerProps={
+                            isError
+                                ? {
+                                    color: 'error',
+                                    children: 'Error al cargar información',
+                                }
+                                : undefined
+                        }
+                        onColumnFiltersChange={setColumnFilters}
+                        onGlobalFilterChange={setGlobalFilter}
+                        onPaginationChange={setPagination}
+                        onSortingChange={setSorting}
+                        rowCount={rowCount}
+
+                        state={{
+                            columnFilters,
+                            globalFilter,
+                            isLoading,
+                            pagination,
+                            showAlertBanner: isError,
+                            showProgressBars: isRefetching,
+                            sorting,
+                        }}
+                        renderRowActions={({ row, table }) => (
+
+                            <>
+                                <Box sx={{ display: 'flex', gap: '1rem' }}>
+                                    {(row.original.Estado == 1 && row.original.EsGestionado != null) ?
+                                        <Tooltip arrow placement="left" title="Obervaciones">
+                                            <IconButton
+                                                onClick={() => {
+                                                    modalObervaciones(row.original.Observaciones, row.original.EncabezadoId, row.original.EsGestionado);
+                                                }}
+                                            >
+                                                <Message />
+                                            </IconButton>
+                                        </Tooltip> :
+                                        <></>
+
+                                    }
+
+
+
+                                    <Tooltip arrow placement="left" title="Respuestas">
+                                        <IconButton
+                                            onClick={() => {
+                                                modalrespuetas(row.original.EncabezadoId);
+                                            }}
+                                        >
+                                            <FormatListBulleted />
+                                        </IconButton>
+                                    </Tooltip>
+                                    {(row.original.Estado == 1 && row.original.EsGestionado == null) ?
+
+                                        <Tooltip arrow placement="left" title="Gestionar">
+                                            <IconButton
+                                                onClick={() => {
+                                                    setGestorPreoperacional(row.original.EncabezadoId);
+                                                }}
+                                            >
+                                                <VerifiedUser />
+                                            </IconButton>
+                                        </Tooltip>
+                                        : <></>
+                                    }
+                                </Box>
+                            </>
+                        )
+                        }
+                    />
+                </div>
+                <TablaRespuestas show={show} handleClose={handleClose} title={"Repuestas"} EncabezadoId={encabezadoId} />
+                <Observaciones show={show2} handleClose={handleClose2} title={"Observaciones"} observaciones={observaciones}
+                    encabezadoid={encabezadoId} esgestionado={esgestionado} clienteid={clienteid} fecha={fecha} />
+            </>
+        )
+    }
     return (
         <>
-            <MaterialReactTable
-                localization={MRT_Localization_ES}
-                displayColumnDefOptions={{
-                    'mrt-row-actions': {
-                        muiTableHeadCellProps: {
-                            align: 'center',
-                        },
-                        size: 120,
-                    },
-                }}
-                columns={listadoCampos}
-                data={lstVehiculosConPreoperacional}
-                // editingMode="modal" //default         
-                enableTopToolbar={false}
-                enableColumnOrdering
-                enableEditing
-                /* onEditingRowSave={handleSaveRowEdits}
-                    onEditingRowCancel={handleCancelRowEdits}*/
-                muiToolbarAlertBannerProps={
-                    isError
-                        ? {
-                            color: 'error',
-                            children: 'Error al cargar información',
-                        }
-                        : undefined
-                }
-                onColumnFiltersChange={setColumnFilters}
-                onGlobalFilterChange={setGlobalFilter}
-                onPaginationChange={setPagination}
-                onSortingChange={setSorting}
-                rowCount={rowCount}
-
-                state={{
-                    columnFilters,
-                    globalFilter,
-                    isLoading,
-                    pagination,
-                    showAlertBanner: isError,
-                    showProgressBars: isRefetching,
-                    sorting,
-                }}
-                renderRowActions={({ row, table }) => (
-
-                    <>
-                        <Box sx={{ display: 'flex', gap: '1rem' }}>
-                            {(row.original.Estado == 1 && row.original.EsGestionado != null) ?
-                                <Tooltip arrow placement="left" title="Obervaciones">
-                                    <IconButton
-                                        onClick={() => {
-                                            modalObervaciones(row.original.Observaciones, row.original.EncabezadoId, row.original.EsGestionado);
-                                        }}
-                                    >
-                                        <Message />
-                                    </IconButton>
-                                </Tooltip> :
-                                <></>
-
-                            }
-
-
-                        
-                            <Tooltip arrow placement="left" title="Respuestas">
-                                <IconButton
-                                    onClick={() => {
-                                        modalrespuetas(row.original.EncabezadoId);
-                                    }}
-                                >
-                                    <FormatListBulleted />
-                                </IconButton>
-                            </Tooltip>
-                        {(row.original.Estado == 1 && row.original.EsGestionado == null) ?
-                            
-                                <Tooltip arrow placement="left" title="Gestionar">
-                                    <IconButton
-                                        onClick={() => {
-                                            setGestorPreoperacional(row.original.EncabezadoId);
-                                        }}
-                                    >
-                                        <VerifiedUser />
-                                    </IconButton>
-                                </Tooltip>
-                             : <></>
-                        }
-                        </Box>
-                    </>
-                )
-                }
-            />
-            <TablaRespuestas show={show} handleClose={handleClose} title={"Repuestas"} EncabezadoId={encabezadoId} />
-            <Observaciones show={show2} handleClose={handleClose2} title={"Observaciones"} observaciones={observaciones}
-                encabezadoid={encabezadoId} esgestionado={esgestionado} clienteid={clienteid} fecha={fecha} />
+            <br />
+            <div>
+                <h6 style={{ fontWeight: 'bold', textAlign: 'center' }}>No hay vehículos con preoperacional</h6>
+            </div>
         </>
     )
 
