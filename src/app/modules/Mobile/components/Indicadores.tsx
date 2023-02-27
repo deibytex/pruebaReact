@@ -9,7 +9,7 @@ type Props = {
 
 export const Indicadores: React.FC<Props> = () => {
 
-    const { vehiculosOperacion, Encabezados } = useDataPreoperacional();
+    const { vehiculosOperacion, Encabezados, vehiculosSinPreoperacional } = useDataPreoperacional();
 
     const [vehiculosOperando, setvehiculosOperando] = useState(0);
     const [vehiculosSinOperacion, setvehiculosSinoperacion] = useState(0);
@@ -37,8 +37,6 @@ export const Indicadores: React.FC<Props> = () => {
     if (Object.entries(vehiculosOperacion).length !== 0) {
         return (
             <>
-                {/* <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris" style={{padding:'5px'}}> */}
-                {/* <div className="row"> */}
                 <div className="col-sm-3 col-md-3 col-xs-3" style={{ textAlign: 'center' }}>
                     <label className="control-label label label-sm text-white" style={{ fontWeight: 'bold', textAlign: 'center' }}>Total Vehículos</label>
                     <div className="card text-black mb-3" style={{ marginTop: '5px', textAlign: 'center', flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
@@ -48,13 +46,13 @@ export const Indicadores: React.FC<Props> = () => {
                 <div className="col-sm-3 col-md-3 col-xs-3" style={{ textAlign: 'center' }}>
                     <label className="control-label label label-sm text-white" style={{ fontWeight: 'bold', textAlign: 'center' }}>Vehículos con Movimiento</label>
                     <div className="card text-black mb-3" style={{ marginTop: '5px', textAlign: 'center', flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
-                        <span style={{ fontWeight: 'bold', fontSize: '30px' }}>{vehiculosOperando}</span>
+                        <span style={{ fontWeight: 'bold', fontSize: '30px' }}>{vehiculosOperando}/{vehiculosOperando + vehiculosSinOperacion}</span>
                     </div>
                 </div>
                 <div className="col-sm-3 col-md-3 col-xs-3" style={{ textAlign: 'center' }}>
                     <label className="control-label label label-sm text-white" style={{ fontWeight: 'bold', textAlign: 'center' }}>Vehículos con Preoperacional</label>
                     <div className="card text-black mb-3" style={{ marginTop: '5px', textAlign: 'center', flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
-                        <span style={{ fontWeight: 'bold', fontSize: '30px' }}>{vehiculosConPreoperacional}/{vehiculosOperando}</span>
+                        <span style={{ fontWeight: 'bold', fontSize: '30px' }}>{vehiculosConPreoperacional}/{vehiculosSinPreoperacional?.length}</span>
                     </div>
                 </div>
                 <div className="col-sm-3 col-md-3 col-xs-3" style={{ textAlign: 'center' }}>
@@ -63,8 +61,6 @@ export const Indicadores: React.FC<Props> = () => {
                         <span style={{ fontWeight: 'bold', fontSize: '30px' }}>{vehiculosConNovedad}/{vehiculosConPreoperacional}</span>
                     </div>
                 </div>
-                {/* </div> */}
-                {/* </div> */}
             </>
         )
     }
