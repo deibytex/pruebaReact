@@ -12,7 +12,7 @@ type Props = {
 }
 
 const  EventoCargaPrincipal : React.FC<Props> = ({MostrarSoc, SocShow}) =>{
-const {contador, showVehiculos, setShowVehiculos, IsFiltrado, dataTableFiltrada, VehiculosFiltrados, ClienteSeleccionado, setClientes, Clientes, setdataTableFiltrada, setClienteSeleccionado, setVisible, Visible,  dataTable, setIsFiltrado } = useDataEventoCarga();
+const {contador, showVehiculos, setShowSoc, ShowSoc, setShowVehiculos, IsFiltrado, dataTableFiltrada, VehiculosFiltrados, ClienteSeleccionado, setClientes, Clientes, setdataTableFiltrada, setClienteSeleccionado, setVisible, Visible,  dataTable, setIsFiltrado, setdataTable } = useDataEventoCarga();
 const [Data, setData] = useState<[]>([]); 
 const [showV, setShowV] = useState<boolean>(false)
 
@@ -20,34 +20,12 @@ const MostrarVehiculo = () => {
     setShowV(false);
     setShowVehiculos(false);
 }
+
+const CloseSoc = () =>{
+    setShowSoc(false);
+}
 useEffect(() =>{
-    if(contador  != undefined){
-        if(contador == false){
-            setData(dataTable);
-        }
-        else  if(contador == true && dataTableFiltrada.length == 0 && IsFiltrado == false)
-        {
-            setData(dataTable);
-        }
-        else if(contador == true && dataTableFiltrada.length != 0 && IsFiltrado == true)
-        {
-            setData(dataTableFiltrada);
-        }
-        else if(contador && IsFiltrado == true)
-        {
-            setdataTableFiltrada([]);
-            setIsFiltrado(false);
-            setShowV(false);
-            setShowVehiculos(false);
-        }
-        else{
-            setData(dataTable);
-        }
-    }
-    
-
-  //  ((IsFiltrado) ?  setData(dataTableFiltrada): setData(dataTable));
-
+  ((IsFiltrado) ?  setData(dataTableFiltrada): setData(dataTable));
 },[IsFiltrado, dataTable, contador,dataTableFiltrada ])
 
     return (
@@ -57,7 +35,7 @@ useEffect(() =>{
                 <div>
                    <TablaEventoCarga Datos={Data}></TablaEventoCarga>
                 </div>
-                <SocFiltro show={SocShow} handleClose={MostrarSoc}/>
+                <SocFiltro show={(ShowSoc == undefined ? false:ShowSoc)} handleClose={CloseSoc}/>
                 <VehiculosFiltros clienteIds={ClienteSeleccionado?.clienteIdS} show={(showVehiculos != undefined ? showVehiculos:false)} handleClose={MostrarVehiculo} datatable={Data} setdataTableFiltrada={setdataTableFiltrada} setIsFiltrado={setIsFiltrado} IsFiltrado={(IsFiltrado!= undefined?IsFiltrado:false)} >{}</VehiculosFiltros>
                     
             </BlockUi>

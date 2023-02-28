@@ -36,6 +36,8 @@ export interface EventoCargaContextModel {
     setMaxSocCarga:(MaxSoc:any) =>void;
     contador?:boolean;
     setContador : (contador:boolean) =>void;
+    ShowSoc?:boolean;
+    setShowSoc:(Soc:boolean) =>void;
 }
 const EventoCargaContext = createContext<EventoCargaContextModel>({
     setClientes: (Cliente: any) => {},
@@ -48,7 +50,8 @@ const EventoCargaContext = createContext<EventoCargaContextModel>({
     setShowVehiculos:(showVehiculos:boolean) => {},
     setMinSocCarga:(MinSoc:any) => {},
     setMaxSocCarga:(MaxSoc:any) => {},
-    setContador:(Contador:boolean) => {}
+    setContador:(Contador:boolean) => {},
+    setShowSoc:(Soc:boolean) =>{}
 });
 const EventoCargaProvider: React.FC = ({ children }) => {
     const [Clientes, setClientes] = useState<ClienteDTO[]>([]);
@@ -62,6 +65,7 @@ const EventoCargaProvider: React.FC = ({ children }) => {
     const [MaxSocCarga, setMaxSocCarga] = useState<string>("")
     const [MinSocCarga, setMinSocCarga] = useState<string>("")
     const [contador, setContador] = useState<boolean>(false)
+    const [ShowSoc, setShowSoc] = useState<boolean>(false)
 
     const value: EventoCargaContextModel = {
        setClientes,
@@ -85,7 +89,9 @@ const EventoCargaProvider: React.FC = ({ children }) => {
        MinSocCarga,
        setMinSocCarga,
        contador,
-       setContador
+       setContador,
+       ShowSoc,
+       setShowSoc
     };
     return (
         <EventoCargaContext.Provider value={value}>
@@ -266,7 +272,7 @@ const SocFiltro : React.FC<PropsSoc>= ({show,handleClose}) =>{
         setTimeout(() => {
             setMinSocCarga(min);
             setMaxSocCarga(max);
-        }, 10000);
+        }, 5000);
     }
 
     function Slider () {
@@ -274,7 +280,7 @@ const SocFiltro : React.FC<PropsSoc>= ({show,handleClose}) =>{
             <Nouislider range={{
                 min: [0],
                 max: [100]
-              }}   start={[0,100]} tooltips={true}  onUpdate={End}/>
+              }}   start={[0,100]} tooltips={true}  onSet={End}/>
         )
      }
      useEffect(() =>{
@@ -368,7 +374,7 @@ function CargaListadoClientes(Clientes:any, ClienteSeleccionado:any, setClienteS
   }
 
   function BotonesFiltros () {
-    const { setIsFiltrado, IsFiltrado, setShowVehiculos, showVehiculos, setContador, contador} = useDataEventoCarga()
+    const { setIsFiltrado, IsFiltrado, setShowSoc, setShowVehiculos, showVehiculos, setContador, contador, setdataTableFiltrada} = useDataEventoCarga()
     const [show, setShow] = useState<boolean>(false)
    
     const AbrirModalVehiculos = () =>{
@@ -376,13 +382,24 @@ function CargaListadoClientes(Clientes:any, ClienteSeleccionado:any, setClienteS
         setShowVehiculos(true);
         // (IsFiltrado == false ? setIsFiltrado(true):setIsFiltrado(false));
     }
+
+    const AbrirModalSoc = () =>{
+        setShowSoc(true);
+    }
+    const QuitarFiltros = () =>{
+        setContador(false);
+        setIsFiltrado(false);
+        setdataTableFiltrada([]);
+    }
     return (
         <>
-            <button type="button" title="Soc" className="btn btn-sm btn-primary" onClick={() => setShow(true)}><i className="bi-battery-charging" ></i></button>
+            <button type="button" title="Soc" className="btn btn-sm btn-primary" onClick={AbrirModalSoc}><i className="bi-battery-charging" ></i></button>
             {<>&nbsp;</>}
-            <button type="button" title="Vehiculos" className="btn btn-sm btn-danger" onClick={AbrirModalVehiculos}><i className="bi-car-front-fill" >{(IsFiltrado==true ? <span>&times;</span>:<span>no</span>)}</i></button>
+            <button type="button" title="Vehiculos" className="btn btn-sm btn-info" onClick={AbrirModalVehiculos}><i className="bi-car-front-fill" ></i></button>
             {<>&nbsp;</>}
             <ExportarExcel NombreArchivo={"EventoCarga"} ></ExportarExcel>
+            {<>&nbsp;</>}
+            <button  style={{display:`${IsFiltrado==false ? 'none':'inline'}`}} type="button" title="Quitar filtros" className="btn btn-sm btn-danger" onClick={QuitarFiltros}><i className="bi-filter" >{(IsFiltrado==true ? <span>&times;</span>:"")}</i></button>
         </>
     )
   }
