@@ -35,7 +35,7 @@ useEffect(() =>{
                 <div>
                    <TablaEventoCarga Datos={Data}></TablaEventoCarga>
                 </div>
-                <SocFiltro show={(ShowSoc == undefined ? false:ShowSoc)} handleClose={CloseSoc}/>
+                <SocFiltro show={(ShowSoc == undefined ? false:ShowSoc)} setShowSoc={setShowSoc}  datatable={Data} setdataTableFiltrada={setdataTableFiltrada} setIsFiltrado={setIsFiltrado} IsFiltrado={(IsFiltrado!= undefined?IsFiltrado:false)}/>
                 <VehiculosFiltros clienteIds={ClienteSeleccionado?.clienteIdS} show={(showVehiculos != undefined ? showVehiculos:false)} handleClose={MostrarVehiculo} datatable={Data} setdataTableFiltrada={setdataTableFiltrada} setIsFiltrado={setIsFiltrado} IsFiltrado={(IsFiltrado!= undefined?IsFiltrado:false)} >{}</VehiculosFiltros>
                     
             </BlockUi>

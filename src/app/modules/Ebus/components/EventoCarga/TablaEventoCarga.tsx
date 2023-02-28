@@ -21,7 +21,7 @@ const  TablaEventoCarga : React.FC<Props> = ({Datos}) =>{
      const [isLoading, setIsLoading] = useState(false);
      const [isRefetching, setIsRefetching] = useState(false);
      const [isError, setIsError] = useState(false);
-
+     const [alarmas, setalarmas] = useState([90, 95]);
 useEffect(() =>{
     setRowCount(Datos.length)
 }, [Datos])
