@@ -8,6 +8,7 @@ import * as auth from "../redux/AuthRedux";
 import { login } from "../redux/AuthCRUD";
 import jwt_decode from "jwt-decode"
 import { UserModelSyscaf } from "../models/UserModel";
+import { toAbsoluteUrl } from "../../../../_start/helpers";
 
 const loginSchema = Yup.object().shape({
   email: Yup.string()
@@ -59,7 +60,7 @@ export function Login() {
             setSubmitting(false);
             setStatus("Los detalles del login son incorrecto");
           
-              seterrorLogin( (e.response != null)  ? e.response.data : e.toString())
+              seterrorLogin( (e.response != null)  ? e.response.data : "Error al iniciar ingresar.")
                
           });
       }, 1000);
@@ -68,20 +69,24 @@ export function Login() {
 
   return (
     <form
-      className="form w-100"
+      className="form w-100 "
       onSubmit={formik.handleSubmit}
       noValidate
       id="kt_login_signin_form"
-    >
+    >  <div className="pb-lg-5">
+       <img
+                alt="Logo"
+                src={toAbsoluteUrl("/media/syscaf/logo syscaf 2023 color.png")}
+                className="h-90px bg-white"
+              />
       {/* begin::Title */}
-      <div className="pb-lg-15">
-        <h3 className="fw-bolder text-dark display-6">Bienvenido a Syscaf Analitycs</h3>        
-      </div>
-      <div className="pb-lg-15">
-        <h3 className="fw-bolder text-danger">{errorLogin}</h3>        
+      
+        <h2 className="fw-bolder text-primary text-center mt-10 ">Bienvenido a SYSCAF Analytics</h2>        
+     
+        <h4 className="fw-bolder text-danger">{errorLogin}</h4>        
       </div>
 
-
+     
 
       {/* begin::Form group */}
       <div className="v-row mb-10 fv-plugins-icon-container">

@@ -442,12 +442,12 @@ function SelectContainer() {
     <>
     <NeptunoProvider>
       <PageTitle >{tituloPagina}</PageTitle>
-      <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris ">
+      <div className="row g-0 g-xl-5 g-xxl-8 bg-white ">
         <div className="row" style={{width:'100%'}}>
           <div className="col-sm-4 col-md-4 col-xs-4">
             <div style={{paddingTop:'5px'}}>
               {(EsPermitido(permisosopcion, operacionesPermisos.Adicionar)) && (<Button
-                className="btn btn-primary btn-xs  mb-2 mt-1"
+                className="btn btn-success btn-xs  mb-2 mt-1"
                 onClick={() => handleshowFileLoad(true)}
                 variant="contained"
               >
@@ -470,7 +470,7 @@ function SelectContainer() {
        
 
       </div>
-      <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris">
+      <div className="row g-0 g-xl-5 g-xxl-8 bg-white">
         <MaterialReactTable
          localization={MRT_Localization_ES}
           displayColumnDefOptions={{

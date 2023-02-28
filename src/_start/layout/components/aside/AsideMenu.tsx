@@ -24,12 +24,12 @@ const AsideMenu: React.FC<Props> = ({ menuType, asidePrimaryDisplay }) => {
   }, [asidePrimaryDisplay]);
   return (
     <div
-      className=" bg-syscaf-gris menu menu-column menu-rounded menu-title-gray-700 menu-state-title-primary menu-state-icon-primary menu-state-bullet-primary menu-arrow-gray-500 fw-bold fs-6"
+      className=" bg-primary menu menu-column menu-rounded menu-title-gray-700 menu-state-title-primary menu-state-icon-primary menu-state-bullet-primary menu-arrow-gray-500 fw-bold fs-6"
       data-kt-menu="true"
     >
       <div
         ref={scrollRef}
-        className="hover-scroll-y pe-4 pe-lg-5  bg-syscaf-gris"
+        className="hover-scroll-y pe-4 pe-lg-5  bg-primary"
         id="kt_aside_menu_scroll"
         data-kt-scroll="true"
         data-kt-scroll-height="auto"        

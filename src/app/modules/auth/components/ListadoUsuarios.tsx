@@ -99,7 +99,7 @@ export default function IndiceUsuarios() {
         <>
     
           <PageTitle >ADMINISTRACIÓN - USUARIOS</PageTitle>
-          <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris ">
+          <div className="row g-0 g-xl-5 g-xxl-8 bg-primary ">
             {(EsPermitido(permisosopcion, Operaciones.Adicionar)) && (<Button
               className="btn btn-primary btn-xs col-xs-4 col-xl-1 col-md-2 mb-2 mt-1"
              // onClick={() => handleshowFileLoad(true)}
@@ -109,7 +109,7 @@ export default function IndiceUsuarios() {
             </Button>)}
     
           </div>
-          <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris">
+          <div className="row g-0 g-xl-5 g-xxl-8 bg-primary">
             <MaterialReactTable
               displayColumnDefOptions={{
                 'mrt-row-actions': {

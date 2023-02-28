@@ -98,7 +98,7 @@ export default function FatigueDashboard() {
                 <PageTitle >Fatigue App </PageTitle>
                 <DataVehiculoOperando>{clienteSeleccionado?.ClienteIdS}</DataVehiculoOperando>
                 {/* begin::Row */}
-                <div className=" card-stretch row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris">
+                <div className=" card-stretch row g-0 g-xl-5 g-xxl-8 bg-primary">
                
                 <div className="d-inline-flex col-xl-6">
                 <h6 className="text-white m-3">Cliente:</h6>
@@ -110,7 +110,7 @@ export default function FatigueDashboard() {
                   <TipoSeguiminento/>
                   </div>
                 </div>
-                <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris">
+                <div className="row g-0 g-xl-5 g-xxl-8 bg-primary">
                     <div className="col-xl-3">
                         <BaseIndicador className={"card-stretch mb-1 mb-xxl-2"} pathIcon='' >
                             {/*Contenido que quiero mostar dentro del indicador*/}
@@ -138,7 +138,7 @@ export default function FatigueDashboard() {
                     </div>
                 </div>
 
-                <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris">
+                <div className="row g-0 g-xl-5 g-xxl-8 bg-primary">
                     <div className="col-xl-12">
                         <FAG_PanelCentral className="card-stretch mb-5 mb-xxl-8"></FAG_PanelCentral>
                     </div>

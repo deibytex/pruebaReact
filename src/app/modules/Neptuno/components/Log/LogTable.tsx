@@ -270,7 +270,7 @@ function SelectContainer() {
     return ( 
         <LogProvider>
             <PageTitle >{TituloNeptunoLogs}</PageTitle>
-            <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-gris" style={{padding:'5px'}}>
+            <div className="row g-0 g-xl-5 g-xxl-8 bg-primary" style={{padding:'5px'}}>
                     <div className="row rounded" style={{border:'1px solid #d1e7dd', margin:'1px'}}>
                         <div className="col-sm-2 col-md-2 col-xs-2">
                             <label className="control-label label text-white label-sm"  style={{fontWeight:'bold'}}>Fecha inicial</label>

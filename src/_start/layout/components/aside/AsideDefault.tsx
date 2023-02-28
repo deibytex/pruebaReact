@@ -37,7 +37,7 @@ export function AsideDefault() {
                 <Link to="/">
                   <img
                     alt="Logo"
-                    src={toAbsoluteUrl("/media/logos/logo-compact.svg")}
+                    src={toAbsoluteUrl("/media/syscaf/icono syscaf color.png")}
                     className="mh-50px"
                   />
                 </Link>
@@ -141,7 +141,7 @@ export function AsideDefault() {
           )}
 
           {config.aside.secondaryDisplay && (
-            <div className="aside-secondary d-flex flex-row-fluid bg-syscaf-gris">
+            <div className="aside-secondary d-flex flex-row-fluid bg-primary">
               <div
                 className="aside-workspace my-7 ps-5 pe-4 ps-lg-10 pe-lg-6  "
                 id="kt_aside_wordspace"
