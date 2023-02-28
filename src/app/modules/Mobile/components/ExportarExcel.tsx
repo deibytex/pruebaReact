@@ -13,7 +13,7 @@ import { object } from "yup";
 type Props = {
     NombreArchivo: string;
     tipoDescarga: number;
-    lstPreoperacional: Preoperacional[];
+    lstPreoperacional?: Preoperacional[];
 }
 export const ExportarExcel: React.FC<Props> = ({ NombreArchivo, tipoDescarga, lstPreoperacional }) => {
     const { vehiculosSinPreoperacional } = useDataPreoperacional();
@@ -23,7 +23,7 @@ export const ExportarExcel: React.FC<Props> = ({ NombreArchivo, tipoDescarga, ls
 
     const exportarExcel = async () => {
         if (tipoDescarga === 0) {
-            if ((lstPreoperacional).length > 0) {
+            if ((lstPreoperacional as Preoperacional[]).length > 0) {
 
                 getRespuestas(null).then((respuesta: AxiosResponse<Respuestas[]>) => {
 
@@ -34,7 +34,7 @@ export const ExportarExcel: React.FC<Props> = ({ NombreArchivo, tipoDescarga, ls
 
                 const crearExcel = (respuestas: Respuestas[]) => {
                     listadoObjeto = [];
-                    lstPreoperacional.map((item) => {
+                    (lstPreoperacional as Preoperacional[]).map((item) => {
 
                         let filter = respuestas.filter(function (arr) {
                             return (arr.EncabezadoId == item.EncabezadoId)

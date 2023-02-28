@@ -3,6 +3,7 @@ import { listTabs } from "../data/tabList";
 import { TablaProperacional } from "../components/TablaPreoperacional"
 import { TablaSinProperacional } from "../components/TablaSinPreoperacional"
 import { toAbsoluteUrl } from "../../../../_start/helpers";
+import { ExportarReportes } from "./ExportarReportes";
 
 type Props = {
     className: string;
@@ -78,8 +79,8 @@ export const MOV_PanelCentral: React.FC<Props> = ({ className, innerPadding = ""
                         {/* begin::Tab Pane 1 */}
                         <div className={`tab-pane fade ${activeTab === "#tab1" ? "show active" : ""}`} id="tab1_content" >
                             {/* begin::Cards */}
-                            <div  className="overflow-auto">
-                            <TablaProperacional clienteid={clienteid} fecha={fecha} filtro={filtro} />
+                            <div className="overflow-auto">
+                                <TablaProperacional clienteid={clienteid} fecha={fecha} filtro={filtro} />
                             </div>
                             {/* end::Cards      */}
                         </div>
@@ -93,7 +94,20 @@ export const MOV_PanelCentral: React.FC<Props> = ({ className, innerPadding = ""
                             </div>
                             {/* end::Cards      */}
                         </div>
+
+
                         {/* end::Tab Pane 2 */}
+                        {/* begin::Tab Pane 3 */}
+                        <div className={`tab-pane fade ${activeTab === "#tab3" ? "show active" : ""}`} id="tab3_content">
+                            {/* begin::Cards */}
+                            <div className="overflow-auto">                                
+                                    <ExportarReportes />
+                            </div>
+                            {/* end::Cards      */}
+                        </div>
+
+                        {/* end::Tab Pane 3 */}
+
                     </div>
                     {/* end::Tab Content */}
                 </div>

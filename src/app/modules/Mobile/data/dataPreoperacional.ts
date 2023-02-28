@@ -90,3 +90,35 @@ export  function setObservaciones(Observaciones: string){
     RecordsPorPagina :null}, 
     params);
 };
+
+export  function getInformeViajesVsPreoperacional(  FechaInicial : string, FechaFinal: string, TipoReporte: number) {
+
+  var params: { [id: string]: string | null; } = {};
+  params["Clienteids"] = null;
+  params["FechaI"] = FechaInicial;
+  params["FechaF"] = FechaFinal;
+  params["Tipo"] = TipoReporte.toString();
+  return  axios({
+    method: 'post',
+    url: DWH_getconsultadinamicasprocedure,
+    data: JSON.stringify(params),
+    headers: { 'Content-Type': 'application/json' },
+    params : { Clase: "PREOPQueryHelper" , NombreConsulta : "GetInformeViajesVsPreopreracional" }
+  });
+};
+
+export  function getConsolidadoReportesPorTipo( FechaInicial : string, FechaFinal: string, TipoReporte: number){
+  var params: { [id: string]: string | null; } = {};
+  params["Clienteids"] = null;
+  params["FechaI"] = FechaInicial;
+  params["FechaF"] = FechaFinal;
+  params["Tipo"] = TipoReporte.toString();
+  
+  // hacemos la consulta 
+  return  Post_getconsultadinamicas({    
+    Clase : "MOVQueryHelper",  
+    NombreConsulta: "GetConsolidadoReportesPorTipo", 
+    Pagina :null, 
+    RecordsPorPagina :null}, 
+    params);
+};

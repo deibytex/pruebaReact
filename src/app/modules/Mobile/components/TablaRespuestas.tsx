@@ -96,6 +96,20 @@ export const TablaRespuestas: React.FC<Props> = ({show, handleClose,title, Encab
                 }}
                 columns={listadoCampos}
                 data={lstRespuestas}
+                muiTableBodyRowProps={({ row }) => ({
+                          sx: {
+                            backgroundColor:
+                              row.getValue<string>('Respuesta').trim() === 'Vigente' || row.getValue<string>('Respuesta').trim() === 'Bueno'
+                              || row.getValue<string>('Respuesta').trim() === 'B' || row.getValue<string>('Respuesta').trim() === 'b'
+                              ? 'rgba(212, 237, 218, 1)' : 
+                              row.getValue<string>('Respuesta').trim() === null || row.getValue<string>('Respuesta').trim() === "" 
+                              || row.getValue<string>('Respuesta').trim() === undefined  ? 'rgba(255, 243, 205, 1)' : 
+                              row.getValue<string>('Respuesta').trim() === 'Malo' || row.getValue<string>('Respuesta').trim() === 'Vencida'
+                              || row.getValue<string>('Respuesta').trim() === 'Mala' || row.getValue<string>('Respuesta').trim() === 'M'
+                              || row.getValue<string>('Respuesta').trim() === 'm' ? 'rgba(248, 215, 218, 1)' :  'rgba(255, 243, 205, 1)' 
+                              
+                         },
+                        })}
                 // editingMode="modal" //default         
                 enableTopToolbar={false}
                 enableColumnOrdering
