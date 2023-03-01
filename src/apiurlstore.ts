@@ -34,3 +34,6 @@ export const CLIENTE_GetClientes = `${apiURLDWH}/Cliente/GetClientes`//[Required
 
 export const ASSET_GetClientesClienteId = `${apiURLDWH}/Asset/GetAssets/ClienteId` //long? ClienteId,string UsertState
 export const ASSET_GetClientesClienteIds = `${apiURLDWH}/Asset/GetAssets/ClienteIds` //int? ClienteIds, string UsertState
+
+/* MOVIL */
+export const MOVIL_getReportesPorTipo = `${apiURLDWH}/Movil/GetReportePorTipo`

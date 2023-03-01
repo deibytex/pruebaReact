@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { object } from "yup";
 
 import { useDataPreoperacional } from "../core/provider";
-import { Preoperacional } from "../models/respuestas";
+import { Preoperacional } from "../models/dataModels";
 
 type Props = {
 };

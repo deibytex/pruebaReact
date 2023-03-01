@@ -1,6 +1,6 @@
 import axios from "axios";
 import moment from "moment";
-import { DWH_getconsultadinamicasprocedure } from "../../../../apiurlstore";
+import { DWH_getconsultadinamicasprocedure, MOVIL_getReportesPorTipo } from "../../../../apiurlstore";
 
 import { Post_getconsultadinamicas } from "../../../../_start/helpers/Axios/CoreService";
 import { FechaServidor } from "../../../../_start/helpers/Helper";
@@ -91,34 +91,16 @@ export  function setObservaciones(Observaciones: string){
     params);
 };
 
-export  function getInformeViajesVsPreoperacional(  FechaInicial : string, FechaFinal: string, TipoReporte: number) {
+export  function GetReportePorTipo(FechaInicial : string, FechaFinal: string, TipoReporte: number) {
 
   var params: { [id: string]: string | null; } = {};
-  params["Clienteids"] = null;
-  params["FechaI"] = FechaInicial;
-  params["FechaF"] = FechaFinal;
+  params["FechaInicial"] = FechaInicial;
+  params["FechaFinal"] = FechaFinal;
   params["Tipo"] = TipoReporte.toString();
   return  axios({
-    method: 'post',
-    url: DWH_getconsultadinamicasprocedure,
-    data: JSON.stringify(params),
+    method: 'get',
+    url: MOVIL_getReportesPorTipo,     
     headers: { 'Content-Type': 'application/json' },
-    params : { Clase: "PREOPQueryHelper" , NombreConsulta : "GetInformeViajesVsPreopreracional" }
+    params : params
   });
-};
-
-export  function getConsolidadoReportesPorTipo( FechaInicial : string, FechaFinal: string, TipoReporte: number){
-  var params: { [id: string]: string | null; } = {};
-  params["Clienteids"] = null;
-  params["FechaI"] = FechaInicial;
-  params["FechaF"] = FechaFinal;
-  params["Tipo"] = TipoReporte.toString();
-  
-  // hacemos la consulta 
-  return  Post_getconsultadinamicas({    
-    Clase : "MOVQueryHelper",  
-    NombreConsulta: "GetConsolidadoReportesPorTipo", 
-    Pagina :null, 
-    RecordsPorPagina :null}, 
-    params);
-};
+}

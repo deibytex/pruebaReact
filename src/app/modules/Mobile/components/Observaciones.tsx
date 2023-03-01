@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { useDataPreoperacional } from "../core/provider";
-import { observaciones, Preoperacional, sinPreoperacional } from "../models/respuestas";
+import { observaciones, Preoperacional, sinPreoperacional } from "../models/dataModels";
 
 import MaterialReactTable, { MRT_ColumnDef, MRT_Row } from "material-react-table";
 import { MRT_Localization_ES } from 'material-react-table/locales/es';

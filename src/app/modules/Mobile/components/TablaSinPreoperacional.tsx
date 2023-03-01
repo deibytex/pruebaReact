@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { useDataPreoperacional } from "../core/provider";
-import { Preoperacional, sinPreoperacional } from "../models/respuestas";
+import { Preoperacional, sinPreoperacional } from "../models/dataModels";
 
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { MRT_Localization_ES } from 'material-react-table/locales/es';
@@ -17,6 +17,9 @@ import moment from "moment";
 import { msToTime } from "../../../../_start/helpers/Helper";
 import { Button } from "react-bootstrap-v5";
 import { ExportarExcel } from "./ExportarExcel";
+import BlockUi from "react-block-ui";
+import "../../../../../node_modules/@availity/block-ui/src/BlockUi.css";
+import "../../../../../node_modules/@availity/block-ui/src/Loader.css";
 
 
 type Props = {
@@ -24,7 +27,7 @@ type Props = {
 
 export const TablaSinProperacional: React.FC<Props> = () => {
 
-    const { Encabezados, vehiculosSinPreoperacional } = useDataPreoperacional();
+    const { Encabezados, vehiculosSinPreoperacional, Visible } = useDataPreoperacional();
     const [lstVehiculosSinPreoperacional, setlstVehiculosSinPreoperacional] = useState<sinPreoperacional[]>([]);
 
     //table state
@@ -111,54 +114,56 @@ export const TablaSinProperacional: React.FC<Props> = () => {
 
 
     return (
-        <>
-            <ExportarExcel NombreArchivo="ReporteVehiculosSinPreoperacional" tipoDescarga={1}/>
-            <div className="mt-5">
-                <MaterialReactTable
-                    localization={MRT_Localization_ES}
-                    displayColumnDefOptions={{
-                        'mrt-row-actions': {
-                            muiTableHeadCellProps: {
-                                align: 'center',
+        <BlockUi tag="span" className="bg-primary" keepInView blocking={(Visible == undefined ? true : Visible)}>
+            <>
+                <ExportarExcel NombreArchivo="ReporteVehiculosSinPreoperacional" tipoDescarga={1} />
+                <div className="mt-5">
+                    <MaterialReactTable
+                        localization={MRT_Localization_ES}
+                        displayColumnDefOptions={{
+                            'mrt-row-actions': {
+                                muiTableHeadCellProps: {
+                                    align: 'center',
+                                },
+                                size: 120,
                             },
-                            size: 120,
-                        },
-                    }}
-                    columns={listadoCampos}
-                    data={lstVehiculosSinPreoperacional}
-                    // editingMode="modal" //default         
-                    enableTopToolbar={false}
-                    enableColumnOrdering
-                    // enableEditing
-                    /* onEditingRowSave={handleSaveRowEdits}
-                        onEditingRowCancel={handleCancelRowEdits}*/
-                    muiToolbarAlertBannerProps={
-                        isError
-                            ? {
-                                color: 'error',
-                                children: 'Error al cargar información',
-                            }
-                            : undefined
-                    }
-                    onColumnFiltersChange={setColumnFilters}
-                    onGlobalFilterChange={setGlobalFilter}
-                    onPaginationChange={setPagination}
-                    onSortingChange={setSorting}
-                    rowCount={rowCount}
+                        }}
+                        columns={listadoCampos}
+                        data={lstVehiculosSinPreoperacional}
+                        // editingMode="modal" //default         
+                        enableTopToolbar={false}
+                        enableColumnOrdering
+                        // enableEditing
+                        /* onEditingRowSave={handleSaveRowEdits}
+                            onEditingRowCancel={handleCancelRowEdits}*/
+                        muiToolbarAlertBannerProps={
+                            isError
+                                ? {
+                                    color: 'error',
+                                    children: 'Error al cargar información',
+                                }
+                                : undefined
+                        }
+                        onColumnFiltersChange={setColumnFilters}
+                        onGlobalFilterChange={setGlobalFilter}
+                        onPaginationChange={setPagination}
+                        onSortingChange={setSorting}
+                        rowCount={rowCount}
 
-                    state={{
-                        columnFilters,
-                        globalFilter,
-                        isLoading,
-                        pagination,
-                        showAlertBanner: isError,
-                        showProgressBars: isRefetching,
-                        sorting,
-                    }}
+                        state={{
+                            columnFilters,
+                            globalFilter,
+                            isLoading,
+                            pagination,
+                            showAlertBanner: isError,
+                            showProgressBars: isRefetching,
+                            sorting,
+                        }}
 
-                />
-            </div>
-        </>
+                    />
+                </div>
+            </>
+        </BlockUi>
     )
 
 }

@@ -62,3 +62,5 @@ export interface observaciones
     notificar : string;
     EsCerrado?: boolean
 }
+
+

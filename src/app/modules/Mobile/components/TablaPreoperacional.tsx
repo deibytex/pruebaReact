@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { useDataPreoperacional } from "../core/provider";
-import { observaciones, Preoperacional } from "../models/respuestas";
+import { observaciones, Preoperacional } from "../models/dataModels";
 
 import MaterialReactTable, { MRT_ColumnDef, MRT_Row } from "material-react-table";
 import { MRT_Localization_ES } from 'material-react-table/locales/es';
@@ -22,7 +22,9 @@ import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/
 import { boolean } from "yup";
 import { Button } from "react-bootstrap-v5";
 import { ExportarExcel } from "./ExportarExcel";
-
+import BlockUi from "react-block-ui";
+import "../../../../../node_modules/@availity/block-ui/src/BlockUi.css";
+import "../../../../../node_modules/@availity/block-ui/src/Loader.css";
 
 
 type Props = {
@@ -33,7 +35,7 @@ type Props = {
 
 export const TablaProperacional: React.FC<Props> = ({ clienteid, fecha, filtro }) => {
 
-    const { Encabezados, UserId, setEncabezados } = useDataPreoperacional();
+    const { Encabezados, UserId, setEncabezados, Visible } = useDataPreoperacional();
     const [lstVehiculosConPreoperacional, setlstVehiculosConPreoperacional] = useState<Preoperacional[]>([]);
     const [encabezadoId, setencabezadoId] = useState(0);
     const [observaciones, setobservaciones] = useState("");
@@ -178,102 +180,106 @@ export const TablaProperacional: React.FC<Props> = ({ clienteid, fecha, filtro }
 
     if ((Encabezados as Preoperacional[]).length > 0) {
         return (
-            <>
-                <ExportarExcel NombreArchivo="ReporteVehiculosPreoperacional" tipoDescarga={0} lstPreoperacional={lstVehiculosConPreoperacional}/>
-                <div className="mt-5">
-                    <MaterialReactTable
-                        localization={MRT_Localization_ES}
-                        displayColumnDefOptions={{
-                            'mrt-row-actions': {
-                                muiTableHeadCellProps: {
-                                    align: 'center',
+            <BlockUi tag="span" className="bg-primary" keepInView blocking={(Visible == undefined ? true : Visible)}>
+                <>
+                    <ExportarExcel NombreArchivo="ReporteVehiculosPreoperacional" tipoDescarga={0} lstPreoperacional={lstVehiculosConPreoperacional} />
+                    <div className="mt-5">
+                        <MaterialReactTable
+                            localization={MRT_Localization_ES}
+                            displayColumnDefOptions={{
+                                'mrt-row-actions': {
+                                    muiTableHeadCellProps: {
+                                        align: 'center',
+                                    },
+                                    size: 120,
                                 },
-                                size: 120,
-                            },
-                        }}
-                        columns={listadoCampos}
-                        data={lstVehiculosConPreoperacional}
-                        // editingMode="modal" //default         
-                        enableTopToolbar={false}
-                        enableColumnOrdering
-                        enableEditing
-                        /* onEditingRowSave={handleSaveRowEdits}
-                            onEditingRowCancel={handleCancelRowEdits}*/
-                        muiToolbarAlertBannerProps={
-                            isError
-                                ? {
-                                    color: 'error',
-                                    children: 'Error al cargar información',
-                                }
-                                : undefined
-                        }
-                        onColumnFiltersChange={setColumnFilters}
-                        onGlobalFilterChange={setGlobalFilter}
-                        onPaginationChange={setPagination}
-                        onSortingChange={setSorting}
-                        rowCount={rowCount}
-
-                        state={{
-                            columnFilters,
-                            globalFilter,
-                            isLoading,
-                            pagination,
-                            showAlertBanner: isError,
-                            showProgressBars: isRefetching,
-                            sorting,
-                        }}
-                        renderRowActions={({ row, table }) => (
-
-                            <>
-                                <Box sx={{ display: 'flex', gap: '1rem' }}>
-                                    {(row.original.Estado == 1 && row.original.EsGestionado != null) ?
-                                        <Tooltip arrow placement="left" title="Obervaciones">
-                                            <IconButton
-                                                onClick={() => {
-                                                    modalObervaciones(row.original.Observaciones, row.original.EncabezadoId, row.original.EsGestionado);
-                                                }}
-                                            >
-                                                <Message />
-                                            </IconButton>
-                                        </Tooltip> :
-                                        <></>
-
+                            }}
+                            columns={listadoCampos}
+                            data={lstVehiculosConPreoperacional}
+                            // editingMode="modal" //default         
+                            enableTopToolbar={false}
+                            enableColumnOrdering
+                            enableEditing
+                            /* onEditingRowSave={handleSaveRowEdits}
+                                onEditingRowCancel={handleCancelRowEdits}*/
+                            muiToolbarAlertBannerProps={
+                                isError
+                                    ? {
+                                        color: 'error',
+                                        children: 'Error al cargar información',
                                     }
+                                    : undefined
+                            }
+                            onColumnFiltersChange={setColumnFilters}
+                            onGlobalFilterChange={setGlobalFilter}
+                            onPaginationChange={setPagination}
+                            onSortingChange={setSorting}
+                            rowCount={rowCount}
+
+                            state={{
+                                columnFilters,
+                                globalFilter,
+                                isLoading,
+                                pagination,
+                                showAlertBanner: isError,
+                                showProgressBars: isRefetching,
+                                sorting,
+                            }}
+                            renderRowActions={({ row, table }) => (
+
+                                <>
+                                    <Box sx={{ display: 'flex', gap: '1rem' }}>
+                                        {(row.original.Estado == 1 && row.original.EsGestionado != null) ?
+                                            <Tooltip arrow placement="left" title="Obervaciones">
+                                                <IconButton
+                                                    onClick={() => {
+                                                        modalObervaciones(row.original.Observaciones, row.original.EncabezadoId, row.original.EsGestionado);
+                                                    }}
+                                                >
+                                                    <Message />
+                                                </IconButton>
+                                            </Tooltip> :
+                                            <></>
+
+                                        }
 
 
 
-                                    <Tooltip arrow placement="left" title="Respuestas">
-                                        <IconButton
-                                            onClick={() => {
-                                                modalrespuetas(row.original.EncabezadoId);
-                                            }}
-                                        >
-                                            <FormatListBulleted />
-                                        </IconButton>
-                                    </Tooltip>
-                                    {(row.original.Estado == 1 && row.original.EsGestionado == null) ?
-
-                                        <Tooltip arrow placement="left" title="Gestionar">
+                                        <Tooltip arrow placement="left" title="Respuestas">
                                             <IconButton
                                                 onClick={() => {
-                                                    setGestorPreoperacional(row.original.EncabezadoId);
+                                                    modalrespuetas(row.original.EncabezadoId);
                                                 }}
                                             >
-                                                <VerifiedUser />
+                                                <FormatListBulleted />
                                             </IconButton>
                                         </Tooltip>
-                                        : <></>
-                                    }
-                                </Box>
-                            </>
-                        )
-                        }
-                    />
-                </div>
-                <TablaRespuestas show={show} handleClose={handleClose} title={"Repuestas"} EncabezadoId={encabezadoId} />
-                <Observaciones show={show2} handleClose={handleClose2} title={"Observaciones"} observaciones={observaciones}
-                    encabezadoid={encabezadoId} esgestionado={esgestionado} clienteid={clienteid} fecha={fecha} />
-            </>
+                                        {(row.original.Estado == 1 && row.original.EsGestionado == null) ?
+
+                                            <Tooltip arrow placement="left" title="Gestionar">
+                                                <IconButton
+                                                    onClick={() => {
+                                                        setGestorPreoperacional(row.original.EncabezadoId);
+                                                    }}
+                                                >
+                                                    <VerifiedUser />
+                                                </IconButton>
+                                            </Tooltip>
+                                            : <></>
+                                        }
+                                    </Box>
+                                </>
+                            )
+                            }
+                        />
+                    </div>
+                    <TablaRespuestas show={show} handleClose={handleClose} title={"Repuestas"} EncabezadoId={encabezadoId} />
+                    <Observaciones show={show2} handleClose={handleClose2} title={"Observaciones"} observaciones={observaciones}
+                        encabezadoid={encabezadoId} esgestionado={esgestionado} clienteid={clienteid} fecha={fecha} />
+                </>
+            </BlockUi>
+
+
         )
     }
     return (
@@ -282,7 +288,9 @@ export const TablaProperacional: React.FC<Props> = ({ clienteid, fecha, filtro }
             <div>
                 <h6 style={{ fontWeight: 'bold', textAlign: 'center' }}>No hay vehículos con preoperacional</h6>
             </div>
+
         </>
+
     )
 
 }

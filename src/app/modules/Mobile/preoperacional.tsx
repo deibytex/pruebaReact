@@ -12,16 +12,19 @@ import { FechaServidor } from "../../../_start/helpers/Helper"
 
 export default function FatigueDashboard() {
 
+    // Traemos información del usuario Logueado
     const isAuthorized = useSelector<RootState>(
         ({ auth }) => auth.user
     );
-
+        
     const model = (isAuthorized as UserModelSyscaf);
-
+    
+    // Variables de seteo
     const [Fecha, setFecha] = useState("");
     const [Chidlren, setChildren] = useState("");
     const [Filtro, setFiltro] = useState("");
-
+    
+    //Control Fecha
     function FechaInicialControl() {
         return (
             <Form.Control className=" mb-3 " value={Fecha} type="date" name="fechaini" placeholder="Seleccione una fecha" onChange={(e) => {
@@ -31,6 +34,7 @@ export default function FatigueDashboard() {
         )
     }
 
+    // Inicializamos y asignamos el objeto children que usara el provider para modificarse
     let params: any = {};
 
     params = {
@@ -40,11 +44,13 @@ export default function FatigueDashboard() {
         userId: (model.Id?.toString())
     };
 
+    // Use effect que setea fecha y children cuando cambia el usuario
     useEffect(() => {
         setFecha(moment(FechaServidor).format("YYYYMMDD"));
         setChildren(params);
     }, [isAuthorized]);
 
+    // Función consulta con baese en los controles y usuario 
     const Consultar = () => {
         params = {
             clienteid: (model.clienteid?.toString()),
@@ -54,7 +60,9 @@ export default function FatigueDashboard() {
         };
         setChildren(params);
     }
+    //Validamos que children si tengo información
     if (Chidlren !== ""){
+        //Retornamos pagina principal
         return (
             <>
                 <PreoperacionalProvider>

@@ -4,7 +4,7 @@ import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog
 import { getVehiculosOperando, getEncabezados, getVehiculosSinPreoperacional } from "../data/dataPreoperacional";
 
 import React from "react";
-import { sinPreoperacional, Preoperacional } from "../models/respuestas";
+import { sinPreoperacional, Preoperacional } from "../models/dataModels";
 import { setuid } from "process";
 
 // clase con los funciones  y datos a utiilizar
@@ -19,7 +19,8 @@ export interface PreoperacionalContextModel {
     setvehiculosSinPreoperacional: (lstSinPreoperacional: sinPreoperacional[]) => void;
     UserId?: string;
     setUserId: (id: string) => void;
-
+    Visible?:boolean;
+    setVisible : (visible:boolean)  => void;
     iserror?: any;
     setError: (error: any) => void;
 
@@ -31,6 +32,7 @@ const PreoperacionalContext = createContext<PreoperacionalContextModel>({
     setEncabezados: (lstencabezados: Preoperacional[]) => { },
     setvehiculosSinPreoperacional: (lstSinPreoperacional: sinPreoperacional[]) => { },
     setUserId: (id: string) => "",
+    setVisible:(Visible:boolean) =>{},
     setError: (error: any) => { }
 });
 
@@ -43,6 +45,8 @@ const PreoperacionalProvider: React.FC = ({ children }) => {
     const [vehiculosSinPreoperacional, setvehiculosSinPreoperacional] = useState<sinPreoperacional[]>([]);
     const [UserId, setUserId] = useState("");
     const [iserror, setError] = useState<any>({});
+    const [Visible, setVisible] = useState<boolean>(false);
+
     const value: PreoperacionalContextModel = {
         vehiculosOperacion,
         setvehiculosOperacion,
@@ -54,6 +58,8 @@ const PreoperacionalProvider: React.FC = ({ children }) => {
         setvehiculosSinPreoperacional,
         UserId,
         setUserId,
+        Visible,
+        setVisible,
         iserror,
         setError
     };

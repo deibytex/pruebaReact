@@ -3,7 +3,7 @@ import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog
 import XLSX from 'sheetjs-style';
 import { useDataPreoperacional } from "../core/provider";
 import React, { useState } from "react";
-import { Preoperacional, Respuestas, sinPreoperacional } from "../models/respuestas";
+import { Preoperacional, Respuestas, sinPreoperacional } from "../models/dataModels";
 import { Button } from "react-bootstrap-v5";
 import moment from "moment";
 import { getRespuestas } from "../data/dataPreoperacional";
@@ -16,7 +16,7 @@ type Props = {
     lstPreoperacional?: Preoperacional[];
 }
 export const ExportarExcel: React.FC<Props> = ({ NombreArchivo, tipoDescarga, lstPreoperacional }) => {
-    const { vehiculosSinPreoperacional } = useDataPreoperacional();
+    const { vehiculosSinPreoperacional, setVisible } = useDataPreoperacional();
     const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;carset=UTF-8';
     const fileExtension = '.XLSX';
     let listadoObjeto: any = [];
@@ -24,7 +24,7 @@ export const ExportarExcel: React.FC<Props> = ({ NombreArchivo, tipoDescarga, ls
     const exportarExcel = async () => {
         if (tipoDescarga === 0) {
             if ((lstPreoperacional as Preoperacional[]).length > 0) {
-
+                setVisible(true);
                 getRespuestas(null).then((respuesta: AxiosResponse<Respuestas[]>) => {
 
                     crearExcel(respuesta.data);
@@ -66,7 +66,7 @@ export const ExportarExcel: React.FC<Props> = ({ NombreArchivo, tipoDescarga, ls
                     const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
                     const data = new Blob([excelBuffer], { type: fileType });
                     FileSaver(data, `${NombreArchivo}${fileExtension}`);
-
+                    setVisible(false);
                 }
             } else {
                 errorDialog("No hay datos que exportar", "");
@@ -89,10 +89,12 @@ export const ExportarExcel: React.FC<Props> = ({ NombreArchivo, tipoDescarga, ls
                 const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
                 const data = new Blob([excelBuffer], { type: fileType });
                 FileSaver(data, `${NombreArchivo}${fileExtension}`);
+                setVisible(false);
             } else {
                 errorDialog("No hay datos que exportar", "");
             }
         }
+       
 
     }
 
