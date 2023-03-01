@@ -17,7 +17,11 @@ import Usuarios from "../modules/auth/components/ListadoUsuarios";
 import { NivelCarga } from "../modules/Ebus/NivelCarga";
 import { ParqueoInteligente } from "../modules/Ebus/ParqueoInteligente";
 import { EventoCarga } from "../modules/Ebus/EventoCarga";
+import preoperacional from "../modules/Mobile/preoperacional";
 
+
+
+import React from "react";
 
 
 export function PrivateRoutes() {
@@ -44,6 +48,7 @@ export function PrivateRoutes() {
        <Route path="/ebus/nivelcarga" component={NivelCarga} />    
        <Route path="/ebus/ParqueoInteligente" component={ParqueoInteligente} />    
        <Route path="/ebus/EventoCarga" component={EventoCarga} />    
+       <Route path="/mobile/preoperacional" component={preoperacional} />     
       </Switch>
     </Suspense>
   );

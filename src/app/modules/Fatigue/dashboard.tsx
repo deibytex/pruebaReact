@@ -13,6 +13,8 @@ import { errorDialog } from "../../../_start/helpers/components/ConfirmDialog";
 import { Form } from "react-bootstrap-v5";
 import { Console } from "console";
 
+import React from "react";
+
 
 export default function FatigueDashboard() {
     const [lstClientes, setLstClientes] = useState<ClientesFatiga[]>([]);
