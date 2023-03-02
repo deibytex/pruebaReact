@@ -22,6 +22,7 @@ import preoperacional from "../modules/Mobile/preoperacional";
 
 
 import React from "react";
+import Reportes from "../modules/Sotramac/reporteExcelencia";
 
 
 export function PrivateRoutes() {
@@ -48,7 +49,8 @@ export function PrivateRoutes() {
        <Route path="/ebus/nivelcarga" component={NivelCarga} />    
        <Route path="/ebus/ParqueoInteligente" component={ParqueoInteligente} />    
        <Route path="/ebus/EventoCarga" component={EventoCarga} />    
-       <Route path="/mobile/preoperacional" component={preoperacional} />     
+       <Route path="/mobile/preoperacional" component={preoperacional} />          
+       <Route path="/sotramac/Reportes" component={Reportes} />    
       </Switch>
     </Suspense>
   );
