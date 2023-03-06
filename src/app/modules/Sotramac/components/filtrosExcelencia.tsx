@@ -8,6 +8,7 @@ import "../../../../../node_modules/@availity/block-ui/src/Loader.css";
 import { jsx } from "@emotion/react";
 import { getDetalleListas } from "../data/dataSotramac";
 import { AxiosResponse } from "axios";
+import { Fechas } from "./filtrosFechas";
 type Props = {
 
 }
@@ -17,22 +18,20 @@ export const ReporteExcelencia: React.FC<Props> = () => {
     //Data desde el provider
     const { listas, detalleListas, sites, assetTypes } = useDataSotramac();
 
-    //Carga Inicial
+    //Carga Inicial filtros
     const [lstCategorias, setlstCategorias] = useState<Listas[]>([]);
     const [lstReportes, setlstReportes] = useState<DetalleListas[]>([]);
     const [lstSites, setlstSites] = useState<Sites[]>([]);
     const [lstAssetsTypes, setlstAssetsTypes] = useState<AssetsTypes[]>([]);
 
 
-    //Seteo filtros
-    const [FechaInicial, setFechaInicial] = useState("");
-    const [FechaFinal, setFechaFinal] = useState("");
-
+    //Seteo valor filtors
     const [categoria, setcategoria] = useState(0);
     const [reporte, setreporte] = useState("");
     const [site, setsite] = useState(0);
     const [assettype, setassettype] = useState(0);
 
+    //seteo hiddens
     const [showSites, setshowSites] = useState(true);
     const [showAssetTypes, setshowAssetTypes] = useState(true);
 
@@ -42,7 +41,7 @@ export const ReporteExcelencia: React.FC<Props> = () => {
     }, [listas])
 
     useEffect(() => {
-        if (categoria !== 0) {
+        if (categoria != 0) {
             let filter = (detalleListas as DetalleListas[]).filter(function (arr) {
                 return (arr.ListaId == categoria)
             });
@@ -75,12 +74,21 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             setshowAssetTypes(true);
             setassettype(0);
         }
-        else if (reporte === "EOAPV"){
+        else if (reporte === "EOAPV") {
             setlstAssetsTypes(assetTypes);
             setshowAssetTypes(false);
             setassettype(0);
 
             //Ocultamos los sitios y le asigamos cero de valor
+            setshowSites(true);
+            setsite(0);
+        }
+        else if (reporte === "EOAPCV") {
+            setlstAssetsTypes(assetTypes);
+            setshowAssetTypes(false);
+            setassettype(0);
+
+            //Ocultamos los sitios y le asigamos valor a sitios
             setshowSites(true);
             setsite(0);
         }
@@ -97,24 +105,12 @@ export const ReporteExcelencia: React.FC<Props> = () => {
         }
     }, [reporte])
 
-    //Funciones de filtro - seteo
-    function FechaInicialControl() {
-        return (
-            <Form.Control className=" mb-3 " value={FechaInicial} type="date" name="fechaini" placeholder="Seleccione una fecha inicial" onChange={(e) => {
-                // buscamos el objeto completo para tenerlo en el sistema
-                setFechaInicial(e.currentTarget.value);
-            }} />
-        )
-    }
+    useEffect(() => {
+        if (reporte === "EOAPCV") 
+                    assettype == 0 ? setsite(0) : assettype == 11 ? setsite(6835483207492495255) : setsite(-6032794350987665724);
+    }, [assettype])
 
-    function FechaFinalControl() {
-        return (
-            <Form.Control className=" mb-3 " value={FechaFinal} type="date" name="fechaifin" placeholder="Seleccione una fecha final" onChange={(e) => {
-                // buscamos el objeto completo para tenerlo en el sistema
-                setFechaFinal(e.currentTarget.value);
-            }} />
-        )
-    }
+    //Funciones de filtro - seteo
 
     function SelectCategoria() {
         return (
@@ -174,11 +170,14 @@ export const ReporteExcelencia: React.FC<Props> = () => {
         );
     }
 
+    console.log('site', site);
+    console.log('asset', assettype);
+
     function SelectAssetTypes() {
         return (
-            <Form.Select className=" mb-3 " name="sites" value={site} onChange={(e) => {
+            <Form.Select className=" mb-3 " name="assettypes" value={assettype} onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
-                setsite(e.currentTarget.value as any);
+                setassettype(e.currentTarget.value as any);                
             }}>
                 <option value={0}>Seleccione Tipo</option>
                 {
@@ -213,9 +212,12 @@ export const ReporteExcelencia: React.FC<Props> = () => {
                     <SelectSites />
                 </div>
                 <div className="col-sm-6 col-md-6 col-xs-6" hidden={showAssetTypes}>
-                    <label className="control-label label label-sm text-white m-3" style={{ fontWeight: 'bold' }}>Tipo:</label>
+                    <label className="control-label label label-sm text-white m-3" style={{ fontWeight: 'bold' }}>Tipo activo:</label>
                     <SelectAssetTypes />
                 </div>
+            </div>
+            <div className="row">
+                <Fechas />
             </div>
         </>
     )

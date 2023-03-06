@@ -18,6 +18,10 @@ export interface SotramacContextModel {
     setsites: (lstsites: any[]) => void;
     assetTypes?: any;
     setassetTypes: (lstassettypes: any[]) => void;
+    fechaInicial?: any;
+    setfechaInicial: (fechainicial: any) => void;
+    fechaFinal?: any;
+    setfechaFinal: (fechafinal: any) => void;
     iserror?: any;
     setError: (error: any) => void;
 
@@ -29,6 +33,8 @@ const SotramacContext = createContext<SotramacContextModel>({
     setlistasids: (ids: any) => (""),
     setsites: (lstsite: any[]) => ([]),
     setassetTypes: (lstassettypes: any[]) => ([]),
+    setfechaInicial: (fechainicial: any) => (""),
+    setfechaFinal: (fechafinal: any) => (""),
     setError: (error: any) => { }
 });
 
@@ -40,6 +46,8 @@ const SotramacProvider: React.FC = ({ children }) => {
     const [listasIds, setlistasids] = useState("");
     const [sites, setsites] = useState<any[]>([]);
     const [assetTypes, setassetTypes] = useState<any[]>([]);
+    const [fechaInicial, setfechaInicial] = useState("");
+    const [fechaFinal, setfechaFinal] = useState("");
     const [iserror, setError] = useState<any>({});
 
     const value: SotramacContextModel = {
@@ -53,6 +61,10 @@ const SotramacProvider: React.FC = ({ children }) => {
         setsites,
         assetTypes,
         setassetTypes,
+        fechaInicial,
+        setfechaInicial,
+        fechaFinal,
+        setfechaFinal,
         iserror,
         setError
     };
