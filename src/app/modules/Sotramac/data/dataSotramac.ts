@@ -18,9 +18,9 @@ export  function getListas(Sigla: string){
       params);
 };
 
-export  function getDetalleListas(ListaId: number){
-    var params: { [id: number]: number | null; } = {};
-    params["ListaId"] = ListaId;
+export  function getDetalleListas(ListaIds: string){
+    var params: { [id: string]: string | null; } = {};
+    params["ListaId"] = ListaIds;
     
     // hacemos la consulta 
     return  Post_getconsultadinamicas({    
@@ -29,4 +29,30 @@ export  function getDetalleListas(ListaId: number){
       Pagina :null, 
       RecordsPorPagina :null}, 
       params);
+};
+
+export  function getSitesSotramac(){
+  var params: { [id: string]: string | null; } = {};
+  params["ClienteId"] = "1546695255495533982";
+  params["SiteId"] = null;
+  
+  // hacemos la consulta 
+  return  Post_getconsultadinamicas({    
+    Clase : "PortalQueryHelper",  
+    NombreConsulta: "GetListaSitesPorCliente_o_Siteid", 
+    Pagina :null, 
+    RecordsPorPagina :null}, 
+    params);
+};
+
+export  function getAssetTypes(){
+  var params: { [id: string]: string | null; } = {};
+  
+  // hacemos la consulta 
+  return  Post_getconsultadinamicas({    
+    Clase : "PortalQueryHelper",  
+    NombreConsulta: "GetAssetType", 
+    Pagina :null, 
+    RecordsPorPagina :null}, 
+    params);
 };
