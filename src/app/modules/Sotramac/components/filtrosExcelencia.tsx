@@ -170,9 +170,6 @@ export const ReporteExcelencia: React.FC<Props> = () => {
         );
     }
 
-    console.log('site', site);
-    console.log('asset', assettype);
-
     function SelectAssetTypes() {
         return (
             <Form.Select className=" mb-3 " name="assettypes" value={assettype} onChange={(e) => {
