@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ASSET_GetClientesClienteIds, CLIENTE_GetClientes, CORE_getconsultadinamicasUser, CORE_getconsultadinamicasUserDWH, DWH_GetConsultasDinamicas, EBUS_GetClientesUsuarios, EBUS_GetColumnasDatatable, EBUS_getEventActiveRecargaByDayAndClient, EBUS_getEventActiveViajesByDayAndClient, EBUS_GetListaClientesActiveEvent, EBUS_GetTiempoActualizacion, EBUS_GetUltimaPosicionVehiculos, EBUS_SetColumnasDatatable } from "../../../apiurlstore";
+import { ASSET_GetClientesClienteIds, CLIENTE_GetClientes, CORE_getconsultadinamicasUser, CORE_getconsultadinamicasUserDWH, DWH_GetConsultasDinamicas, EBUS_GetClientesUsuarios, EBUS_GetColumnasDatatable, EBUS_getEventActiveRecargaByDayAndClient, EBUS_getEventActiveViajesByDayAndClient, EBUS_GetListaClientesActiveEvent, EBUS_GetListadoClientesUsuario, EBUS_GetLocations, EBUS_GetTiempoActualizacion, EBUS_GetUltimaPosicionVehiculos, EBUS_GetUsuariosEsomos, EBUS_SetClientesActiveEvent, EBUS_SetColumnasDatatable } from "../../../apiurlstore";
 import { ParamsEndPointDynamic } from "../Models/paramsConsultasDinamicas";
 
 export function Post_GetConsultasDinamicas(props: ParamsEndPointDynamic, body: any) {
@@ -32,7 +32,7 @@ export function Post_GetConsultasDinamicas(props: ParamsEndPointDynamic, body: a
     });
   }
   
-  
+ 
   
 
   export  function getVehiculosCliente( ClienteIds: string|null, UsertState : string) {
@@ -122,6 +122,39 @@ export function Post_GetConsultasDinamicas(props: ParamsEndPointDynamic, body: a
     return  axios({
       method: 'post',
       url: EBUS_GetListaClientesActiveEvent,     
+      headers: { 'Content-Type': 'application/json' },
+      params : props
+    });
+  }
+  export  function setClientesActiveEvent(props:any) {
+    return  axios({
+      method: 'post',
+      url: EBUS_SetClientesActiveEvent,     
+      headers: { 'Content-Type': 'application/json' },
+      params : props
+    });
+  }
+
+  export function Post_GetLocations(props: any) {
+    return  axios({
+      method: 'post',
+      url: EBUS_GetLocations,     
+      headers: { 'Content-Type': 'application/json' },
+      params : props
+    });
+  }
+  export function Post_GetClientesUsuarios(props: any) {
+    return  axios({
+      method: 'post',
+      url: EBUS_GetUsuariosEsomos,     
+      headers: { 'Content-Type': 'application/json' },
+      params : props
+    });
+  }
+  export function Post_GetListadoClientesUsuario(props: any) {
+    return  axios({
+      method: 'post',
+      url: EBUS_GetListadoClientesUsuario,     
       headers: { 'Content-Type': 'application/json' },
       params : props
     });

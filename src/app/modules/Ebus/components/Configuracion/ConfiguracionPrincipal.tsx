@@ -1,11 +1,11 @@
-import { AccessTimeFilled, Bedtime, BedTwoTone, Check, Delete, Download, Edit, House, Speed, SuperscriptTwoTone, SupervisorAccount, SupervisorAccountSharp, SupportAgent, Usb, Warehouse } from "@mui/icons-material";
+import { AccessTimeFilled, AccountBox, AdjustSharp, Aod, Bedtime, BedTwoTone, Check, Delete, Download, Edit, House, Speed, SuperscriptTwoTone, SupervisorAccount, SupervisorAccountSharp, SupportAgent, Usb, Warehouse, Workspaces, WrongLocationSharp } from "@mui/icons-material";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table"
 import { AxiosResponse } from "axios"
 import MaterialReactTable, { MRT_ColumnDef, MRT_Row } from "material-react-table"
 import { MRT_Localization_ES } from "material-react-table/locales/es"
 import moment from "moment"
 import { useCallback, useEffect, useState } from "react"
-import { ObtenerClientesTabla } from "../../data/Configuracion"
+import { ObtenerClientesTabla, SetActiveEvent } from "../../data/Configuracion"
 import { TablaClienteEventoActivo, TablaDTO } from "../../models/ConfiguracionModels"
 import { ConfiguracionPreferencia } from "./ConfiguracionPreferencia"
 import { ConfiguracionVariables } from "./ConfiguracionVariable"
@@ -15,13 +15,16 @@ import { ModalListadousuarioTabla } from "./ModalListadoUsuarioTabla"
 import { ModalLocaciones } from "./ModalLocaciones"
 import { ModalUsuarios } from "./ModalUsuarios"
 import { Box, IconButton, Tooltip, Typography } from "@mui/material";
-import confirmarDialog, { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
+import confirmarDialog, { errorDialog, successDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 import { Home, User, UserPlus } from "react-feather";
+import { useDataConfiguracionEbus } from "../../core/ConfiguracionProvider";
 type Props = {
 
 }
 
 const ConfiguracionPrincipal:React.FC<Props> = () =>{
+    const { ClienteSeleccionado, Clientes} = useDataConfiguracionEbus();
+    
     //table state
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [globalFilter, setGlobalFilter] = useState('');
@@ -38,8 +41,16 @@ const ConfiguracionPrincipal:React.FC<Props> = () =>{
    // fin table state
    
     const [showModalClienteAdd, setModalClienteAdd] = useState<boolean>(false)
+    const [showModaLocacion, setshowModaLocacion] = useState<boolean>(false)
+    const [showModalUsuarios, setshowModalUsuarios] = useState<boolean>(false)
+    const [showModalListaUsuarios, setshowModalListaUsuarios] = useState<boolean>(false)
+    const [showModalTiempoCliente, setshowModalTiempoCliente] = useState<boolean>(false)
+    const [showConfiguracionVariables, setshowConfiguracionVariables] = useState<boolean>(false)
     const [data, setData] = useState<TablaClienteEventoActivo[]>([]);
-
+    const [ClienteId, setClienteId] = useState<string>("");
+    const [ClienteIds, setClienteIds] = useState<string>("");
+    const [TitleModalTiempoCliente, setTitleModalTiempoCliente] = useState<string>("");
+    const [TitleModalConfiguracionVariable, setTitleModalConfiguracionVariable] = useState<string>("");
     let listadoCampos: MRT_ColumnDef<TablaClienteEventoActivo>[] =
     [
         {
@@ -47,9 +58,26 @@ const ConfiguracionPrincipal:React.FC<Props> = () =>{
             header: 'Nombre',
             size: 5
         },
+        
+        {
+            accessorKey: 'nit',
+            header: 'Documento',
+            Cell({ cell, column, row, table, }) {
+                return (row.original.nit == null ? "0": row.original.nit);
+            },
+            size: 5
+        },
+        {
+            accessorKey: 'telefono',
+            header: 'Telefono',
+            Cell({ cell, column, row, table, }) {
+                return (row.original.telefono == null ? "0": row.original.telefono);
+            },
+            size: 5
+        },
         {
             accessorKey: 'fechaIngreso',
-            header: 'Fecha',
+            header: 'Fecha ingreso',
             Cell({ cell, column, row, table, }) {
                 return (moment(row.original.fechaIngreso).format("DD/MM/YYYY"));
             },
@@ -57,6 +85,15 @@ const ConfiguracionPrincipal:React.FC<Props> = () =>{
         }
     ];
 
+    const setActiveEventCliente = (ClienteId:string,ActiveEvent:string) =>{
+        confirmarDialog(() => {
+            SetActiveEvent(ClienteId,ActiveEvent).then((response:AxiosResponse<any>) =>{
+                successDialog("Operación Éxitosa","");
+            }).catch((error)=>{
+                errorDialog("ha ocurrido un error contacte con el administrador","");
+            });
+        }, `Esta seguro que desea ${ (ActiveEvent == "1") ? "guardar la asignación": "eliminar a el cliente"} `)
+    }
     useEffect(() =>{
         ObtenerClientesTabla().then((response: AxiosResponse<any>) =>{
             setData(response.data.data);
@@ -121,22 +158,34 @@ const ConfiguracionPrincipal:React.FC<Props> = () =>{
                                 renderRowActions={({ row, table }) => (
                                     <Box sx={{ display: 'flex', gap: '1rem' }}>
                                         <Tooltip arrow placement="left" title="Activar e Inactivar clientes">
-                                        <IconButton color="success" onClick={() => 
-                                          console.log("activar clientes")
-                                          } >
+                                        <IconButton color="success" onClick={() => {
+                                                let Cliente = (row.original.clienteId != undefined ? row.original.clienteId:"");
+                                                setActiveEventCliente(Cliente, "0");
+                                            }} >
                                           <Check />
                                         </IconButton>
                                       </Tooltip>
                                       <Tooltip arrow placement="top" title="Consultar y/o agregar location del cliente">
-                                        <IconButton color="info" onClick={() => 
-                                          console.log("activar clientes")
+                                        <IconButton color="info" onClick={() => {
+                                              let Cliente = (row.original.clienteId != undefined ? row.original.clienteId:"");
+                                              let ClienteIds = (row.original.clienteIdS != undefined ? row.original.clienteIdS:"");
+                                            setClienteId(Cliente);
+                                            setClienteIds(ClienteIds.toString());
+                                            setshowModaLocacion(true)
+                                        }
+                                       
                                           } >
                                           <House />
                                         </IconButton>
                                       </Tooltip>
                                       <Tooltip arrow placement="top" title="Consultar y/o agregar location del cliente">
-                                        <IconButton color="success" onClick={() => 
-                                            console.log("Consultar location")
+                                        <IconButton color="success" onClick={() => {
+                                             console.log("Consultar location")
+                                             let Cliente = (row.original.clienteIdS != undefined ? row.original.clienteIdS:"");
+                                             setClienteIds(Cliente.toString());
+                                             setshowModalUsuarios(true);
+                                        }
+                                           
                                           } >
                                              <SupportAgent />
                                           
@@ -144,16 +193,43 @@ const ConfiguracionPrincipal:React.FC<Props> = () =>{
                                       </Tooltip>
                                       <Tooltip arrow placement="top" title="Consultar listados de usuarios">
                                         <IconButton color="info"  onClick={() => 
-                                          table.setEditingRow(row)
+                                            {
+                                                let Clienteids = (row.original.clienteIdS != undefined ? row.original.clienteIdS:"");
+                                                let Cliente = (row.original.clienteId != undefined ? row.original.clienteId:"");
+                                                setClienteIds(Clienteids.toString());
+                                                setClienteId(Cliente);
+                                                setshowModalListaUsuarios(true)
+                                            }
                                           } >
                                          <SupervisorAccount />
                                         </IconButton>
                                       </Tooltip>
-                                        <Tooltip arrow placement="right" title="Configurar tiempo para cliente">
-                                            <IconButton color="success" onClick={() => handleDeleteRow(row)}>
+                                        <Tooltip arrow placement="top" title="Configurar tiempo para cliente">
+                                            <IconButton color="success" onClick={() => {
+                                                 let Clienteids = (row.original.clienteIdS != undefined ? row.original.clienteIdS:"");
+                                                 let Cliente = (row.original.clienteId != undefined ? row.original.clienteId:"");
+                                                 setClienteIds(Clienteids.toString());
+                                                 setClienteId(Cliente);
+                                                setshowModalTiempoCliente(true);
+                                                setTitleModalTiempoCliente(`Cliente:  ${row.original.clienteNombre}`)
+                                            }}>
                                                 <AccessTimeFilled />
                                             </IconButton>
                                         </Tooltip>
+                                     
+                                        <Tooltip arrow placement="right" title="Configurar variables del cliente">
+                                            <IconButton color="warning" onClick={() => {
+                                                 let Clienteids = (row.original.clienteIdS != undefined ? row.original.clienteIdS:"");
+                                                 let Cliente = (row.original.clienteId != undefined ? row.original.clienteId:"");
+                                                 setClienteIds(Clienteids.toString());
+                                                 setClienteId(Cliente);
+                                                 setshowConfiguracionVariables(true);
+                                                 setTitleModalConfiguracionVariable(`Configuración variables para ${row.original.clienteNombre}`)
+                                            }}>
+                                                <Workspaces />
+                                            </IconButton>
+                                        </Tooltip>
+                                      
                                     </Box>
                                   )
                                   }
@@ -170,12 +246,12 @@ const ConfiguracionPrincipal:React.FC<Props> = () =>{
                     </div>
             </div>
             <ModalAddClienteEbus show={showModalClienteAdd} handleClose={() => setModalClienteAdd(false)} title={"Agregar cliente"}></ModalAddClienteEbus>
-            <ConfiguracionVariables></ConfiguracionVariables>
+            {(showConfiguracionVariables) && ( <ConfiguracionVariables show={showConfiguracionVariables} handleClose={() => setshowConfiguracionVariables(false)} title={TitleModalConfiguracionVariable} ClienteId={ClienteId}></ConfiguracionVariables>)}
             <ConfiguracionPreferencia></ConfiguracionPreferencia>
-            <ModalConfiguracionTiempo></ModalConfiguracionTiempo>
-            <ModalListadousuarioTabla></ModalListadousuarioTabla>
-            <ModalLocaciones></ModalLocaciones>
-            <ModalUsuarios></ModalUsuarios>
+            {(showModalTiempoCliente) && (<ModalConfiguracionTiempo show={showModalTiempoCliente} handleClose={() => setshowModalTiempoCliente(false)} ClienteIds={ClienteIds} Title={TitleModalTiempoCliente}></ModalConfiguracionTiempo>)}
+            {(showModalListaUsuarios) && (<ModalListadousuarioTabla show={showModalListaUsuarios} handleClose={ () => setshowModalListaUsuarios(false)} ClienteId={ClienteIds}></ModalListadousuarioTabla>)}
+            {(showModaLocacion) && (<ModalLocaciones show={showModaLocacion} handleClose={() => setshowModaLocacion(false)} ClienteId={(ClienteId != undefined ? ClienteId : "")} ClienteIds={ClienteIds}></ModalLocaciones>) } 
+            {(showModalUsuarios) && (<ModalUsuarios show={showModalUsuarios} handleClose={() => setshowModalUsuarios(false) } ClienteId={ClienteIds}></ModalUsuarios>)} 
         </>
     )
 }
