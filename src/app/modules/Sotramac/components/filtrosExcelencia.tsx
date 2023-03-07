@@ -5,10 +5,9 @@ import { Button, Form } from "react-bootstrap-v5";
 
 import "../../../../../node_modules/@availity/block-ui/src/BlockUi.css";
 import "../../../../../node_modules/@availity/block-ui/src/Loader.css";
-import { jsx } from "@emotion/react";
-import { getDetalleListas } from "../data/dataSotramac";
-import { AxiosResponse } from "axios";
+
 import { Fechas } from "./filtrosFechas";
+import { SelectAssetsDrivers } from "./filtrosAssetsDrivers";
 type Props = {
 
 }
@@ -216,6 +215,11 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             <div className="row">
                 <Fechas />
             </div>
+            <div className="row">
+                <SelectAssetsDrivers siteId={site} assetTypeId={assettype} />
+            </div>
+            
+            
         </>
     )
 } 

@@ -20,6 +20,14 @@ export interface AssetsTypes {
     Nombre : string;
 }
 
+export interface Assets {
+    assetId : number;
+    description : string;
+    assetTypeId: number;
+}
 
-
+export interface dualList{
+    value:number;
+    label:string;
+}
 

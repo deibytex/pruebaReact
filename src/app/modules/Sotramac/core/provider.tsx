@@ -1,10 +1,8 @@
 
 import React from "react";
-import moment from "moment";
 import { createContext, useContext, useEffect, useState } from "react";
-import { getAssetTypes, getDetalleListas, getListas, getSitesSotramac } from "../data/dataSotramac";
-import { Listas } from "../models/dataModels";
-import { array } from "yup";
+import { GetAssets, getAssetTypes, getDetalleListas, getListas, getSitesSotramac } from "../data/dataSotramac";
+
 
 // clase con los funciones  y datos a utiilizar
 export interface SotramacContextModel {
@@ -18,6 +16,8 @@ export interface SotramacContextModel {
     setsites: (lstsites: any[]) => void;
     assetTypes?: any;
     setassetTypes: (lstassettypes: any[]) => void;
+    assets?: any;
+    setassets: (lstassets: any[]) => void;
     fechaInicial?: any;
     setfechaInicial: (fechainicial: any) => void;
     fechaFinal?: any;
@@ -33,6 +33,7 @@ const SotramacContext = createContext<SotramacContextModel>({
     setlistasids: (ids: any) => (""),
     setsites: (lstsite: any[]) => ([]),
     setassetTypes: (lstassettypes: any[]) => ([]),
+    setassets: (lstassets: any[]) => ([]),
     setfechaInicial: (fechainicial: any) => (""),
     setfechaFinal: (fechafinal: any) => (""),
     setError: (error: any) => { }
@@ -46,6 +47,7 @@ const SotramacProvider: React.FC = ({ children }) => {
     const [listasIds, setlistasids] = useState("");
     const [sites, setsites] = useState<any[]>([]);
     const [assetTypes, setassetTypes] = useState<any[]>([]);
+    const [assets, setassets] = useState<any[]>([]);
     const [fechaInicial, setfechaInicial] = useState("");
     const [fechaFinal, setfechaFinal] = useState("");
     const [iserror, setError] = useState<any>({});
@@ -61,6 +63,8 @@ const SotramacProvider: React.FC = ({ children }) => {
         setsites,
         assetTypes,
         setassetTypes,
+        assets,
+        setassets,
         fechaInicial,
         setfechaInicial,
         fechaFinal,
@@ -87,7 +91,7 @@ function useDataSotramac() {
 // segun parametrización que debe realizarse
 
 const DataReportesSotramac: React.FC = ({ children }) => {
-    const { setlistas, setError, setlistasids, setdetalleListas, setsites, setassetTypes, listasIds, iserror } = useDataSotramac();
+    const { setlistas, setError, setlistasids, setdetalleListas, setsites, setassetTypes, setassets, listasIds, iserror } = useDataSotramac();
 
     //Cosulta Listas (Opciones de categoria)
     let consultaListas = (Sigla: string) => {
@@ -150,6 +154,22 @@ const DataReportesSotramac: React.FC = ({ children }) => {
 
     }
 
+     //CONSULTA LOS ASSETS
+     let consultaAssets = () => {
+        // consultamos en la base de datos la informacion de vehiculos operando
+        GetAssets().then(
+
+            (response) => {
+                setassets(response.data);
+            }
+
+        ).catch((error) => {
+            setError({ accion: "Assets Types", error });
+        })
+
+    }
+
+
     useEffect(() => {
 
         if (children) {
@@ -157,6 +177,7 @@ const DataReportesSotramac: React.FC = ({ children }) => {
             consultaListas(children.toString());
             consultaSites();
             consultaAssetTypes();
+            consultaAssets();
             consultaDetalleListas(listasIds);
             // si no tiene error hace el interval
 

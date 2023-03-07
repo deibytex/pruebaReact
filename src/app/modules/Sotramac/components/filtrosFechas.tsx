@@ -52,8 +52,6 @@ export const Fechas: React.FC<Props> = () => {
             setfechaInicial(FechaInicial);
             setfechaFinal(FechaFinal);
         }
-
-
     }, [predefinidos])
 
     function FechaInicialControl() {

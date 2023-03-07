@@ -1,9 +1,8 @@
-import axios from "axios";
-import moment from "moment";
-import { DWH_getconsultadinamicasprocedure, MOVIL_getReportesPorTipo } from "../../../../apiurlstore";
 
 import { Post_getconsultadinamicas } from "../../../../_start/helpers/Axios/CoreService";
-import { FechaServidor } from "../../../../_start/helpers/Helper";
+import { getVehiculosClienteId } from "../../../../_start/helpers/Axios/DWHService";
+
+const ClienteId = "1546695255495533982";
 
 export  function getListas(Sigla: string){
     var params: { [id: string]: string | null; } = {};
@@ -33,7 +32,7 @@ export  function getDetalleListas(ListaIds: string){
 
 export  function getSitesSotramac(){
   var params: { [id: string]: string | null; } = {};
-  params["ClienteId"] = "1546695255495533982";
+  params["ClienteId"] = ClienteId;
   params["SiteId"] = null;
   
   // hacemos la consulta 
@@ -56,3 +55,7 @@ export  function getAssetTypes(){
     RecordsPorPagina :null}, 
     params);
 };
+
+export  function GetAssets() {
+  return  getVehiculosClienteId(ClienteId, "Available");
+}
