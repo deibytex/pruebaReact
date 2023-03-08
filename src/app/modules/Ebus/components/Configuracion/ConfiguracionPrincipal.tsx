@@ -18,11 +18,25 @@ import { Box, IconButton, Tooltip, Typography } from "@mui/material";
 import confirmarDialog, { errorDialog, successDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 import { Home, User, UserPlus } from "react-feather";
 import { useDataConfiguracionEbus } from "../../core/ConfiguracionProvider";
+import { useSelector } from "react-redux";
+import { UserModelSyscaf } from "../../../auth/models/UserModel";
+import { RootState } from "../../../../../setup";
+import BlockUi from "@availity/block-ui";
+
 type Props = {
 
 }
 
 const ConfiguracionPrincipal:React.FC<Props> = () =>{
+    // informacion del usuario almacenado en el sistema
+    const isAuthorized = useSelector<RootState>(
+      ({ auth }) => auth.user
+  );
+
+  // convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
+  const model = (isAuthorized as UserModelSyscaf);
+
+  
     const { ClienteSeleccionado, Clientes} = useDataConfiguracionEbus();
     
     //table state
@@ -51,6 +65,7 @@ const ConfiguracionPrincipal:React.FC<Props> = () =>{
     const [ClienteIds, setClienteIds] = useState<string>("");
     const [TitleModalTiempoCliente, setTitleModalTiempoCliente] = useState<string>("");
     const [TitleModalConfiguracionVariable, setTitleModalConfiguracionVariable] = useState<string>("");
+    const [EsVisible, setEsVisible] = useState<boolean>(true);
     let listadoCampos: MRT_ColumnDef<TablaClienteEventoActivo>[] =
     [
         {
@@ -87,22 +102,35 @@ const ConfiguracionPrincipal:React.FC<Props> = () =>{
 
     const setActiveEventCliente = (ClienteId:string,ActiveEvent:string) =>{
         confirmarDialog(() => {
+          setEsVisible(true)
             SetActiveEvent(ClienteId,ActiveEvent).then((response:AxiosResponse<any>) =>{
                 successDialog("Operación Éxitosa","");
+                ConsultarDatos();
+                setEsVisible(false)
             }).catch((error)=>{
                 errorDialog("ha ocurrido un error contacte con el administrador","");
+                setEsVisible(false)
             });
         }, `Esta seguro que desea ${ (ActiveEvent == "1") ? "guardar la asignación": "eliminar a el cliente"} `)
     }
     useEffect(() =>{
-        ObtenerClientesTabla().then((response: AxiosResponse<any>) =>{
-            setData(response.data.data);
-            setRowCount(response.data.data.length)
-        }).catch(({error}) =>{
-            errorDialog("Ha ocurrido un error al consultar los datos","");
-            setIsError(true);
-        });
+      setEsVisible(true)
+      ConsultarDatos();
     },[])
+
+
+const ConsultarDatos = () => {
+  ObtenerClientesTabla().then((response: AxiosResponse<any>) =>{
+    setData(response.data.data);
+    setRowCount(response.data.data.length)
+    setEsVisible(false)
+}).catch(({error}) =>{
+    errorDialog("Ha ocurrido un error al consultar los datos","");
+    setIsError(true);
+    setEsVisible(false)
+});
+};
+
     // ELIMINA LOGICAMENTE LA INFORMACION INGRESADA
   const handleDeleteRow = useCallback(
     (row: MRT_Row<TablaClienteEventoActivo>) => {
@@ -116,6 +144,7 @@ const ConfiguracionPrincipal:React.FC<Props> = () =>{
   );
     return(
         <>
+         <BlockUi tag="span" className="bg-primary"  keepInView blocking={EsVisible}>
               <div className="row">
                     <div className="col-sm-6 col-md-6 col-xs-6">
                          
@@ -245,13 +274,14 @@ const ConfiguracionPrincipal:React.FC<Props> = () =>{
                             />
                     </div>
             </div>
-            <ModalAddClienteEbus show={showModalClienteAdd} handleClose={() => setModalClienteAdd(false)} title={"Agregar cliente"}></ModalAddClienteEbus>
-            {(showConfiguracionVariables) && ( <ConfiguracionVariables show={showConfiguracionVariables} handleClose={() => setshowConfiguracionVariables(false)} title={TitleModalConfiguracionVariable} ClienteId={ClienteId}></ConfiguracionVariables>)}
+            <ModalAddClienteEbus show={showModalClienteAdd} handleClose={() => setModalClienteAdd(false)} title={"Agregar cliente"} recargarDatos={ConsultarDatos}></ModalAddClienteEbus>
+            {(showConfiguracionVariables) && ( <ConfiguracionVariables show={showConfiguracionVariables} handleClose={() => setshowConfiguracionVariables(false)} title={TitleModalConfiguracionVariable} ClienteId={ClienteId} UsuarioIds={model.usuarioIds.toString()} ClienteIds={ClienteIds}></ConfiguracionVariables>)}
             <ConfiguracionPreferencia></ConfiguracionPreferencia>
-            {(showModalTiempoCliente) && (<ModalConfiguracionTiempo show={showModalTiempoCliente} handleClose={() => setshowModalTiempoCliente(false)} ClienteIds={ClienteIds} Title={TitleModalTiempoCliente}></ModalConfiguracionTiempo>)}
+            {(showModalTiempoCliente) && (<ModalConfiguracionTiempo show={showModalTiempoCliente} handleClose={() => setshowModalTiempoCliente(false)} ClienteIds={ClienteIds} Title={TitleModalTiempoCliente} UsuarioIds={model.usuarioIds.toString()}></ModalConfiguracionTiempo>)}
             {(showModalListaUsuarios) && (<ModalListadousuarioTabla show={showModalListaUsuarios} handleClose={ () => setshowModalListaUsuarios(false)} ClienteId={ClienteIds}></ModalListadousuarioTabla>)}
             {(showModaLocacion) && (<ModalLocaciones show={showModaLocacion} handleClose={() => setshowModaLocacion(false)} ClienteId={(ClienteId != undefined ? ClienteId : "")} ClienteIds={ClienteIds}></ModalLocaciones>) } 
             {(showModalUsuarios) && (<ModalUsuarios show={showModalUsuarios} handleClose={() => setshowModalUsuarios(false) } ClienteId={ClienteIds}></ModalUsuarios>)} 
+            </BlockUi>
         </>
     )
 }

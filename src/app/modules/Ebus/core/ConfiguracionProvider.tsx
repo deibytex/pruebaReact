@@ -19,12 +19,13 @@ const ConfiguracionEbusContext = createContext<ConfiguracionEbusContextModel>({
 const ConfiguracionEbusProvider: React.FC = ({ children }) => {
     const [Clientes, setClientes] = useState<ClienteDTO[]>([]);
     const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente);
-    const [Visible, setVisible] = useState<boolean>(true);
+ 
     const value: ConfiguracionEbusContextModel = {
         setClientes,
         setClienteSeleccionado,
         ClienteSeleccionado,
         Clientes
+      
     };
     return (
         <ConfiguracionEbusContext.Provider value={value}>
@@ -41,6 +42,7 @@ const CargaClientes: React.FC = ({children}) => {
     const { setClienteSeleccionado, setClientes, ClienteSeleccionado, Clientes } = useDataConfiguracionEbus();
     useEffect(() =>{
         ObtenerListadoCLientes().then((response:AxiosResponse<any>) => {
+        
             setClientes(response.data);
             setClienteSeleccionado(response.data[0]);
         }

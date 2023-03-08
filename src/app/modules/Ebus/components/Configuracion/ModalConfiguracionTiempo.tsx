@@ -1,3 +1,4 @@
+import BlockUi from "@availity/block-ui";
 import { AxiosResponse } from "axios";
 import { useEffect, useState } from "react";
 import { Modal } from "react-bootstrap-v5"
@@ -10,18 +11,32 @@ type Props = {
    handleClose:() =>void;
    ClienteIds: string;
    Title:string;
+   UsuarioIds:string;
 }
-const ModalConfiguracionTiempo : React.FC<Props> = ({show,handleClose, ClienteIds, Title}) =>{
+const ModalConfiguracionTiempo : React.FC<Props> = ({show,handleClose, ClienteIds, Title, UsuarioIds}) =>{
    const [Tiempo, setTiempo] = useState<string>("");
+   const [Campo, setCampo] = useState<any>({});
+   const [EsVisible, setEsVisible] = useState<boolean>(true);
    const GuardarTiempo = () =>{
-   //    confirmarDialog(() => {
-   //       SetVariablesCliente(ClienteIds,TiposParametro.Tiempos_Actualizacion.toString(),null,Tiempo,null,null).then((response: AxiosResponse<any>) =>{
-   //           successDialog(`Locaciones ${(selected.length != 0 ? "asociadas " :"desvinculadas " )}  éxitosamente`,"");
-   //           handleClose();
-   //       }).catch(() =>{
-   //           errorDialog("Ha ocurrido un error, al asociar las locaciones del cliente","");
-   //       });
-   //   }, `¿Esta seguro que desea ${(selected.length != 0 ? "asociar las locaciones seleccionadas?" :"desvincular las locaciones?" )}`, 'Guardar');
+      confirmarDialog(() => {
+         setEsVisible(true);
+         SetVariablesCliente(
+            ClienteIds,
+            TiposParametro.Tiempos_Actualizacion.toString(),
+            UsuarioIds,
+            Tiempo, 
+            (Campo.ParametrizacionId != undefined ? Campo.ParametrizacionId.toString():null)
+         )
+         .then((response: AxiosResponse<any>) =>{
+             successDialog(`Tiempo actualizado éxitosamente`,"");
+             setEsVisible(false);
+             handleClose();
+         })
+         .catch(() =>{
+             errorDialog("Ha ocurrido un error, al asociar el tiempo con el cliente","");
+             setEsVisible(false);
+         });
+     }, `¿Esta seguro que desea asignar el tiempo al cliente?`, 'Guardar');
       
    }
 
@@ -30,14 +45,19 @@ const ModalConfiguracionTiempo : React.FC<Props> = ({show,handleClose, ClienteId
    };
 
    useEffect(() =>{
+      setEsVisible(true);
       GetTiempoActualizacion(ClienteIds).then((response:AxiosResponse<any>) =>{
-         (response.data.length != 0) ? setTiempo(response.data[0].valor.toString()):setTiempo("0");
+         (response.data.length != 0) ? setCampo(response.data[0]):setCampo({});
+         (response.data.length != 0) ? setTiempo(response.data[0].Valor):setTiempo("0");
+         setEsVisible(false);
      }).catch((error) =>{
          errorDialog("<i>Eror al el tiempo de actualización</i>","")
+         setEsVisible(false);
      })
    },[ClienteIds])
  return(
     <>
+   
       <Modal 
             show={show} 
             onHide={handleClose} 
@@ -46,6 +66,7 @@ const ModalConfiguracionTiempo : React.FC<Props> = ({show,handleClose, ClienteId
                <Modal.Title>{Title}</Modal.Title>
          </Modal.Header>
          <Modal.Body>
+         <BlockUi tag="span" className="bg-primary"  keepInView blocking={EsVisible}>
             <div className="row">
                <div className="col-sm-12 col-md-12 col-xs-12">
                   <div className="input-group mb-3">
@@ -54,6 +75,7 @@ const ModalConfiguracionTiempo : React.FC<Props> = ({show,handleClose, ClienteId
                   </div>
                </div>
             </div>
+            </BlockUi>
          </Modal.Body>
          <Modal.Footer>
             <div className="">
@@ -63,6 +85,7 @@ const ModalConfiguracionTiempo : React.FC<Props> = ({show,handleClose, ClienteId
             </div>
          </Modal.Footer>
       </Modal>
+      
    </>
  )
 }

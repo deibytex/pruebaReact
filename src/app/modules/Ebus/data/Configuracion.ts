@@ -44,9 +44,9 @@ export function GetGetListadoClientesUsuario (Clientes:string ) {
 
 
 export function GetTiempoActualizacion(ClienteId:string) {
-    let params : { [id: string]: string | null; } = {};
-    params['ClienteId'] = ClienteId;
-    return Post_GetTiempoActualizacion(params);
+    var params: { [id: string]: string | null | boolean; } = {};
+    params["ClienteIds"] =ClienteId;
+    return  Post_GetConsultasDinamicas({ Clase : "EbusQueryHelper",  NombreConsulta: "GetTiempoActualizacion", Pagina :null, RecordsPorPagina :null}, params);
 }
 export function GetVariables(ClienteId:string) {
     var params: { [id: string]: string | null; } = {};
@@ -68,12 +68,25 @@ export function SetUsuariosCliente(ClienteIds:string, Usuarios:string) {
     params["Usuarios"] =Usuarios;
     return  Post_GetConsultasDinamicas({ Clase : "EbusQueryHelper",  NombreConsulta: "SetAsignarUsuarios", Pagina :null, RecordsPorPagina :null}, params);
 }
-export function SetVariablesCliente(ClienteIds:string,TipoParametroId:string, UsuarioId:string|null,valor:string,ParametrizacionId:string|null ) {
+export function SetVariablesCliente(ClienteIds:string,TipoParametroId:string|null, UsuarioId:string|null,valor:string,ParametrizacionId:string|null ) {
     var params: { [id: string]: string | null | boolean; } = {};
     params["ClienteIds"] =ClienteIds;
     params["TipoParametroId"] =TipoParametroId;
-    params["UsuarioId"] =UsuarioId;
+    params["UsuarioIds"] =UsuarioId;
     params["Valor"] =valor;
     params["ParametrizacionId"] =ParametrizacionId;
     return  Post_GetConsultasDinamicas({ Clase : "EbusQueryHelper",  NombreConsulta: "SetVariablesCliente", Pagina :null, RecordsPorPagina :null}, params);
+}
+
+export function GetTiposParametros(Sigla:string ) {
+    var params: { [id: string]: string | null | boolean; } = {};
+    params["Sigla"] =Sigla;
+    return  Post_GetConsultasDinamicas({ Clase : "EbusQueryHelper",  NombreConsulta: "GetTiposParametros", Pagina :null, RecordsPorPagina :null}, params);
+}
+export function SetEstadoParametros(ParametrizacionId:string, TipoParametroId :string, EsActivo:string) {
+    var params: { [id: string]: string | null | boolean; } = {};
+    params["ParametrizacionId"] =ParametrizacionId;
+    params["TipoParametroId"] =TipoParametroId;
+    params["EsActivo"] =EsActivo;
+    return  Post_GetConsultasDinamicas({ Clase : "EbusQueryHelper",  NombreConsulta: "SetEstadoParametros", Pagina :null, RecordsPorPagina :null}, params);
 }

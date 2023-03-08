@@ -14,6 +14,7 @@ type Props = {
 const ModalUsuarios : React.FC<Props> = ({show, handleClose, ClienteId }) =>{
    const [Usuarios, setUsuarios] = useState<any>([]);
    const [selected, setSelected] = useState([]);
+   const [EsVisible, setEsVisible] = useState<boolean>(true);
    function DualLisBox () {
       return (
           <DualListBox

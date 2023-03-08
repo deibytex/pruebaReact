@@ -1,3 +1,4 @@
+import BlockUi from "@availity/block-ui";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
 import { AxiosResponse } from "axios";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table"
@@ -28,7 +29,7 @@ const ModalListadousuarioTabla : React.FC<Props> = ({show,handleClose , ClienteI
      const [isError, setIsError] = useState(false);
      
     const [data, setData] = useState<[]>([])
-
+    const [EsVisible, setEsVisible] = useState<boolean>(true);
     let listadoCampos: MRT_ColumnDef<TablaClienteDTO>[] =
     [
         {
@@ -53,11 +54,14 @@ const ModalListadousuarioTabla : React.FC<Props> = ({show,handleClose , ClienteI
 
 
     useEffect(() =>{
+        setEsVisible(true)
         GetGetListadoClientesUsuario(ClienteId).then((response:AxiosResponse<any>) =>{
             setData(response.data.data);
             setRowCount(response.data.data.length);
+            setEsVisible(false);
         }).catch(() =>{
             errorDialog("Ha ocurrido un error al consulta el listado de usuarios del cliente", "");
+            setEsVisible(false);
         });
     },[])
 
@@ -73,6 +77,7 @@ const ModalListadousuarioTabla : React.FC<Props> = ({show,handleClose , ClienteI
             <Modal.Body>
                 <div className="row">
                     <div className="col-sm-12 col-md-12 col-xs-12">
+                    <BlockUi tag="span" className="bg-primary"  keepInView blocking={EsVisible}>
                     <MaterialReactTable 
                         localization={MRT_Localization_ES}
                         columns={listadoCampos}
@@ -94,6 +99,7 @@ const ModalListadousuarioTabla : React.FC<Props> = ({show,handleClose , ClienteI
                             }}
                         initialState={{ density: 'compact'}}
                     />
+                        </BlockUi>
                     </div>
                 </div>
             </Modal.Body>

@@ -15,6 +15,7 @@ type props = {
 const ModalLocaciones : React.FC<props> = ({show, handleClose,ClienteId, ClienteIds}) =>{
     const [locaciones, setLocaciones] = useState<any>([]);
     const [selected, setSelected] = useState([]);
+    const [EsVisible, setEsVisible] = useState<boolean>(true);
     useEffect(() =>{
         GetLocations(ClienteId,true).then((response:AxiosResponse<any>) =>{
             let Locaciones = response.data.data.map((item:any,index:any) =>{
