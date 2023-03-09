@@ -68,7 +68,7 @@ export default function FatigueDashboard() {
                 <PreoperacionalProvider>
                     <PageTitle >Preoperacional App</PageTitle>
                     <DataVehiculoOperando>{Chidlren}</DataVehiculoOperando>
-                    <div className="row g-0 g-xl-10 g-xxl-8 bg-syscaf-gris" style={{ padding: '20px' }}>
+                    <div className="row g-0 g-xl-10 g-xxl-8 bg-primary" style={{ padding: '20px' }}>
                         <div className="row">
                             <div className="col-sm-2 col-md-2 col-xs-2">
                                 <label className="control-label label text-white label-sm" style={{ fontWeight: 'bold' }}>Fecha inicial</label>

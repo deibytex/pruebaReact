@@ -3,6 +3,7 @@ import { Redirect, Route, Switch, Link } from "react-router-dom";
 import { Registration } from "./components/Registration";
 import { ForgotPassword } from "./components/ForgotPassword";
 import { Login } from "./components/Login";
+import { toAbsoluteUrl } from "../../../_start/helpers";
 
 
 export function AuthPage() {
@@ -14,15 +15,22 @@ export function AuthPage() {
   }, []);
 
   return (
-    <div className="d-flex flex-column flex-root bg-primary">
+    <div className="d-flex flex-column flex-root bg-primary"
+    style={{ 
+      backgroundImage: `url(${toAbsoluteUrl("/media/syscaf/Syscafimg/Fondo1.jpg")})` 
+      ,backgroundRepeat:"no-repeat" ,
+      backgroundSize:"contain"
+    }}
+    >
       <div
         className="d-flex flex-column flex-lg-row flex-column-fluid"
         id="kt_login"
       >
-        
+       
       
         {/* Content */}
-        <div className="bg-white border border-white login-content flex-lg-row-fluid d-flex flex-column  justify-content-center  position-relative overflow-hidden mx-auto  py-20 px-10 p-lg-7  mw-450px w-100 mh-550px mt-20">
+        <div className="bg-white border border-white login-content flex-lg-row-fluid d-flex flex-column  justify-content-center 
+         position-relative overflow-hidden   py-20 px-10 p-lg-7  mw-450px w-100 mh-450px mt-20 mx-auto" >
           <div className="bg-white d-flex flex-column-fluid flex-center py-10">
             <Switch>
               <Route path="/auth/login" component={Login} />

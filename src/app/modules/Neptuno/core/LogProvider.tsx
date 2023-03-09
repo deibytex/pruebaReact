@@ -50,7 +50,7 @@ function useDatLog() {
 
 const CargaInicialParametros: React.FC = ({children}) => {
     const { Usuarios , setUsuarios, UsuarioSeleccionado, setUsuarioSeleccionado,  FechaInicial, setFechaInicial, FechaFinal, setFechaFinal } = useDatLog();
-    console.log(UsuarioSeleccionado);
+    
 useEffect(() =>{
    
     ConsultarUsuarios("null").then(

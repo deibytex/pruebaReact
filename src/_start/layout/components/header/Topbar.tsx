@@ -17,37 +17,7 @@ export function Topbar() {
  
   return (
     <>
-      {/* begin::Search 
-      <button
-        className="btn btn-icon btn-sm btn-active-bg-accent ms-1 ms-lg-6"
-        onClick={() => setShowSearchModal(true)}
-      >
-        <KTSVG
-          path="/media/icons/duotone/General/Search.svg"
-          className="svg-icon-1 svg-icon-dark"
-        />
-      </button>
-      <SearchModal
-        show={showSearchModal}
-        handleClose={() => setShowSearchModal(false)}
-      />
-       end::Search */}
-
-      {/* begin::Message
-      <button
-        className="btn btn-icon btn-sm btn-active-bg-accent ms-1 ms-lg-6"
-        onClick={() => setShowInboxComposeModal(true)}
-      >
-        <KTSVG
-          path="/media/icons/duotone/Communication/Chat6.svg"
-          className="svg-icon-1 svg-icon-dark"
-        />
-      </button>
-      <InboxCompose
-        show={showInboxComposeModal}
-        handleClose={() => setShowInboxComposeModal(false)}
-      />
-      end::Message */}
+     
 
       {/* begin::User */}
       <div className="ms-1 ms-lg-6">
@@ -68,8 +38,8 @@ export function Topbar() {
       </div>
       {/* end::User */}
 
-   
-
+      
+     
       {/* begin::Aside Toggler */}
       {config.aside.display && (
         <button

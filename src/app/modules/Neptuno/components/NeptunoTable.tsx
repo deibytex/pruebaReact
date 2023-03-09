@@ -153,7 +153,7 @@ const {containerNeptuno, setcontainerNeptuno} = useDataNeptuno();
                   let EsPermitidoxx = EsPermitido(permisosopcion, Operaciones.Descargar);
                   return (
                     <>
-                      {(EsPermitidoxx) ? (<Button className="btn btn-primary btn-sm" onClick={() => {
+                      {(EsPermitidoxx) ? (<Button className="btn btn-secondary btn-sm text-truncate" onClick={() => {
 
                         DescargarArchivo(row.original.Src, contenedor, (row.original.Nombre + row.original.Extension));
                       }}  > <Download />{row.original.Nombre}</Button>) : (<div>{row.original.Nombre}</div>)}
@@ -442,12 +442,12 @@ function SelectContainer() {
     <>
     <NeptunoProvider>
       <PageTitle >{tituloPagina}</PageTitle>
-      <div className="row g-0 g-xl-5 g-xxl-8 bg-white ">
-        <div className="row" style={{width:'100%'}}>
+      <div className="card card-rounded bg-transparent "    >
+        <div className="row  col-sm-12 col-md-12 col-xs-12 rounded border  mt-1 mb-2 shadow-sm "  style={{width:'100%'}}  >
           <div className="col-sm-4 col-md-4 col-xs-4">
             <div style={{paddingTop:'5px'}}>
               {(EsPermitido(permisosopcion, operacionesPermisos.Adicionar)) && (<Button
-                className="btn btn-success btn-xs  mb-2 mt-1"
+                className="btn btn-primary btn-xs  mb-2 mt-1"
                 onClick={() => handleshowFileLoad(true)}
                 variant="contained"
               >
@@ -457,8 +457,8 @@ function SelectContainer() {
             </div>
           </div>
           <div className="col-sm-4 col-md-4 col-xs-4" >
-            <div style={{float: 'right', paddingTop:'15px'}}>
-              <label className="control-label label-sm"><span style={{color:'white', fontWeight:'bold'}}>Contenedor: </span></label>
+            <div style={{float: 'right', paddingTop:'20px'}}>
+              <label className="control-label label-sm">Contenedor: </label>
             </div>
                
           </div>
@@ -470,7 +470,7 @@ function SelectContainer() {
        
 
       </div>
-      <div className="row g-0 g-xl-5 g-xxl-8 bg-white">
+      <div className="row  col-sm-12 col-md-12 col-xs-12 rounded shadow-sm ">
         <MaterialReactTable
          localization={MRT_Localization_ES}
           displayColumnDefOptions={{
@@ -481,6 +481,15 @@ function SelectContainer() {
               size: 120,
             },
           }}
+          muiTableHeadCellProps={{
+                  sx: (theme) => ({
+                    fontSize : 14,
+                    fontStyle: 'bold',  
+                  color: 'rgb(27, 66, 94)'
+                  
+                }),
+              }}
+             
           columns={columnas}
           data={data}
           editingMode="modal" //default         

@@ -52,6 +52,8 @@ const HeaderDesktopFluidTabletFixed: React.FC<Props> = ({ classes }) => {
 export function HeaderWrapper() {
   const { config, classes } = useTheme();
   const { header } = config;
+   console.log(header.fixed.desktop)
+   console.log(header.fixed.tabletAndMobile)
   return (
     <>
       {header.fixed.desktop && header.fixed.tabletAndMobile && (

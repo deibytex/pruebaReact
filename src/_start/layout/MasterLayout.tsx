@@ -9,6 +9,7 @@ import { Content } from "./components/Content";
 import { MasterInit } from "./MasterInit";
 import { PageDataProvider } from "./core";
 import { ExploreMain } from "../partials";
+import { Header } from "./components/header/Header";
 
 const MasterLayout: React.FC = ({ children }) => {
   return (
@@ -20,11 +21,12 @@ const MasterLayout: React.FC = ({ children }) => {
             className="bg-light-dark wrapper d-flex flex-column flex-row-fluid "
             id="kt_wrapper"
           >
-            <HeaderWrapper />
+             <Header/>
             <div className="d-flex flex-column flex-column-fluid ">
-              <Toolbar />
+                {/* <Toolbar />*/ } 
+           
               <div
-                className="content fs-6 d-flex flex-column-fluid"
+                className="content fs-6 d-flex flex-column-fluid px-2 "
                 id="kt_content"
               >
                 <Content>{children}</Content>
@@ -32,7 +34,7 @@ const MasterLayout: React.FC = ({ children }) => {
             </div>
             <Footer />
           </div>
-          <Sidebar />
+          {/* <Sidebar />*/ } 
           
         </div>
       </div>

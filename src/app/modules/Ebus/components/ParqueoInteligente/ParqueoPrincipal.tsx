@@ -42,7 +42,7 @@ const {setVisible, ClienteSeleccionado, Clientes, setClienteSeleccionado, setCli
                                 } fw-bolder me-2`}
                                 id={`tab${idx}`}
                             >
-                                <div className="nav-icon me-3">
+                             {/*    <div className="nav-icon me-3">
                                 <img
                                     alt=""
                                     src={toAbsoluteUrl(tab.icon)}
@@ -54,7 +54,7 @@ const {setVisible, ClienteSeleccionado, Clientes, setClienteSeleccionado, setCli
                                     src={toAbsoluteUrl(tab.iconColored)}
                                     className="active"
                                 />
-                                </div>
+                                </div>*/} 
                                 <div className="ps-1">
                                 <span className="nav-text text-gray-600 fw-bolder fs-6">
                                     {tab.titulo}

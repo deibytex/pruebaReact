@@ -72,16 +72,16 @@ export function Login() {
       className="form w-100 "
       onSubmit={formik.handleSubmit}
       noValidate
-      id="kt_login_signin_form"
+      id="kt_login_signin_form" 
     >  <div className="pb-lg-5">
        <img
                 alt="Logo"
                 src={toAbsoluteUrl("/media/syscaf/logo syscaf 2023 color.png")}
                 className="h-90px bg-white"
               />
-      {/* begin::Title */}
+      {/* begin::Title
       
-        <h2 className="fw-bolder text-primary text-center mt-10 ">Bienvenido a SYSCAF Analytics</h2>        
+        <h2 className="fw-bolder text-primary text-center mt-10 ">Bienvenido a SYSCAF Analytics</h2>     */}    
      
         <h4 className="fw-bolder text-danger">{errorLogin}</h4>        
       </div>

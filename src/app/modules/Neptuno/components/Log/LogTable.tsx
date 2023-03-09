@@ -114,6 +114,8 @@ type Props = {
         let UltimodiaMes = ultimoDiaMes(moment().format("DD/MM/YYYY"));
         setFechaFinal(moment().add(UltimodiaMes, 'days').format("DD/MM/YYYY"));
     },[FechaInicial,FechaFinal])
+
+
     const ultimoDiaMes = (fecha:any) =>{
         let arrayFecha = fecha.split('/');
         let fechaUltimo = new Date(arrayFecha[0], arrayFecha[1]) 
@@ -270,8 +272,8 @@ function SelectContainer() {
     return ( 
         <LogProvider>
             <PageTitle >{TituloNeptunoLogs}</PageTitle>
-            <div className="row g-0 g-xl-5 g-xxl-8 bg-primary" style={{padding:'5px'}}>
-                    <div className="row rounded" style={{border:'1px solid #d1e7dd', margin:'1px'}}>
+            <div className="card card-rounded bg-transparent "    >
+                    <div className="row  col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mt-2" >
                         <div className="col-sm-2 col-md-2 col-xs-2">
                             <label className="control-label label text-white label-sm"  style={{fontWeight:'bold'}}>Fecha inicial</label>
                             <FechaInicialControl/>
@@ -291,7 +293,7 @@ function SelectContainer() {
                         <div className="col-sm-1 col-md-1 col-xs-1">
                             <label className="control-label label label-sm"></label>
                             <div className="">
-                                <button className="btn btn-sm btn-success" title="Consultar" type="button" onClick={ConsultarLog}><i className="bi-search"></i></button>
+                                <button className="btn btn-sm btn-primary" title="Consultar" type="button" onClick={ConsultarLog}><i className="bi-search"></i></button>
                             </div>
                         </div>
                         <div className="col-sm-1 col-md-1 col-xs-1">
@@ -301,26 +303,27 @@ function SelectContainer() {
                             </div>
                         </div>
                     </div>
-                    <div className="row">
-                        <div className="col-sm-4 col-md-4 col-xs-4" style={{ textAlign:'center'}}>
+                    <div className="row col-sm-12 col-md-12 col-xs-12 py-2">
+                        <div className="col-sm-4 col-md-4 col-xs-4 border rounded shadow-sm" style={{ textAlign:'center'}}>
                             <label className="control-label label label-sm text-white"  style={{fontWeight:'bold', textAlign:'center'}}>Cargados</label>
-                            <div className="card text-black mb-3" style={{marginTop:'5px', textAlign:'center',flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height:'100px', backgroundColor:'#d1e7dd'}}>
+                            <div className="card text-black mb-3" style={{marginTop:'5px', textAlign:'center',flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height:'100px'}}>
                                 <span style={{fontWeight:'bold', fontSize:'30px'}}>{subido}</span>
                             </div>
                         </div>
-                        <div className="col-sm-4 col-md-4 col-xs-4" style={{ textAlign:'center'}}>
+                        <div className="col-sm-4 col-md-4 col-xs-4 border rounded shadow-sm" style={{ textAlign:'center'}}>
                             <label className="control-label label label-sm text-white" style={{fontWeight:'bold', textAlign:'center'}}>Modificados</label>
-                            <div className="card text-black mb-3" style={{marginTop:'5px', textAlign:'center',flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height:'100px', backgroundColor:'#f8d7da'}}>
+                            <div className="card text-black mb-3" style={{marginTop:'5px', textAlign:'center',flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height:'100px'}}>
                                 <span style={{fontWeight:'bold', fontSize:'30px'}}>{mmodificado}</span>
                             </div>
                         </div>
-                        <div className="col-sm-4 col-md-4 col-xs-4" style={{ textAlign:'center'}}>
+                        <div className="col-sm-4 col-md-4 col-xs-4 border rounded shadow-sm" style={{ textAlign:'center'}}>
                         <label className="control-label label label-sm text-white"  style={{fontWeight:'bold', textAlign:'center'}}>Descargados</label>
-                        <div className="card text-black mb-3" style={{marginTop:'5px', textAlign:'center',flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height:'100px', backgroundColor:'#b6effb'}}>
+                        <div className="card text-black mb-3" style={{marginTop:'5px', textAlign:'center',flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height:'100px'}}>
                                 <span style={{fontWeight:'bold', fontSize:'30px'}}>{download}</span>
                             </div>
                         </div>
                     </div>
+                    <div className="row  col-sm-12 col-md-12 col-xs-12 rounded shadow-sm ">
                 <MaterialReactTable
                     localization={MRT_Localization_ES}
                     displayColumnDefOptions={{
@@ -330,6 +333,14 @@ function SelectContainer() {
                         },
                         size: 120,
                     },
+                    }}
+                    muiTableHeadCellProps={{
+                        sx: (theme) => ({
+                          fontSize : 14,
+                          fontStyle: 'bold',  
+                        color: 'rgb(27, 66, 94)'
+                        
+                      }),
                     }}
                     columns={listadoCampos}
                     data={Data}
@@ -380,6 +391,7 @@ function SelectContainer() {
                     sorting,
                     }}
                 />
+                  </div>
             </div>
         </LogProvider>
     )
