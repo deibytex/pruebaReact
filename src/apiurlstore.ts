@@ -12,6 +12,7 @@ export const Auth_RefreshToken = `${apiURL}/account/refresh-token`
 
 export const DWH_getconsultadinamicasprocedure = `${apiURLDWH}/portal/getconsultasdinamicasproced`
 export const DWH_GetConsultasDinamicas = `${apiURLDWH}/portal/GetConsultasDinamicas`
+export const CORE_GetConsultasDinamicas = `${apiURLDWH}/Adm/GetConsultasDinamicas`
 export const CORE_getconsultadinamicas = `${apiURL}/Adm/auth/GetConsultasDinamicas`
 export const CORE_ExecProcedureByTipoConsulta = `${apiURL}/Adm/auth/ExecProcedureByTipoConsulta`
 export const CORE_getconsultadinamicasUser = `${apiURL}/Adm/auth/GetConsultasDinamicasConAutorizacionUser`
@@ -44,3 +45,8 @@ export const EBUS_GetUltimaPosicionVehiculos = `${apiURLDWH}/Ebus/GetUltimaPosic
 
 /* MOVIL */
 export const MOVIL_getReportesPorTipo = `${apiURLDWH}/Movil/GetReportePorTipo`
+export const EBUS_GetListaClientesActiveEvent = `${apiURLDWH}/Ebus/GetListaClientesActiveEvent` 
+export const EBUS_SetClientesActiveEvent = `${apiURLDWH}/Ebus/SetClientesActiveEvent` 
+export const EBUS_GetLocations = `${apiURLDWH}/Ebus/GetLocations` 
+export const EBUS_GetUsuariosEsomos = `${apiURLDWH}/Ebus/GetUsuariosEsomos` 
+export const EBUS_GetListadoClientesUsuario = `${apiURLDWH}/Ebus/GetListadoClientesUsuario` 

@@ -22,3 +22,4 @@ export  function msToTime(s : number) {
   
     return pad(hrs) + ':' + pad(mins) + ':' + pad(secs) + '.' + pad(ms, 3);
   }
+

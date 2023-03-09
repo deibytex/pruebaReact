@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useSelector } from "react-redux";
-import { CORE_ExecProcedureByTipoConsulta,  CORE_getconsultadinamicas, CORE_getconsultadinamicasUser } from "../../../apiurlstore";
+import { CORE_ExecProcedureByTipoConsulta,  CORE_getconsultadinamicas, CORE_getconsultadinamicasUser, CORE_GetConsultasDinamicas } from "../../../apiurlstore";
 import { UserModelSyscaf } from "../../../app/modules/auth/models/UserModel";
 import { RootState } from "../../../setup";
 import { ParamsEndPointDynamic } from "../Models/paramsConsultasDinamicas";
@@ -15,6 +15,18 @@ export function Post_getconsultadinamicas(props: ParamsEndPointDynamic, body: an
     params: props
   });
 }
+
+export function Post_Getconsultadinamicas(props: ParamsEndPointDynamic, body: any) {
+  return axios({
+    method: 'post',
+    url: CORE_GetConsultasDinamicas,
+    data: JSON.stringify(body),
+    headers: { 'Content-Type': 'application/json' },
+    params: props
+  });
+}
+
+
 
 export function Post_getconsultadinamicasUser(props: ParamsEndPointDynamic, body: any) {
   return axios({

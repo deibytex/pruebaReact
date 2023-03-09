@@ -258,35 +258,54 @@ const { setShowVehiculos, showVehiculos} = useDataEventoCarga();
 
 type PropsSoc = {
     show:boolean;
-    handleClose: () => void;
+    setShowSoc:(soc:boolean) =>void;
+    datatable:any;
+    setdataTableFiltrada:(data:any) =>void;
+    setIsFiltrado:(data:boolean) =>void;
+    IsFiltrado:boolean;
 }
-const SocFiltro : React.FC<PropsSoc>= ({show,handleClose}) =>{
-    const { MinSocCarga, MaxSocCarga, setMaxSocCarga, setMinSocCarga } = useDataEventoCarga();
-    let min = "";
-    let max = "";
+const SocFiltro : React.FC<PropsSoc>= ({show,setdataTableFiltrada, IsFiltrado, datatable, setIsFiltrado, setShowSoc}) =>{
+    const { MinSocCarga, MaxSocCarga, setMaxSocCarga, setMinSocCarga, dataTableFiltrada } = useDataEventoCarga();
+    const [rango, setrango] = useState<{}>();
+    var ArrayNew: TablaDTO[] = [];
     const End = (a:any) =>{
-        console.log(`Maximo:${a[1]} `);
-        console.log(`Minimo: ${a[0]}`);
-        min = a[0];
-        max = a[1];
-        setTimeout(() => {
-            setMinSocCarga(min);
-            setMaxSocCarga(max);
-        }, 5000);
+        if(IsFiltrado)
+        {
+            filterBySoc(dataTableFiltrada,a[0],a[1]);
+        }else{
+            filterBySoc(datatable,a[0],a[1]);
+        }
     }
-
+    const handleClose = (e:any) => {
+        setdataTableFiltrada(ArrayNew);
+        setIsFiltrado(true);
+        setShowSoc(false);
+    };
+   
+    const filterBySoc = (list:TablaDTO[], min:string, max:string)=> {
+        if( min.length ==0 || max.length == 0 )
+            return;
+        let valor:number;
+        let Minimo:number, Maximo:number;
+        Minimo = Number.parseInt(min);
+        Maximo = Number.parseInt(max);
+        for (var iList in list) {
+            valor = list[iList].soc;
+            if((valor >= Minimo) && (valor <= Maximo))
+                ArrayNew.push(list[iList]);
+        }
+    }
     function Slider () {
         return(
             <Nouislider range={{
                 min: [0],
                 max: [100]
-              }}   start={[0,100]} tooltips={true}  onSet={End}/>
+              }}  start={[0,100]} tooltips={true}  onSet={End}/>
         )
      }
      useEffect(() =>{
        
-        
-     },[min, max])
+     },[IsFiltrado])
  return(
     <>  <Modal 
     show={show} 
