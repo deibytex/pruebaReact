@@ -180,6 +180,14 @@ const getIconSoc = (data:any) => {
         },
       }
       }
+      muiTableHeadCellProps={{
+        sx: (theme) => ({
+          fontSize : 14,
+          fontStyle: 'bold',  
+        color: 'rgb(27, 66, 94)'
+        
+      }),
+    }}
         columns={listadoCampos}
         data={Datos}
         enableTopToolbar={true}

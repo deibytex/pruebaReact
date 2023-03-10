@@ -14,8 +14,29 @@ type Props = {
   cargarMapaIndividual:(row:any) =>{}
 };
 
+  // listado de columnas a visualizar por defecto
+//para visibilidad de las columnas
+let VisibilidadColumnas = { 
+  fechaString: true,
+  placa:true,
+  driver:true,
+  socInicial:true,
+  soc:true,
+  eficiencia:false,
+  autonomia:false, 
+  energia:false,
+  energiaDescargada:false,
+  energiaRegenerada:false, 
+  odometro:false, 
+  kms:false, 
+  porRegeneracion: false , 
+  velocidadPromedio:false
+}; 
+
 const TablaNivelCarga : React.FC<Props> =  ({cargarMapaIndividual,data}) =>{
-  
+
+
+
   const [MapaIndividualL, setMapaIndividualL] = useState<TablaDTO[]>([])     
   //table state
        const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -29,6 +50,9 @@ const TablaNivelCarga : React.FC<Props> =  ({cargarMapaIndividual,data}) =>{
        const [isLoading, setIsLoading] = useState(false);
        const [isRefetching, setIsRefetching] = useState(false);
        const [isError, setIsError] = useState(false);
+
+
+       const [lstColumnas, setlstColumnas] = useState(VisibilidadColumnas);
      
   
       // fin table state
@@ -195,6 +219,13 @@ const TablaNivelCarga : React.FC<Props> =  ({cargarMapaIndividual,data}) =>{
       return 
     }, []);
 
+    setTimeout(()=> {
+      lstColumnas.energiaDescargada = true;
+      lstColumnas.energiaRegenerada = true;
+      lstColumnas.porRegeneracion = true;
+      setlstColumnas(lstColumnas);
+    }, 2000)
+
 //funcion para retornar los iconos de la tabla de soc y soc inicial
 const getIconSoc = (data:any) => {
       return (
@@ -206,27 +237,11 @@ const getIconSoc = (data:any) => {
         <><span><i className="bi-battery-half"></i></span> <span style={{fontSize:"15px"}}>{data == null ? "" : data.toFixed(0)}%</span></>)))
       );
   }
-//para visibilidad de las columnas
-  let VisibilidadColumnas = { 
-    fechaString: true,
-    placa:true,
-    driver:true,
-    socInicial:true,
-    soc:true,
-    eficiencia:false,
-    autonomia:false, 
-    energia:false,
-    energiaDescargada:false,
-    energiaRegenerada:false, 
-    odometro:false, 
-    kms:false, 
-    porRegeneracion: false , 
-    velocidadPromedio:false
-  }; 
+
 //retorna la tabla
     return (
-        <div>
-           <NivelCargaProvider>
+        
+          
            <MaterialReactTable
                     localization={MRT_Localization_ES}
                     displayColumnDefOptions={{
@@ -237,7 +252,16 @@ const getIconSoc = (data:any) => {
                         size: 3,
                     },
                   }
+                  
                   }
+                  muiTableHeadCellProps={{
+                    sx: (theme) => ({
+                      fontSize : 14,
+                      fontStyle: 'bold',  
+                    color: 'rgb(27, 66, 94)'
+                    
+                  }),
+                }}
                     columns={listadoCampos}
                     data={data}
                     enableTopToolbar={true}
@@ -268,11 +292,11 @@ const getIconSoc = (data:any) => {
                     showProgressBars: isRefetching,
                     sorting,
                     }}
-                    initialState={{columnVisibility:VisibilidadColumnas, showColumnFilters: true, density: 'compact'}}
+                    initialState={{columnVisibility:lstColumnas, showColumnFilters: true, density: 'compact'}}
                 /> 
                
-                </NivelCargaProvider>
-        </div>
+               
+       
     )
    
 }

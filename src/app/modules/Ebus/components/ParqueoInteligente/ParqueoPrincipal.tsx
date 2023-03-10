@@ -41,20 +41,7 @@ const {setVisible, ClienteSeleccionado, Clientes, setClienteSeleccionado, setCli
                                 className={`nav-link w-225px h-70px ${activeTab === `#tab${idx}` ? "active btn-active-light" : ""
                                 } fw-bolder me-2`}
                                 id={`tab${idx}`}
-                            >
-                             {/*    <div className="nav-icon me-3">
-                                <img
-                                    alt=""
-                                    src={toAbsoluteUrl(tab.icon)}
-                                    className="default"
-                                />
-
-                                <img
-                                    alt=""
-                                    src={toAbsoluteUrl(tab.iconColored)}
-                                    className="active"
-                                />
-                                </div>*/} 
+                            >                           
                                 <div className="ps-1">
                                 <span className="nav-text text-gray-600 fw-bolder fs-6">
                                     {tab.titulo}
@@ -69,11 +56,11 @@ const {setVisible, ClienteSeleccionado, Clientes, setClienteSeleccionado, setCli
                         })}
                     </ul>
                 </div>
-                {/* end::Nav */}
+                {/* end::Nav */} 
             
                     <div className="tab-content flex-grow-1">
-                            <div className={`tab-pane fade ${activeTab === "#tab1" ? "show active" : ""}`} id="tab1_content" style={{width:'100%'}}>
-                                <div  className="row" style={{paddingTop:'10px'}}>
+                            <div className={` card   px-4 tab-pane fade ${activeTab === "#tab1" ? "show active" : ""}`} id="tab1_content" style={{width:'100%'}}>
+                                <div  className="row col-sm-12 col-md-12 col-xs-12 rounded border  mt-3  shadow-sm ">
                                         {(dataTable.length != 0) && (<Parqueo Visible={VisibleIndicador} ClienteIds={ClienteSeleccionado?.clienteIdS.toString()} Data={dataTable}></Parqueo>)}
                                 </div>
                             </div>

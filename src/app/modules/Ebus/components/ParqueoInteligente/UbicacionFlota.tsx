@@ -66,6 +66,14 @@ const  UbicacionFlota: React.FC<Props> = ({Data}) => {
             <div className="row">
                 <div className="col-xs-4 col-sm-4 col-md-4">
                     <MaterialReactTable
+                       muiTableHeadCellProps={{
+                        sx: (theme) => ({
+                          fontSize : 14,
+                          fontStyle: 'bold',  
+                        color: 'rgb(27, 66, 94)'
+                        
+                      }),
+                    }}
                         localization={MRT_Localization_ES}
                         columns={listadoCamposTablas}
                         data={DatosTablaUno}
@@ -81,6 +89,14 @@ const  UbicacionFlota: React.FC<Props> = ({Data}) => {
                 </div>
                 <div className="col-xs-4 col-sm-4 col-md-4">
                     <MaterialReactTable
+                       muiTableHeadCellProps={{
+                        sx: (theme) => ({
+                          fontSize : 14,
+                          fontStyle: 'bold',  
+                        color: 'rgb(27, 66, 94)'
+                        
+                      }),
+                    }}
                             localization={MRT_Localization_ES}
                             columns={listadoCamposTablas}
                             data={DatosTablaDos}
@@ -96,6 +112,14 @@ const  UbicacionFlota: React.FC<Props> = ({Data}) => {
                 </div>
                 <div className="col-xs-4 col-sm-4 col-md-4">
                     <MaterialReactTable
+                       muiTableHeadCellProps={{
+                        sx: (theme) => ({
+                          fontSize : 14,
+                          fontStyle: 'bold',  
+                        color: 'rgb(27, 66, 94)'
+                        
+                      }),
+                    }}
                             localization={MRT_Localization_ES}
                             columns={listadoCamposTablas}
                             data={DatosTablatres}

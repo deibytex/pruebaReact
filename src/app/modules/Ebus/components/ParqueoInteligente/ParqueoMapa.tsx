@@ -107,6 +107,14 @@ const [EsMapaIndiviual, setEsMapaIndividual] = useState<boolean>(false);
         <div style={{display: 'flex', flexWrap: 'wrap', width:'100%'}}>
             <div style={{width:'47%'}}>
                  <MaterialReactTable
+                    muiTableHeadCellProps={{
+                        sx: (theme) => ({
+                          fontSize : 14,
+                          fontStyle: 'bold',  
+                        color: 'rgb(27, 66, 94)'
+                        
+                      }),
+                    }}
                             localization={MRT_Localization_ES}
                             columns={listadoCamposTablas}
                             data={Datos}

@@ -270,10 +270,10 @@ function SelectContainer() {
     );}
   }
     return ( 
-        <LogProvider>
+        <>
             <PageTitle >{TituloNeptunoLogs}</PageTitle>
-            <div className="card card-rounded bg-transparent "    >
-                    <div className="row  col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mt-2" >
+            <div className="card card-rounded bg-transparent "   style={{ width:'100%'}}  >
+                    <div className="row  col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mt-2" style={{ width:'100%'}} >
                         <div className="col-sm-2 col-md-2 col-xs-2">
                             <label className="control-label label text-white label-sm"  style={{fontWeight:'bold'}}>Fecha inicial</label>
                             <FechaInicialControl/>
@@ -393,7 +393,7 @@ function SelectContainer() {
                 />
                   </div>
             </div>
-        </LogProvider>
+            </>
     )
 
 }

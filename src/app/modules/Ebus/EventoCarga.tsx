@@ -17,8 +17,10 @@ type Props = {
     <>
         <EventoCargaProvider>
         <PageTitle >{TituloEventoCarga}</PageTitle>
-            <div className="row">
-                    <div className="col-sm-6 col-md-6 col-xs-6">
+        <div className="container-fluid card card-rounded bg-transparent mt-1" style={{ width:'100%'}}   >
+                <div className="row  col-sm-12 col-md-12 col-xs-12 rounded border  mt-1 mb-2 shadow-sm "  style={{width:'100%'}}  >
+           
+                    <div className="col-sm-6 col-md-6 col-xs-6 mt-3">
                         <BotonesFiltros></BotonesFiltros>
                         {/* <button type="button" title="Soc" className="btn btn-sm btn-primary" onClick={() => setShow(true)}><i className="bi-battery-charging" ></i></button>
                         {<>&nbsp;</>}
@@ -39,12 +41,14 @@ type Props = {
                         </div>
                     </div>
                 </div>
-                {/*Para insertar el componete secundario o la pagina que corresponde al principal*/}
-                <div className="row">
+                  {/*Para insertar el componete secundario o la pagina que corresponde al principal*/}
+                  
                     <div className="col-sm-12 col-md-12 col-xs-12">
                       <EventoCargaPrincipal  MostrarSoc={() => setShowSoc(false)} SocShow={(ShowSoc== undefined ? false:ShowSoc)}></EventoCargaPrincipal>
                     </div>
+             
                 </div>
+              
         </EventoCargaProvider>
     </>
     )

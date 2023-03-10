@@ -11,7 +11,9 @@ type Props = {
     return (<>
         <ParqueoProvider>
         <PageTitle >{TituloParqueo}</PageTitle>
-            <div className="row">
+        <div className="container-fluid card card-rounded bg-transparent mt-1" style={{ width:'100%'}}   >
+                <div className="row  col-sm-12 col-md-12 col-xs-12 rounded border  mt-1 mb-2 shadow-sm "  style={{width:'100%'}}  >
+           
                 <div className="col-sm-6 col-md-6 col-xs-6">
 
                 </div>
@@ -28,12 +30,12 @@ type Props = {
                     </div>
                 </div>
             </div>
-            {/*Para insertar el componete secundario o la pagina que corresponde al principal*/}
-            <div className="row">
-                <div className="col-sm-12 col-md-12 col-xs-12">
+             {/*Para insertar el componete secundario o la pagina que corresponde al principal*/}
+             <div className="col-sm-12 col-md-12 col-xs-12 rounded border  shadow-sm">
                     <ParqueoPrincipal></ParqueoPrincipal>
                 </div>
             </div>
+           
         </ParqueoProvider>
     </>)
  }

@@ -13,8 +13,8 @@ type Props = {
 
  const  NivelCarga: React.FC<Props> = () => {
     //Para los use state
-    const [tamaMapa, settamaMapa] = useState("47%");
-    const [tamaTabla, settamaTabla] = useState("47%");
+    const [tamaMapa, settamaMapa] = useState(true);
+    const [tamaTabla, settamaTabla] = useState("6");
     const [VisibleL, setVisibleL]  = useState(true);
     const {Visible, setResetearValores, ResetearValores} = useDataNivelCarga()
     const [Reset, setReset]  = useState(false);
@@ -24,17 +24,8 @@ type Props = {
         setVisibleL((Visible == undefined ? false:Visible));
     },[Reset])
      //Funcion  para la tabla expandir, contraer al  100% o 50%
-     const ExpandirContraerTabla = () =>{
-        //Tabla
-         if(tamaTabla == '47%')
-           settamaTabla("100%");
-         else
-           settamaTabla("47%");
-         //Mapa
-         if(tamaMapa == '47%')
-             settamaMapa('0%')
-         else
-             settamaMapa('47%')
+     const ExpandirContraerTabla = () =>{    
+           settamaTabla((tamaTabla === '6') ? "12" : "6");        
      }
      //funcion para resetear los datos o devolverlos al normal
      const ResetearDatos = () =>{
@@ -45,17 +36,18 @@ type Props = {
     return(
             <NivelCargaProvider>
                 <PageTitle >{TituloNivelCarga}</PageTitle>
-                <div className="row">
-                    <div className="col-sm-6 col-md-6 col-xs-6">
+                <div className="container-fluid card card-rounded bg-transparent mt-1" style={{ width:'100%'}}   >
+                <div className="row  col-sm-12 col-md-12 col-xs-12 rounded border  mt-1 mb-2 shadow-sm "  style={{width:'100%'}}  >
+                <div className="col-sm-6 col-md-6 col-xs-6 mt-2">
                         <button className="btn btn-sm btn-primary" title="Expadir contraer tabla" onClick={ExpandirContraerTabla}><i className="bi-display"></i></button>
                         <button className="btn btn-sm btn-primary" title="Resetear Mapa" onClick={ResetearDatos}><i className="bi-filter"><span aria-hidden="true">&times;</span></i></button>
                     </div>
-                    <div className="col-sm-5 col-md-5 col-xs-5">
+                    <div className="col-sm-5 col-md-5 col-xs-5 mt-2">
                         <div style={{float:'right'}}>
                             <DataEventosTiempoClientes>{moment().format("MYYYY").toString()}</DataEventosTiempoClientes>
                         </div>
                     </div>
-                    <div  className="col-sm-1 col-md-1 col-xs-1">
+                    <div  className="col-sm-1 col-md-1 col-xs-1 mt-2">
                         <div style={{float:'right'}}>
                             <div style={{paddingTop:'6px'}}></div>
                             <Indicador>{VisibleL}</Indicador>
@@ -63,7 +55,11 @@ type Props = {
                         </div>
                     </div>
                 </div>
+                <div className="row  col-sm-12 col-md-12 col-xs-12 rounded border  mt-1 mb-2 shadow-sm "  style={{width:'100%'}}  >
                 <Principal ExpandirContraerTabla={ExpandirContraerTabla} tamaTabla={tamaTabla} tamaMapa={tamaMapa} ResetearDatos={Reset}></Principal>
+                </div> 
+                </div>
+             
             </NivelCargaProvider>
     )
 }

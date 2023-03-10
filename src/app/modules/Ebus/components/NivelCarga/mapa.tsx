@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { render } from "react-dom";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import { getCSSVariableValue } from "../../../../../_start/assets/ts/_utils";
+import { useDataNivelCarga } from "../../core/NivelCargaProvider";
 import { MapaDTO, MapaInicial } from "../../models/NivelcargaModels";
 
 type Props =  {
@@ -10,6 +11,31 @@ type Props =  {
 };
 
 const Mapa : React.FC<Props> =  ({ListadoVehiculos}) =>{
+
+   // datos del provider
+   const {DatosMapa, markerSeleccionado} = useDataNivelCarga()
+   const [map, setMap] = useState<MapaDTO[]>([]);
+
+   const [activePark, setActivePark] = useState<MapaDTO>();
+    
+   // actiualiza la informacion de todos los vehiculos
+    useEffect(
+        () => {
+
+            setMap(DatosMapa);
+        }
+        , [DatosMapa]
+     );
+
+     // selecciona el marker
+     useEffect(
+        () => {
+
+            setActivePark(markerSeleccionado);
+        }
+        , [markerSeleccionado]
+     );
+     //  whenCreated={setMap}
     const here = {
         apiKey: 'h7cWVY3eEiZeilhreUhv07kKMJMizDl6elWoN7cb8wg'
     }
@@ -23,13 +49,10 @@ const Mapa : React.FC<Props> =  ({ListadoVehiculos}) =>{
         iconUrl: "/skateboarding.svg",
         iconSize: [25, 25]
     });
-    const [map, setMap] = useState<any>(null);
-    const [activePark, setActivePark] = useState<MapaDTO>();
+   
+    
 
-    setTimeout(function () {      
-        if(map != null)
-        map.invalidateSize();
-    }, 1000);
+
     //Funcion que ubica los iconos para el soc
     const getIconSoc = (data:any) => {
         return (
@@ -41,51 +64,57 @@ const Mapa : React.FC<Props> =  ({ListadoVehiculos}) =>{
           <><span><i className="bi-battery-half"></i></span> <span style={{fontSize:"15px"}}>{data == null ? "" : data.toFixed(0)}%</span></>)))
         );
     }
-    return (
-        <MapContainer id="mapcontainter" center={[Number.parseFloat(ListadoVehiculos[0].latitud), Number.parseFloat(ListadoVehiculos[0].longitud)]} zoom={12}
-            whenCreated={setMap}
+
+
+    return ( <> {(ListadoVehiculos != undefined) && ( 
+    <MapContainer
+     id="mapcontainter" 
+     center={[Number.parseFloat(ListadoVehiculos[0].latitud), Number.parseFloat(ListadoVehiculos[0].longitud)]} zoom={12}
+  
+    className= ""
+>
+   
+    <TileLayer
+        url={CapaBasicNight}
+    />
+    {activePark && (
+        <Popup
+            position={[
+                Number.parseFloat(activePark.latitud),
+                Number.parseFloat(activePark.longitud)
+            ]}
+            onClose={() => {
+                let evento = {}
+               // setActivePark();
+            }}
         >
-           
-            <TileLayer
-                url={CapaBasicNight}
-            />
-            {activePark && (
-                <Popup
-                    position={[
-                        Number.parseFloat(activePark.latitud),
-                        Number.parseFloat(activePark.longitud)
-                    ]}
-                    onClose={() => {
-                        let evento = {}
-                       // setActivePark();
-                    }}
-                >
-                    <div>
-                        <p>Soc: {getIconSoc(activePark.soc)}</p>
-                        <p>Movil:{activePark.placa}</p>
-                        <p>Operador:{activePark.driver}</p>
-                    </div>
-                </Popup>
-            )}
-            {ListadoVehiculos.map(park => (
-                <Marker
+            <div>
+                <p>Soc: {getIconSoc(activePark.soc)}</p>
+                <p>Movil:{activePark.placa}</p>
+                <p>Operador:{activePark.driver}</p>
+            </div>
+        </Popup>
+    )}
+    { ListadoVehiculos.map(park => (
+        <Marker
 
-                    key={park.assetId}
-                    position={[
-                        Number.parseFloat(park.latitud),
-                        Number.parseFloat(park.longitud)
-                    ]}
-                    eventHandlers={{
-                        click: (e: any) => {
-                            setActivePark(park);
-                        },
-                    }}
+            key={park.assetId}
+            position={[
+                Number.parseFloat(park.latitud),
+                Number.parseFloat(park.longitud)
+            ]}
+            eventHandlers={{
+                click: (e: any) => {
+                    setActivePark(park);
+                },
+            }}
 
 
 
-                />
-            ))}
-        </MapContainer>);    
+        />
+    ))}
+</MapContainer>)} </>
+       );    
       
 }
 

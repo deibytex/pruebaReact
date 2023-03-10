@@ -95,22 +95,27 @@ export function NoCargas (){
 
         <>
     
-          <PageTitle >EBUS - LISTADO NO CARGA</PageTitle>
-          <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-azul  text-white mb-1">
-            <h3> Fechas Consultas</h3>
+          <PageTitle >eBus - Diagnóstico Carga</PageTitle>
+          <div className="container-fluid card card-rounded bg-transparent mt-1" style={{ width:'100%'}}   >
+                <div className="row  col-sm-12 col-md-12 col-xs-12 rounded border  mt-4  mb-2 shadow-sm "  style={{width:'100%'}}  >
+           
+          
           <Box
                   sx={{
                     display: 'grid',
                     margin: 'auto',
-                    gridTemplateColumns: '1fr 1fr',
-                    width: '100%',
+                    gridTemplateColumns: '1fr 1fr 1fr',
+                    width: '70%',
                   }} 
-                >                 
+                >     
+                <Typography >  <h3> Fechas Consultas - </h3></Typography>             
                   <Typography >Fecha Inicio: {moment(FechaInicial).format('DD/MM/YYYY HH:mm')}</Typography>                 
                   <Typography>Fecha Fin: {moment(FechaFinal).format('DD/MM/YYYY HH:mm')}</Typography>
                 </Box>
             </div>
-          <div className="row g-0 g-xl-5 g-xxl-8 bg-syscaf-azul">
+           
+            <div className="row card  col-sm-12 col-md-12 col-xs-12 rounded border  mt-1 mb-2 shadow-sm "  style={{width:'100%'}}  >
+           
             <MaterialReactTable
               displayColumnDefOptions={{
                 'mrt-row-actions': {
@@ -120,6 +125,14 @@ export function NoCargas (){
                   size: 120,
                 },
               }}
+              muiTableHeadCellProps={{
+                sx: (theme) => ({
+                  fontSize : 14,
+                  fontStyle: 'bold',  
+                color: 'rgb(27, 66, 94)'
+                
+              }),
+            }}
               columns={columnasTabla}
               data={data}
              // editingMode="modal" //default         
@@ -189,7 +202,7 @@ export function NoCargas (){
             />
           </div>
     
-       
+          </div>
     
         </>
       );

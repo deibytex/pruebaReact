@@ -17,7 +17,7 @@ import { Vehiculos } from "./Vehiculos";
 type Props = {
     ExpandirContraerTabla: () =>void;
     tamaTabla: string;
-    tamaMapa:string;
+    tamaMapa:boolean;
     ResetearDatos: boolean;
 
 };
@@ -41,17 +41,23 @@ const cargarMapaIndividual = (row: any) =>{
     setDatosMapaIndividual(MapaIdnividual);
     return row.target.dataset.rel;
   };
+
+  tamaMapa = (tamaTabla === '6');
+
   //para retornar los datos de la tabla por componentes.
     return(
-        <NivelCargaProvider>
-            <div style={{display: 'flex', flexWrap: 'wrap', width:'100%'}}>
-                <div style={{width:`${tamaTabla}`}}>{(dataTable.length != 0) && (<TablaNivelCarga  data={dataTable} cargarMapaIndividual={cargarMapaIndividual}/>)}</div>
-                    <div style={{width:'10px'}}>
-                        
-                    </div>
-                <div style={{width:`${tamaMapa}`}}>{( DatosMapa.length  != 0) && ( <Mapa ListadoVehiculos={(EsTotal ? DatosMapa: DatosMapaIndividual)}/>)}</div>
-            </div>
-        </NivelCargaProvider>
+        <>
+         
+                <div  className={`row  col-sm-${tamaTabla} col-md-${tamaTabla} col-xs-${tamaTabla} `} >{(dataTable.length != 0) && (<TablaNivelCarga  data={dataTable} cargarMapaIndividual={cargarMapaIndividual}/>)}</div>
+                   
+                <div style={{display : (tamaMapa) ?  'block' : 'none'  }}  className={`row  col-sm-6 col-md-6 col-xs-6`}>{( DatosMapa.length  != 0) && ( <Mapa ListadoVehiculos={(EsTotal ? DatosMapa: DatosMapaIndividual)}/>)}</div>
+          
+        </>
+       
+          
+         
+          
+        
     )
 }
 export {Principal};

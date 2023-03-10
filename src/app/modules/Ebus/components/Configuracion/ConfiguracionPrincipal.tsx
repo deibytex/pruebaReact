@@ -145,11 +145,11 @@ const ConsultarDatos = () => {
     return(
         <>
          <BlockUi tag="span" className="bg-primary"  keepInView blocking={EsVisible}>
-              <div className="row">
+              <div className=" card card-border mt-2">
                     <div className="col-sm-6 col-md-6 col-xs-6">
                          
                     </div>
-                    <div className="col-sm-6 col-md-6 col-xs-6">
+                    <div className="col-sm-6 col-md-6 col-xs-6 mt-2 text-aling-right">
                         <div  style={{float:'right'}}>
                             <button type="button" title="Agregar cliente" className="btn btn-sm btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" onClick={() => setModalClienteAdd(true)}><i className="bi-file-person-fill" ></i> Agregar cliente</button>
                         </div>

@@ -80,14 +80,14 @@ type Props = {
         let Data = [];
         for (let index = 0; index < Datos.length; index++) {
             Data.push(
-                <div key={index} className="col-xs-3 col-sm-3 col-md-3 col-xl-3 col-lg-3" style={{marginBottom:'5px'}}>
-                    <div className="card  text-white bg-primary">
+                <div key={index} className="card   px-2col-xs-3 col-sm-3 col-md-3 col-xl-3 col-lg-3" style={{marginBottom:'5px'}}>
+                    <div className="card card-border rounded text-white bg-primary">
                         <div id="Titulo" style={{backgroundColor:'white', color:' #26a68c'}}>
                             <span className= "badge-pill align-self-center ml-auto text-syscaf-azul" style = {{ fontWeight:'bold'}} title={( Datos[index].Vehiculos[0].LocalizacionId == 0 ? _LocDefault.toUpperCase() : Datos[index].Vehiculos[0].Localizacion.toUpperCase())}>
                                 {( Datos[index].Vehiculos[0].LocalizacionId == 0 ? _LocDefault.toUpperCase() : ( Datos[index].Vehiculos[0].Localizacion.toUpperCase().length > 25 ?  Datos[index].Vehiculos[0].Localizacion.toUpperCase().substring(24, 0):Datos[index].Vehiculos[0].Localizacion.toUpperCase()))} 
                             </span>
                         </div>
-                        <div className="card-body" id="bodyCaja" title={Datos[index].Vehiculos[0].Localizacion.toUpperCase()}>
+                        <div className="card-body rounded" id="bodyCaja" title={Datos[index].Vehiculos[0].Localizacion.toUpperCase()}>
                             <div className="d-flex">
                                 <div className="row" style={{width:'100%'}}>
                                     <div className="col-xs-6 col-sm-6 col-md-6 col-xl-6 col-lg-6">
@@ -100,7 +100,8 @@ type Props = {
                             </div>
                             <div className="flex"><h3 className="font-weight-semibold mb-0"></h3></div>
                         </div>
-                        <div title={Datos[index].Vehiculos[0].Localizacion.toUpperCase()} className="detalle" onClick={OnclickDetallesParqueo} style={{cursor: 'pointer', backgroundColor: 'white', color: '#26a68c'}} data-rel={Datos[index].Vehiculos[0].LocalizacionId}>
+                        <div title={Datos[index].Vehiculos[0].Localizacion.toUpperCase()} className="detalle card card-rounded shadow-sm" onClick={OnclickDetallesParqueo} 
+                        style={{cursor: 'pointer', backgroundColor: 'white', color: '#26a68c'}} data-rel={Datos[index].Vehiculos[0].LocalizacionId}>
                             <div style={{marginLeft:'1px', marginRight:'1px' , marginBottom:'1px', width:'100%'}} className="row">
                                 <div style={{backgroundColor:'white',  width:'80%'}} className="text-syscaf-azul col-xs-6 col-sm-6 col-md-6 col-xl-6 col-lg-6">
                                     <span style={{paddingLeft: '5px'}}> Ver Detalles</span>

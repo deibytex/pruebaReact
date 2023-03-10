@@ -1,4 +1,4 @@
-import React from "react";
+import React , {useEffect} from "react";
 import { shallowEqual, useSelector } from "react-redux";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { RootState } from "../setup";
@@ -17,7 +17,7 @@ const App: React.FC<Props> = ({ basename }) => {
     ({ auth }) => auth.user,
     shallowEqual
   );
-
+ 
   return (
     <BrowserRouter basename={basename}>
       <ThemeProvider>

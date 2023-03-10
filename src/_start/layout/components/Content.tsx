@@ -18,7 +18,7 @@ const Content: React.FC = ({ children }) => {
       backgroundSize:"contain"
     }} */
   return (
-    <div className='card card-rounded px-10 rounded bg-primary-active'  >
+    <div className='container-fluid card card-rounded px-10 rounded '  >
       {children}
     </div>
   );

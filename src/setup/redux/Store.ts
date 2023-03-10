@@ -39,7 +39,9 @@ JWTMiddleware.run(jwtSaga);
 function* jwtSaga() {
 
   yield takeEvery("*", function* registerToken (action : Action<string>) {
-    console.log(action)
+    console.log("takeEvery",action) 
+    
+
  });
   
 };
