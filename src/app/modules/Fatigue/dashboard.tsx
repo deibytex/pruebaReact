@@ -59,8 +59,9 @@ export default function FatigueDashboard() {
                     let cliente = lstClientes.filter((value, index) => {
                         return value.ClienteIdS === Number.parseInt(e.currentTarget.value)
 
-                    })                   
-                    setclienteSeleccionado(cliente[0])
+                    })   
+                    if (lstClientes)                
+                     setclienteSeleccionado(cliente[0])
                 }} aria-label="Default select example" defaultValue={clienteSeleccionado?.ClienteIdS} >
                     <option>Seleccione</option>
                     {

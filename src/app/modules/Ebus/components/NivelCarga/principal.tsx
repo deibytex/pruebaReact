@@ -23,24 +23,16 @@ type Props = {
 };
 const  Principal: React.FC<Props> = ({ExpandirContraerTabla, tamaTabla, tamaMapa, ResetearDatos}) => {
     //Para obtener, setear los datos, los usestate
-    const {Visible, ResetearValores, DatosMapa, dataTable,  ClienteSeleccionado, setdataTable, setDatosMapa, setEstotal, EsTotal, DatosMapaIndividual, setDatosMapaIndividual} = useDataNivelCarga()
-    const [show, setShow] = useState(false);
-    const [showSoc, setShowSoc] = useState(false);
-    const [Vehiculo, setVehiculo] = useState("");
+    const {  DatosMapa, dataTable,   
+         setEstotal} = useDataNivelCarga()
     //UseEffect
     useEffect(() =>{
         (ResetearDatos?setEstotal(true):setEstotal(false))
     },[ResetearDatos])
 //Para cargar los datos del mapa individual
-const cargarMapaIndividual = (row: any) =>{
-    setVehiculo(row.target.dataset.rel)
-    setEstotal(false);
-    let MapaIdnividual = DatosMapa.filter((item:any) =>{
-      return (item.placa == row.target.dataset.rel);
-    })
-    setDatosMapaIndividual(MapaIdnividual);
-    return row.target.dataset.rel;
-  };
+
+
+
 
   tamaMapa = (tamaTabla === '6');
 
@@ -48,9 +40,9 @@ const cargarMapaIndividual = (row: any) =>{
     return(
         <>
          
-                <div  className={`row  col-sm-${tamaTabla} col-md-${tamaTabla} col-xs-${tamaTabla} `} >{(dataTable.length != 0) && (<TablaNivelCarga  data={dataTable} cargarMapaIndividual={cargarMapaIndividual}/>)}</div>
+                <div  className={`row  col-sm-${tamaTabla} col-md-${tamaTabla} col-xs-${tamaTabla} `} >{(dataTable.length != 0) && (<TablaNivelCarga  data={dataTable} />)}</div>
                    
-                <div style={{display : (tamaMapa) ?  'block' : 'none'  }}  className={`row  col-sm-6 col-md-6 col-xs-6`}>{( DatosMapa.length  != 0) && ( <Mapa ListadoVehiculos={(EsTotal ? DatosMapa: DatosMapaIndividual)}/>)}</div>
+                <div style={{display : (tamaMapa) ?  'block' : 'none'  }}  className={`row  col-sm-6 col-md-6 col-xs-6`}>{( DatosMapa.length  != 0) && ( <Mapa />)}</div>
           
         </>
        

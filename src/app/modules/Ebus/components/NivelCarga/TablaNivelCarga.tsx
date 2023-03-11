@@ -10,8 +10,7 @@ import { NivelCargaProvider, useDataNivelCarga } from "../../core/NivelCargaProv
 import { MapaDTO } from "../../models/NivelcargaModels";
 import { Principal } from "./principal";
 type Props = {
-  data:TablaDTO[],
-  cargarMapaIndividual:(row:any) =>{}
+  data:TablaDTO[]
 };
 
   // listado de columnas a visualizar por defecto
@@ -33,9 +32,9 @@ let VisibilidadColumnas = {
   velocidadPromedio:false
 }; 
 
-const TablaNivelCarga : React.FC<Props> =  ({cargarMapaIndividual,data}) =>{
+const TablaNivelCarga : React.FC<Props> =  ({data}) =>{
 
-
+  const {  setmarkerSeleccionado} = useDataNivelCarga()
 
   const [MapaIndividualL, setMapaIndividualL] = useState<TablaDTO[]>([])     
   //table state
@@ -51,10 +50,13 @@ const TablaNivelCarga : React.FC<Props> =  ({cargarMapaIndividual,data}) =>{
        const [isRefetching, setIsRefetching] = useState(false);
        const [isError, setIsError] = useState(false);
 
-
+       const cargarMapaIndividual = (row: any) =>{ 
+        console.log("row.original", row.original)
+        setmarkerSeleccionado(row.original)
+      };
        const [lstColumnas, setlstColumnas] = useState(VisibilidadColumnas);
-     
-  
+     let  lstFiltroVehiculo 
+    
       // fin table state
       let Driver = [];
      if(data[0].driver != null)
@@ -89,7 +91,9 @@ const TablaNivelCarga : React.FC<Props> =  ({cargarMapaIndividual,data}) =>{
          enableHiding: false,
          enableClickToCopy:true,
          Cell({ cell, column, row, table, }) {
-          return (cell.getValue() != null)? <a style={{cursor: 'pointer'}}  data-rel={row.original.placa} href="#" id="MapaIndividual" onClick={cargarMapaIndividual} className="MapaIndividual"> {(row.original.placa == null ? "" : row.original.placa)}</a>:"" ;
+          return (cell.getValue() != null)? <a style={{cursor: 'pointer'}} 
+           data-rel={row.original.placa} href="#" id="MapaIndividual" onClick={ () => {cargarMapaIndividual(row)}}
+            className="MapaIndividual"> {(row.original.placa == null ? "" : row.original.placa)}</a>:"" ;
         },
        
         minSize: 10, //min size enforced during resizing
@@ -219,12 +223,7 @@ const TablaNivelCarga : React.FC<Props> =  ({cargarMapaIndividual,data}) =>{
       return 
     }, []);
 
-    setTimeout(()=> {
-      lstColumnas.energiaDescargada = true;
-      lstColumnas.energiaRegenerada = true;
-      lstColumnas.porRegeneracion = true;
-      setlstColumnas(lstColumnas);
-    }, 2000)
+    
 
 //funcion para retornar los iconos de la tabla de soc y soc inicial
 const getIconSoc = (data:any) => {

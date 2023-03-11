@@ -1,28 +1,23 @@
+import { Box, Typography } from "@mui/material";
+import MarkerClusterGroup from 'react-leaflet-cluster'
 import { Icon } from "leaflet";
 import { useEffect, useState } from "react";
-import { render } from "react-dom";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
-import { getCSSVariableValue } from "../../../../../_start/assets/ts/_utils";
 import { useDataNivelCarga } from "../../core/NivelCargaProvider";
-import { MapaDTO, MapaInicial } from "../../models/NivelcargaModels";
+import { MapaDTO } from "../../models/NivelcargaModels";
 
-type Props =  {
-    ListadoVehiculos : MapaDTO[];
-};
-
-const Mapa : React.FC<Props> =  ({ListadoVehiculos}) =>{
-
+const Mapa : React.FC =  () =>{
    // datos del provider
    const {DatosMapa, markerSeleccionado} = useDataNivelCarga()
    const [map, setMap] = useState<MapaDTO[]>([]);
-
+   const [show, setshowp] = useState<boolean>(false);
    const [activePark, setActivePark] = useState<MapaDTO>();
     
    // actiualiza la informacion de todos los vehiculos
     useEffect(
         () => {
-
-            setMap(DatosMapa);
+            setMap((DatosMapa as MapaDTO[]));
+            setshowp(true)
         }
         , [DatosMapa]
      );
@@ -32,6 +27,7 @@ const Mapa : React.FC<Props> =  ({ListadoVehiculos}) =>{
         () => {
 
             setActivePark(markerSeleccionado);
+            console.log("markerSeleccionado", markerSeleccionado)
         }
         , [markerSeleccionado]
      );
@@ -42,8 +38,8 @@ const Mapa : React.FC<Props> =  ({ListadoVehiculos}) =>{
     //h7cWVY3eEiZeilhreUhv07kKMJMizDl6elWoN7cb8wg
     const style = 'reduced.night';
     const CapaBasicNight = `https://2.base.maps.ls.hereapi.com/maptile/2.1/maptile/newest/${style}/{z}/{x}/{y}/512/png8?apiKey=${here.apiKey}&ppi=320`;
-    const CapaHibrida = `https://2.traffic.maps.ls.hereapi.com/maptile/2.1/traffictile/newest/hybrid.traffic.day/{z}/{x}/{y}/512/png8?apiKey=${here.apiKey}&ppi=320`;
-    const CapaTraficoDia = `https://2.traffic.maps.ls.hereapi.com/maptile/2.1/traffictile/newest/normal.traffic.day/{z}/{x}/{y}/512/png8?apiKey=${here.apiKey}&ppi=320`;
+    //const CapaHibrida = `https://2.traffic.maps.ls.hereapi.com/maptile/2.1/traffictile/newest/hybrid.traffic.day/{z}/{x}/{y}/512/png8?apiKey=${here.apiKey}&ppi=320`;
+   // const CapaTraficoDia = `https://2.traffic.maps.ls.hereapi.com/maptile/2.1/traffictile/newest/normal.traffic.day/{z}/{x}/{y}/512/png8?apiKey=${here.apiKey}&ppi=320`;
 
     const skater = new Icon({
         iconUrl: "/skateboarding.svg",
@@ -66,13 +62,14 @@ const Mapa : React.FC<Props> =  ({ListadoVehiculos}) =>{
     }
 
 
-    return ( <> {(ListadoVehiculos != undefined) && ( 
+    return ( <> {(show ) && ( 
     <MapContainer
      id="mapcontainter" 
-     center={[Number.parseFloat(ListadoVehiculos[0].latitud), Number.parseFloat(ListadoVehiculos[0].longitud)]} zoom={12}
+     center={[Number.parseFloat(map[0].latitud), Number.parseFloat(map[0].longitud)]} zoom={12}
   
     className= ""
->
+><MarkerClusterGroup   chunkedLoading
+      >
    
     <TileLayer
         url={CapaBasicNight}
@@ -88,14 +85,33 @@ const Mapa : React.FC<Props> =  ({ListadoVehiculos}) =>{
                // setActivePark();
             }}
         >
-            <div>
-                <p>Soc: {getIconSoc(activePark.soc)}</p>
-                <p>Movil:{activePark.placa}</p>
-                <p>Operador:{activePark.driver}</p>
+            <div className="card shadow-sm  border">
+                <div className="card-title fs-2 bg-secondary border "> <p className="text-center">{activePark.placa}</p></div>
+                <div className="card-body">
+                <Box
+                  sx={{
+                    display: 'grid',
+                    margin: 'auto',
+                    gridTemplateColumns: '1fr 1fr ',
+                    gridTemplateRows: '30px',
+                   
+                  }} 
+                >     
+                <Typography > Soc:</Typography>             
+                  <Typography >{getIconSoc(activePark.soc)}</Typography>       
+                  <Typography>Operador:</Typography>
+                  <Typography >{activePark.driver}</Typography>             
+                </Box>
+               
+                </div>
+                
             </div>
         </Popup>
     )}
-    { ListadoVehiculos.map(park => (
+
+
+     
+    { map.map(park => (
         <Marker
 
             key={park.assetId}
@@ -113,6 +129,7 @@ const Mapa : React.FC<Props> =  ({ListadoVehiculos}) =>{
 
         />
     ))}
+      </MarkerClusterGroup>
 </MapContainer>)} </>
        );    
       

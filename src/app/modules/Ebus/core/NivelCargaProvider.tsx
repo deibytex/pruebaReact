@@ -32,6 +32,8 @@ export interface NivelCargaContextModel {
     setResetearValores: (Resetear: any) => void;
     markerSeleccionado? : MapaDTO,
     setmarkerSeleccionado: (marker: MapaDTO) => void;
+    lstFiltroVehiculo? : MapaDTO[],
+    setlstFiltroVehiculo: (marker: MapaDTO[]) => void;
 }
 const NivelCargaContext = createContext<NivelCargaContextModel>({
     setDatosMapa: (Data: any) => { },
@@ -43,7 +45,8 @@ const NivelCargaContext = createContext<NivelCargaContextModel>({
     setDatosMapaIndividual: (MapaIndividual: any) => { },
     setEstotal: (EsTotal: any) => { },
     setResetearValores: (Resetear: any) => { },
-    setmarkerSeleccionado: (marker: MapaDTO) => { }
+    setmarkerSeleccionado: (marker: MapaDTO) => { },
+    setlstFiltroVehiculo: (marker: MapaDTO[]) => { }
 
 });
 const NivelCargaProvider: React.FC = ({ children }) => {
@@ -57,6 +60,7 @@ const NivelCargaProvider: React.FC = ({ children }) => {
     const [EsTotal, setEstotal] = useState<boolean>(false);
     const [ResetearValores, setResetearValores] = useState<boolean>(false);
     const [markerSeleccionado, setmarkerSeleccionado] = useState<MapaDTO>();
+    const [lstFiltroVehiculo, setlstFiltroVehiculo] = useState<MapaDTO[]>();
     const value: NivelCargaContextModel = {
         DatosMapa,
         setClientes,
@@ -76,7 +80,8 @@ const NivelCargaProvider: React.FC = ({ children }) => {
         setEstotal,
         ResetearValores,
         setResetearValores,
-        markerSeleccionado, setmarkerSeleccionado
+        markerSeleccionado, setmarkerSeleccionado,
+        lstFiltroVehiculo, setlstFiltroVehiculo
     };
     return (
         <NivelCargaContext.Provider value={value}>
@@ -95,7 +100,7 @@ const IndicadorCargado: React.FC = ({ children }) => {
 }
 //Hace toda la magia de ir al servidor, traerse los datos y setearlos
 const DataEventosTiempoClientes: React.FC = ({ children }) => {
-    const { ResetearValores, Visible, DatosMapa, Clientes, ClienteSeleccionado, dataTable, DatosMapaIndividual, setResetearValores, setDatosMapaIndividual, setVisible, setEstotal, setDatosMapa, setClienteSeleccionado, setClientes, setPeriodo, setdataTable } = useDataNivelCarga();
+    const {Clientes, ClienteSeleccionado, setVisible, setEstotal, setDatosMapa, setClienteSeleccionado, setClientes, setPeriodo, setdataTable } = useDataNivelCarga();
     const CargarEventos = (clienteIdS: string, Periodo: string) => {
         setVisible(true)
         PostEventActiveViajesByDayAndClient(clienteIdS, Periodo).then((response: AxiosResponse<any>) => {
@@ -106,7 +111,7 @@ const DataEventosTiempoClientes: React.FC = ({ children }) => {
         }).catch((error) => {
             console.log(error);
             setVisible(false);
-            errorDialog("<i>Eror al consultar los eventos</i>", "")
+           // errorDialog("<i>Eror al consultar los eventos</i>", "")
         })
     }
 
@@ -156,10 +161,10 @@ function CargaListadoClientes(Clientes: any, ClienteSeleccionado: any, setClient
             let lstClientes = Clientes?.filter((value: any, index: any) => {
                 return value.clienteIdS === Number.parseInt(e.currentTarget.value)
             })
-            if (lstClientes)
+            if (Clientes)
                 setClienteSeleccionado(lstClientes[0]);
         }} aria-label="Default select example">
-            <option value={0} disabled={true} >Todos</option>
+         
             {
                 Clientes?.map((element: any, i: any) => {
                     let flag = (element.clienteIdS === ClienteSeleccionado?.clienteIdS)
