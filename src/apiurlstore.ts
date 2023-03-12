@@ -44,3 +44,6 @@ export const EBUS_GetUltimaPosicionVehiculos = `${apiURLDWH}/Ebus/GetUltimaPosic
 
 /* MOVIL */
 export const MOVIL_getReportesPorTipo = `${apiURLDWH}/Movil/GetReportePorTipo`
+
+/* Drivers */
+export const DRIVER_GetDriversClienteId = `${apiURLDWH}/Driver/GetDrivers/ClienteId` //long? ClienteId,string UsertState

@@ -33,6 +33,7 @@ export const ReporteExcelencia: React.FC<Props> = () => {
     //seteo hiddens
     const [showSites, setshowSites] = useState(true);
     const [showAssetTypes, setshowAssetTypes] = useState(true);
+    const [showAssets, setshowAssets] = useState(true);
 
 
     useEffect(() => {
@@ -71,6 +72,7 @@ export const ReporteExcelencia: React.FC<Props> = () => {
 
             //Ocultamos Assettypes y le asignamos valor cero
             setshowAssetTypes(true);
+            setshowAssets(true);
             setassettype(0);
         }
         else if (reporte === "EOAPV") {
@@ -86,6 +88,8 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             setlstAssetsTypes(assetTypes);
             setshowAssetTypes(false);
             setassettype(0);
+            setshowAssets(true);
+            setshowAssets(true);
 
             //Ocultamos los sitios y le asigamos valor a sitios
             setshowSites(true);
@@ -101,12 +105,14 @@ export const ReporteExcelencia: React.FC<Props> = () => {
 
             setshowAssetTypes(true);
             setshowSites(true);
+            setshowAssets(true);
         }
     }, [reporte])
 
     useEffect(() => {
         if (reporte === "EOAPCV") 
                     assettype == 0 ? setsite(0) : assettype == 11 ? setsite(6835483207492495255) : setsite(-6032794350987665724);
+        if (assettype == 0) setshowAssets(true);            
     }, [assettype])
 
     //Funciones de filtro - seteo
@@ -173,7 +179,8 @@ export const ReporteExcelencia: React.FC<Props> = () => {
         return (
             <Form.Select className=" mb-3 " name="assettypes" value={assettype} onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
-                setassettype(e.currentTarget.value as any);                
+                setassettype(e.currentTarget.value as any);
+                setshowAssets(false);                
             }}>
                 <option value={0}>Seleccione Tipo</option>
                 {
@@ -215,7 +222,7 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             <div className="row">
                 <Fechas />
             </div>
-            <div className="row">
+            <div className="row" hidden={showAssets}>
                 <SelectAssetsDrivers siteId={site} assetTypeId={assettype} />
             </div>
             

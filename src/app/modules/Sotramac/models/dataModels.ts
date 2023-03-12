@@ -26,6 +26,13 @@ export interface Assets {
     assetTypeId: number;
 }
 
+export interface Drivers {
+    DriverId : number;
+    DriverIdString: string;
+    name : string;
+    SiteId: number;
+}
+
 export interface dualList{
     value:number;
     label:string;

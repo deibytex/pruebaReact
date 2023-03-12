@@ -1,6 +1,6 @@
 
 import { Post_getconsultadinamicas } from "../../../../_start/helpers/Axios/CoreService";
-import { getVehiculosClienteId } from "../../../../_start/helpers/Axios/DWHService";
+import { getConductoresClienteId, getVehiculosClienteId } from "../../../../_start/helpers/Axios/DWHService";
 
 const ClienteId = "1546695255495533982";
 
@@ -58,4 +58,8 @@ export  function getAssetTypes(){
 
 export  function GetAssets() {
   return  getVehiculosClienteId(ClienteId, "Available");
+}
+
+export  function GetDrivers() {
+  return  getConductoresClienteId(ClienteId);
 }
