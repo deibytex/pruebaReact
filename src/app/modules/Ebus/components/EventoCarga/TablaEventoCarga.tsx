@@ -49,11 +49,8 @@ useEffect(() =>{
     })
     }
     setRowCount(datos.length);
-
-
     setDatos(datos);
-    console.log(datos,minSoc , maxSoc, lstvehiculos )
-
+  
   }
 
 },[dataTable, VehiculosFiltrados, MinSocCarga, MaxSocCarga])
