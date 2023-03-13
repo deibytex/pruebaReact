@@ -1,5 +1,7 @@
+import { join } from "path";
 import { useEffect, useState } from "react";
 import DualListBox from "react-dual-listbox";
+import { string } from "yup/lib/locale";
 import { useDataSotramac } from "../core/provider";
 import { Assets, Drivers, dualList } from "../models/dataModels";
 
@@ -10,12 +12,16 @@ type Props = {
 
 export const SelectAssetsDrivers: React.FC<Props> = ({ siteId, assetTypeId }) => {
 
-    const { assets, drivers } = useDataSotramac();
+    const { assets, drivers, setdriverSelected, setassetSelected } = useDataSotramac();
 
 
     const [lstAssets, setlstAssets] = useState<dualList[]>([]);
     const [lstDrivers, setlstDrivers] = useState<dualList[]>([]);
-    const [selected, setSelected] = useState([]);
+    const [selectedAssets, setselectedAssets] = useState([]);
+    const [selectedDrivers, setselectedDrivers] = useState([]);
+
+    const [showAssets, setshowAssets] = useState(true);
+    const [showDrivers, setshowDrivers] = useState(true);
 
     useEffect(() => {
         if (assetTypeId != 0) {
@@ -25,26 +31,31 @@ export const SelectAssetsDrivers: React.FC<Props> = ({ siteId, assetTypeId }) =>
 
             let dual = filter.map((item) => {
                 if (!item.description.toLowerCase().includes("piloto"))
-                return { "value": item.assetId, "label": item.description };
+                    return { "value": item.assetIdString, "label": item.description };
             }) as dualList[];
 
             setlstAssets(dual);
+
+            setshowAssets(false);
+            setshowDrivers(true);
         }
-        else if (siteId != 0){
-            let filter = (drivers as Drivers[]).filter(function (arr) {
-                return (arr.SiteId == 5849442930383813000 || arr.SiteId == siteId)
+        if (siteId != 0) {
+            let filters = (drivers as Drivers[]).filter(function (arr) {
+                return (arr.SiteId == siteId)
             });
 
-            let dual = filter.map((item) => {
-                return { "value": item.DriverId, "label": item.name };
+            let dual = filters.map((item) => {
+                return { "value": item.DriverIdString, "label": item.name };
             })
 
             setlstDrivers(dual);
-            console.log(lstDrivers);
+
+            setshowAssets(true);
+            setshowDrivers(false);
         }
-        else {
-            //al ser cero debemos poner todos los filtros por defecto y ocultar los menús
-            setlstAssets([]);
+        if (siteId != 0 && assetTypeId != 0) {
+            setshowAssets(false);
+            setshowDrivers(false);
         }
     }, [assetTypeId, siteId])
 
@@ -52,18 +63,38 @@ export const SelectAssetsDrivers: React.FC<Props> = ({ siteId, assetTypeId }) =>
         return (
             <DualListBox className=" mb-3 "
                 options={lstAssets}
-                selected={selected}
-                onChange={(selected: any) => setSelected(selected)}
+                selected={selectedAssets}
+                onChange={(selected: any) => setselectedAssets(selected)}
             />
         );
     }
 
-    console.log(lstAssets);
+    function SelectDrivers() {
+        return (
+            <DualListBox className=" mb-3 "
+                options={lstDrivers}
+                selected={selectedDrivers}
+                onChange={(selected: any) => setselectedDrivers(selected)}
+            />
+        );
+    }
+
+    useEffect(() => {
+       setassetSelected(selectedAssets.join());
+       setdriverSelected(selectedDrivers.join());
+    }, [selectedDrivers, selectedAssets])
+
 
     return (
-        <div className="col-sm-12 col-md-12 col-xs-12">
-            <label className="control-label label label-sm text-white m-3" style={{ fontWeight: 'bold' }}>Seleccione Vehículos:</label>
-            <SelectAssets />
-        </div>
+        <>
+            <div className="col-sm-12 col-md-12 col-xs-12" hidden={showAssets}>
+                <label className="control-label label label-sm text-white m-3" style={{ fontWeight: 'bold' }}>Seleccione Vehículos:</label>
+                <SelectAssets />
+            </div>
+            <div className="col-sm-12 col-md-12 col-xs-12" hidden={showDrivers}>
+                <label className="control-label label label-sm text-white m-3" style={{ fontWeight: 'bold' }}>Seleccione Conductores:</label>
+                <SelectDrivers />
+            </div>
+        </>
     )
 }

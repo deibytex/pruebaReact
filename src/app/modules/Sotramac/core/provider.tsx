@@ -24,6 +24,10 @@ export interface SotramacContextModel {
     setfechaInicial: (fechainicial: any) => void;
     fechaFinal?: any;
     setfechaFinal: (fechafinal: any) => void;
+    driverSelected?: any;
+    setdriverSelected: (driverSelected: any) => void;
+    assetSelected?: any;
+    setassetSelected: (assetSelected: any) => void;
     iserror?: any;
     setError: (error: any) => void;
 
@@ -39,6 +43,8 @@ const SotramacContext = createContext<SotramacContextModel>({
     setdrivers: (lstdrivers: any[]) => ([]),
     setfechaInicial: (fechainicial: any) => (""),
     setfechaFinal: (fechafinal: any) => (""),
+    setdriverSelected: (driverSelected: any) => (""),
+    setassetSelected: (assetSelected: any) => (""),
     setError: (error: any) => { }
 });
 
@@ -54,6 +60,8 @@ const SotramacProvider: React.FC = ({ children }) => {
     const [drivers, setdrivers] = useState<any[]>([]);
     const [fechaInicial, setfechaInicial] = useState("");
     const [fechaFinal, setfechaFinal] = useState("");
+    const [driverSelected, setdriverSelected] = useState("");
+    const [assetSelected, setassetSelected] = useState("");
     const [iserror, setError] = useState<any>({});
 
     const value: SotramacContextModel = {
@@ -75,6 +83,10 @@ const SotramacProvider: React.FC = ({ children }) => {
         setfechaInicial,
         fechaFinal,
         setfechaFinal,
+        assetSelected,
+        setassetSelected,
+        driverSelected,
+        setdriverSelected,
         iserror,
         setError
     };

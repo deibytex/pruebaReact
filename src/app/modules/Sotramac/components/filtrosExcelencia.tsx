@@ -15,7 +15,7 @@ type Props = {
 export const ReporteExcelencia: React.FC<Props> = () => {
 
     //Data desde el provider
-    const { listas, detalleListas, sites, assetTypes } = useDataSotramac();
+    const { listas, detalleListas, sites, assetTypes, fechaInicial, fechaFinal, assetSelected, driverSelected } = useDataSotramac();
 
     //Carga Inicial filtros
     const [lstCategorias, setlstCategorias] = useState<Listas[]>([]);
@@ -81,6 +81,7 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             setassettype(0);
 
             //Ocultamos los sitios y le asigamos cero de valor
+            setshowAssets(true);
             setshowSites(true);
             setsite(0);
         }
@@ -88,10 +89,9 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             setlstAssetsTypes(assetTypes);
             setshowAssetTypes(false);
             setassettype(0);
-            setshowAssets(true);
-            setshowAssets(true);
 
             //Ocultamos los sitios y le asigamos valor a sitios
+            setshowAssets(true);
             setshowSites(true);
             setsite(0);
         }
@@ -110,9 +110,9 @@ export const ReporteExcelencia: React.FC<Props> = () => {
     }, [reporte])
 
     useEffect(() => {
-        if (reporte === "EOAPCV") 
-                    assettype == 0 ? setsite(0) : assettype == 11 ? setsite(6835483207492495255) : setsite(-6032794350987665724);
-        if (assettype == 0) setshowAssets(true);            
+        if (reporte === "EOAPCV")
+            assettype == 11 ? setsite(6835483207492495255) : assettype == 12 ? setsite(-6032794350987665724) : setsite(0);
+        if (assettype == 0) setshowAssets(true);
     }, [assettype])
 
     //Funciones de filtro - seteo
@@ -160,6 +160,7 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             <Form.Select className=" mb-3 " name="sites" value={site} onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
                 setsite(e.currentTarget.value as any);
+                setshowAssets(false);
             }}>
                 <option value={0}>Seleccione un Sitio</option>
                 {
@@ -180,7 +181,7 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             <Form.Select className=" mb-3 " name="assettypes" value={assettype} onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
                 setassettype(e.currentTarget.value as any);
-                setshowAssets(false);                
+                setshowAssets(false);
             }}>
                 <option value={0}>Seleccione Tipo</option>
                 {
@@ -225,8 +226,16 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             <div className="row" hidden={showAssets}>
                 <SelectAssetsDrivers siteId={site} assetTypeId={assettype} />
             </div>
-            
-            
+            <div className="row">
+            <div className="mt-5 justify-content-end" style={{ textAlign: 'right' }}>
+            <Button type="button" variant="danger" className="m-3"> 
+                Visualizar Reporte
+            </Button>
+            <Button type="button" variant="danger" className="m-3"> 
+                Generar Reporte
+            </Button>
+        </div>
+            </div>
         </>
     )
 } 
