@@ -3,13 +3,13 @@ import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import moment from "moment";
 import { useEffect, useState } from "react";
+import { useDataEventoCarga } from "../../core/EventoCargaProvider";
 import { TablaDTO } from "../../models/EventoCargaModels";
 
-type Props = {
-    Datos : []
-}
-const  TablaEventoCarga : React.FC<Props> = ({Datos}) =>{
+
+const  TablaEventoCarga : React.FC = () =>{
      //table state
+     const [Datos, setDatos] = useState<TablaDTO[]>([]);
      const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
      const [globalFilter, setGlobalFilter] = useState('');
      const [sorting, setSorting] = useState<SortingState>([]);
@@ -22,9 +22,41 @@ const  TablaEventoCarga : React.FC<Props> = ({Datos}) =>{
      const [isRefetching, setIsRefetching] = useState(false);
      const [isError, setIsError] = useState(false);
      const [alarmas, setalarmas] = useState([90, 95]);
+     const { dataTable,  VehiculosFiltrados, MinSocCarga, MaxSocCarga } = useDataEventoCarga();
+
+
 useEffect(() =>{
-    setRowCount(Datos.length)
-}, [Datos])
+
+
+  const minSoc = MinSocCarga ?? 0;
+  const maxSoc = MaxSocCarga ?? 100;
+  const lstvehiculos  = VehiculosFiltrados ?? [];
+
+ 
+  if(dataTable != undefined) {
+    let datos =  dataTable?.filter(f => {
+        const soc = f.soc;
+     
+        return (( soc>=minSoc && soc <= maxSoc ) )
+    })
+
+    if(lstvehiculos.length > 0)
+    {
+      datos =datos.filter(f => {
+       
+        const vehiculos = f.placa;
+        return (lstvehiculos.indexOf(vehiculos) > -1 )
+    })
+    }
+    setRowCount(datos.length);
+
+
+    setDatos(datos);
+    console.log(datos,minSoc , maxSoc, lstvehiculos )
+
+  }
+
+},[dataTable, VehiculosFiltrados, MinSocCarga, MaxSocCarga])
 
 //para visibilidad de las columnas
 let VisibilidadColumnas = { 

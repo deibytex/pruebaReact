@@ -14,7 +14,7 @@ import Nouislider from "nouislider-react";
 import "nouislider/distribute/nouislider.css";
 import { ExportarExcel } from "../components/EventoCarga/ExportarExcel";
 export interface EventoCargaContextModel {
-    dataTable?:any;
+    dataTable?:TablaDTO[];
     Clientes? : ClienteDTO[];
     ClienteSeleccionado? : ClienteDTO;
     setClientes:(Cliente: ClienteDTO[]) => void;
@@ -24,16 +24,16 @@ export interface EventoCargaContextModel {
     setVisible : (visible:boolean)  => void;
     IsFiltrado?:boolean;
     setIsFiltrado:(IsFiltrado:boolean) => void;
-    VehiculosFiltrados?: any;
-    setVehiculosFiltrados: (Vehiculos:any) => void;
-    dataTableFiltrada?:any;
-    setdataTableFiltrada:(Tabla:any) => void;
+    VehiculosFiltrados?: string[];
+    setVehiculosFiltrados: (Vehiculos:string[]) => void;
+    dataTableFiltrada?:TablaDTO[];
+    setdataTableFiltrada:(Tabla:TablaDTO[]) => void;
     showVehiculos?:boolean;
     setShowVehiculos : (showVehiculos:boolean) =>void;
-    MinSocCarga?:string;
-    MaxSocCarga?:string;
-    setMinSocCarga:(MinSoc:any) => void;
-    setMaxSocCarga:(MaxSoc:any) =>void;
+    MinSocCarga?:number;
+    MaxSocCarga?:number;
+    setMinSocCarga:(MinSoc:number) => void;
+    setMaxSocCarga:(MaxSoc:number) =>void;
     contador?:boolean;
     setContador : (contador:boolean) =>void;
     ShowSoc?:boolean;
@@ -42,14 +42,14 @@ export interface EventoCargaContextModel {
 const EventoCargaContext = createContext<EventoCargaContextModel>({
     setClientes: (Cliente: any) => {},
     setClienteSeleccionado: (Data: any) => {},
-    setdataTable:(Data:any) => {},
+    setdataTable:(Data:TablaDTO[]) => {},
     setVisible:(Visible:boolean) =>{},
     setIsFiltrado:(IsFiltrado:boolean) =>{},
     setdataTableFiltrada:(Tabla:TablaDTO[]) =>{},
     setVehiculosFiltrados: (Vehiculos:any) =>{},
     setShowVehiculos:(showVehiculos:boolean) => {},
-    setMinSocCarga:(MinSoc:any) => {},
-    setMaxSocCarga:(MaxSoc:any) => {},
+    setMinSocCarga:(MinSoc:number) => { },
+    setMaxSocCarga:(MaxSoc:number) => {},
     setContador:(Contador:boolean) => {},
     setShowSoc:(Soc:boolean) =>{}
 });
@@ -60,10 +60,10 @@ const EventoCargaProvider: React.FC = ({ children }) => {
     const [Visible, setVisible] = useState<boolean>(true);
     const [IsFiltrado, setIsFiltrado] = useState<boolean>(false);
     const [dataTableFiltrada, setdataTableFiltrada] = useState<TablaDTO[]>([])
-    const [VehiculosFiltrados, setVehiculosFiltrados] = useState<any[]>([])
+    const [VehiculosFiltrados, setVehiculosFiltrados] = useState<string[]>([])
     const [showVehiculos, setShowVehiculos] = useState<boolean>(false);
-    const [MaxSocCarga, setMaxSocCarga] = useState<string>("")
-    const [MinSocCarga, setMinSocCarga] = useState<string>("")
+    const [MaxSocCarga, setMaxSocCarga] = useState<number>(100)
+    const [MinSocCarga, setMinSocCarga] = useState<number>(0)
     const [contador, setContador] = useState<boolean>(false)
     const [ShowSoc, setShowSoc] = useState<boolean>(false)
 
@@ -102,8 +102,10 @@ const EventoCargaProvider: React.FC = ({ children }) => {
 function useDataEventoCarga() {
     return useContext(EventoCargaContext);
 }
+
+
 const DataRecargaTiempoClientes: React.FC = ({ children }) => {
-    const { Visible, Clientes, ClienteSeleccionado, dataTable,  setVisible,  setClienteSeleccionado, setClientes, setdataTable } = useDataEventoCarga();
+    const {  Clientes, ClienteSeleccionado,   setVisible,  setClienteSeleccionado, setClientes, setdataTable } = useDataEventoCarga();
     const CargarEventos = (clienteIdS:string,Periodo: string) =>{
         setVisible(true)
         PostEventActiveRecargaByDayAndClient(clienteIdS,Periodo).then((response:AxiosResponse<any>) =>{
@@ -161,77 +163,65 @@ const IndicadorCargado : React.FC = ({children}) =>{
     return <>{CargarIndicadorCargado({children})}</>
 };
 //props filtros vehiculos
-type Props = {
-    clienteIds:any;
-    show:boolean;
-    handleClose:() => void;
-    datatable:any;
-    setdataTableFiltrada:(dataTableFiltrada:any) =>void;
-    setIsFiltrado:(IsFiltrado:boolean) =>void;
-    IsFiltrado:boolean;
-}
 
 ///Para consultar los filtros por vehiculos.
 
-const VehiculosFiltros : React.FC<Props> = ({clienteIds, show, handleClose, datatable, setdataTableFiltrada, setIsFiltrado, IsFiltrado}) =>{
+const VehiculosFiltros : React.FC = () =>{
     const [vehiculos, setvehiculos] = useState<dualListDTO[]>([]);
-    const [selected, setSelected] = useState([]);
-const { setShowVehiculos, showVehiculos} = useDataEventoCarga();
-    useEffect(()=>{
-        console.log("cambio el filtrado");
-    },[IsFiltrado])
+ 
+
+
+const { VehiculosFiltrados, setVehiculosFiltrados,  dataTable, IsFiltrado, setIsFiltrado, MinSocCarga,MaxSocCarga 
+, showVehiculos, setShowVehiculos
+} = useDataEventoCarga();
+    
+    
     function Widget () {
         return (
             <DualListBox
                 options={vehiculos}
-                selected={selected}
-                onChange={(selected:any) => setSelected(selected)}
+                selected={VehiculosFiltrados}
+                onChange={(selected:string[]) => {setVehiculosFiltrados(selected);    setIsFiltrado( true); }}
             />
         );
-    }
-    const RetornarValor = () =>{
-        let a:TablaDTO[]  = [];
-        let b = filterObjeto(datatable, selected);
-        if(b != undefined)
-            a = b
-        if(a?.length != 0)
-            setdataTableFiltrada(a);
-        if(IsFiltrado == undefined || IsFiltrado == false)
-            setIsFiltrado(true);
-        handleClose()
-    }
+    }  
 
-    const filterObjeto = (list:TablaDTO[], compare:any)=> {
-        if( compare == undefined || compare.length ==0 )
-            return;
-        var ArrayNew = [];
-        var countProp = compare.length;
-        var countMatch = 0;
-        var valComp;
-        var valList;
-        for (var iList in list) {
-            for (let alits in  compare)
-                if (list[iList].placa == compare[alits])
-                     ArrayNew.push(list[iList]);
-        }
-        return ArrayNew;
-    }
-
+// llenamos la informacion de vehkiculos basados en la informacion del datatable
     useEffect(() =>{
-        GetVehiculos((clienteIds != undefined )? clienteIds: null).then((response:AxiosResponse<any>) =>{
-            let dual = response.data.map((item:AssetsDTO)=>{
-                return {"value":item.description, "label":item.description};
+        if(dataTable != undefined && dataTable.length > 0)
+        {
+            let dual = dataTable.map((item)=>{
+                return {"value":item.placa, "label":item.placa};
             })
-            setvehiculos(dual);
-        }).catch((error) =>{
-            errorDialog("<i>Error al consultar los vehiculos</i>","");
-        });
-    },[clienteIds])
+            setvehiculos(dual)
+        }
+       
+    },[dataTable])
+
+ 
+    const cerrarModal = (e:any) => { 
+        
+        //IsFiltrado
+        if(VehiculosFiltrados != undefined)
+        setIsFiltrado( (VehiculosFiltrados?.length > 0));
+        setShowVehiculos(false);
+       
+    };
+
+    const cancelar = (e:any) => { 
+        
+        //IsFiltrado
+        setVehiculosFiltrados([])
+        if( !(MinSocCarga != 0 || MaxSocCarga != 100))
+        setIsFiltrado( false);
+        setShowVehiculos(false);
+    };
+    
     
     return (
             <Modal 
-            show={show} 
-            onHide={handleClose} 
+            show={showVehiculos} 
+            onHide={cerrarModal} 
             size="lg">
             <Modal.Header closeButton>
                 <Modal.Title>{(`Filtro por vehiculos`)}</Modal.Title>
@@ -244,12 +234,9 @@ const { setShowVehiculos, showVehiculos} = useDataEventoCarga();
                 </div>
             </Modal.Body>
             <Modal.Footer>
-                <Button type="button" variant="secondary" onClick={handleClose}>
+                <Button type="button" variant="secondary" onClick={cancelar}>
                 Cancelar
-                </Button>
-                <Button type="button" variant="primary" onClick={RetornarValor}>
-                    Filtrar
-                </Button>
+                </Button>               
             </Modal.Footer>
             </Modal>
        
@@ -266,46 +253,27 @@ type PropsSoc = {
 }
 const SocFiltro : React.FC<PropsSoc>= ({show,setdataTableFiltrada, IsFiltrado, datatable, setIsFiltrado, setShowSoc}) =>{
     const { MinSocCarga, MaxSocCarga, setMaxSocCarga, setMinSocCarga, dataTableFiltrada } = useDataEventoCarga();
-    const [rango, setrango] = useState<{}>();
-    var ArrayNew: TablaDTO[] = [];
-    const End = (a:any) =>{
-        if(IsFiltrado)
-        {
-            filterBySoc(dataTableFiltrada,a[0],a[1]);
-        }else{
-            filterBySoc(datatable,a[0],a[1]);
-        }
+
+    const End = (a:any) =>{     
+        
+         setMinSocCarga(Number.parseInt(a[0]))
+         setMaxSocCarga(Number.parseInt(a[1]))
     }
-    const handleClose = (e:any) => {
-        setdataTableFiltrada(ArrayNew);
-        setIsFiltrado(true);
+    const handleClose = (e:any) => {     
+        setIsFiltrado((MinSocCarga != 0 || MaxSocCarga != 100));
         setShowSoc(false);
     };
    
-    const filterBySoc = (list:TablaDTO[], min:string, max:string)=> {
-        if( min.length ==0 || max.length == 0 )
-            return;
-        let valor:number;
-        let Minimo:number, Maximo:number;
-        Minimo = Number.parseInt(min);
-        Maximo = Number.parseInt(max);
-        for (var iList in list) {
-            valor = list[iList].soc;
-            if((valor >= Minimo) && (valor <= Maximo))
-                ArrayNew.push(list[iList]);
-        }
-    }
+   
     function Slider () {
         return(
             <Nouislider range={{
                 min: [0],
                 max: [100]
-              }}  start={[0,100]} tooltips={true}  onSet={End}/>
+              }}  start={[MinSocCarga ?? 0, MaxSocCarga ?? 100]} tooltips={true}  onSet={End}/>
         )
      }
-     useEffect(() =>{
-       
-     },[IsFiltrado])
+
  return(
     <>  <Modal 
     show={show} 
@@ -393,8 +361,8 @@ function CargaListadoClientes(Clientes:any, ClienteSeleccionado:any, setClienteS
   }
 
   function BotonesFiltros () {
-    const { setIsFiltrado, IsFiltrado, setShowSoc, setShowVehiculos, showVehiculos, setContador, contador, setdataTableFiltrada} = useDataEventoCarga()
-    const [show, setShow] = useState<boolean>(false)
+    const { setIsFiltrado, IsFiltrado, setShowSoc, setShowVehiculos,  setContador, setMinSocCarga, setMaxSocCarga, setVehiculosFiltrados} = useDataEventoCarga()
+  
    
     const AbrirModalVehiculos = () =>{
         setContador(true);
@@ -408,7 +376,9 @@ function CargaListadoClientes(Clientes:any, ClienteSeleccionado:any, setClienteS
     const QuitarFiltros = () =>{
         setContador(false);
         setIsFiltrado(false);
-        setdataTableFiltrada([]);
+        setMinSocCarga(0);
+        setMaxSocCarga(100);
+        setVehiculosFiltrados([]);
     }
     return (
         <>

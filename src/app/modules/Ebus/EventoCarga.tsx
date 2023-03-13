@@ -10,9 +10,8 @@ type Props = {
 };
 
  const  EventoCarga: React.FC<Props> = () => {
-    const [show, setShow] = useState<boolean>(false)
-    const [showV, setShowV] = useState<boolean>(false)
-    const { ClienteSeleccionado, setClientes, Clientes, setClienteSeleccionado,dataTableFiltrada,  dataTable, ShowSoc, setShowSoc, setShowVehiculos, setIsFiltrado, IsFiltrado} = useDataEventoCarga()
+  
+    const {  ShowSoc, setShowSoc} = useDataEventoCarga()
     return(
     <>
         <EventoCargaProvider>
@@ -44,7 +43,7 @@ type Props = {
                   {/*Para insertar el componete secundario o la pagina que corresponde al principal*/}
                   
                     <div className="col-sm-12 col-md-12 col-xs-12">
-                      <EventoCargaPrincipal  MostrarSoc={() => setShowSoc(false)} SocShow={(ShowSoc== undefined ? false:ShowSoc)}></EventoCargaPrincipal>
+                      <EventoCargaPrincipal ></EventoCargaPrincipal>
                     </div>
              
                 </div>

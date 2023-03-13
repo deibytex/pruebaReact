@@ -5,15 +5,13 @@ import { Soc } from "../NivelCarga/Soc";
 import { TablaEventoCarga } from "./TablaEventoCarga";
 import "../../../../../../node_modules/@availity/block-ui/src/BlockUi.css"
 import "../../../../../../node_modules/@availity/block-ui/src/Loader.css"
-import { TablaDTO } from "../../models/EventoCargaModels";
-type Props = {
-    MostrarSoc: () =>void;
-    SocShow:boolean;
-}
+import { TablaDTO } from "../../models/NivelcargaModels";
 
-const  EventoCargaPrincipal : React.FC<Props> = ({MostrarSoc, SocShow}) =>{
-const {contador, showVehiculos, setShowSoc, ShowSoc, setShowVehiculos, IsFiltrado, dataTableFiltrada, VehiculosFiltrados, ClienteSeleccionado, setClientes, Clientes, setdataTableFiltrada, setClienteSeleccionado, setVisible, Visible,  dataTable, setIsFiltrado, setdataTable } = useDataEventoCarga();
-const [Data, setData] = useState<[]>([]); 
+
+const  EventoCargaPrincipal : React.FC = () =>{
+const {contador, showVehiculos, setShowSoc, ShowSoc, setShowVehiculos, IsFiltrado, dataTableFiltrada,  
+     ClienteSeleccionado,  setdataTableFiltrada,  Visible,  dataTable, setIsFiltrado, VehiculosFiltrados, MinSocCarga, MaxSocCarga } = useDataEventoCarga();
+const [Data, setData] = useState<TablaDTO[]>([]); 
 const [showV, setShowV] = useState<boolean>(false)
 
 const MostrarVehiculo = () => {
@@ -21,25 +19,21 @@ const MostrarVehiculo = () => {
     setShowVehiculos(false);
 }
 
-const CloseSoc = () =>{
-    setShowSoc(false);
-}
-useEffect(() =>{
-  ((IsFiltrado) ?  setData(dataTableFiltrada): setData(dataTable));
-},[IsFiltrado, dataTable, contador,dataTableFiltrada ])
+
+
 
     return (
         <>
-          <EventoCargaProvider>
+          
           <BlockUi tag="span" className="bg-primary"  keepInView blocking={(Visible == undefined? true:Visible)}>
                 <div>
-                   <TablaEventoCarga Datos={Data}></TablaEventoCarga>
+                   <TablaEventoCarga ></TablaEventoCarga>
                 </div>
                 <SocFiltro show={(ShowSoc == undefined ? false:ShowSoc)} setShowSoc={setShowSoc}  datatable={Data} setdataTableFiltrada={setdataTableFiltrada} setIsFiltrado={setIsFiltrado} IsFiltrado={(IsFiltrado!= undefined?IsFiltrado:false)}/>
-                <VehiculosFiltros clienteIds={ClienteSeleccionado?.clienteIdS} show={(showVehiculos != undefined ? showVehiculos:false)} handleClose={MostrarVehiculo} datatable={Data} setdataTableFiltrada={setdataTableFiltrada} setIsFiltrado={setIsFiltrado} IsFiltrado={(IsFiltrado!= undefined?IsFiltrado:false)} >{}</VehiculosFiltros>
+                <VehiculosFiltros >{}</VehiculosFiltros>
                     
             </BlockUi>
-          </EventoCargaProvider>
+        
             
         </>
     )
