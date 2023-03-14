@@ -6,13 +6,11 @@ import { useDataSotramac } from "../core/provider";
 import { Assets, Drivers, dualList } from "../models/dataModels";
 
 type Props = {
-    siteId: number,
-    assetTypeId: number
 }
 
-export const SelectAssetsDrivers: React.FC<Props> = ({ siteId, assetTypeId }) => {
+export const SelectAssetsDrivers: React.FC<Props> = () => {
 
-    const { assets, drivers, setdriverSelected, setassetSelected } = useDataSotramac();
+    const { assets, drivers, siteId, assetTypeId, setdriverSelected, setassetSelected } = useDataSotramac();
 
 
     const [lstAssets, setlstAssets] = useState<dualList[]>([]);
@@ -41,7 +39,7 @@ export const SelectAssetsDrivers: React.FC<Props> = ({ siteId, assetTypeId }) =>
         }
         if (siteId != 0) {
             let filters = (drivers as Drivers[]).filter(function (arr) {
-                return (arr.SiteId == siteId)
+                return (arr.SiteId == -6032794350987665724 || arr.SiteId == 6835483207492495255)
             });
 
             let dual = filters.map((item) => {

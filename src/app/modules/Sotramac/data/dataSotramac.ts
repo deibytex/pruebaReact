@@ -1,8 +1,11 @@
 
+import axios from "axios";
+import { DWH_getconsultadinamicasprocedure } from "../../../../apiurlstore";
 import { Post_getconsultadinamicas } from "../../../../_start/helpers/Axios/CoreService";
 import { getConductoresClienteId, getVehiculosClienteId } from "../../../../_start/helpers/Axios/DWHService";
 
 const ClienteId = "1546695255495533982";
+const clienteIdS = "898";
 
 export  function getListas(Sigla: string){
     var params: { [id: string]: string | null; } = {};
@@ -63,3 +66,60 @@ export  function GetAssets() {
 export  function GetDrivers() {
   return  getConductoresClienteId(ClienteId);
 }
+
+export  function getReporteSotramacVH( FechaInicial : string, FechaFinal : string, assetsIds: string, assetTypeId: string) {
+
+  var params: { [id: string]: string | null; } = {};
+  params["FechaInicial"] = FechaInicial;
+  params["FechaFinal"] = FechaFinal;
+  params["clienteIdS"] = clienteIdS;
+  params["Assetsids"] = assetsIds;
+  params["AssetTypeId"] = assetTypeId;
+  params["SiteId"] = null;
+
+  return  axios({
+    method: 'post',
+    url: DWH_getconsultadinamicasprocedure,
+    data: JSON.stringify(params),
+    headers: { 'Content-Type': 'application/json' },
+    params : { Clase: "SotramacQueryHelper" , NombreConsulta : "getReporteSotramacVH" }
+  });
+};
+
+export  function getReporteSotramacCO( FechaInicial : string, FechaFinal : string, DriversIdS: string) {
+
+  var params: { [id: string]: string | null; } = {};
+  params["FechaInicial"] = FechaInicial;
+  params["FechaFinal"] = FechaFinal;
+  params["clienteIdS"] = clienteIdS;
+  params["DriversIdS"] = DriversIdS;
+  params["SiteId"] = null;
+
+  return  axios({
+    method: 'post',
+    url: DWH_getconsultadinamicasprocedure,
+    data: JSON.stringify(params),
+    headers: { 'Content-Type': 'application/json' },
+    params : { Clase: "SotramacQueryHelper" , NombreConsulta : "getReporteSotramacCO" }
+  });
+};
+
+export  function getReporteSotramacVHxCO( FechaInicial : string, FechaFinal : string, DriversIdS: string, assetsIds: string, assetTypeId: string) {
+
+  var params: { [id: string]: string | null; } = {};
+  params["FechaInicial"] = FechaInicial;
+  params["FechaFinal"] = FechaFinal;
+  params["clienteIdS"] = clienteIdS;
+  params["DriversIdS"] = DriversIdS;
+  params["Assetsids"] = assetsIds;
+  params["AssetTypeId"] = assetTypeId;
+  params["SiteId"] = null;
+
+  return  axios({
+    method: 'post',
+    url: DWH_getconsultadinamicasprocedure,
+    data: JSON.stringify(params),
+    headers: { 'Content-Type': 'application/json' },
+    params : { Clase: "SotramacQueryHelper" , NombreConsulta : "getReporteSotramacVHxCO" }
+  });
+};

@@ -12,8 +12,6 @@ export interface SotramacContextModel {
     setdetalleListas: (lstdetalleListas: any[]) => void;
     listasIds?: any;
     setlistasids: (ids: any) => void;
-    sites?: any;
-    setsites: (lstsites: any[]) => void;
     assetTypes?: any;
     setassetTypes: (lstassettypes: any[]) => void;
     assets?: any;
@@ -28,6 +26,10 @@ export interface SotramacContextModel {
     setdriverSelected: (driverSelected: any) => void;
     assetSelected?: any;
     setassetSelected: (assetSelected: any) => void;
+    siteId?: any;
+    setsiteId: (lstsiteId: any) => void;
+    assetTypeId?: any;
+    setassetTypeId: (lstassetTypeId: any) => void;
     iserror?: any;
     setError: (error: any) => void;
 
@@ -37,7 +39,6 @@ const SotramacContext = createContext<SotramacContextModel>({
     setlistas: (lstdetalleListas: any[]) => { },
     setdetalleListas: (lstlistas: any[]) => { },
     setlistasids: (ids: any) => (""),
-    setsites: (lstsite: any[]) => ([]),
     setassetTypes: (lstassettypes: any[]) => ([]),
     setassets: (lstassets: any[]) => ([]),
     setdrivers: (lstdrivers: any[]) => ([]),
@@ -45,6 +46,8 @@ const SotramacContext = createContext<SotramacContextModel>({
     setfechaFinal: (fechafinal: any) => (""),
     setdriverSelected: (driverSelected: any) => (""),
     setassetSelected: (assetSelected: any) => (""),
+    setsiteId: (lstsiteId: any) => (0),
+    setassetTypeId: (lstassetTypeId: any) => (0),
     setError: (error: any) => { }
 });
 
@@ -54,7 +57,6 @@ const SotramacProvider: React.FC = ({ children }) => {
     const [listas, setlistas] = useState<any[]>([]);
     const [detalleListas, setdetalleListas] = useState<any[]>([]);
     const [listasIds, setlistasids] = useState("");
-    const [sites, setsites] = useState<any[]>([]);
     const [assetTypes, setassetTypes] = useState<any[]>([]);
     const [assets, setassets] = useState<any[]>([]);
     const [drivers, setdrivers] = useState<any[]>([]);
@@ -62,6 +64,8 @@ const SotramacProvider: React.FC = ({ children }) => {
     const [fechaFinal, setfechaFinal] = useState("");
     const [driverSelected, setdriverSelected] = useState("");
     const [assetSelected, setassetSelected] = useState("");
+    const [siteId, setsiteId] = useState(0);
+    const [assetTypeId, setassetTypeId]= useState(0);
     const [iserror, setError] = useState<any>({});
 
     const value: SotramacContextModel = {
@@ -71,8 +75,6 @@ const SotramacProvider: React.FC = ({ children }) => {
         setdetalleListas,
         listasIds,
         setlistasids,
-        sites,
-        setsites,
         assetTypes,
         setassetTypes,
         assets,
@@ -87,6 +89,10 @@ const SotramacProvider: React.FC = ({ children }) => {
         setassetSelected,
         driverSelected,
         setdriverSelected,
+        siteId,
+        setsiteId,
+        assetTypeId,
+        setassetTypeId,
         iserror,
         setError
     };
@@ -109,7 +115,7 @@ function useDataSotramac() {
 // segun parametrización que debe realizarse
 
 const DataReportesSotramac: React.FC = ({ children }) => {
-    const { setlistas, setError, setlistasids, setdetalleListas, setsites, setassetTypes, setassets, setdrivers, listasIds, iserror } = useDataSotramac();
+    const { setlistas, setError, setlistasids, setdetalleListas, setassetTypes, setassets, setdrivers, listasIds, iserror } = useDataSotramac();
 
     //Cosulta Listas (Opciones de categoria)
     let consultaListas = (Sigla: string) => {
@@ -138,21 +144,6 @@ const DataReportesSotramac: React.FC = ({ children }) => {
 
         ).catch((error) => {
             setError({ accion: "Detalle Listas", error });
-        })
-
-    }
-
-    //CONSULTA SITES SOTRAMAC
-    let consultaSites = () => {
-        // consultamos en la base de datos la informacion de vehiculos operando
-        getSitesSotramac().then(
-
-            (response) => {
-                setsites(response.data);
-            }
-
-        ).catch((error) => {
-            setError({ accion: "Sites", error });
         })
 
     }
@@ -207,7 +198,6 @@ const DataReportesSotramac: React.FC = ({ children }) => {
         if (children) {
 
             consultaListas(children.toString());
-            consultaSites();
             consultaAssetTypes();
             consultaAssets();
             consultaDrivers();

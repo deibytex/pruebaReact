@@ -8,6 +8,9 @@ import "../../../../../node_modules/@availity/block-ui/src/Loader.css";
 
 import { Fechas } from "./filtrosFechas";
 import { SelectAssetsDrivers } from "./filtrosAssetsDrivers";
+import { ModalTablaReporteVH } from "./tablaReporteVH";
+import { ModalTablaReporteCO } from "./tablaReporteCO";
+import { ModalTablaReporteVHxCO } from "./tablaReporteVHxCO";
 type Props = {
 
 }
@@ -15,25 +18,56 @@ type Props = {
 export const ReporteExcelencia: React.FC<Props> = () => {
 
     //Data desde el provider
-    const { listas, detalleListas, sites, assetTypes } = useDataSotramac();
+    const { listas, detalleListas, assetTypes, assetTypeId, setsiteId, setassetTypeId } = useDataSotramac();
 
     //Carga Inicial filtros
     const [lstCategorias, setlstCategorias] = useState<Listas[]>([]);
     const [lstReportes, setlstReportes] = useState<DetalleListas[]>([]);
-    const [lstSites, setlstSites] = useState<Sites[]>([]);
     const [lstAssetsTypes, setlstAssetsTypes] = useState<AssetsTypes[]>([]);
 
 
     //Seteo valor filtors
     const [categoria, setcategoria] = useState(0);
     const [reporte, setreporte] = useState("");
-    const [site, setsite] = useState(0);
-    const [assettype, setassettype] = useState(0);
 
-    //seteo hiddens
-    const [showSites, setshowSites] = useState(true);
     const [showAssetTypes, setshowAssetTypes] = useState(true);
     const [showAssets, setshowAssets] = useState(true);
+
+    //modal controls
+    const [show, setShow] = useState(false);
+    const [show2, setShow2] = useState(false);
+    const [show3, setShow3] = useState(false);
+
+    //consulta reportes
+    const [consultaReportVH, setconsultaReportVH] = useState(false);
+    const [consultaReportCO, setconsultaReportCO] = useState(false);
+    const [consultaReportVHxCO, setconsultaReportVHxCO] = useState(false);
+
+    const handleClose = () => {
+        setconsultaReportVH(false);
+        setShow(false);
+    };
+    const showModal = () => {
+        setShow(true);
+    }
+
+    const handleClose2 = () => {
+        setconsultaReportCO(false);
+        setShow2(false);
+    };
+
+    const showModal2 = () => {
+        setShow2(true);
+    }
+
+    const handleClose3 = () => {
+        setconsultaReportVHxCO(false);
+        setShow3(false);
+    };
+
+    const showModal3 = () => {
+        setShow3(true);
+    }
 
 
     useEffect(() => {
@@ -53,67 +87,52 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             setlstReportes([]);
             setreporte("");
 
-            setassettype(0);
-            setsite(0);
+            setassetTypeId(0);
+            setsiteId(0);
 
             setshowAssetTypes(true);
-            setshowSites(true);
         }
     }, [categoria])
 
     useEffect(() => {
         if (reporte === "EOAPC") {
-            let filter = (sites as Sites[]).filter(function (arr) {
-                return (arr.siteid == -6032794350987665724 || arr.siteid == 6835483207492495255)
-            });
-            setlstSites(filter);
-            setshowSites(false);
-            setsite(0);
+            setsiteId(-1);
+            setshowAssets(false);
 
             //Ocultamos Assettypes y le asignamos valor cero
             setshowAssetTypes(true);
-            setshowAssets(true);
-            setassettype(0);
+            setassetTypeId(0);
         }
         else if (reporte === "EOAPV") {
             setlstAssetsTypes(assetTypes);
             setshowAssetTypes(false);
-            setassettype(0);
+            setassetTypeId(0);
 
             //Ocultamos los sitios y le asigamos cero de valor
             setshowAssets(true);
-            setshowSites(true);
-            setsite(0);
+            setsiteId(0);
         }
         else if (reporte === "EOAPCV") {
             setlstAssetsTypes(assetTypes);
             setshowAssetTypes(false);
-            setassettype(0);
+            setassetTypeId(0);
+            setsiteId(-1);
 
             //Ocultamos los sitios y le asigamos valor a sitios
             setshowAssets(true);
-            setshowSites(true);
-            setsite(0);
         }
         else {
             //al ser no tener reporte debemos poner todos los filtros por defecto y ocultar los menús
-            setlstSites([]);
-            setsite(0);
+            setsiteId(0);
 
             setlstAssetsTypes([]);
-            setassettype(0);
+            setassetTypeId(0);
 
             setshowAssetTypes(true);
-            setshowSites(true);
             setshowAssets(true);
         }
     }, [reporte])
 
-    useEffect(() => {
-        if (reporte === "EOAPCV")
-            assettype == 11 ? setsite(6835483207492495255) : assettype == 12 ? setsite(-6032794350987665724) : setsite(0);
-        if (assettype == 0) setshowAssets(true);
-    }, [assettype])
 
     //Funciones de filtro - seteo
 
@@ -155,19 +174,19 @@ export const ReporteExcelencia: React.FC<Props> = () => {
         );
     }
 
-    function SelectSites() {
+    function SelectAssetTypes() {
         return (
-            <Form.Select className=" mb-3 " name="sites" value={site} onChange={(e) => {
+            <Form.Select className=" mb-3 " name="assettypes" value={assetTypeId} onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
-                setsite(e.currentTarget.value as any);
+                setassetTypeId(e.currentTarget.value as any);
                 setshowAssets(false);
             }}>
-                <option value={0}>Seleccione un Sitio</option>
+                <option value={0}>Seleccione Tipo</option>
                 {
-                    lstSites.map((rep) => {
+                    lstAssetsTypes.map((rep) => {
                         return (
-                            <option key={rep.siteid} value={rep.siteid}>
-                                {rep.sitename}
+                            <option key={rep.AssetTypeId} value={rep.AssetTypeId}>
+                                {(rep.Nombre.indexOf("Articulated") !== -1) ? "Articulados" : "Busetones"}
                             </option>
                         );
                     })
@@ -176,25 +195,28 @@ export const ReporteExcelencia: React.FC<Props> = () => {
         );
     }
 
-    function SelectAssetTypes() {
-        return (
-            <Form.Select className=" mb-3 " name="assettypes" value={assettype} onChange={(e) => {
-                // buscamos el objeto completo para tenerlo en el sistema
-                setassettype(e.currentTarget.value as any);
-                setshowAssets(false);
-            }}>
-                <option value={0}>Seleccione Tipo</option>
-                {
-                    lstAssetsTypes.map((rep) => {
-                        return (
-                            <option key={rep.AssetTypeId} value={rep.AssetTypeId}>
-                                {rep.Nombre.indexOf("Articulated") !== -1 ? "Articulados" : "Busetones"}
-                            </option>
-                        );
-                    })
-                }
-            </Form.Select>
-        );
+    const modalReportes = () => {
+        if (reporte === "EOAPV") {
+            setconsultaReportVH(true);           
+            showModal();
+
+            setconsultaReportCO(false);
+            setconsultaReportVHxCO(false);
+        }
+        else if (reporte === "EOAPC") {
+            setconsultaReportCO(true);
+            showModal2();
+
+            setconsultaReportVH(false);
+            setconsultaReportVHxCO(false);
+        }
+        else {
+            setconsultaReportVHxCO(true);
+            showModal3();
+
+            setconsultaReportVH(false);
+            setconsultaReportCO(false);
+        }
     }
 
     //Retornamos los controles de filtro
@@ -211,10 +233,6 @@ export const ReporteExcelencia: React.FC<Props> = () => {
                 </div>
             </div>
             <div className="row">
-                <div className="col-sm-6 col-md-6 col-xs-6" hidden={showSites}>
-                    <label className="control-label label label-sm text-white m-3" style={{ fontWeight: 'bold' }}>Sitio:</label>
-                    <SelectSites />
-                </div>
                 <div className="col-sm-6 col-md-6 col-xs-6" hidden={showAssetTypes}>
                     <label className="control-label label label-sm text-white m-3" style={{ fontWeight: 'bold' }}>Tipo activo:</label>
                     <SelectAssetTypes />
@@ -224,12 +242,21 @@ export const ReporteExcelencia: React.FC<Props> = () => {
                 <Fechas />
             </div>
             <div className="row" hidden={showAssets}>
-                <SelectAssetsDrivers siteId={site} assetTypeId={assettype} />
+                <SelectAssetsDrivers />
             </div>
             <div className="row">
-              <ReporteExcelencia/>
+                <div className="mt-5 justify-content-end" style={{ textAlign: 'right' }}>
+                    <Button type="button" variant="secondary" className="m-3" onClick={() => { modalReportes(); }}>
+                        Visualizar Reporte
+                    </Button>
+                    <Button type="button" variant="secondary" className="m-3" >
+                        Generar Reporte
+                    </Button>
+                </div>
             </div>
-
+            <ModalTablaReporteVH show={show} handleClose={handleClose} title={"Reporte VH"} consultaReporteVH={consultaReportVH} />
+            <ModalTablaReporteCO show={show2} handleClose={handleClose2} title={"Reporte CO"} consultaReporteCO={consultaReportCO}/>
+            <ModalTablaReporteVHxCO show={show3} handleClose={handleClose3} title={"Reporte CO x VH"} consultaReportVHxCO={consultaReportVHxCO}/>
         </>
     )
 } 

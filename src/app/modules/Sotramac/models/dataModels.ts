@@ -39,3 +39,25 @@ export interface dualList{
     label:string;
 }
 
+export interface ReporteSotramac {
+    Posicion : number;
+    Cedula: string;
+    Vehiculo : string;
+    Nombre: string;
+    DistanciaRecorridaAcumulada: number;
+    ConsumodeCombustibleAcumulado: number;
+    DistanciaRecorridaUltimoDia: number;
+    RendimientoCumbustibleAcumulado: number;
+    UsoDelFreno: number;
+    PorDeInercia: number;
+    PorDeRalenti: number;
+    Co2Equivalente: number;
+    GalEquivalente: number;
+    ConsumokWh: number;
+    COmgkWh: number;
+    NOxmgkWh: number;
+    PMMasamgkWh: number;
+    TipoOperacion: string;
+    VelPromedio: number;
+}
+
