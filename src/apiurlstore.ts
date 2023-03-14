@@ -33,7 +33,7 @@ export const NEP_DownloadFile = `${apiURL}/archivos/DownloadFileFromBlob`
 
 export const CLIENTE_GetClientes = `${apiURLDWH}/Cliente/GetClientes`//[Required] int Estado, long? ClienteId, int? ClienteIds
 
-export const ASSET_GetClientesClienteId = `${apiURLDWH}/Asset/GetAssets/ClienteId` //long? ClienteId,string UsertState
+export const ASSET_GetAssetsClienteId = `${apiURLDWH}/Asset/GetAssets/ClienteId` //long? ClienteId,string UsertState
 export const ASSET_GetClientesClienteIds = `${apiURLDWH}/Asset/GetAssets/ClienteIds` //int? ClienteIds, string UsertState
 export const EBUS_GetClientesUsuarios = `${apiURLDWH}/Ebus/GetClientesUsuarios` //int? ClienteIds, string UsertState
 export const EBUS_getEventActiveViajesByDayAndClient = `${apiURLDWH}/Ebus/GetEventosActivosByClienteIds` 
@@ -50,3 +50,6 @@ export const EBUS_SetClientesActiveEvent = `${apiURLDWH}/Ebus/SetClientesActiveE
 export const EBUS_GetLocations = `${apiURLDWH}/Ebus/GetLocations` 
 export const EBUS_GetUsuariosEsomos = `${apiURLDWH}/Ebus/GetUsuariosEsomos` 
 export const EBUS_GetListadoClientesUsuario = `${apiURLDWH}/Ebus/GetListadoClientesUsuario` 
+
+/* Drivers */
+export const DRIVER_GetDriversClienteId = `${apiURLDWH}/Driver/GetDrivers/ClienteId` //long? ClienteId,string UsertState

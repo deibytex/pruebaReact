@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ASSET_GetClientesClienteIds, CLIENTE_GetClientes, CORE_getconsultadinamicasUser, CORE_getconsultadinamicasUserDWH, DWH_GetConsultasDinamicas, EBUS_GetClientesUsuarios, EBUS_GetColumnasDatatable, EBUS_getEventActiveRecargaByDayAndClient, EBUS_getEventActiveViajesByDayAndClient, EBUS_GetListaClientesActiveEvent, EBUS_GetListadoClientesUsuario, EBUS_GetLocations, EBUS_GetTiempoActualizacion, EBUS_GetUltimaPosicionVehiculos, EBUS_GetUsuariosEsomos, EBUS_SetClientesActiveEvent, EBUS_SetColumnasDatatable } from "../../../apiurlstore";
+import { ASSET_GetAssetsClienteId, ASSET_GetClientesClienteIds, CORE_getconsultadinamicasUser, CORE_getconsultadinamicasUserDWH, DRIVER_GetDriversClienteId, DWH_GetConsultasDinamicas, EBUS_GetClientesUsuarios, EBUS_GetColumnasDatatable, EBUS_getEventActiveRecargaByDayAndClient, EBUS_getEventActiveViajesByDayAndClient, EBUS_GetTiempoActualizacion, EBUS_GetUltimaPosicionVehiculos, EBUS_SetColumnasDatatable } from "../../../apiurlstore";
 import { ParamsEndPointDynamic } from "../Models/paramsConsultasDinamicas";
 
 export function Post_GetConsultasDinamicas(props: ParamsEndPointDynamic, body: any) {
@@ -44,7 +44,24 @@ export function Post_GetConsultasDinamicas(props: ParamsEndPointDynamic, body: a
     });
   }
 
-    
+  export  function getVehiculosClienteId( ClienteId: string|null, UsertState : string|null) {
+    return  axios({
+      method: 'get',
+      url: ASSET_GetAssetsClienteId,     
+      headers: { 'Content-Type': 'application/json' },
+      params : { ClienteId, UsertState }
+    });
+  }
+
+  export  function getConductoresClienteId( ClienteId: string|null) {
+    return  axios({
+      method: 'get',
+      url: DRIVER_GetDriversClienteId,     
+      headers: { 'Content-Type': 'application/json' },
+      params : { ClienteId }
+    });
+  }
+  
 
   export  function getClientesEBUS() {
     return  axios({
