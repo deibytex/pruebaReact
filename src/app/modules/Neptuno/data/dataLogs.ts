@@ -17,11 +17,12 @@ export async function ConsultarIndicadores(UsuarioId: string | null, FechaInicia
     return  Post_getconsultadinamicas({    Clase : "NEPQueryHelper",  NombreConsulta: "GetIndicadoresLog", Pagina :null, RecordsPorPagina :null}, params);
 };
 
-export async function ConsultarLogs(FechaInicial: string|undefined, FechaFinal :string|undefined, UsuarioId:  string|null) {
+export async function ConsultarLogs(FechaInicial: string|undefined, FechaFinal :string|undefined, UsuarioId:  string|null, contenedor : string) {
     var params: { [id: string]: string | undefined | null; } = {};
     params["FechaInicial"] =FechaInicial;
     params["FechaFinal"] =FechaFinal;
     params["UsuarioId"] =UsuarioId;
+    params["contenedor"] =contenedor;
 
     // hacemos la consulta 
     return  Post_getconsultadinamicas({    Clase : "NEPQueryHelper",  NombreConsulta: "GetLogsPorFechayUsuarios", Pagina :null, RecordsPorPagina :null}, params);

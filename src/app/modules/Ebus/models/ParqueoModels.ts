@@ -11,15 +11,16 @@ export const InicioCliente : ClienteDTO ={
 }
 
 export interface TablaDTO{
-    placa: string,
-    localizacion:string,
-    avl:string,
+    altitud:number;
+    assetId:string;
+    latitud:string;
+    localizacion:string;
+    longitud:string
+    placa:string;
+    avlString:string;
+    avl:string;
 }
-export const InicioTabla : TablaDTO = {
-    placa:"",
-    localizacion:"",
-    avl:""
-}
+
 
 type TabProperty = {
     icon : string;
@@ -45,13 +46,3 @@ export const InicioUbicacionTabla : TablaUbicacionDTO = {
 }
 
 
-export interface MapaParqueoDTO {
-    altitud:number;
-    assetId:string;
-    latitud:string;
-    localizacion:string;
-    longitud:string
-    placa:string;
-    avlString:string;
-    avl:string;
-}

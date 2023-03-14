@@ -1,3 +1,4 @@
+import moment from "moment";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Form } from "react-bootstrap-v5";
 
@@ -25,8 +26,8 @@ const LogContext = createContext<LogContextModel>({
 const LogProvider: React.FC = ({ children }) => {
     const [FechaInicial, setFechaInicial] = useState<string>();
     const [FechaFinal, setFechaFinal] = useState<string>();
-    const [Usuarios, setUsuarios] = useState<UsuariosDTO[]>([initialdataUsuarios]);
-    const [UsuarioSeleccionado, setUsuarioSeleccionado] = useState<UsuariosDTO>(initialdataUsuarios);
+    const [Usuarios, setUsuarios] = useState<UsuariosDTO[]>([]);
+    const [UsuarioSeleccionado, setUsuarioSeleccionado] = useState<UsuariosDTO>();
     const value: LogContextModel = {
         FechaInicial,
         FechaFinal,
@@ -48,15 +49,16 @@ function useDatLog() {
     return useContext(LogContext);
 }
 
-const CargaInicialParametros: React.FC = ({children}) => {
-    const { Usuarios , setUsuarios, UsuarioSeleccionado, setUsuarioSeleccionado,  FechaInicial, setFechaInicial, FechaFinal, setFechaFinal } = useDatLog();
-    
+const CargaInicialParametros: React.FC = () => {
+    const { Usuarios , setUsuarios, UsuarioSeleccionado, setUsuarioSeleccionado,   setFechaInicial, setFechaFinal } = useDatLog();
+    setFechaInicial(moment().add(-1,'months').format("DD/MM/YYYY"))
+    setFechaFinal(moment().format("DD/MM/YYYY"))
 useEffect(() =>{
    
     ConsultarUsuarios("null").then(
       (response) => {
         setUsuarios(response.data);
-        setUsuarioSeleccionado(response.data[0]);
+        
       }
   ).catch((error) => {
       errorDialog("Consultar usuarios", "Error al consultar usuarios, no se puede desplegar informacion");
@@ -73,9 +75,9 @@ function CargaListadoUsuarios( LstUSuarios: UsuariosDTO[], UsuarioSeleccionado :
                 let Usuarios =  LstUSuarios?.filter((value, index) => {
                     return value.UsuarioId === e.currentTarget.value
                 })  
-                setUsuarioSeleccionado(Usuarios[0]);
+              
             }} aria-label="Default select example">
-                <option value="">Seleccione</option>
+                <option value="-1" selected={true}>Seleccione</option>
                 {                        
                     LstUSuarios?.map((element,i) => {
                             let flag = (element.UsuarioId === UsuarioSeleccionado?.UsuarioId)

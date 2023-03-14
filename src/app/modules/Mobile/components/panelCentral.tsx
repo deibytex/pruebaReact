@@ -29,7 +29,7 @@ export const MOV_PanelCentral: React.FC<Props> = ({ className, innerPadding = ""
     };
 
     return (
-        <div className={`card ${className}`}>
+        <div className={`card ${className} mt-2`}>
             <div className="card-body pt-0">
                 <div className=" flex-wrap flex-xxl-nowrap justify-content-center justify-content-md-start pt-4">
                     {/* begin::Nav */}

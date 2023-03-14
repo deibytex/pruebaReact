@@ -4,7 +4,11 @@ import { Registration } from "./components/Registration";
 import { ForgotPassword } from "./components/ForgotPassword";
 import { Login } from "./components/Login";
 import { toAbsoluteUrl } from "../../../_start/helpers";
-
+/*** style={{ 
+      backgroundImage: `url(${toAbsoluteUrl("/media/syscaf/Syscafimg/Fondo1.jpg")})` 
+      ,backgroundRepeat:"no-repeat" ,
+      backgroundSize:"contain"
+    }} */
 
 export function AuthPage() {
   useEffect(() => {
@@ -16,11 +20,7 @@ export function AuthPage() {
 
   return (
     <div className="d-flex flex-column flex-root bg-primary"
-    style={{ 
-      backgroundImage: `url(${toAbsoluteUrl("/media/syscaf/Syscafimg/Fondo1.jpg")})` 
-      ,backgroundRepeat:"no-repeat" ,
-      backgroundSize:"contain"
-    }}
+   
     >
       <div
         className="d-flex flex-column flex-lg-row flex-column-fluid"

@@ -1,21 +1,15 @@
-import MaterialReactTable, { MRT_Cell, MRT_ColumnDef, MRT_Row } from "material-react-table";
+import MaterialReactTable, { MRT_Cell, MRT_ColumnDef, MRT_Row, MRT_TableInstance } from "material-react-table";
 import moment from "moment";
-import { useEffect, useState } from "react";
-import { LogDTO } from "../../../Neptuno/models/logModel";
+import { useEffect, useRef, useState } from "react";
 import { MRT_Localization_ES } from 'material-react-table/locales/es';
 import { ColumnFiltersState, PaginationState, SortingState, VisibilityState } from "@tanstack/react-table";
 import { TablaDTO } from "../../models/NivelcargaModels";
-import { Mapa } from "./mapa";
-import { NivelCargaProvider, useDataNivelCarga } from "../../core/NivelCargaProvider";
-import { MapaDTO } from "../../models/NivelcargaModels";
-import { Principal } from "./principal";
-type Props = {
-  data:TablaDTO[]
-};
+import {  useDataNivelCarga } from "../../core/NivelCargaProvider";
+
 
   // listado de columnas a visualizar por defecto
 //para visibilidad de las columnas
-let VisibilidadColumnas = { 
+const columnasPorDefecto = { 
   fechaString: true,
   placa:true,
   driver:true,
@@ -32,11 +26,14 @@ let VisibilidadColumnas = {
   velocidadPromedio:false
 }; 
 
-const TablaNivelCarga : React.FC<Props> =  ({data}) =>{
+type props = {tamanio :string}
 
-  const {  setmarkerSeleccionado} = useDataNivelCarga()
+//VisibilidadColumnas
+const TablaNivelCarga : React.FC<props> =  ({tamanio }) =>{
 
-  const [MapaIndividualL, setMapaIndividualL] = useState<TablaDTO[]>([])     
+  const {  setmarkerSeleccionado, dataTable, MinSocCarga, MaxSocCarga, VehiculosFiltrados, setDatosMapa, isExpandido} = useDataNivelCarga(); 
+  
+  const tableInstanceRef = useRef<MRT_TableInstance<TablaDTO>>(null);
   //table state
        const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
        const [globalFilter, setGlobalFilter] = useState('');
@@ -49,30 +46,63 @@ const TablaNivelCarga : React.FC<Props> =  ({data}) =>{
        const [isLoading, setIsLoading] = useState(false);
        const [isRefetching, setIsRefetching] = useState(false);
        const [isError, setIsError] = useState(false);
-
-       const cargarMapaIndividual = (row: any) =>{ 
-        console.log("row.original", row.original)
+       const cargarMapaIndividual = (row: any) =>{      
         setmarkerSeleccionado(row.original)
-      };
-       const [lstColumnas, setlstColumnas] = useState(VisibilidadColumnas);
-     let  lstFiltroVehiculo 
+      };     
+
+     
+       const [lstColumnas, setlstColumnas] = useState( columnasPorDefecto);
     
-      // fin table state
-      let Driver = [];
-     if(data[0].driver != null)
-        Driver = data.reduce((acc:any,item)=>{
-          if(!acc.includes(item.driver)){
-            acc.push(item.driver);
-          }
-          return acc;
-        },[])
+       const [Datos, setDatos] = useState<TablaDTO[]>([])     
+       const [lstdirvers, setlstdirvers] = useState<any[]>([])     
+       
+     useEffect(() =>{
+      const minSoc = MinSocCarga ?? 0;
+      const maxSoc = MaxSocCarga ?? 100;
+      const lstvehiculos  = VehiculosFiltrados ?? [];   
+     
+      if(dataTable != undefined) {
+        let datos =  dataTable?.filter(f => {
+            const soc = f.soc ?? 0;         
+            return (( soc>=minSoc && soc <= maxSoc ) )
+        })
+    
+        if(lstvehiculos.length > 0)
+        {
+          datos =datos.filter(f => {           
+            const vehiculos = f.placa ?? "";
+            return (lstvehiculos.indexOf(vehiculos) > -1 )
+        })
+        }
 
-      useEffect(()=>{
-        setRowCount(data.length);
-      })
+       const conductores = datos.map(m => {
+          return {text: m.driver, value: m.driver}
+        });
+        setlstdirvers(conductores);
+        setRowCount(datos.length);
+        setDatos(datos);
+        setDatosMapa(datos);      
+      }
+      let VisibilidadColumnas = {...columnasPorDefecto};
+      if(isExpandido)
+      {
+          Object.entries(VisibilidadColumnas).map(m => {
+            VisibilidadColumnas[m[0]] = true;
 
+          })
+
+      }
+     
+        tableInstanceRef.current?.setColumnVisibility((isExpandido) ? VisibilidadColumnas : columnasPorDefecto)	
+
+    
+    },[dataTable, VehiculosFiltrados, MinSocCarga, MaxSocCarga, isExpandido])
+
+        
+
+    //VisibilidadColumnas
+     
       let listadoCampos: MRT_ColumnDef<TablaDTO>[] =
-
     [
        {
          accessorKey: 'fechaString',
@@ -80,10 +110,7 @@ const TablaNivelCarga : React.FC<Props> =  ({data}) =>{
          enableHiding: false,
          size: 10,
          minSize: 10, //min size enforced during resizing
-         maxSize: 10,
-         Cell({ cell, column, row, table, }) {
-          return (moment(row.original.fechaString).format("DD/MM/YYYY"));
-        }
+         maxSize: 10
        },
        {
          accessorKey: 'placa',
@@ -104,7 +131,7 @@ const TablaNivelCarga : React.FC<Props> =  ({data}) =>{
         accessorKey: 'driver',
         header: 'Operador',
         filterVariant: 'select',
-        filterSelectOptions:  Driver,
+        filterSelectOptions:  lstdirvers,
         enableHiding: false,
         minSize: 10, //min size enforced during resizing
          maxSize: 10,
@@ -218,10 +245,8 @@ const TablaNivelCarga : React.FC<Props> =  ({data}) =>{
         size: 10
       }
      ];
-     const {setEstotal, setDatosMapaIndividual} = useDataNivelCarga()
-     useEffect(() => {
-      return 
-    }, []);
+
+
 
     
 
@@ -262,7 +287,7 @@ const getIconSoc = (data:any) => {
                   }),
                 }}
                     columns={listadoCampos}
-                    data={data}
+                    data={Datos}
                     enableTopToolbar={true}
                     enableDensityToggle
                     enableColumnOrdering
@@ -292,6 +317,8 @@ const getIconSoc = (data:any) => {
                     sorting,
                     }}
                     initialState={{columnVisibility:lstColumnas, showColumnFilters: true, density: 'compact'}}
+                    tableInstanceRef ={tableInstanceRef}
+                    
                 /> 
                
                

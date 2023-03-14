@@ -16,7 +16,7 @@ export const ExportarExcel : React.FC<Props>= ({NombreArchivo}) =>{
     const fileExtension = '.XLSX';
     const exportarExcel = async() =>{
         if(dataTable!= undefined && dataTable.length > 0){
-           console.log(dataTable)
+           
                 let finaldata = dataTable.map((item) =>{
                     if(item != null) {
                     let Objeto = {};

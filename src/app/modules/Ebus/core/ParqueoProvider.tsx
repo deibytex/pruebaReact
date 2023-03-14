@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import moment from "moment";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Form } from "react-bootstrap-v5";
 import { CirclesWithBar, Watch } from "react-loader-spinner";
 import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
@@ -19,6 +19,8 @@ export interface ParqueoContextModel {
     setClienteSeleccionado:(Cliente: ClienteDTO) => void;
     Visible?:boolean;
     setVisible : (visible:boolean)  => void;
+    markerSeleccionado? : TablaDTO,
+    setmarkerSeleccionado: (marker: TablaDTO) => void;
    
 }
 const ParqueoContext = createContext<ParqueoContextModel>({
@@ -27,6 +29,7 @@ const ParqueoContext = createContext<ParqueoContextModel>({
     setClienteSeleccionado: (Data: any) => {},
     setVisible:(Visible:boolean) =>{},
     setdataTable:(Data:any) => {},
+    setmarkerSeleccionado: (marker: TablaDTO) => { }
 });
 const ParqueoProvider: React.FC = ({ children }) => {
     const [DatosMapa, setDatosMapa] = useState<[]>([]);
@@ -34,6 +37,7 @@ const ParqueoProvider: React.FC = ({ children }) => {
     const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente);
     const [dataTable, setdataTable] = useState<TablaDTO[]>([])
     const [Visible, setVisible] = useState<boolean>(true);
+    const [markerSeleccionado, setmarkerSeleccionado] = useState<TablaDTO>();
     const value: ParqueoContextModel = {
        DatosMapa,
        setClientes,
@@ -44,7 +48,7 @@ const ParqueoProvider: React.FC = ({ children }) => {
        dataTable,
        setdataTable,
        Visible,
-       setVisible,
+       setVisible,markerSeleccionado, setmarkerSeleccionado
     };
     return (
         <ParqueoContext.Provider value={value}>
@@ -57,45 +61,39 @@ function useDataParqueo() {
 };
 const DataClientes: React.FC = ({ children }) => {
     const { Visible, DatosMapa, Clientes, ClienteSeleccionado, dataTable, setVisible, setDatosMapa, setClienteSeleccionado, setClientes, setdataTable } = useDataParqueo();
-    let consulta = (children:any) => {
+    const interval = useRef<any>();
+    let consulta = ( timer: any) => {
         // consultamos en la base de datos la informacion de vehiculos operando
         GetClientesEsomos().then((response:AxiosResponse<any>) =>{
             setClientes(response.data);
             setClienteSeleccionado(response.data[0])
-            GetTiempo(response.data[0].clienteIdS);
+            GetTiempo(response.data[0].clienteIdS, timer);
         }).catch((error) =>{
-            console.log(error);
+          
             errorDialog("<i>Eror al consultar los clientes</i>","")
         })
        
 
-        const GetTiempo = (ClienteId:string) =>{
-            ValidarTiempoActualizacion(ClienteId).then((response:AxiosResponse<any>) =>{
-                if (response.data.length != 0) {
-                    Setimeout(response.data[0].valor, ClienteId,moment().format("MYYYY").toString());
-                } else
-                    Setimeout(60000,ClienteId,moment().format("MYYYY").toString());//Si no llega a encontrar un tiempo configurado para el cliente, le da un minuto para actualizar.
-            }).catch((error) =>{
-                errorDialog("<i>Eror al el tiempo de actualización</i>","")
+        const GetTiempo = (ClienteId: string, timer: any) => {
+            ValidarTiempoActualizacion(ClienteId).then((response: AxiosResponse<any>) => {
+                let tiempo = (response.data.length != 0) ? response.data[0].valor : 60000;
+                let periodo = moment().format("MYYYY").toString();
+    
+                CargarPosiciones(ClienteId, periodo);
+                interval.current = setInterval(() => {
+                    CargarPosiciones(ClienteId, periodo);
+                }, tiempo);
+       }).catch((error) => {
+                errorDialog("<i>Eror al el tiempo de actualización</i>", "")
             })
         }
-        
-        const Setimeout = (tiempo:any, cliente:string, Periodo:string) =>{
-            if (tiempo == undefined || tiempo == null)
-                tiempo = 60000;
-                CargarPosiciones(cliente,Periodo);
-            const timer = setTimeout(() => {
-                CargarPosiciones(cliente,Periodo);
-              }, tiempo);
-              return () => clearTimeout(timer);
-        }
-
+  
         const CargarPosiciones = (clienteIdS:string,Periodo: string) =>{
             setVisible(true)
            //las posiciones
             GetUltimaPosicionVehiculos(clienteIdS, moment().format("MYYYY").toString()).then((response:AxiosResponse<any>) =>{
-                setdataTable(response.data);
-                setDatosMapa(response.data);
+                setdataTable(response.data);      
+                setDatosMapa(response.data);        
                 setVisible(false);
             }).catch((error) =>{
                 errorDialog("<i>Ha ocurrido un error en la consulta de las posiciones</i>","")
@@ -104,7 +102,13 @@ const DataClientes: React.FC = ({ children }) => {
 
     }
     useEffect(() => {
-        consulta(children);
+        let timer: any;
+        if(interval.current != 0)
+         clearInterval(interval.current)
+            consulta( timer);
+    
+
+        return () => clearInterval(interval.current);
     }, [children]);
     return <>{(CargaListadoClientes(Clientes,ClienteSeleccionado, setClienteSeleccionado))}</>;
 }

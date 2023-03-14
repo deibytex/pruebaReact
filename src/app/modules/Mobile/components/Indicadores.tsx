@@ -36,32 +36,32 @@ export const Indicadores: React.FC<Props> = () => {
 
     if (Object.entries(vehiculosOperacion).length !== 0) {
         return (
-            <>
+            <div className="row mt-2 text-primary">
                 <div className="col-sm-3 col-md-3 col-xs-3" style={{ textAlign: 'center' }}>
-                    <label className="control-label label label-sm text-white" style={{ fontWeight: 'bold', textAlign: 'center' }}>Total Vehículos</label>
+                    <label className="control-label label label-sm " style={{ fontWeight: 'bold', textAlign: 'center' }}>Total Vehículos</label>
                     <div className="card text-black mb-3" style={{ marginTop: '5px', textAlign: 'center', flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
                         <span style={{ fontWeight: 'bold', fontSize: '30px' }}>{vehiculosOperando + vehiculosSinOperacion}</span>
                     </div>
                 </div>
                 <div className="col-sm-3 col-md-3 col-xs-3" style={{ textAlign: 'center' }}>
-                    <label className="control-label label label-sm text-white" style={{ fontWeight: 'bold', textAlign: 'center' }}>Vehículos con Movimiento</label>
+                    <label className="control-label label label-sm " style={{ fontWeight: 'bold', textAlign: 'center' }}>Vehículos con Movimiento</label>
                     <div className="card text-black mb-3" style={{ marginTop: '5px', textAlign: 'center', flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
                         <span style={{ fontWeight: 'bold', fontSize: '30px' }}>{vehiculosOperando}/{vehiculosOperando + vehiculosSinOperacion}</span>
                     </div>
                 </div>
                 <div className="col-sm-3 col-md-3 col-xs-3" style={{ textAlign: 'center' }}>
-                    <label className="control-label label label-sm text-white" style={{ fontWeight: 'bold', textAlign: 'center' }}>Vehículos con Preoperacional</label>
+                    <label className="control-label label label-sm " style={{ fontWeight: 'bold', textAlign: 'center' }}>Vehículos con Preoperacional</label>
                     <div className="card text-black mb-3" style={{ marginTop: '5px', textAlign: 'center', flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
                         <span style={{ fontWeight: 'bold', fontSize: '30px' }}>{vehiculosConPreoperacional}/{vehiculosSinPreoperacional?.length}</span>
                     </div>
                 </div>
                 <div className="col-sm-3 col-md-3 col-xs-3" style={{ textAlign: 'center' }}>
-                    <label className="control-label label label-sm text-white" style={{ fontWeight: 'bold', textAlign: 'center' }}>Vehículos con Novedad</label>
+                    <label className="control-label label label-sm " style={{ fontWeight: 'bold', textAlign: 'center' }}>Vehículos con Novedad</label>
                     <div className="card text-black mb-3" style={{ marginTop: '5px', textAlign: 'center', flex: 1, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', height: '100px' }}>
                         <span style={{ fontWeight: 'bold', fontSize: '30px' }}>{vehiculosConNovedad}/{vehiculosConPreoperacional}</span>
                     </div>
                 </div>
-            </>
+            </div>
         )
     }
     else {

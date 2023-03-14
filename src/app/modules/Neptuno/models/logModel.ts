@@ -14,7 +14,7 @@ export interface LogDTO
 
 export interface UsuariosDTO
 {
-    UsuarioId: string,
+    UsuarioId: string ,
     Nombres : string
 }
 export const initialdataUsuarios : UsuariosDTO =

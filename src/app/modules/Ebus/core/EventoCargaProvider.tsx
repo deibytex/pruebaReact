@@ -1,6 +1,6 @@
 import { AxiosResponse } from "axios";
 import moment from "moment";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap-v5";
 import DualListBox from "react-dual-listbox";
 import { CirclesWithBar, Watch } from "react-loader-spinner";
@@ -106,6 +106,7 @@ function useDataEventoCarga() {
 
 const DataRecargaTiempoClientes: React.FC = ({ children }) => {
     const {  Clientes, ClienteSeleccionado,   setVisible,  setClienteSeleccionado, setClientes, setdataTable } = useDataEventoCarga();
+    const interval = useRef<any>();
     const CargarEventos = (clienteIdS:string,Periodo: string) =>{
         setVisible(true)
         PostEventActiveRecargaByDayAndClient(clienteIdS,Periodo).then((response:AxiosResponse<any>) =>{
@@ -118,41 +119,37 @@ const DataRecargaTiempoClientes: React.FC = ({ children }) => {
         })
     }
 
-    const Setimeout = (tiempo:any, cliente:string, Periodo:string) =>{
-        if (tiempo == undefined || tiempo == null)
-            tiempo = 60000;
-        CargarEventos(cliente,Periodo);
-        const timer = setTimeout(() => {
-            CargarEventos(cliente,Periodo);
-          }, tiempo);
-          return () => clearTimeout(timer);
-    }
-    const GetTiempo = (ClienteId:string) =>{
-        ValidarTiempoActualizacion(ClienteId).then((response:AxiosResponse<any>) =>{
-            if (response.data.length != 0) {
-                Setimeout(response.data[0].valor, ClienteId,moment().format("MYYYY").toString());
-            } else
-                Setimeout(60000,ClienteId,moment().format("MYYYY").toString());//Si no llega a encontrar un tiempo configurado para el cliente, le da un minuto para actualizar.
-        }).catch((error) =>{
-            errorDialog("<i>Eror al el tiempo de actualización</i>","")
+    const GetTiempo = (ClienteId: string, timer: any) => {
+        ValidarTiempoActualizacion(ClienteId).then((response: AxiosResponse<any>) => {
+            let tiempo = (response.data.length != 0) ? response.data[0].valor : 60000;
+            let periodo = moment().format("MYYYY").toString();
+
+            CargarEventos(ClienteId, periodo);
+            interval.current = setInterval(() => {
+                CargarEventos(ClienteId, periodo);
+            }, tiempo);
+   }).catch((error) => {
+            errorDialog("<i>Eror al el tiempo de actualización</i>", "")
         })
     }
     //CONSULTA VEHICULOS OPERANDO
-    let consulta = (children:any) => {
+    let consulta = (children:any, timer: any) => {
         // consultamos en la base de datos la informacion de vehiculos operando
         GetClientesEsomos().then((response:AxiosResponse<any>) =>{
             setClientes(response.data);
             setClienteSeleccionado(response.data[0])
-            GetTiempo(response.data[0].clienteIdS);
+            GetTiempo(response.data[0].clienteIdS, timer);
         }).catch((error) =>{
             console.log(error);
             errorDialog("<i>Eror al consultar los clientes</i>","")
         })
     }
     useEffect(() => {
-        
-            consulta(children);
-        
+        let timer : any ;
+        if(interval.current != 0)
+        clearInterval(interval.current)
+            consulta(children, timer);
+         return () => clearInterval(interval.current);
     }, [children]);
     return <>{(CargaListadoClientes(Clientes,ClienteSeleccionado, setClienteSeleccionado))}</>;
 };

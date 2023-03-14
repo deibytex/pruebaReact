@@ -6,7 +6,7 @@ import { object } from "yup";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 import { useDataParqueo } from "../../core/ParqueoProvider";
 import { GetUltimaPosicionVehiculos } from "../../data/Parqueo";
-import { InicioTabla, TablaDTO } from "../../models/ParqueoModels";
+import {  TablaDTO } from "../../models/ParqueoModels";
 import { ModalParqueo } from "./ModalParqueo";
 
 type Props = {
@@ -19,7 +19,7 @@ type Props = {
     const {setVisible} = useDataParqueo();
     const [posiciones, setPosiciones] = useState<{}>({})
     const [Datos, setDatos] = useState<[]>([])
-    const [DataTabla,setDataTabla ] = useState<TablaDTO[]>([InicioTabla])
+    const [DataTabla,setDataTabla ] = useState<TablaDTO[]>([])
     const [show,setShow ] = useState<boolean>(false)
     const [title,setTitle] = useState<string>("Detalles parqueo")
     let Periodo = moment().format("MYYYY").toString();

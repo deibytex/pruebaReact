@@ -4,17 +4,17 @@ import { Icon } from "leaflet";
 import { useEffect, useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer, Tooltip, useMap } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
-import { useDataNivelCarga } from "../../core/NivelCargaProvider";
-import { TablaDTO } from "../../models/NivelcargaModels";
-
 import L from "leaflet";
 import { toAbsoluteUrl } from "../../../../../_start/helpers";
+import { TablaDTO } from "../../models/ParqueoModels";
+import { useDataParqueo } from "../../core/ParqueoProvider";
 
 
 const Mapa: React.FC = () => {
     // datos del provider
-    const { DatosMapa, markerSeleccionado } = useDataNivelCarga()
+    const { DatosMapa, markerSeleccionado, dataTable } = useDataParqueo()
     const [map, setMap] = useState<TablaDTO[]>([]);
+    const [mapReference, setmapReference] = useState<any>(null);
     const [show, setshowp] = useState<boolean>(false);
     const [activePark, setActivePark] = useState<TablaDTO>();
 
@@ -27,17 +27,18 @@ const Mapa: React.FC = () => {
     // actiualiza la informacion de todos los vehiculos
     useEffect(
         () => {
-            let datosmapa = (DatosMapa as TablaDTO[])
-            if (DatosMapa != undefined && DatosMapa.length > 0) {              
-                setMap(datosmapa);
+           
+            if (dataTable != undefined && dataTable.length > 0) {              
+                setMap(dataTable);
                 setshowp(true)
-                setcenterLatitud(Number.parseFloat(datosmapa[0].latitud))
-                setcenterLongitud(Number.parseFloat(datosmapa[0].longitud))
+                setcenterLatitud(Number.parseFloat(dataTable[0].latitud))
+                setcenterLongitud(Number.parseFloat(dataTable[0].longitud))
             }
+           
         }
-        , [DatosMapa]
+        , [dataTable, DatosMapa]
     );
-
+  
     // selecciona el marker
     useEffect(
         () => {
@@ -164,10 +165,10 @@ const Mapa: React.FC = () => {
 
                                 }}
                             >
-                                <Typography > Soc:</Typography>
-                                <Typography >{getIconSoc(activePark.soc)}</Typography>
-                                <Typography>Operador:</Typography>
-                                <Typography >{activePark.driver}</Typography>
+                                <Typography > Avl:</Typography>
+                                <Typography >{activePark.avlString}</Typography>
+                                <Typography>Localización:</Typography>
+                                <Typography >{activePark.localizacion}</Typography>
                             </Box>
 
                         </div>
@@ -188,6 +189,8 @@ const Mapa: React.FC = () => {
             id="mapcontainter"
             center={[centerLatitud, centerLongitud]} zoom={zoom}
             className=" ml-4"
+            whenCreated={setmapReference}
+            
         >
             <TileLayer
                 url={CapaBasicNight}

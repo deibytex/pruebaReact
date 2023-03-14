@@ -29,7 +29,7 @@ const {setVisible, ClienteSeleccionado, Clientes, setClienteSeleccionado, setCli
     //funcion que oculta el loader o indicador.
     const VisibleIndicador  = () => setVisible(false);
     return (<> 
-        <ParqueoProvider>
+     
             <BlockUi tag="span" className="bg-primary"  keepInView blocking={(Visible == undefined? true:Visible)}>
                 <div className="me-sm-10 me-0">
                         <ul className="nav nav-tabs nav-pills nav-pills-custom">
@@ -65,7 +65,7 @@ const {setVisible, ClienteSeleccionado, Clientes, setClienteSeleccionado, setCli
                                 </div>
                             </div>
                             <div className={`tab-pane fade ${activeTab === "#tab2" ? "show active" : ""}`} id="tab2_content">
-                            {(dataTable.length != 0) && (  <ParqueoMapa Datos={dataTable}/>)}
+                            {(dataTable.length != 0 && activeTab === "#tab2") && (  <ParqueoMapa Datos={dataTable}/>)}
                             
                             </div>
                             <div className={`tab-pane fade ${activeTab === "#tab3" ? "show active" : ""}`} id="tab3_content">
@@ -73,7 +73,7 @@ const {setVisible, ClienteSeleccionado, Clientes, setClienteSeleccionado, setCli
                             </div>
                     </div>
                 </BlockUi>
-         </ParqueoProvider>
+        
   </>)
  }
  export {ParqueoPrincipal}

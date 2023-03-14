@@ -1,20 +1,23 @@
 import { AxiosResponse } from "axios";
 import moment from "moment";
-import { createContext, useContext, useEffect, useState } from "react";
-import { Form } from "react-bootstrap-v5";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { Button, Form, Modal } from "react-bootstrap-v5";
 import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
 import { GetClientesEsomos, PostEventActiveViajesByDayAndClient, ValidarTiempoActualizacion } from "../data/NivelCarga";
-import { ClienteDTO, InicioCliente, InicioTabla, MapaDTO, MapaInicial, TablaDTO } from "../models/NivelcargaModels";
+import { ClienteDTO, dualListDTO, InicioCliente, TablaDTO } from "../models/NivelcargaModels";
 import { CirclesWithBar, Vortex, Watch } from "react-loader-spinner";
+import Nouislider from "nouislider-react";
+import DualListBox from "react-dual-listbox";
+import { ExportarExcel } from "../components/EventoCarga/ExportarExcel";
 
 // clase con los funciones  y datos a utiilizar
 type Props = {
     Visible: boolean;
 }
 export interface NivelCargaContextModel {
-    DatosMapa?: any;
-    dataTable?: any;
-    setDatosMapa: (Data: any) => void;
+    DatosMapa?: TablaDTO[];
+    dataTable?:TablaDTO[];
+    setDatosMapa: (Data: TablaDTO[]) => void;
     Clientes?: ClienteDTO[];
     ClienteSeleccionado?: ClienteDTO;
     setClientes: (Cliente: ClienteDTO[]) => void;
@@ -30,27 +33,48 @@ export interface NivelCargaContextModel {
     setEstotal: (EsTotal: any) => void;
     ResetearValores?: boolean;
     setResetearValores: (Resetear: any) => void;
-    markerSeleccionado? : MapaDTO,
-    setmarkerSeleccionado: (marker: MapaDTO) => void;
-    lstFiltroVehiculo? : MapaDTO[],
-    setlstFiltroVehiculo: (marker: MapaDTO[]) => void;
+    markerSeleccionado? : TablaDTO,
+    setmarkerSeleccionado: (marker: TablaDTO) => void;
+    lstFiltroVehiculo? : TablaDTO[],
+    setlstFiltroVehiculo: (marker: TablaDTO[]) => void;
+    VehiculosFiltrados?: string[];
+    setVehiculosFiltrados: (Vehiculos:string[]) => void;
+    MinSocCarga?:number;
+    MaxSocCarga?:number;
+    setMinSocCarga:(MinSoc:number) => void;
+    setMaxSocCarga:(MaxSoc:number) =>void;
+    showVehiculos?:boolean;
+    setShowVehiculos : (showVehiculos:boolean) =>void;
+    ShowSoc?:boolean;
+    setShowSoc:(Soc:boolean) =>void;
+    IsFiltrado?:boolean;
+    setIsFiltrado:(IsFiltrado:boolean) => void;
+    isExpandido?:boolean;
+    setisExpandido:(isExpandido:boolean) => void;
 }
 const NivelCargaContext = createContext<NivelCargaContextModel>({
-    setDatosMapa: (Data: any) => { },
+    setDatosMapa: (Data: TablaDTO[]) => { },
     setClientes: (Cliente: any) => { },
     setClienteSeleccionado: (Data: any) => { },
     setPeriodo: (Periodo: string) => { },
-    setdataTable: (Data: any) => { },
+    setdataTable: (Data: TablaDTO[]) => { },
     setVisible: (Visible: boolean) => { },
     setDatosMapaIndividual: (MapaIndividual: any) => { },
     setEstotal: (EsTotal: any) => { },
     setResetearValores: (Resetear: any) => { },
-    setmarkerSeleccionado: (marker: MapaDTO) => { },
-    setlstFiltroVehiculo: (marker: MapaDTO[]) => { }
+    setmarkerSeleccionado: (marker: TablaDTO) => { },
+    setlstFiltroVehiculo: (marker: TablaDTO[]) => { },
+    setVehiculosFiltrados: (Vehiculos:string[])=> { },
+     setMinSocCarga:(MinSoc:number) => { },
+    setMaxSocCarga:(MaxSoc:number) => {},
+    setShowVehiculos : (showVehiculos:boolean)=> { },
+    setShowSoc:(Soc:boolean)=> { },
+    setIsFiltrado:(IsFiltrado:boolean)=> { },
+    setisExpandido:(isExpandido:boolean)=> { }
 
 });
 const NivelCargaProvider: React.FC = ({ children }) => {
-    const [DatosMapa, setDatosMapa] = useState<[]>([]);
+    const [DatosMapa, setDatosMapa] = useState<TablaDTO[]>([]);
     const [Clientes, setClientes] = useState<ClienteDTO[]>([]);
     const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente);
     const [dataTable, setdataTable] = useState<TablaDTO[]>([])
@@ -59,8 +83,16 @@ const NivelCargaProvider: React.FC = ({ children }) => {
     const [DatosMapaIndividual, setDatosMapaIndividual] = useState<[]>([]);
     const [EsTotal, setEstotal] = useState<boolean>(false);
     const [ResetearValores, setResetearValores] = useState<boolean>(false);
-    const [markerSeleccionado, setmarkerSeleccionado] = useState<MapaDTO>();
-    const [lstFiltroVehiculo, setlstFiltroVehiculo] = useState<MapaDTO[]>();
+    const [markerSeleccionado, setmarkerSeleccionado] = useState<TablaDTO>();
+    const [lstFiltroVehiculo, setlstFiltroVehiculo] = useState<TablaDTO[]>();
+    const [VehiculosFiltrados, setVehiculosFiltrados] = useState<string[]>([]);
+    const [MaxSocCarga, setMaxSocCarga] = useState<number>(100)
+    const [MinSocCarga, setMinSocCarga] = useState<number>(0);
+    const [ShowSoc, setShowSoc] = useState<boolean>(false);
+    const [showVehiculos, setShowVehiculos] = useState<boolean>(false);
+    const [IsFiltrado, setIsFiltrado] = useState<boolean>(false);
+    const [isExpandido, setisExpandido] = useState<boolean>(false);
+
     const value: NivelCargaContextModel = {
         DatosMapa,
         setClientes,
@@ -81,7 +113,10 @@ const NivelCargaProvider: React.FC = ({ children }) => {
         ResetearValores,
         setResetearValores,
         markerSeleccionado, setmarkerSeleccionado,
-        lstFiltroVehiculo, setlstFiltroVehiculo
+        lstFiltroVehiculo, setlstFiltroVehiculo,
+        VehiculosFiltrados, setVehiculosFiltrados, MaxSocCarga, MinSocCarga, setMaxSocCarga, setMinSocCarga,
+        showVehiculos, setShowVehiculos,ShowSoc, setShowSoc, IsFiltrado, setIsFiltrado,
+        isExpandido, setisExpandido
     };
     return (
         <NivelCargaContext.Provider value={value}>
@@ -100,55 +135,62 @@ const IndicadorCargado: React.FC = ({ children }) => {
 }
 //Hace toda la magia de ir al servidor, traerse los datos y setearlos
 const DataEventosTiempoClientes: React.FC = ({ children }) => {
-    const {Clientes, ClienteSeleccionado, setVisible, setEstotal, setDatosMapa, setClienteSeleccionado, setClientes, setPeriodo, setdataTable } = useDataNivelCarga();
+    const {Clientes, ClienteSeleccionado, setVisible, setEstotal,  setClienteSeleccionado, setClientes, setPeriodo, setdataTable } = useDataNivelCarga();
+    const interval = useRef<any>();
     const CargarEventos = (clienteIdS: string, Periodo: string) => {
         setVisible(true)
-        PostEventActiveViajesByDayAndClient(clienteIdS, Periodo).then((response: AxiosResponse<any>) => {
-            setDatosMapa(response.data);
+        PostEventActiveViajesByDayAndClient(clienteIdS, Periodo).then((response: AxiosResponse<TablaDTO[]>) => {
+           
             setdataTable(response.data);
+            
             setVisible(false);
             setEstotal(true);
         }).catch((error) => {
-            console.log(error);
+        
             setVisible(false);
            // errorDialog("<i>Eror al consultar los eventos</i>", "")
         })
     }
 
 
-    const GetTiempo = (ClienteId: string, timer: any) => {
+    const GetTiempo = (ClienteId: string) => {
         ValidarTiempoActualizacion(ClienteId).then((response: AxiosResponse<any>) => {
             let tiempo = (response.data.length != 0) ? response.data[0].valor : 60000;
             let periodo = moment().format("MYYYY").toString();
 
             CargarEventos(ClienteId, periodo);
-            timer = setInterval(() => {
+            interval.current = setInterval(() => {
                 CargarEventos(ClienteId, periodo);
             }, tiempo);
+
+          
    }).catch((error) => {
             errorDialog("<i>Eror al el tiempo de actualización</i>", "")
         })
     }
     //CONSULTA VEHICULOS OPERANDO
-    let consulta = (children: any, timer: number) => {
+    let consulta = (children: any) => {
         // consultamos en la base de datos la informacion de vehiculos operando
         GetClientesEsomos().then((response: AxiosResponse<any>) => {
             setClientes(response.data);
             setClienteSeleccionado(response.data[0])
             setPeriodo(children);
-            GetTiempo(response.data[0].clienteIdS, timer);
             setEstotal(true);
+             GetTiempo(response.data[0].clienteIdS);
+          
         }).catch((error) => {
             errorDialog("<i>Eror al consultar los clientes</i>", "")
         })
     }
     useEffect(() => {
-        let timer = 0;
+      
+        if(interval.current != 0)
+        clearInterval(interval.current)
         if (children) {
-            consulta(children, timer);
+             consulta(children);
         }
 
-        return () => clearInterval(timer);
+        return () =>  {  clearInterval(interval.current) };
     }, [children]);
     return <>{(CargaListadoClientes(Clientes, ClienteSeleccionado, setClienteSeleccionado))}</>;
 };
@@ -208,4 +250,172 @@ function CargarIndicadorCargado(children: any) {
             /></>
     )
 }
-export { NivelCargaProvider, useDataNivelCarga, DataEventosTiempoClientes, Indicador, IndicadorCargado }
+
+
+const VehiculosFiltros : React.FC = () =>{
+  
+const { VehiculosFiltrados, setVehiculosFiltrados,  dataTable,  setIsFiltrado, MinSocCarga,MaxSocCarga 
+, showVehiculos, setShowVehiculos
+} = useDataNivelCarga();
+const [vehiculos, setvehiculos] = useState<dualListDTO[]>([]);
+    
+    function Widget () {
+        return (
+            <DualListBox
+                options={vehiculos}
+                selected={VehiculosFiltrados}
+                onChange={(selected:string[]) => {setVehiculosFiltrados(selected);    setIsFiltrado( true); }}
+            />
+        );
+    }  
+
+// llenamos la informacion de vehkiculos basados en la informacion del datatable
+    useEffect(() =>{
+        if(dataTable != undefined && dataTable.length > 0)
+        {
+            let dual = dataTable.map((item)=>{
+                 const itemd : dualListDTO = { label :item.placa ?? "", value : item.placa ?? "" }; 
+                return itemd;
+            })
+            setvehiculos(dual)
+        }
+       
+    },[dataTable])
+
+ 
+    const cerrarModal = (e:any) => { 
+        
+        //IsFiltrado
+        if(VehiculosFiltrados != undefined)
+        setIsFiltrado( (VehiculosFiltrados?.length > 0));
+        setShowVehiculos(false);
+       
+    };
+
+    const cancelar = (e:any) => { 
+        
+        //IsFiltrado
+        setVehiculosFiltrados([])
+        if( !(MinSocCarga != 0 || MaxSocCarga != 100))
+        setIsFiltrado( false);
+        setShowVehiculos(false);
+    };
+    
+    
+    return (
+            <Modal 
+            show={showVehiculos} 
+            onHide={cerrarModal} 
+            size="lg">
+            <Modal.Header closeButton>
+                <Modal.Title>{(`Filtro por vehiculos`)}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <div className="row">
+                    <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                        <Widget/>
+                    </div>
+                </div>
+            </Modal.Body>
+            <Modal.Footer>
+            <Button type="button" variant="primary" onClick={cerrarModal}>
+                Filtrar
+                </Button>  
+                <Button type="button" variant="secondary" onClick={cancelar}>
+                Cancelar
+                </Button>    
+                           
+            </Modal.Footer>
+            </Modal>
+       
+    )
+};
+
+
+const SocFiltro : React.FC= () =>{
+    const { MinSocCarga, MaxSocCarga, setMaxSocCarga, setMinSocCarga , setIsFiltrado, setShowSoc, ShowSoc} = useDataNivelCarga();
+
+    const End = (a:any) =>{     
+        
+         setMinSocCarga(Number.parseInt(a[0]))
+         setMaxSocCarga(Number.parseInt(a[1]))
+    }
+    const handleClose = (e:any) => {     
+        setIsFiltrado((MinSocCarga != 0 || MaxSocCarga != 100));
+        setShowSoc(false);
+    };
+   
+   
+    function Slider () {
+        return(
+            <Nouislider range={{
+                min: [0],
+                max: [100]
+              }}  start={[MinSocCarga ?? 0, MaxSocCarga ?? 100]} tooltips={true}  onSet={End}/>
+        )
+     }
+
+ return(
+    <>  <Modal 
+    show={ShowSoc} 
+    onHide={handleClose} 
+     size="sm">
+      <Modal.Header closeButton style={{height:'20px'}}>
+      <Modal.Title>{"Soc"}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+          <div className="row">
+              <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                {/* <div className="dropright" id="ventanaSoc" style={{transform: 'translate3d(110px, -85px, 0px) !important'}} data-keyboard="false" data-backdrop="static"> */}
+                     <div style={{height:'80px',textAlign: 'center'}}> 
+                        <div style={{margin: '7px'}}>
+                            <span className="control-label font-weight-bold" style={{textAlign:'center', fontSize:'10px'}}>Soc:</span>
+                            <div className="row" style={{width:'100%'}}>
+                                <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                                    <Slider/>
+                                </div>
+                            </div>
+                            <div id="result" style={{ background: 'red' }} />
+                        </div>
+                     </div> 
+                {/* </div> */}
+              </div>
+          </div>
+      </Modal.Body>
+    </Modal></>
+ )
+}
+
+function BotonesFiltros () {
+    const { setIsFiltrado, IsFiltrado, setShowSoc, setShowVehiculos,   setMinSocCarga, setMaxSocCarga, setVehiculosFiltrados} = useDataNivelCarga()
+  
+   
+    const AbrirModalVehiculos = () =>{
+      
+        setShowVehiculos(true);
+        // (IsFiltrado == false ? setIsFiltrado(true):setIsFiltrado(false));
+    }
+
+    const AbrirModalSoc = () =>{
+        setShowSoc(true);
+    }
+    const QuitarFiltros = () =>{
+     
+        setIsFiltrado(false);
+        setMinSocCarga(0);
+        setMaxSocCarga(100);
+        setVehiculosFiltrados([]);
+    }
+    return (
+        <>
+            <button type="button" title="Soc" className="btn btn-sm btn-primary" onClick={AbrirModalSoc}><i className="bi-battery-charging" ></i></button>
+            {<>&nbsp;</>}
+            <button type="button" title="Vehiculos" className="btn btn-sm btn-info" onClick={AbrirModalVehiculos}><i className="bi-car-front-fill" ></i></button>
+            {<>&nbsp;</>}
+         
+            <button  style={{display:`${IsFiltrado==false ? 'none':'inline'}`}} type="button" title="Quitar filtros" className="btn btn-sm btn-danger" onClick={QuitarFiltros}><i className="bi-filter" >{(IsFiltrado==true ? <span>&times;</span>:"")}</i></button>
+        </>
+    )
+  }
+
+export { NivelCargaProvider, useDataNivelCarga, DataEventosTiempoClientes, Indicador, IndicadorCargado , VehiculosFiltros, SocFiltro, BotonesFiltros}
