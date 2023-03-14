@@ -228,10 +228,10 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             </div>
             <div className="row">
             <div className="mt-5 justify-content-end" style={{ textAlign: 'right' }}>
-            <Button type="button" variant="danger" className="m-3"> 
+            <Button type="button" variant="secondary" className="m-3"> 
                 Visualizar Reporte
             </Button>
-            <Button type="button" variant="danger" className="m-3"> 
+            <Button type="button" variant="secondary" className="m-3"> 
                 Generar Reporte
             </Button>
         </div>
