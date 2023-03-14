@@ -15,7 +15,7 @@ type Props = {
 export const ReporteExcelencia: React.FC<Props> = () => {
 
     //Data desde el provider
-    const { listas, detalleListas, sites, assetTypes, fechaInicial, fechaFinal, assetSelected, driverSelected } = useDataSotramac();
+    const { listas, detalleListas, sites, assetTypes } = useDataSotramac();
 
     //Carga Inicial filtros
     const [lstCategorias, setlstCategorias] = useState<Listas[]>([]);
@@ -227,15 +227,9 @@ export const ReporteExcelencia: React.FC<Props> = () => {
                 <SelectAssetsDrivers siteId={site} assetTypeId={assettype} />
             </div>
             <div className="row">
-            <div className="mt-5 justify-content-end" style={{ textAlign: 'right' }}>
-            <Button type="button" variant="secondary" className="m-3"> 
-                Visualizar Reporte
-            </Button>
-            <Button type="button" variant="secondary" className="m-3"> 
-                Generar Reporte
-            </Button>
-        </div>
+              <ReporteExcelencia/>
             </div>
+
         </>
     )
 } 
