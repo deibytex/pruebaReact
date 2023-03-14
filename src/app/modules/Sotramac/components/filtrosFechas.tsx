@@ -94,15 +94,15 @@ export const Fechas: React.FC<Props> = () => {
     return (
         <>
             <div className="col-sm-4 col-md-4 col-xs-4">
-                <label className="control-label label label-sm text-white m-3" style={{ fontWeight: 'bold' }}>Predefinidos:</label>
+                <label className="control-label label label-sm text-primary m-3" style={{ fontWeight: 'bold' }}>Predefinidos:</label>
                 <SelectPredefinidos />
             </div>
             <div className="col-sm-4 col-md-4 col-xs-4">
-                <label className="control-label label label-sm text-white m-3" style={{ fontWeight: 'bold' }}>Fecha Inicial:</label>
+                <label className="control-label label label-sm text-primary m-3" style={{ fontWeight: 'bold' }}>Fecha Inicial:</label>
                 <FechaInicialControl />
             </div>
             <div className="col-sm-4 col-md-4 col-xs-4">
-                <label className="control-label label label-sm text-white m-3" style={{ fontWeight: 'bold' }}>Fecha Final:</label>
+                <label className="control-label label label-sm text-primary m-3" style={{ fontWeight: 'bold' }}>Fecha Final:</label>
                 <FechaFinalControl />
             </div>
         </>

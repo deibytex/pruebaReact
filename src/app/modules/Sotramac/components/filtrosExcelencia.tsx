@@ -222,19 +222,19 @@ export const ReporteExcelencia: React.FC<Props> = () => {
     //Retornamos los controles de filtro
     return (
         <>
-            <div className="row">
+            <div className="row text-primary">
                 <div className="col-sm-6 col-md-6 col-xs-6" >
-                    <label className="control-label label label-sm text-white m-3" style={{ fontWeight: 'bold' }}>Categoría:</label>
+                    <label className="control-label label label-sm  m-3" style={{ fontWeight: 'bold' }}>Categoría:</label>
                     <SelectCategoria />
                 </div>
                 <div className="col-sm-6 col-md-6 col-xs-6">
-                    <label className="control-label label label-sm text-white m-3" style={{ fontWeight: 'bold' }}>Reporte:</label>
+                    <label className="control-label label label-sm  m-3" style={{ fontWeight: 'bold' }}>Reporte:</label>
                     <SelectReporte />
                 </div>
             </div>
             <div className="row">
                 <div className="col-sm-6 col-md-6 col-xs-6" hidden={showAssetTypes}>
-                    <label className="control-label label label-sm text-white m-3" style={{ fontWeight: 'bold' }}>Tipo activo:</label>
+                    <label className="control-label label label-sm  m-3" style={{ fontWeight: 'bold' }}>Tipo activo:</label>
                     <SelectAssetTypes />
                 </div>
             </div>
@@ -246,10 +246,10 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             </div>
             <div className="row">
                 <div className="mt-5 justify-content-end" style={{ textAlign: 'right' }}>
-                    <Button type="button" variant="secondary" className="m-3" onClick={() => { modalReportes(); }}>
+                    <Button type="button" variant="primary" className="m-3" onClick={() => { modalReportes(); }}>
                         Visualizar Reporte
                     </Button>
-                    <Button type="button" variant="secondary" className="m-3" >
+                    <Button type="button" variant="primary" className="m-3" >
                         Generar Reporte
                     </Button>
                 </div>
