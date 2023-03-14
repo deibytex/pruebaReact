@@ -60,7 +60,7 @@ export function Login() {
             setSubmitting(false);
             setStatus("Los detalles del login son incorrecto");
           
-              seterrorLogin( (e.response != null)  ? e.response.data : "Error al iniciar ingresar.")
+              seterrorLogin(  "Error al iniciar ingresar.")
                
           });
       }, 1000);
