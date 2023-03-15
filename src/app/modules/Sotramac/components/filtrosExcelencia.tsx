@@ -104,14 +104,11 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             setlstAssetsTypes(assetTypes);
             setshowAssets(false);
             setshowAssetTypes(false);
-            setassetTypeId(assetTypeId);
 
         }
         else if (reporte === "EOAPV") {
             setlstAssetsTypes(assetTypes);
             setshowAssetTypes(false);
-
-            setassetTypeId(assetTypeId);
 
             //Ocultamos los sitios y le asigamos cero de valor
             setshowAssets(false);
@@ -120,8 +117,6 @@ export const ReporteExcelencia: React.FC<Props> = () => {
         else if (reporte === "EOAPCV") {
             setlstAssetsTypes(assetTypes);
             setshowAssetTypes(false);
-
-            setassetTypeId(assetTypeId);
             setsiteId(-1);
 
             //Ocultamos los sitios y le asigamos valor a sitios
