@@ -115,7 +115,8 @@ function useDataSotramac() {
 // segun parametrización que debe realizarse
 
 const DataReportesSotramac: React.FC = ({ children }) => {
-    const { setlistas, setError, setlistasids, setdetalleListas, setassetTypes, setassets, setdrivers, listasIds, iserror } = useDataSotramac();
+    const { setlistas, setError, setlistasids, setdetalleListas, setassetTypes, setassets, setdrivers, setassetTypeId,
+             listasIds, iserror } = useDataSotramac();
 
     //Cosulta Listas (Opciones de categoria)
     let consultaListas = (Sigla: string) => {
@@ -154,6 +155,13 @@ const DataReportesSotramac: React.FC = ({ children }) => {
         getAssetTypes().then(
 
             (response) => {
+                let datos = response.data[0];
+
+                // traemos la informacion del  objeto a traer y la seteamos 
+                // al objeto que tendrá la información en el contexto                 
+                setassetTypeId(
+                     datos["AssetTypeId"],
+                  );
                 setassetTypes(response.data);
             }
 

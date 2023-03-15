@@ -125,7 +125,7 @@ export  function getReporteSotramacVHxCO( FechaInicial : string, FechaFinal : st
   });
 };
 
-export  function getReporteSotramacMS(reporte: string, FechaInicial : string, FechaFinal : string, DriversIdS: string, assetsIds: string, assetTypeId: string){
+export  function getReportesSotramacMS(reporte: string, FechaInicial : string, FechaFinal : string, DriversIdS: string, assetsIds: string, assetTypeId: string){
 
   var params: { [id: string]: string | null; } = {};
   params["TipoInforme"] = null;
@@ -135,11 +135,13 @@ export  function getReporteSotramacMS(reporte: string, FechaInicial : string, Fe
   params["RangoFecha"] = `${FechaInicial}-${FechaFinal}`;  
   params["AssetTypeId"] = assetTypeId;
   params["SiteId"] = null;
-
+  console.log(PORTAL_getReporteSotramacMS)
   return  axios({
     method: 'post',
     url: PORTAL_getReporteSotramacMS,
     data: JSON.stringify(params),
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json' },
+    params: {}
   });
+  
 };

@@ -11,7 +11,7 @@ import { SelectAssetsDrivers } from "./filtrosAssetsDrivers";
 import { ModalTablaReporteVH } from "./tablaReporteVH";
 import { ModalTablaReporteCO } from "./tablaReporteCO";
 import { ModalTablaReporteVHxCO } from "./tablaReporteVHxCO";
-import { getReporteSotramacMS } from "../data/dataSotramac";
+import { getReportesSotramacMS } from "../data/dataSotramac";
 import { AxiosResponse } from "axios";
 type Props = {
 
@@ -45,6 +45,8 @@ export const ReporteExcelencia: React.FC<Props> = () => {
     const [consultaReportVH, setconsultaReportVH] = useState(false);
     const [consultaReportCO, setconsultaReportCO] = useState(false);
     const [consultaReportVHxCO, setconsultaReportVHxCO] = useState(false);
+
+    const [button, setbutton] = useState(true);
 
     const handleClose = () => {
         setconsultaReportVH(false);
@@ -90,7 +92,6 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             setlstReportes([]);
             setreporte("");
 
-            setassetTypeId(0);
             setsiteId(0);
 
             setshowAssetTypes(true);
@@ -103,34 +104,34 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             setlstAssetsTypes(assetTypes);
             setshowAssets(false);
             setshowAssetTypes(false);
+            setassetTypeId(assetTypeId);
 
-            //Ocultamos Assettypes y le asignamos valor cero
-            setassetTypeId(0);
         }
         else if (reporte === "EOAPV") {
             setlstAssetsTypes(assetTypes);
             setshowAssetTypes(false);
-            setassetTypeId(0);
+
+            setassetTypeId(assetTypeId);
 
             //Ocultamos los sitios y le asigamos cero de valor
-            setshowAssets(true);
+            setshowAssets(false);
             setsiteId(0);
         }
         else if (reporte === "EOAPCV") {
             setlstAssetsTypes(assetTypes);
             setshowAssetTypes(false);
-            setassetTypeId(0);
+
+            setassetTypeId(assetTypeId);
             setsiteId(-1);
 
             //Ocultamos los sitios y le asigamos valor a sitios
-            setshowAssets(true);
+            setshowAssets(false);
         }
         else {
             //al ser no tener reporte debemos poner todos los filtros por defecto y ocultar los menús
             setsiteId(0);
 
             setlstAssetsTypes([]);
-            setassetTypeId(0);
 
             setshowAssetTypes(true);
             setshowAssets(true);
@@ -185,7 +186,6 @@ export const ReporteExcelencia: React.FC<Props> = () => {
                 setassetTypeId(e.currentTarget.value as any);
                 setshowAssets(false);
             }}>
-                <option value={0}>Seleccione Tipo</option>
                 {
                     lstAssetsTypes.map((rep) => {
                         return (
@@ -198,6 +198,22 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             </Form.Select>
         );
     }
+    
+    useEffect(() => {
+        if (reporte === "EOAPC") {
+            driverSelected != "" && fechaInicial != "" && fechaFinal != "" ? setbutton(false) : setbutton(true);  
+        }
+        else if (reporte === "EOAPV") {
+            assetSelected != ""  && fechaInicial != "" && fechaFinal != ""  ? setbutton(false) : setbutton(true);      
+        }
+        else if (reporte === "EOAPCV") {
+            assetSelected != "" && driverSelected != ""  && fechaInicial != "" && fechaFinal != ""
+             ?  setbutton(false) : setbutton(true);
+        }
+        else {
+           setbutton(true);
+        }
+    }, [driverSelected, assetSelected, fechaFinal, fechaInicial, reporte])
 
     const modalReportes = () => {
         if (reporte === "EOAPV") {
@@ -224,7 +240,7 @@ export const ReporteExcelencia: React.FC<Props> = () => {
     }
 
     const exportarReporte = () => {
-        getReporteSotramacMS(reporte, fechaInicial, fechaFinal, driverSelected, assetSelected, assetTypeId )
+        getReportesSotramacMS(reporte, fechaInicial, fechaFinal, driverSelected, assetSelected, assetTypeId )
         .then((respuesta: AxiosResponse<any>) => {
             console.log(respuesta.data);
         });
@@ -257,10 +273,10 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             </div>
             <div className="row">
                 <div className="mt-5 justify-content-end" style={{ textAlign: 'right' }}>
-                    <Button type="button" variant="secondary" className="m-3" onClick={() => { modalReportes(); }}>
+                    <Button type="button" variant="secondary" className="m-3"  disabled={button} onClick={() => { modalReportes(); }}>
                         Visualizar Reporte
                     </Button>
-                    <Button type="button" variant="secondary" className="m-3" onClick={() => { exportarReporte(); }}>
+                    <Button type="button" variant="secondary" className="m-3"  disabled={button} onClick={() => { exportarReporte(); }}>
                         Generar Reporte
                     </Button>
                 </div>
