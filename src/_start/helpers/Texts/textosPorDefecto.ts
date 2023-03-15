@@ -4,3 +4,4 @@ export const TituloNivelCarga = "EBUS Nivel de carga";
 export const TituloParqueo = "EBUS Parqueo inteligente";
 export const TituloEventoCarga = "EBUS Evento de carga";
 export const TituloConfiguracionEbus  = "EBUS Configuración";
+export const TituloReporteTx  = "Reporte transmisión";
