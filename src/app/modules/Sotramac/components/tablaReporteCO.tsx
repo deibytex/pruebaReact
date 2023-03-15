@@ -22,7 +22,7 @@ type Props = {
 
 export const ModalTablaReporteCO: React.FC<Props> = ({ show, handleClose, title, consultaReporteCO }) => {
 
-    const { fechaInicial, fechaFinal, driverSelected } = useDataSotramac();
+    const { fechaInicial, fechaFinal, driverSelected, assetTypeId } = useDataSotramac();
 
     const [lstReporteSotramacCO, setlstReporteSotramacCO] = useState<ReporteSotramac[]>([]);
 
@@ -134,7 +134,7 @@ export const ModalTablaReporteCO: React.FC<Props> = ({ show, handleClose, title,
 
         useEffect(() => {
             if (consultaReporteCO)
-            getReporteSotramacCO(fechaInicial, fechaFinal, driverSelected).then((respuesta: AxiosResponse<ReporteSotramac[]>) => {
+            getReporteSotramacCO(fechaInicial, fechaFinal, driverSelected, assetTypeId).then((respuesta: AxiosResponse<ReporteSotramac[]>) => {
                 setlstReporteSotramacCO(respuesta.data);
                 setRowCount(respuesta.data.length);
             });

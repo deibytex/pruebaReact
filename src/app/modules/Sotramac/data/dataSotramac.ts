@@ -1,6 +1,6 @@
 
 import axios from "axios";
-import { DWH_getconsultadinamicasprocedure } from "../../../../apiurlstore";
+import { DWH_getconsultadinamicasprocedure, PORTAL_getReporteSotramacMS } from "../../../../apiurlstore";
 import { Post_getconsultadinamicas } from "../../../../_start/helpers/Axios/CoreService";
 import { getConductoresClienteId, getVehiculosClienteId } from "../../../../_start/helpers/Axios/DWHService";
 
@@ -86,7 +86,7 @@ export  function getReporteSotramacVH( FechaInicial : string, FechaFinal : strin
   });
 };
 
-export  function getReporteSotramacCO( FechaInicial : string, FechaFinal : string, DriversIdS: string) {
+export  function getReporteSotramacCO( FechaInicial : string, FechaFinal : string, DriversIdS: string, AssetTypeId: string) {
 
   var params: { [id: string]: string | null; } = {};
   params["FechaInicial"] = FechaInicial;
@@ -94,6 +94,7 @@ export  function getReporteSotramacCO( FechaInicial : string, FechaFinal : strin
   params["clienteIdS"] = clienteIdS;
   params["DriversIdS"] = DriversIdS;
   params["SiteId"] = null;
+  params["AssetTypeId"] = AssetTypeId;
 
   return  axios({
     method: 'post',
@@ -121,5 +122,24 @@ export  function getReporteSotramacVHxCO( FechaInicial : string, FechaFinal : st
     data: JSON.stringify(params),
     headers: { 'Content-Type': 'application/json' },
     params : { Clase: "SotramacQueryHelper" , NombreConsulta : "getReporteSotramacVHxCO" }
+  });
+};
+
+export  function getReporteSotramacMS(reporte: string, FechaInicial : string, FechaFinal : string, DriversIdS: string, assetsIds: string, assetTypeId: string){
+
+  var params: { [id: string]: string | null; } = {};
+  params["TipoInforme"] = null;
+  params["CategoriaInforme"] = reporte;
+  params["Conductores"] = DriversIdS;
+  params["Vehiculos"] = assetsIds;
+  params["RangoFecha"] = `${FechaInicial}-${FechaFinal}`;  
+  params["AssetTypeId"] = assetTypeId;
+  params["SiteId"] = null;
+
+  return  axios({
+    method: 'post',
+    url: PORTAL_getReporteSotramacMS,
+    data: JSON.stringify(params),
+    headers: { 'Content-Type': 'application/json' }
   });
 };

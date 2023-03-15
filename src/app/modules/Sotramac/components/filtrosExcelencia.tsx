@@ -11,6 +11,8 @@ import { SelectAssetsDrivers } from "./filtrosAssetsDrivers";
 import { ModalTablaReporteVH } from "./tablaReporteVH";
 import { ModalTablaReporteCO } from "./tablaReporteCO";
 import { ModalTablaReporteVHxCO } from "./tablaReporteVHxCO";
+import { getReporteSotramacMS } from "../data/dataSotramac";
+import { AxiosResponse } from "axios";
 type Props = {
 
 }
@@ -18,7 +20,8 @@ type Props = {
 export const ReporteExcelencia: React.FC<Props> = () => {
 
     //Data desde el provider
-    const { listas, detalleListas, assetTypes, assetTypeId, setsiteId, setassetTypeId } = useDataSotramac();
+    const { listas, detalleListas, assetTypes, assetTypeId, fechaInicial, fechaFinal, assetSelected, driverSelected,
+             setsiteId, setassetTypeId } = useDataSotramac();
 
     //Carga Inicial filtros
     const [lstCategorias, setlstCategorias] = useState<Listas[]>([]);
@@ -97,10 +100,11 @@ export const ReporteExcelencia: React.FC<Props> = () => {
     useEffect(() => {
         if (reporte === "EOAPC") {
             setsiteId(-1);
+            setlstAssetsTypes(assetTypes);
             setshowAssets(false);
+            setshowAssetTypes(false);
 
             //Ocultamos Assettypes y le asignamos valor cero
-            setshowAssetTypes(true);
             setassetTypeId(0);
         }
         else if (reporte === "EOAPV") {
@@ -219,6 +223,13 @@ export const ReporteExcelencia: React.FC<Props> = () => {
         }
     }
 
+    const exportarReporte = () => {
+        getReporteSotramacMS(reporte, fechaInicial, fechaFinal, driverSelected, assetSelected, assetTypeId )
+        .then((respuesta: AxiosResponse<any>) => {
+            console.log(respuesta.data);
+        });
+    }
+
     //Retornamos los controles de filtro
     return (
         <>
@@ -242,14 +253,14 @@ export const ReporteExcelencia: React.FC<Props> = () => {
                 <Fechas />
             </div>
             <div className="row" hidden={showAssets}>
-                <SelectAssetsDrivers />
+                <SelectAssetsDrivers reporte={reporte}/>
             </div>
             <div className="row">
                 <div className="mt-5 justify-content-end" style={{ textAlign: 'right' }}>
                     <Button type="button" variant="secondary" className="m-3" onClick={() => { modalReportes(); }}>
                         Visualizar Reporte
                     </Button>
-                    <Button type="button" variant="secondary" className="m-3" >
+                    <Button type="button" variant="secondary" className="m-3" onClick={() => { exportarReporte(); }}>
                         Generar Reporte
                     </Button>
                 </div>
