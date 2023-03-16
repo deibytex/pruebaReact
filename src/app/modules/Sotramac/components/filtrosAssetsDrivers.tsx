@@ -6,11 +6,12 @@ import { useDataSotramac } from "../core/provider";
 import { Assets, Drivers, dualList } from "../models/dataModels";
 
 type Props = {
+    reporte: string;
 }
 
-export const SelectAssetsDrivers: React.FC<Props> = () => {
+export const SelectAssetsDrivers: React.FC<Props> = ({reporte}) => {
 
-    const { assets, drivers, siteId, assetTypeId, setdriverSelected, setassetSelected } = useDataSotramac();
+    const { assets, drivers, siteId, assetTypeId,  setdriverSelected, setassetSelected } = useDataSotramac();
 
 
     const [lstAssets, setlstAssets] = useState<dualList[]>([]);
@@ -22,7 +23,7 @@ export const SelectAssetsDrivers: React.FC<Props> = () => {
     const [showDrivers, setshowDrivers] = useState(true);
 
     useEffect(() => {
-        if (assetTypeId != 0) {
+        if (assetTypeId != 0 && (reporte === "EOAPV" || reporte === "EOAPCV")) {
             let filter = (assets as Assets[]).filter(function (arr) {
                 return (arr.assetTypeId == assetTypeId)
             });
@@ -37,7 +38,7 @@ export const SelectAssetsDrivers: React.FC<Props> = () => {
             setshowAssets(false);
             setshowDrivers(true);
         }
-        if (siteId != 0) {
+        if (siteId != 0 && (reporte === "EOAPC" || reporte === "EOAPCV")) {
             let filters = (drivers as Drivers[]).filter(function (arr) {
                 return (arr.SiteId == -6032794350987665724 || arr.SiteId == 6835483207492495255)
             });
@@ -51,11 +52,11 @@ export const SelectAssetsDrivers: React.FC<Props> = () => {
             setshowAssets(true);
             setshowDrivers(false);
         }
-        if (siteId != 0 && assetTypeId != 0) {
+        if (siteId != 0 && assetTypeId != 0 && reporte === "EOAPCV") {
             setshowAssets(false);
             setshowDrivers(false);
         }
-    }, [assetTypeId, siteId])
+    }, [ siteId, reporte])
 
     function SelectAssets() {
         return (

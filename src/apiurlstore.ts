@@ -1,5 +1,6 @@
 const apiURL = process.env.REACT_APP_API_URL;
 const apiURLDWH = process.env.REACT_APP_API_DWH_URL;
+const apiURLPORTAL = process.env.REACT_APP_API_PORTAL_URL;
 
 
 /*URL ACCOUNT PARA EDITAR, CREAR */
@@ -56,3 +57,5 @@ export const EBUS_GetListadoClientesUsuario = `${apiURLDWH}/Ebus/GetListadoClien
 export const DRIVER_GetDriversClienteId = `${apiURLDWH}/Driver/GetDrivers/ClienteId` //long? ClienteId,string UsertState
 
 
+/* API PORTAL */
+export const PORTAL_getReporteSotramacMS = `${apiURLPORTAL}/Sotramac/DescargarReporte`

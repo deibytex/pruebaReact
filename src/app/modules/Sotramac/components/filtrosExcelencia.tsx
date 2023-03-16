@@ -11,6 +11,8 @@ import { SelectAssetsDrivers } from "./filtrosAssetsDrivers";
 import { ModalTablaReporteVH } from "./tablaReporteVH";
 import { ModalTablaReporteCO } from "./tablaReporteCO";
 import { ModalTablaReporteVHxCO } from "./tablaReporteVHxCO";
+import { getReportesSotramacMS } from "../data/dataSotramac";
+import { AxiosResponse } from "axios";
 type Props = {
 
 }
@@ -18,7 +20,8 @@ type Props = {
 export const ReporteExcelencia: React.FC<Props> = () => {
 
     //Data desde el provider
-    const { listas, detalleListas, assetTypes, assetTypeId, setsiteId, setassetTypeId } = useDataSotramac();
+    const { listas, detalleListas, assetTypes, assetTypeId, fechaInicial, fechaFinal, assetSelected, driverSelected,
+             setsiteId, setassetTypeId } = useDataSotramac();
 
     //Carga Inicial filtros
     const [lstCategorias, setlstCategorias] = useState<Listas[]>([]);
@@ -42,6 +45,8 @@ export const ReporteExcelencia: React.FC<Props> = () => {
     const [consultaReportVH, setconsultaReportVH] = useState(false);
     const [consultaReportCO, setconsultaReportCO] = useState(false);
     const [consultaReportVHxCO, setconsultaReportVHxCO] = useState(false);
+
+    const [button, setbutton] = useState(true);
 
     const handleClose = () => {
         setconsultaReportVH(false);
@@ -87,7 +92,6 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             setlstReportes([]);
             setreporte("");
 
-            setassetTypeId(0);
             setsiteId(0);
 
             setshowAssetTypes(true);
@@ -97,36 +101,32 @@ export const ReporteExcelencia: React.FC<Props> = () => {
     useEffect(() => {
         if (reporte === "EOAPC") {
             setsiteId(-1);
+            setlstAssetsTypes(assetTypes);
             setshowAssets(false);
+            setshowAssetTypes(false);
 
-            //Ocultamos Assettypes y le asignamos valor cero
-            setshowAssetTypes(true);
-            setassetTypeId(0);
         }
         else if (reporte === "EOAPV") {
             setlstAssetsTypes(assetTypes);
             setshowAssetTypes(false);
-            setassetTypeId(0);
 
             //Ocultamos los sitios y le asigamos cero de valor
-            setshowAssets(true);
+            setshowAssets(false);
             setsiteId(0);
         }
         else if (reporte === "EOAPCV") {
             setlstAssetsTypes(assetTypes);
             setshowAssetTypes(false);
-            setassetTypeId(0);
             setsiteId(-1);
 
             //Ocultamos los sitios y le asigamos valor a sitios
-            setshowAssets(true);
+            setshowAssets(false);
         }
         else {
             //al ser no tener reporte debemos poner todos los filtros por defecto y ocultar los menús
             setsiteId(0);
 
             setlstAssetsTypes([]);
-            setassetTypeId(0);
 
             setshowAssetTypes(true);
             setshowAssets(true);
@@ -181,7 +181,6 @@ export const ReporteExcelencia: React.FC<Props> = () => {
                 setassetTypeId(e.currentTarget.value as any);
                 setshowAssets(false);
             }}>
-                <option value={0}>Seleccione Tipo</option>
                 {
                     lstAssetsTypes.map((rep) => {
                         return (
@@ -194,6 +193,22 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             </Form.Select>
         );
     }
+    
+    useEffect(() => {
+        if (reporte === "EOAPC") {
+            driverSelected != "" && fechaInicial != "" && fechaFinal != "" ? setbutton(false) : setbutton(true);  
+        }
+        else if (reporte === "EOAPV") {
+            assetSelected != ""  && fechaInicial != "" && fechaFinal != ""  ? setbutton(false) : setbutton(true);      
+        }
+        else if (reporte === "EOAPCV") {
+            assetSelected != "" && driverSelected != ""  && fechaInicial != "" && fechaFinal != ""
+             ?  setbutton(false) : setbutton(true);
+        }
+        else {
+           setbutton(true);
+        }
+    }, [driverSelected, assetSelected, fechaFinal, fechaInicial, reporte])
 
     const modalReportes = () => {
         if (reporte === "EOAPV") {
@@ -219,6 +234,13 @@ export const ReporteExcelencia: React.FC<Props> = () => {
         }
     }
 
+    const exportarReporte = () => {
+        getReportesSotramacMS(reporte, fechaInicial, fechaFinal, driverSelected, assetSelected, assetTypeId )
+        .then((respuesta: AxiosResponse<any>) => {
+            console.log(respuesta.data);
+        });
+    }
+
     //Retornamos los controles de filtro
     return (
         <>
@@ -242,14 +264,14 @@ export const ReporteExcelencia: React.FC<Props> = () => {
                 <Fechas />
             </div>
             <div className="row" hidden={showAssets}>
-                <SelectAssetsDrivers />
+                <SelectAssetsDrivers reporte={reporte}/>
             </div>
             <div className="row">
                 <div className="mt-5 justify-content-end" style={{ textAlign: 'right' }}>
-                    <Button type="button" variant="primary" className="m-3" onClick={() => { modalReportes(); }}>
+                    <Button type="button" variant="secondary" className="m-3"  disabled={button} onClick={() => { modalReportes(); }}>
                         Visualizar Reporte
                     </Button>
-                    <Button type="button" variant="primary" className="m-3" >
+                    <Button type="button" variant="secondary" className="m-3"  disabled={button} onClick={() => { exportarReporte(); }}>
                         Generar Reporte
                     </Button>
                 </div>

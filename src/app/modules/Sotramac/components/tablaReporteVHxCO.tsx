@@ -45,7 +45,7 @@ export const ModalTablaReporteVHxCO: React.FC<Props> = ({ show, handleClose, tit
             {
                 accessorKey: 'Posicion',
                 header: 'Posición',
-                size: 100,
+                size: 80,
                 Cell({ cell, column, row, table, }) {
                     return (cell.getValue() != null) ? cell.getValue() : "";
                 }
@@ -53,7 +53,7 @@ export const ModalTablaReporteVHxCO: React.FC<Props> = ({ show, handleClose, tit
             {
                 accessorKey: 'Cedula',
                 header: 'Cédula',
-                size: 100,
+                size: 80,
                 Cell({ cell, column, row, table, }) {
                     return (cell.getValue() != null) ? cell.getValue() : "";
                 }
@@ -77,15 +77,15 @@ export const ModalTablaReporteVHxCO: React.FC<Props> = ({ show, handleClose, tit
             {
                 accessorKey: 'DistanciaRecorridaAcumulada',
                 header: 'Distancia Recorrida Acumulada (km)',
-                size: 80,
+                size: 100,
                 Cell({ cell, column, row, table, }) {
                     return (cell.getValue() != null) ? cell.getValue() : "";
                 }
             },
             {
                 accessorKey: 'ConsumodeCombustibleAcumulado',
-                header: 'Consumo de combustible acumulado(M3)',
-                size: 80,
+                header: 'Consumo de combustible acumulado (M3)',
+                size: 100,
                 Cell({ cell, column, row, table, }) {
                     return (cell.getValue() != null) ? cell.getValue() : "";
                 }
@@ -93,7 +93,7 @@ export const ModalTablaReporteVHxCO: React.FC<Props> = ({ show, handleClose, tit
             {
                 accessorKey: 'DistanciaRecorridaUltimoDia',
                 header: 'Distancia recorrida último dia (km)',
-                size: 80,
+                size: 100,
                 Cell({ cell, column, row, table, }) {
                     return (cell.getValue() != null) ? cell.getValue() : "";
                 }
@@ -101,7 +101,7 @@ export const ModalTablaReporteVHxCO: React.FC<Props> = ({ show, handleClose, tit
             {
                 accessorKey: 'RendimientoCumbustibleAcumulado',
                 header: 'Rendimiento de combustible acumulado (km/kg)',
-                size: 80,
+                size: 100,
                 Cell({ cell, column, row, table, }) {
                     return (cell.getValue() != null) ? cell.getValue() : "";
                 }
@@ -109,7 +109,7 @@ export const ModalTablaReporteVHxCO: React.FC<Props> = ({ show, handleClose, tit
             {
                 accessorKey: 'UsoDelFreno',
                 header: 'Uso de freno (aplicaciones x cada 100 km)</',
-                size: 80,
+                size: 100,
                 Cell({ cell, column, row, table, }) {
                     return (cell.getValue() != null) ? cell.getValue() : "";
                 }
