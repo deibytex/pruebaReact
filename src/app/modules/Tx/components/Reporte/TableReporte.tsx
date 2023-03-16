@@ -136,42 +136,42 @@ const TableReporte : React.FC = () =>{
      }
      const PintarIconosMenu = (row:any) =>{
         return(
-            <div className="dropdown show" style={{position:'absolute'}} >
+            <div className="dropdown show position-absolute">
                 <a className="dropdown-toggle"  id="dropdownMenuButton1"  data-bs-toggle="dropdown" aria-expanded="false">
                     <i style={{backgroundColor:'white'}} className='bi-menu-button-wide primary'></i>
                 </a>
-                <ul className="dropdown-menu" aria-labelledby="dropdownMenuButton1" style={{zIndex:'1000',position:'relative'}}>
+                <ul className="dropdown-menu position-relative zindex-dropdown" aria-labelledby="dropdownMenuButton1">
                     <li className="pl-12">
-                        <a className="dropdown-item aDetenido" aria-expanded="true"  style={{zIndex:'100',position:'relative', fontWeight:'bold', color:'#1B425E'}} id="aDetenido" onClick={CambiarEstado}   data-target= {row} data-toggle="modal">
-                            <i title='Detener'  style={{backgroundColor:'white',zIndex:'100',position:'relative'}} className='bi-hand-thumbs-down alert-danger'></i>
+                        <a className="dropdown-item aDetenido fw-bold position-relative zindex-dropdown fw-bolder text-primary" aria-expanded="true"  id="aDetenido" onClick={CambiarEstado}   data-target= {row} data-toggle="modal">
+                            <i title='Detener' className='bi-hand-thumbs-down alert-danger'></i>
                             {<>&nbsp;</>}
                             Detenido 
                         </a>
                     </li>
                     <li className="pl-12">
-                        <a className="dropdown-item aMantenimiento" style={{zIndex:'100',position:'relative', fontWeight:'bold', color:'#1B425E'}} id="aMantenimiento" onClick={CambiarEstado}    data-target= {row} data-toggle="modal">
-                            <i title='En matenimiento' style={{backgroundColor:'white', zIndex:'100',position:'relative'}} className='bi-wrench alert-warning'></i>
+                        <a className="dropdown-item aMantenimiento fw-bold position-relative zindex-dropdown fw-bolder text-primary" id="aMantenimiento" onClick={CambiarEstado}    data-target= {row} data-toggle="modal">
+                            <i title='En matenimiento' className='bi-wrench alert-warning'></i>
                             {<>&nbsp;</>}
                             En Mantenimiento
                         </a>
                     </li>
                     <li className="pl-12">
-                        <a className="dropdown-item aNormalmente" style={{zIndex:'100',position:'relative', fontWeight:'bold', color:'#1B425E'}} id="aNormalmente" onClick={CambiarEstado}   data-target= {row} data-toggle="modal">
-                            <i title='Operando normalmente' style={{backgroundColor:'white', zIndex:'100',position:'relative'}} className='bi-hand-thumbs-up alert-success'></i>
+                        <a className="dropdown-item aNormalmente fw-bold position-relative zindex-dropdown fw-bolder text-primary"  id="aNormalmente" onClick={CambiarEstado}   data-target= {row} data-toggle="modal">
+                            <i title='Operando normalmente'  className='bi-hand-thumbs-up alert-success'></i>
                             {<>&nbsp;</>}
                             Operando Normalmente
                         </a>
                     </li>
                     <li>
-                        <a className="dropdown-item aSinRespuesta" style={{zIndex:'100', fontWeight:'bold', color:'#1B425E'}} id="aSinRespuesta" onClick={CambiarEstado}   data-target={row} data-toggle="modal">
-                            <i title='Sin respuesta' style={{backgroundColor:'white', zIndex:'100'}} className='bi-person-dash-fill alert-info'></i>
+                        <a className="dropdown-item aSinRespuesta fw-bold position-relative zindex-dropdown fw-bolder text-primary"  id="aSinRespuesta" onClick={CambiarEstado}   data-target={row} data-toggle="modal">
+                            <i title='Sin respuesta'  className='bi-person-dash-fill alert-info'></i>
                             {<>&nbsp;</>}
                             Sin Respuesta del Cliente
                         </a>
                     </li>
                     <li>
-                        <a className="dropdown-item aSinRespuesta" style={{zIndex:'100', fontWeight:'bold', color:'#1B425E'}} id="aDesmontado" onClick={CambiarEstado}  data-target={row} data-toggle="modal">
-                            <i title='Equipo desmontado' style={{backgroundColor:'white', zIndex:'100'}} className='bi-nut-fill alert-danger'></i>
+                        <a className="dropdown-item aSinRespuesta fw-bold position-relative zindex-dropdown fw-bolder text-primary"  id="aDesmontado" onClick={CambiarEstado}  data-target={row} data-toggle="modal">
+                            <i title='Equipo desmontado'  className='bi-nut-fill alert-danger'></i>
                             {<>&nbsp;</>}
                             Equipo Desmontado
                         </a>

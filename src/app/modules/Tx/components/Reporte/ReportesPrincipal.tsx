@@ -22,7 +22,6 @@ const ReportesPrincipal : React.FC = () =>{
                     </div>
                 </div>
                 <div className="bg-primary  mt-5 shadow-sm">
-                
                     <div className="card card-border">
                         <TableReporte></TableReporte>
                     </div>
