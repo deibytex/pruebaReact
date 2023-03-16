@@ -15,18 +15,26 @@ export interface ReporteContextModel {
     setData:(data:any) =>void;
     Cargando?:boolean;
     setCargando:(Cargando:boolean) => void;
+    DataFiltrada?:TablaDTO[];
+    setDataFiltrada:(data:any) =>void;
+    Filtrado?:boolean;
+    setFiltrado:(Filtrado:boolean) => void;
 }
 const ReporteContext = createContext<ReporteContextModel>({
     setClientes: (Cliente: any) => {},
     setClienteSeleccionado: (Data: any) => {},
     setData:(data:any) => {},
-    setCargando:(Cargando:boolean) => {}
+    setDataFiltrada:(data:any) => {},
+    setCargando:(Cargando:boolean) => {},
+    setFiltrado:(Filtrado:boolean)  => {}
 });
 const ReporteProvider: React.FC = ({ children }) => {
     const [Clientes, setClientes] = useState<ClienteDTO[]>([]);
     const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente);
     const [Data, setData] = useState<TablaDTO[]>([]);
+    const [DataFiltrada, setDataFiltrada] = useState<TablaDTO[]>([]);
     const [Cargando, setCargando] = useState<boolean>(false);
+    const [Filtrado, setFiltrado] = useState<boolean>(false);
     const value: ReporteContextModel = {
         setClientes,
         setClienteSeleccionado,
@@ -35,7 +43,11 @@ const ReporteProvider: React.FC = ({ children }) => {
         Data, 
         setData,
         Cargando,
-        setCargando
+        setCargando,
+        DataFiltrada, 
+        setDataFiltrada,
+        Filtrado,
+        setFiltrado
     };
     return (
         <ReporteContext.Provider value={value}>
@@ -74,11 +86,15 @@ function SeleccionClientes (Clientes:any, ClienteSeleccionado:any, setClienteSel
             let lstClientes =  Clientes?.filter((value:any, index:any) => {
                 return value.clienteIdS === Number.parseInt(e.currentTarget.value)
             })  
-            if(lstClientes != undefined )  
-                setClienteSeleccionado(lstClientes[0]); 
-          
+            let Cliente = (lstClientes[0] ==  undefined ? {
+                clienteIdS:0,
+                ClienteId:"",
+                clienteNombre:"Todos",
+            }:lstClientes[0]);
+            setClienteSeleccionado(Cliente); 
+
         }} aria-label="Default select example">
-            <option value={0} disabled>Todos</option>
+            <option value={0}>Todos</option>
             {           
                 Clientes?.map((element:any,i:any) => {
                         let flag = (element.clienteIdS === (ClienteSeleccionado!= undefined?ClienteSeleccionado?.clienteIdS:0 ))

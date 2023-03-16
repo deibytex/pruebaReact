@@ -27,9 +27,10 @@ const TableReporte : React.FC = () =>{
      const [isLoading, setIsLoading] = useState(false);
      const [isRefetching, setIsRefetching] = useState(false);
      const [isError, setIsError] = useState(false);
-     const { ClienteSeleccionado,  Data, setData} = useDataReporte();
-     const {setCargando, Cargando} = useDataReporte();
-
+     const { ClienteSeleccionado,  Data, setData, DataFiltrada, setDataFiltrada} = useDataReporte();
+     const {setCargando, Cargando, Filtrado, setFiltrado} = useDataReporte();
+     const [DataLocal, setDatalocal] = useState<TablaDTO[]>((Data? Data:[]));
+     
      let VisibleDefault = {
         assetCodigo:false,
         Cliente:true,
@@ -182,23 +183,29 @@ const TableReporte : React.FC = () =>{
      }
 
      async function ConsultarDatos(){
+      setIsLoading(true);
         let FechaActual = moment().add("hours",10).add("minutes",30).format("YYYY/MM/DD").toString();
         let Cliente = (ClienteSeleccionado != undefined ? ClienteSeleccionado?.clienteIdS.toString():"");
         await GetInformeTransmision(Cliente,FechaActual).then((response:AxiosResponse) =>{
             setData(response.data);
             setRowCount(response.data.length);
             setCargando(false);
+            setIsLoading(false)
         }).catch(() =>{
-            errorDialog("Ha ocurrido un error al intentar consultar el informe","")
+            errorDialog("Ha ocurrido un error al intentar consultar el informe","");
+            setIsError(true);
         })
      }
 
      useEffect(() =>{
-       setCargando(true)
+        setCargando(true)
         ConsultarDatos();
         return () => setData([]);
-     },[ClienteSeleccionado?.clienteIdS])
+     },[])
 
+     useEffect(() =>{
+         (Filtrado == undefined ? setDatalocal((Data? Data:[])):setDatalocal((DataFiltrada?DataFiltrada:[])));
+     },[Filtrado]);
 
      const CambiarEstado = (event:any) =>{
         let Estado = (event.target.attributes.id.value== "aDetenido" ? "5":(event.target.attributes.id.value== "aMantenimiento" ? "6" : (event.target.attributes.id.value== "aNormalmente" ? "7": (event.target.attributes.id.value == "aSinRespuesta" ? "8": "12"))))
@@ -206,9 +213,9 @@ const TableReporte : React.FC = () =>{
         confirmarDialog(() => {
           setCargando(true);
             SetEstadoSyscaf(AssetId,Estado).then((response:AxiosResponse) =>{
-                    successDialog("¡Operación Éxitosa!","");
-                    ConsultarDatos();
-                    setCargando(false);
+                successDialog("¡Operación Éxitosa!","");
+                ConsultarDatos();
+                setCargando(false);
             }).catch(() =>{
                 errorDialog("Ha ocurrido un error al cambiar el estado del activo","");
                 setCargando(false);
@@ -239,7 +246,7 @@ const TableReporte : React.FC = () =>{
             }),
           }}
              columns={listadoCampos}
-             data={(Data != undefined ? Data:[])}
+             data={(Filtrado == true? DataFiltrada:Data)}
              enableTopToolbar={true}
              enableDensityToggle
              enableColumnOrdering
@@ -256,7 +263,6 @@ const TableReporte : React.FC = () =>{
                     {
                         PintarIconosMenu(row.original.assetId)
                     }
-                   
                  </Box>
               )}
               state={{
