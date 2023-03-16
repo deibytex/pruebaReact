@@ -23,7 +23,9 @@ export const SelectAssetsDrivers: React.FC<Props> = ({reporte}) => {
     const [showDrivers, setshowDrivers] = useState(true);
 
     useEffect(() => {
+
         if (assetTypeId != 0 && (reporte === "EOAPV" || reporte === "EOAPCV")) {
+
             let filter = (assets as Assets[]).filter(function (arr) {
                 return (arr.assetTypeId == assetTypeId)
             });
@@ -38,14 +40,15 @@ export const SelectAssetsDrivers: React.FC<Props> = ({reporte}) => {
             setshowAssets(false);
             setshowDrivers(true);
         }
-        if (siteId != 0 && (reporte === "EOAPC" || reporte === "EOAPCV")) {
+        else if (siteId != 0 && (reporte === "EOAPC" || reporte === "EOAPCV")) {
+
             let filters = (drivers as Drivers[]).filter(function (arr) {
                 return (arr.SiteId == -6032794350987665724 || arr.SiteId == 6835483207492495255)
             });
 
             let dual = filters.map((item) => {
                 return { "value": item.DriverIdString, "label": item.name };
-            })
+            })  as dualList[];
 
             setlstDrivers(dual);
 
@@ -77,6 +80,13 @@ export const SelectAssetsDrivers: React.FC<Props> = ({reporte}) => {
             />
         );
     }
+
+    useEffect(() => {
+        if (reporte === "EOAPCV") {
+        setselectedAssets([]);
+        setselectedDrivers([]);
+    }
+     }, [assetTypeId, reporte])
 
     useEffect(() => {
        setassetSelected(selectedAssets.join());

@@ -104,14 +104,11 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             setlstAssetsTypes(assetTypes);
             setshowAssets(false);
             setshowAssetTypes(false);
-            setassetTypeId(assetTypeId);
-
         }
         else if (reporte === "EOAPV") {
             setlstAssetsTypes(assetTypes);
             setshowAssetTypes(false);
 
-            setassetTypeId(assetTypeId);
 
             //Ocultamos los sitios y le asigamos cero de valor
             setshowAssets(false);
@@ -121,7 +118,6 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             setlstAssetsTypes(assetTypes);
             setshowAssetTypes(false);
 
-            setassetTypeId(assetTypeId);
             setsiteId(-1);
 
             //Ocultamos los sitios y le asigamos valor a sitios
@@ -200,6 +196,7 @@ export const ReporteExcelencia: React.FC<Props> = () => {
     }
     
     useEffect(() => {
+        
         if (reporte === "EOAPC") {
             driverSelected != "" && fechaInicial != "" && fechaFinal != "" ? setbutton(false) : setbutton(true);  
         }
@@ -217,6 +214,7 @@ export const ReporteExcelencia: React.FC<Props> = () => {
 
     const modalReportes = () => {
         if (reporte === "EOAPV") {
+
             setconsultaReportVH(true);           
             showModal();
 
@@ -224,6 +222,7 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             setconsultaReportVHxCO(false);
         }
         else if (reporte === "EOAPC") {
+
             setconsultaReportCO(true);
             showModal2();
 
@@ -231,6 +230,7 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             setconsultaReportVHxCO(false);
         }
         else {
+
             setconsultaReportVHxCO(true);
             showModal3();
 

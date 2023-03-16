@@ -142,7 +142,7 @@ export const ModalTablaReporteVHxCO: React.FC<Props> = ({ show, handleClose, tit
 
         useEffect(() => {
             if (consultaReportVHxCO)
-            getReporteSotramacVHxCO(fechaInicial, fechaFinal, driverSelected, assetSelected, assetTypeId).then((respuesta: AxiosResponse<ReporteSotramac[]>) => {
+            getReporteSotramacVHxCO(fechaInicial, fechaFinal, driverSelected, assetSelected, assetTypeId.toString()).then((respuesta: AxiosResponse<ReporteSotramac[]>) => {
                 setlstReporteSotramacVHxCO(respuesta.data);
                 setRowCount(respuesta.data.length);
             });

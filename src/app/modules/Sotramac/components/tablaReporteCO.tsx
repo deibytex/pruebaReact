@@ -134,7 +134,7 @@ export const ModalTablaReporteCO: React.FC<Props> = ({ show, handleClose, title,
 
         useEffect(() => {
             if (consultaReporteCO)
-            getReporteSotramacCO(fechaInicial, fechaFinal, driverSelected, assetTypeId).then((respuesta: AxiosResponse<ReporteSotramac[]>) => {
+            getReporteSotramacCO(fechaInicial, fechaFinal, driverSelected, assetTypeId.toString()).then((respuesta: AxiosResponse<ReporteSotramac[]>) => {
                 setlstReporteSotramacCO(respuesta.data);
                 setRowCount(respuesta.data.length);
             });
