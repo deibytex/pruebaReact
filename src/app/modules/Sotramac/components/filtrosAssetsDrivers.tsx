@@ -56,7 +56,7 @@ export const SelectAssetsDrivers: React.FC<Props> = ({reporte}) => {
             setshowAssets(false);
             setshowDrivers(false);
         }
-    }, [ siteId, reporte])
+    }, [assetTypeId, siteId, reporte])
 
     function SelectAssets() {
         return (
