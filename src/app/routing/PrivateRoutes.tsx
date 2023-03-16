@@ -24,6 +24,7 @@ import { Configuracion } from "../modules/Ebus/Configuracion";
 
 import React from "react";
 import Reportes from "../modules/Sotramac/reporteExcelencia";
+import configuracionCorreosTx from "../modules/CorreosTx/configuracionCorreosTx";
 
 
 export function PrivateRoutes() {
@@ -52,7 +53,8 @@ export function PrivateRoutes() {
        <Route path="/ebus/EventoCarga" component={EventoCarga} />    
        <Route path="/mobile/preoperacional" component={preoperacional} />     
        <Route path="/ebus/Configuracion" component={Configuracion} />             
-       <Route path="/sotramac/Reportes" component={Reportes} />    
+       <Route path="/sotramac/Reportes" component={Reportes} /> 
+       <Route path="/correostx/administracion" component={configuracionCorreosTx} />    
       </Switch>
     </Suspense>
   );
