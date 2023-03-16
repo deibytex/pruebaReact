@@ -209,7 +209,6 @@ const DataReportesSotramac: React.FC = ({ children }) => {
             consultaAssetTypes();
             consultaAssets();
             consultaDrivers();
-            consultaDetalleListas(listasIds);
             // si no tiene error hace el interval
 
         }
@@ -217,7 +216,21 @@ const DataReportesSotramac: React.FC = ({ children }) => {
         return () => {
             setlistas([]);
         };
-    }, [children, listasIds]);
+    }, [children]);
+
+    useEffect(() => {
+
+        if (listasIds != "") {
+
+            consultaDetalleListas(listasIds);
+            // si no tiene error hace el interval
+
+        }
+
+        return () => {
+            <></>
+        };
+    }, [listasIds]);
 
     return <></>;
 };
