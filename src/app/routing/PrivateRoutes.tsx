@@ -1,4 +1,4 @@
-import  { Suspense } from "react";
+import  { Suspense, useEffect, useState } from "react";
 import { Redirect, Route, Switch } from "react-router-dom";
 import { FallbackView } from "../../_start/partials";
 import {Bienvenidos} from "../pages/Principal"
@@ -6,53 +6,127 @@ import Neptuno from "../modules/Neptuno/index"
 import FatigueDashboard from "../modules/Fatigue/dashboard";
 import { useSelector } from "react-redux";
 import { RootState } from "../../setup";
-import { UserModelSyscaf } from "../modules/auth/models/UserModel";
+import { Opciones, UserModelSyscaf } from "../modules/auth/models/UserModel";
 import PoliticaPrivacidad from "../pages/Politica/politicaprivacidad";
-import { Registration } from "../modules/auth/components/Registration";
-import { ForgotPassword } from "../modules/auth/components/ForgotPassword";
+import  Registration  from "../modules/auth/components/Registration";
+import { ForgotPassword}  from "../modules/auth/components/ForgotPassword";
 import IndiceUsuarios from "../modules/auth/components/ListadoUsuarios";
-import { NoCargas } from "../modules/Ebus/components/Diagnostico/NoCargas";
+import  NoCargas  from "../modules/Ebus/components/Diagnostico/NoCargas";
 import Logs from "../modules/Neptuno/log"
 import Usuarios from "../modules/auth/components/ListadoUsuarios";
-import { NivelCarga } from "../modules/Ebus/NivelCarga";
-import { ParqueoInteligente } from "../modules/Ebus/ParqueoInteligente";
-import { EventoCarga } from "../modules/Ebus/EventoCarga";
+import  NivelCarga  from "../modules/Ebus/NivelCarga";
+import  ParqueoInteligente  from "../modules/Ebus/ParqueoInteligente";
+import  EventoCarga  from "../modules/Ebus/EventoCarga";
 import preoperacional from "../modules/Mobile/preoperacional";
-import { Configuracion } from "../modules/Ebus/Configuracion";
-
-
-
+import  Configuracion  from "../modules/Ebus/Configuracion";
 import React from "react";
 import Reportes from "../modules/Sotramac/reporteExcelencia";
+import { default as ReporteEbus} from "../modules/Ebus/Reportes";
 
 
 export function PrivateRoutes() {
    // informacion del usuario almacenado en el sistema
-   const isAuthorized = useSelector<RootState>(
-    ({ auth }) => auth.user
-  );
-  // convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
-  const model = (isAuthorized as UserModelSyscaf);
+
+  const menu = useSelector<RootState>(
+    ({ auth }) => auth.menu
+  );  
+  
+  const [importedModules, setimportedModules] = useState<any[]>([]);
+
+   useEffect(() => {
+    const lstOpciones = (menu as Opciones[]);
+    if (lstOpciones != undefined) {
+   /*     try {
+      // opciones que son padres para poder restructurar el meniu    
+     
+      let modulos : any[]= [];
+        // importamos lo modulos dinamicamente
+        const importPromises =   opcionesHijo.map( f=> {
+          import(f.controlador).then(module => {
+            modulos.push({ ...f, Component: module.default });
+          })
+
+        });
+
+        Promise.all(importPromises).then(() =>
+        setimportedModules(modulos)
+        );
+       
+      } catch (err) {
+        console.error(err);
+      }
+    
+    }*/
+    let opcionesHijo = lstOpciones.filter((element) => element.opcionPadreId != null);
+
+    let lstrpoutes = modules.filter( f=> lstOpciones.filter( ff=> ff.controlador=== f.path)  )
+    setimportedModules(lstrpoutes)
+
+  }
+
+}, [menu]);
+
+               
+
+
+  const modules = [{
+    path: '/neptuno/archivos',   
+    component: Neptuno
+  },{
+    path: '/neptuno/log',
+    component: Logs
+  },{
+    path: '/fatigue/dashboard',
+    component: FatigueDashboard
+  },{
+    path: '/auth/registration', 
+    component: Registration
+  },{
+    path: '/auth/forgot', 
+    component: ForgotPassword
+  },{
+    path: '/auth/listado',
+    component: IndiceUsuarios
+  },{
+    path: '/auth/Usuario',
+    component: Usuarios
+  },{
+    path: '/ebus/diagnostico', 
+    component: NoCargas
+  },{
+    path: '/ebus/NivelCarga',
+    component: NivelCarga
+  },{
+    path: '/ebus/ParqueoInteligente',
+    component: ParqueoInteligente
+  },{
+    path: '/ebus/EventoCarga', 
+    component: EventoCarga
+  },{
+    path: '/mobile/preoperacional',
+    component: preoperacional
+  },{
+    path: '/ebus/Configuracion',
+    component: Configuracion
+  },{
+    path: '/sotramac/Reportes', 
+    component: Reportes
+  },{
+    path: '/ebus/Reportes', 
+    component: ReporteEbus
+  }
+
+  
+
+];
+
   return (
     <Suspense fallback={<FallbackView />}>
       <Switch>
-         <Route path="/bienvenido" component={Bienvenidos} />       
-        <Route path="/neptuno/archivos" component={Neptuno} />    
-        <Route path="/neptuno/log" component={Logs} />   
-        <Redirect exact from="/" to="/bienvenido" />     
-       <Route path="/fatigue/dashboard" component={FatigueDashboard} /> 
-       <Route path="/politicaprivacidad" component={PoliticaPrivacidad} /> 
-       <Route path="/auth/registration" component={Registration} /> 
-       <Route path="/auth/forgot" component={ForgotPassword} /> 
-       <Route path="/auth/listado" component={IndiceUsuarios} /> 
-       <Route path="/auth/Usuario" component={Usuarios} /> 
-       <Route path="/ebus/diagnostico" component={NoCargas} />       
-       <Route path="/ebus/nivelcarga" component={NivelCarga} />    
-       <Route path="/ebus/ParqueoInteligente" component={ParqueoInteligente} />    
-       <Route path="/ebus/EventoCarga" component={EventoCarga} />    
-       <Route path="/mobile/preoperacional" component={preoperacional} />     
-       <Route path="/ebus/Configuracion" component={Configuracion} />             
-       <Route path="/sotramac/Reportes" component={Reportes} />    
+      <Redirect exact from="/" to="/bienvenido" />     
+       <Route path="/bienvenido" component={Bienvenidos} />  
+       <Route path="/politicaprivacidad" component={PoliticaPrivacidad} />      
+       {importedModules.map( m=>  <Route key={`${m.path}`} path={`${m.path}`} component={m.component} />  )}
       </Switch>
     </Suspense>
   );

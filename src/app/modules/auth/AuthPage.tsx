@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Redirect, Route, Switch, Link } from "react-router-dom";
-import { Registration } from "./components/Registration";
+import  Registration  from "./components/Registration";
 import { ForgotPassword } from "./components/ForgotPassword";
 import { Login } from "./components/Login";
 import { toAbsoluteUrl } from "../../../_start/helpers";

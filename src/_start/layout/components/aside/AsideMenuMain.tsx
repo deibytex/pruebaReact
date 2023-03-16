@@ -1,13 +1,11 @@
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { Opciones, UserModelSyscaf } from "../../../../app/modules/auth/models/UserModel";
 import { RootState } from "../../../../setup";
 import { AsideMenuItem } from "./AsideMenuItem";
 import { useEffect, useState } from "react"
-import store from "../../../../setup/redux/Store";
-import { getMenuByUser } from "../../../../app/modules/auth/redux/AuthCRUD";
-import { errorDialog } from "../../../helpers/components/ConfirmDialog";
-import * as auth from "../../../../app/modules/auth/redux/AuthRedux";
-import { put } from "redux-saga/effects";
+import { Button, Collapse } from "react-bootstrap-v5";
+import {  ArrowDropDown,  ArrowRight } from "@mui/icons-material";
+import { useLocation } from "react-router";
 export function AsideMenuMain() {
   // informacion del usuario almacenado en el sistema
   const isAuthorized = useSelector<RootState>(
@@ -18,27 +16,25 @@ export function AsideMenuMain() {
     ({ auth }) => auth.menu
   );
   const model = (isAuthorized as UserModelSyscaf);
- 
+  const [menuSelected, setmenuSelected] = useState<number>(0);
+  const [expandAll, setexpandAll] = useState<boolean>();
   const [opcionesPadres, setOpciones] = useState<Opciones[]>([]);
   const [opcionesFiltradas, setopcionesFiltradas] = useState<Opciones[]>([]);
+  const { pathname } = useLocation();
+ // checkIsActive(pathname, to)
+  useEffect(() => {
+    const lstOpciones = (menu as Opciones[]);
+    if (lstOpciones != undefined) {
+      setopcionesFiltradas(lstOpciones.filter((element) => element.esVisible));
+      // opciones que son padres para poder restructurar el meniu    
+      let opcionesPadre = lstOpciones.filter((element) => element.opcionPadreId == null);
+      setOpciones(opcionesPadre);
 
-  useEffect(()=> {
 
-
-      const lstOpciones = (menu as Opciones[]);
-    
-      if(lstOpciones != undefined){
+      let esSeleccionado  = lstOpciones.filter( f=> f.controlador === pathname);
       
-  
-        setopcionesFiltradas(lstOpciones.filter((element) => element.esVisible));
-        // opciones que son padres para poder restructurar el meniu
-      
-        setOpciones(lstOpciones.filter((element) => element.opcionPadreId == null));
-
-      }
-
-
-  
+      setmenuSelected(((esSeleccionado.length > 0) ? esSeleccionado[0].opcionPadreId :  opcionesPadre[0].opcionId))
+    }
 
   }, [menu]);
 
@@ -47,29 +43,41 @@ export function AsideMenuMain() {
 
 
 
-  function ImprimirHijos( padreId : number) {
+  function ImprimirHijos(padreId: number) {
 
 
-      let filterHijos = opcionesFiltradas.filter((element) => element.opcionPadreId == padreId);
-      return filterHijos.map((element) => {
+    let filterHijos = opcionesFiltradas.filter((element) => element.opcionPadreId == padreId);
+    filterHijos =filterHijos.sort(  function (a, b) { return a.orden - b.orden});
+    return filterHijos.map((element) => {
 
-        return (<AsideMenuItem key={`menu-hijo-${element.opcionId}`} to={element.controlador} title={element.nombreOpcion} hasBullet={true} iconClass={element.logo} />)
-      });
+      return (<AsideMenuItem key={`menu-hijo-${element.opcionId}`} to={element.controlador} title={element.nombreOpcion} hasBullet={true} iconClass={element.logo} />)
+    });
   }
 
   return (
     <>
-
-      {  opcionesPadres.map((element) => {
+           {opcionesPadres.map((element) => {
 
         return (
-          <div key={`menu-padre${element.opcionId}`}className="menu-item ">
-            <h4 className="menu-content text-syscaf-amarillo mb-0 fs-6 fw-bold text-uppercase">
-              {element.nombreOpcion}
-            </h4>
+          <div key={`row menu-padre${element.opcionId}`} className="menu-item  flex px-2 ">
+            <Button className="flex btn btn-sm "
+              onClick={() => setmenuSelected((menuSelected == element.opcionId) ? 0 : element.opcionId)}
+              aria-controls={`collapse-${element.opcionId}`}
+              aria-expanded={(menuSelected == element.opcionId)}
+              
+            >
+              {((menuSelected == element.opcionId)) ? (<ArrowDropDown className="ms-auto" />) : (<ArrowRight />)}
+                  <span className="menu-title text-syscaf-amarillo fs-5">
+                    {element.nombreOpcion}
+                  </span>     
+            </Button>
+            <Collapse className="ms-5" in={(menuSelected == element.opcionId)} >
+              {/* IMPRIMIMOS LOS HIJOS DE LA SEGUNDA LINEA */}
+              <div id={`collapse-${element.opcionId}`}>
+                {ImprimirHijos(element.opcionId)}
+              </div>
+            </Collapse>
 
-            {/* IMPRIMIMOS LOS HIJOS DE LA SEGUNDA LINEA */}
-             { ImprimirHijos(element.opcionId)}
           </div>
         )
 

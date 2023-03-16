@@ -41,7 +41,8 @@ export interface UserModelSyscaf {
   fatigue : boolean | undefined | null ;
   auth?: AuthModel;
   tipoClienteid?: TipoUsuario;
-  menu : string
+  menu : string,
+  preoperacional: string
 }
 export interface UserDTO{
   id: string;
@@ -72,4 +73,5 @@ lstOperacion : any[];
 parametrosAdicionales : string;
 opcionPadreId: number;
 opcionId : number;
+orden : number;
 }

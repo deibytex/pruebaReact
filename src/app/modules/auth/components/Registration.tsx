@@ -61,7 +61,7 @@ const registrationSchema = Yup.object().shape({
   acceptTerms: Yup.bool().required("Debes Aceptar los terminos y condiciones"),
 });
 
-export function Registration() {
+export  default function Registration() {
   return <CommonAlertProvider>
     <RegistrationComponent />
   </CommonAlertProvider>

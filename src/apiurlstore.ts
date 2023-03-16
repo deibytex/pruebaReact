@@ -12,6 +12,7 @@ export const Auth_RefreshToken = `${apiURL}/account/refresh-token`
 
 export const DWH_getconsultadinamicasprocedure = `${apiURLDWH}/portal/getconsultasdinamicasproced`
 export const DWH_GetConsultasDinamicas = `${apiURLDWH}/portal/GetConsultasDinamicas`
+export const DWH_getDynamicValueProcedureDWHTabla = `${apiURLDWH}/portal/GetConsultasDinamicasTablaDinamica`
 export const CORE_GetConsultasDinamicas = `${apiURLDWH}/Adm/GetConsultasDinamicas`
 export const CORE_getconsultadinamicas = `${apiURL}/Adm/auth/GetConsultasDinamicas`
 export const CORE_ExecProcedureByTipoConsulta = `${apiURL}/Adm/auth/ExecProcedureByTipoConsulta`
@@ -53,3 +54,5 @@ export const EBUS_GetListadoClientesUsuario = `${apiURLDWH}/Ebus/GetListadoClien
 
 /* Drivers */
 export const DRIVER_GetDriversClienteId = `${apiURLDWH}/Driver/GetDrivers/ClienteId` //long? ClienteId,string UsertState
+
+

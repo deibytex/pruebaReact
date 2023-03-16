@@ -1,5 +1,5 @@
 import moment from "moment";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
 import { getVehiculosOperando, getEncabezados, getVehiculosSinPreoperacional } from "../data/dataPreoperacional";
 
@@ -83,7 +83,8 @@ function useDataPreoperacional() {
 
 const DataVehiculoOperando: React.FC = ({ children }) => {
     const { setvehiculosOperacion, setListadoVehiculoSinOperacion, setEncabezados, setvehiculosSinPreoperacional, setUserId, setError, iserror } = useDataPreoperacional();
-    let idinterval: number = 0;
+
+    const interval = useRef<any>(0);
 
     //CONSULTA VEHICULOS OPERANDO
     let consulta = (clienteIdS: string, fecha: string) => {
@@ -147,28 +148,33 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
         setUserId(userid);
     }
 
-    useEffect(() => {
-
-        if (children) {
-
+    let all = (children: React.ReactNode) => {
+        if(children){
             consulta(children['clienteIdS'], children['fecha']);
             consultaEncabezados(children['clienteid'], children['fecha']);
             consultaSinPreoperacional(children['clienteIdS'], children['fecha']);
             asignarUsuario(children['userId']);
+        }
+        
+    }
+
+    useEffect(() => {
+
+        if (children) {
+
+            all(children);
             // si no tiene error hace el interval
             if (iserror === null || iserror === undefined)
-                if (idinterval === 0) {
-                    idinterval = window.setInterval(() => {
-                        consulta(children['clienteIdS'], children['fecha']);
-                        consultaEncabezados(children['clienteid'], children['fecha']);
-                        consultaSinPreoperacional(children['clienteIdS'], children['fecha']);
-                        asignarUsuario(children['userId'])
+                if (interval.current === 0) {
+                    interval.current = setInterval(() => {
+                        all(children);
                     }, 120000)
                 }
         }
 
         return () => {
             setvehiculosOperacion([]);
+            clearInterval(interval.current);
         };
     }, [children]);
 

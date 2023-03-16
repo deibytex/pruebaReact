@@ -17,7 +17,7 @@ import { Box, Typography } from "@mui/material";
 import { MRT_Localization_ES } from 'material-react-table/locales/es';
 
 // construimos el contenedor
-export function NoCargas (){
+export default function NoCargas (){
 
     const [isError, setIsError] = useState(false);
     const [isLoading, setIsLoading] = useState(false);

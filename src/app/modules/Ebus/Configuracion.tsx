@@ -4,10 +4,7 @@ import { PageTitle } from "../../../_start/layout/core"
 import { ConfiguracionPrincipal } from "./components/Configuracion/ConfiguracionPrincipal"
 import { ConfiguracionEbusProvider, useDataConfiguracionEbus } from "./core/ConfiguracionProvider"
 
-type Props ={
-
-}
-const Configuracion : React.FC<Props> = () =>{
+    export default function Configuracion() {
   
     return(
         <>
@@ -21,4 +18,3 @@ const Configuracion : React.FC<Props> = () =>{
         </>
     )
 }
-export {Configuracion}

@@ -1,11 +1,20 @@
 import axios from "axios";
-import { ASSET_GetAssetsClienteId, ASSET_GetClientesClienteIds, CLIENTE_GetClientes, CORE_getconsultadinamicasUser, CORE_getconsultadinamicasUserDWH, DRIVER_GetDriversClienteId, DWH_GetConsultasDinamicas, EBUS_GetClientesUsuarios, EBUS_GetColumnasDatatable, EBUS_getEventActiveRecargaByDayAndClient, EBUS_getEventActiveViajesByDayAndClient, EBUS_GetListaClientesActiveEvent, EBUS_GetListadoClientesUsuario, EBUS_GetLocations, EBUS_GetTiempoActualizacion, EBUS_GetUltimaPosicionVehiculos, EBUS_GetUsuariosEsomos, EBUS_SetClientesActiveEvent, EBUS_SetColumnasDatatable } from "../../../apiurlstore";
+import { ASSET_GetAssetsClienteId, ASSET_GetClientesClienteIds, CLIENTE_GetClientes, CORE_getconsultadinamicasUser, CORE_getconsultadinamicasUserDWH, DRIVER_GetDriversClienteId, DWH_GetConsultasDinamicas, DWH_getDynamicValueProcedureDWHTabla, EBUS_GetClientesUsuarios, EBUS_GetColumnasDatatable, EBUS_getEventActiveRecargaByDayAndClient, EBUS_getEventActiveViajesByDayAndClient, EBUS_GetListaClientesActiveEvent, EBUS_GetListadoClientesUsuario, EBUS_GetLocations, EBUS_GetTiempoActualizacion, EBUS_GetUltimaPosicionVehiculos, EBUS_GetUsuariosEsomos, EBUS_SetClientesActiveEvent, EBUS_SetColumnasDatatable } from "../../../apiurlstore";
 import { ParamsEndPointDynamic } from "../Models/paramsConsultasDinamicas";
 
 export function Post_GetConsultasDinamicas(props: ParamsEndPointDynamic, body: any) {
     return axios({
       method: 'post',
       url: DWH_GetConsultasDinamicas,
+      data: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json' },
+      params: props
+    });
+  }
+  export function Post_getDynamicValueProcedureDWHTabla(props: any, body: any) {
+    return axios({
+      method: 'post',
+      url: DWH_getDynamicValueProcedureDWHTabla,
       data: JSON.stringify(body),
       headers: { 'Content-Type': 'application/json' },
       params: props

@@ -4,10 +4,8 @@ import { PageTitle } from "../../../_start/layout/core";
 import { ParqueoPrincipal } from "./components/ParqueoInteligente/ParqueoPrincipal";
 import { DataClientes, Indicador, IndicadorCargado, ParqueoProvider } from "./core/ParqueoProvider";
 
-type Props = {
-};
 
- const  ParqueoInteligente: React.FC<Props> = () => {
+    export default function ParqueoInteligente(){  
     return (<>
         <ParqueoProvider>
         <PageTitle >{TituloParqueo}</PageTitle>
@@ -39,4 +37,3 @@ type Props = {
         </ParqueoProvider>
     </>)
  }
- export {ParqueoInteligente}

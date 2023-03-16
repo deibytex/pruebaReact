@@ -25,7 +25,7 @@ const AsideMenuItem: React.FC<Props> = ({
   const { pathname } = useLocation();
   return (
     <div
-      className={clsx("menu-item", {
+      className={clsx("menu-item ", {
         here: checkIsActive(pathname, to),
       })}
     >
@@ -44,7 +44,7 @@ const AsideMenuItem: React.FC<Props> = ({
           </span>
         </a>
       ) : (
-        <Link className="menu-link py-2" to={to}>
+        <Link className={`menu-item  rounded py-2 ${checkIsActive(pathname, to)? "border" : "" }`} to={to}>
           {hasBullet && (
               <i className= {`fs-3  ${iconClass} m-1`}></i>
           )}

@@ -6,10 +6,10 @@ import { EventoCargaPrincipal } from "./components/EventoCarga/EventoCargaPrinci
 import { PageTitle } from "../../../_start/layout/core";
 import { TituloEventoCarga } from "../../../_start/helpers/Texts/textosPorDefecto";
 import { ExportarExcel } from "./components/EventoCarga/ExportarExcel";
-type Props = {
-};
 
- const  EventoCarga: React.FC<Props> = () => {
+
+export default function EventoCarga(){
+
   
     const {  ShowSoc, setShowSoc} = useDataEventoCarga()
     return(
@@ -52,4 +52,3 @@ type Props = {
     </>
     )
  }
- export {EventoCarga}

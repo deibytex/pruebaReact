@@ -6,7 +6,9 @@ import { Principal } from "./components/NivelCarga/principal";
 import { BotonesFiltros, DataEventosTiempoClientes, Indicador, IndicadorCargado, NivelCargaProvider, useDataNivelCarga } from "./core/NivelCargaProvider";
 
 
- const  NivelCarga: React.FC = () => {
+
+    export default function NivelCarga(){
+
     //Para los use state
 
     const [tamaMapa, settamaMapa] = useState(true);
@@ -57,4 +59,3 @@ import { BotonesFiltros, DataEventosTiempoClientes, Indicador, IndicadorCargado,
             </NivelCargaProvider>
     )
 }
-export {NivelCarga};
