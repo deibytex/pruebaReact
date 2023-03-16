@@ -6,7 +6,9 @@ import { AxiosResponse } from "axios";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table"
 import { MRT_Localization_ES } from "material-react-table/locales/es"
 import moment from "moment";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+
+//import { useEffect, useRef, useState } from "react";
 import { Check } from "react-feather";
 import confirmarDialog, { errorDialog, successDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 
@@ -189,8 +191,10 @@ const TableReporte : React.FC = () =>{
         await GetInformeTransmision(Cliente,FechaActual).then((response:AxiosResponse) =>{
             setData(response.data);
             setRowCount(response.data.length);
+            setDatalocal(response.data);
             setCargando(false);
             setIsLoading(false)
+            setFiltrado(false);
         }).catch(() =>{
             errorDialog("Ha ocurrido un error al intentar consultar el informe","");
             setIsError(true);
@@ -200,12 +204,20 @@ const TableReporte : React.FC = () =>{
      useEffect(() =>{
         setCargando(true)
         ConsultarDatos();
+        (Filtrado == undefined ? setDatalocal((Data? Data:[])):setDatalocal((DataFiltrada?DataFiltrada:[])));
         return () => setData([]);
      },[])
 
      useEffect(() =>{
-         (Filtrado == undefined ? setDatalocal((Data? Data:[])):setDatalocal((DataFiltrada?DataFiltrada:[])));
-     },[Filtrado]);
+      if(Filtrado == undefined || Filtrado == false){
+        setDatalocal((Data? Data:[]));
+        setRowCount(Data? Data.length:0)
+      }else{
+        setDatalocal((DataFiltrada?DataFiltrada:[]))
+        setRowCount((DataFiltrada?DataFiltrada.length:0))
+      }
+   
+     },[Filtrado, Data, DataFiltrada]);
 
      const CambiarEstado = (event:any) =>{
         let Estado = (event.target.attributes.id.value== "aDetenido" ? "5":(event.target.attributes.id.value== "aMantenimiento" ? "6" : (event.target.attributes.id.value== "aNormalmente" ? "7": (event.target.attributes.id.value == "aSinRespuesta" ? "8": "12"))))
@@ -221,7 +233,6 @@ const TableReporte : React.FC = () =>{
                 setCargando(false);
             })
         }, `¿Esta seguro que desea cambiar el estado del activo?`, 'Guardar')
-        
      };
 
     return(
@@ -246,7 +257,7 @@ const TableReporte : React.FC = () =>{
             }),
           }}
              columns={listadoCampos}
-             data={(Filtrado == true? DataFiltrada:Data)}
+             data={DataLocal}
              enableTopToolbar={true}
              enableDensityToggle
              enableColumnOrdering

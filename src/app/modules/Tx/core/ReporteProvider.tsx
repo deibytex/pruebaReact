@@ -2,10 +2,11 @@ import { AxiosResponse } from "axios";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Form } from "react-bootstrap-v5";
 import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
-import { ObtenerListadoCLientes } from "../data/Reporte";
+import { GetInformeTransmision, ObtenerListadoCLientes } from "../data/Reporte";
 import { ClienteDTO, InicioCliente, TablaDTO } from "../models/ReporteModels";
 import FileSaver from "file-saver";
 import XLSX from 'sheetjs-style';
+import moment from "moment";
 export interface ReporteContextModel {
     Clientes? : ClienteDTO[];
     ClienteSeleccionado? : ClienteDTO;
@@ -62,7 +63,7 @@ function useDataReporte() {
 
 
 const CargaClientes: React.FC = ({children}) => {
-    const { setClienteSeleccionado, setClientes, ClienteSeleccionado, Clientes, setCargando } = useDataReporte();
+    const { setClienteSeleccionado, setClientes, ClienteSeleccionado, Clientes, setCargando, setFiltrado, Filtrado, Data, setDataFiltrada, setData} = useDataReporte();
     useEffect(() =>{
         setCargando(true);
         ObtenerListadoCLientes().then((response:AxiosResponse<any>) => {
@@ -76,10 +77,21 @@ const CargaClientes: React.FC = ({children}) => {
     return () => setClientes([]);
     },[]);
 
-    return <>{(ClienteSeleccionado !== undefined && Clientes != undefined ) && SeleccionClientes(Clientes,ClienteSeleccionado,setClienteSeleccionado)}</>;
+    return <>{(ClienteSeleccionado !== undefined && Clientes != undefined && Data != undefined ) && SeleccionClientes(Clientes,ClienteSeleccionado,setClienteSeleccionado, setFiltrado, Data, setDataFiltrada, setData)}</>;
 }
 
-function SeleccionClientes (Clientes:any, ClienteSeleccionado:any, setClienteSeleccionado: ((arg0: ClienteDTO) => void) )  {
+function SeleccionClientes (Clientes:any, ClienteSeleccionado:any, setClienteSeleccionado: ((arg0: ClienteDTO) => void) , setFiltrado: ((arg0: boolean) => void),Data:any, setDataFiltrada: ((arg0: any) => void), setData:((arg0: any) => void))  {
+   
+     const ConsultarDatos  = ()=>{
+                let FechaActual = moment().add("hours",10).add("minutes",30).format("YYYY/MM/DD").toString();
+          let Cliente = "0";
+         GetInformeTransmision(Cliente,FechaActual).then((response:AxiosResponse) =>{
+              setData(response.data);
+             
+          }).catch(() =>{
+              errorDialog("Ha ocurrido un error al intentar consultar el informe","");
+          })
+       }
     return (           
         <Form.Select defaultValue={0}  className=" mb-3 " onChange={(e) => {
             // buscamos el objeto completo para tenerlo en el sistema
@@ -92,6 +104,20 @@ function SeleccionClientes (Clientes:any, ClienteSeleccionado:any, setClienteSel
                 clienteNombre:"Todos",
             }:lstClientes[0]);
             setClienteSeleccionado(Cliente); 
+
+            if(Cliente?.clienteIdS != 0)
+            {
+                setFiltrado(true);
+                let Filtrado = Data.filter((val:any, index:any) =>{
+                    return (val.clienteIdS == Cliente?.clienteIdS);
+                })
+                setDataFiltrada(Filtrado);
+            }
+            else
+            {
+                setFiltrado(false);
+                ConsultarDatos();
+            }
 
         }} aria-label="Default select example">
             <option value={0}>Todos</option>
