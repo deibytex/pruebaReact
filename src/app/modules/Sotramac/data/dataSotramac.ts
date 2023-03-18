@@ -135,12 +135,12 @@ export  function getReportesSotramacMS(reporte: string, FechaInicial : string, F
   params["RangoFecha"] = `${FechaInicial}-${FechaFinal}`;  
   params["AssetTypeId"] = assetTypeId;
   params["SiteId"] = null;
-  console.log(PORTAL_getReporteSotramacMS)
   return  axios({
     method: 'post',
     url: PORTAL_getReporteSotramacMS,
     data: JSON.stringify(params),
     headers: { 'Content-Type': 'application/json' },
+    responseType: 'blob',
     params: {}
   });
   

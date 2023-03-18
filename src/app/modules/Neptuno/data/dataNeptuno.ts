@@ -15,8 +15,7 @@ export async function DescargarArchivo(nombrearchivo: string, container: string,
         responseType: 'blob'
     }).then(
         t => {    
-            nombreDescarga =   (nombreDescarga.length > 0) ? nombreDescarga : nombrearchivo;       
-            console.log(nombreDescarga , nombrearchivo)
+            nombreDescarga =   (nombreDescarga.length > 0) ? nombreDescarga : nombrearchivo;               
             FileDownload(t.data, nombreDescarga);  
         }
     ).catch((c) =>  {

@@ -25,7 +25,7 @@ export default function FatigueDashboard() {
     const [Chidlren, setChildren] = useState("");
     const [Filtro, setFiltro] = useState("");
     const [clienteSeleccionado, setclienteSeleccionado] = useState<string>(datosPreoperacional[0]['ClienteIds']);
-
+    const [clienteId, setclienteId] = useState<String>(datosPreoperacional[0]['ClienteId']);
 
     //Control Fecha
     function FechaInicialControl() {
@@ -41,7 +41,7 @@ export default function FatigueDashboard() {
     let params: any = {};
 
     params = {
-        clienteid: (model.clienteid?.toString()),
+        clienteid: clienteId,
         clienteIdS: clienteSeleccionado,
         fecha: moment(FechaServidor).format("YYYY-MM-DD"),
         userId: (model.Id?.toString())
@@ -70,6 +70,10 @@ export default function FatigueDashboard() {
             <Form.Select className=" mb-3 " onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema                  
                 setclienteSeleccionado(e.currentTarget.value)
+             let filter =   datosPreoperacional.filter(f => f["ClienteIds"] === e.currentTarget.value);
+             if(filter.length > 0)
+             setclienteId(filter[0]['ClienteId']);
+
             }} aria-label="" defaultValue={clienteSeleccionado}>
                 {
                     datosPreoperacional?.map((element: any, i: any) => {

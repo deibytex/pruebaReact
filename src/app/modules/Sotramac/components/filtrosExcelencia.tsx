@@ -243,6 +243,8 @@ export const ReporteExcelencia: React.FC<Props> = () => {
         getReportesSotramacMS(reporte, fechaInicial, fechaFinal, driverSelected, assetSelected, assetTypeId )
         .then((respuesta: AxiosResponse<any>) => {
             console.log(respuesta.data);
+            const FileDownload = require('js-file-download');
+              FileDownload(respuesta.data, "archivo.xls");  
         });
     }
 
