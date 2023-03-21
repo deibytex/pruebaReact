@@ -7,7 +7,7 @@ export interface Clientes {
 
 export interface ListaNotifacion {
     ListaClienteNotifacionId:number;
-    clienteIdS:number;
+    ClienteIds:number;
     clienteNombre:string|null;
     NombreLista:string
 }
