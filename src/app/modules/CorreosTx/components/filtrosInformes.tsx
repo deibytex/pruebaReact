@@ -15,7 +15,7 @@ type Props = {
 export const FiltrosCorreos: React.FC<Props> = () => {
 
     //Data desde el provider
-    const { Clientes, ClienteId, ListaNotifacion, ListaNotifacionId, setListaNotifacionId, setClienteId } = useDataCorreosTx();
+    const { Clientes, ClienteIdS, ListaNotifacion, ListaNotifacionId, setListaNotifacionId, setClienteId, setClienteIdS } = useDataCorreosTx();
 
     //Funciones de filtro - seteo
     const [lstListaNotifacion, setlstListaNotifacion] = useState<ListaNotifacion[]>([]);
@@ -23,6 +23,7 @@ export const FiltrosCorreos: React.FC<Props> = () => {
 
 
     useEffect(() => {
+        if (Clientes.length > 0 && ListaNotifacion.length > 0) {
         // traemos los clientes id's que tienen lista creada
         var clientesids: any = [];
 
@@ -42,30 +43,47 @@ export const FiltrosCorreos: React.FC<Props> = () => {
         });
 
         setlstClientes(filtered);
-
+    }
 
     }, [Clientes, ListaNotifacion])
 
     useEffect(() => {
-        if (ClienteId != 0) {
+        if (ClienteIdS != 0 && ListaNotifacion.length > 0) {
             //filtramos la lista según el cliente id
-            let filter = (ListaNotifacion as ListaNotifacion[]).filter(function (arr) {
-                return (arr.ClienteIds == ClienteId)
+            let filterListas = (ListaNotifacion as ListaNotifacion[]).filter(function (arr) {
+                return (arr.ClienteIds == ClienteIdS)
             });
-            setlstListaNotifacion(filter);
+            setlstListaNotifacion(filterListas);
+            setListaNotifacionId(filterListas[0].ListaClienteNotifacionId)
         }
 
-    }, [ClienteId, ListaNotifacion])
+    }, [ClienteIdS, ListaNotifacion])
+
+    useEffect(() => {
+        if (Clientes.length > 0) {
+            //filtramos la lista según el cliente id
+            let clienteIdfilter = (Clientes as Clientes[]).filter(function (arr) {
+                return (arr.clienteIdS == ClienteIdS)
+            });
+
+            // traemos la primera posicipon del filtro para actualizar el clinet id
+            const [clienteId] = clienteIdfilter;
+            setClienteId(clienteId.clienteId)
+        }
+
+    }, [ClienteIdS])
 
     function SelectClientes() {
         return (
-            <Form.Select className=" mb-3 " name="clientes" value={ClienteId} onChange={(e) => {
+            <Form.Select className=" mb-3 " name="clientes" value={ClienteIdS} onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
-                setClienteId(e.currentTarget.value as any);
+
+                //validar con yuli si se puede obtener el key desde aquí                 
+                setClienteIdS(e.currentTarget.value as any);
             }}>
                 {(lstClientes).map((cli) => {
                     return (
-                        <option key={cli.clienteIdS} value={cli.clienteIdS}>
+                        <option key={cli.clienteId} value={cli.clienteIdS}>
                             {cli.clienteNombre}
                         </option>
                     );
@@ -75,12 +93,11 @@ export const FiltrosCorreos: React.FC<Props> = () => {
     }
 
     function SelectListaCorreos() {
-        return (
+            return (
             <Form.Select className=" mb-3 " name="reporte" value={ListaNotifacionId} onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
                 setListaNotifacionId(e.currentTarget.value as any);
             }}>
-                <option value="">Seleccione una lista</option>
                 {
                     lstListaNotifacion.map((rep) => {
                         return (
@@ -91,8 +108,9 @@ export const FiltrosCorreos: React.FC<Props> = () => {
                     })
                 }
             </Form.Select>
-        );
+        );        
     }
+
 
     //Retornamos los controles de filtro
     return (

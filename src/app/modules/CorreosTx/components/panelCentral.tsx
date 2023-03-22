@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { listTabs } from "../data/tabList";
 import { toAbsoluteUrl } from "../../../../_start/helpers";
+import { SelectSites } from "./filtroSites";
 
 type Props = {
     className: string;
@@ -74,7 +75,7 @@ export const CorrTx_PanelCentral: React.FC<Props> = ({ className, innerPadding =
                         <div className={`tab-pane fade ${activeTab === "#tab1" ? "show active" : ""}`} id="tab1_content" >
                             {/* begin::Cards */}
                             <div className="overflow-auto">
-                                {/* <TablaProperacional clienteid={clienteid} fecha={fecha} filtro={filtro} /> */}
+                                <SelectSites />
                             </div>
                             {/* end::Cards      */}
                         </div>
