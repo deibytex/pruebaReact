@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { CORE_getconsultadinamicasUser, NEP_DownloadFile, NEP_GetDirectory, NEP_UploadFile } from '../../../../apiurlstore';
 import { Post_ExecProcedureByTipoConsulta, Post_getconsultadinamicasUser, Post_getconsultadinamicas } from '../../../../_start/helpers/Axios/CoreService';
-import { successDialog } from '../../../../_start/helpers/components/ConfirmDialog';
+import confirmarDialog, { errorDialog, successDialog } from '../../../../_start/helpers/components/ConfirmDialog';
 import {  neptunoDirectory } from '../models/neptunoDirectory';
 
 // descarga la informacion del nodo del tree view
@@ -28,7 +28,10 @@ export async function DescargarDirectorio(container: string, filter: string) {
     return (response.data as Array<neptunoDirectory>);
 }
 
-export async function cargarArchivo(archivo: any, handleshowFileLoad: ((arg0: boolean) => void), srcFileLoad: string, contenedor: string, handlesdatosNeptuno: React.Dispatch<React.SetStateAction<neptunoDirectory[]>>) {
+export async function cargarArchivo(archivo: any, 
+    handleshowFileLoad: ((arg0: boolean) => void), 
+    srcFileLoad: string, contenedor: string, 
+    handlesdatosNeptuno: React.Dispatch<React.SetStateAction<neptunoDirectory[]>>) {
 
     const formData = new FormData();
     formData.append("archivo", archivo);
@@ -43,6 +46,11 @@ export async function cargarArchivo(archivo: any, handleshowFileLoad: ((arg0: bo
     }).then(
         t => {            
             handleshowFileLoad(false);
+            
+            if(t.data == "Ok")
+            successDialog("Guardar Archivo", "Guardado Satisfactoriamente.");
+            else
+            errorDialog("Guardar Archivo",t.data);
             (async () => {
                 handlesdatosNeptuno(await DescargarDirectorio(contenedor, ""));
             })()

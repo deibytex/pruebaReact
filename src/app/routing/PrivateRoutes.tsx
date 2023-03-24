@@ -17,7 +17,7 @@ import Usuarios from "../modules/auth/components/ListadoUsuarios";
 import  NivelCarga  from "../modules/Ebus/NivelCarga";
 import  ParqueoInteligente  from "../modules/Ebus/ParqueoInteligente";
 import  EventoCarga  from "../modules/Ebus/EventoCarga";
-import preoperacional from "../modules/Mobile/preoperacional";
+import Preoperacional from "../modules/Mobile/preoperacional";
 import  Configuracion  from "../modules/Ebus/Configuracion";
 import React from "react";
 import Reportes from "../modules/Sotramac/reporteExcelencia";
@@ -104,7 +104,7 @@ export function PrivateRoutes() {
     component: EventoCarga
   },{
     path: '/mobile/preoperacional',
-    component: preoperacional
+    component: Preoperacional
   },{
     path: '/ebus/Configuracion',
     component: Configuracion

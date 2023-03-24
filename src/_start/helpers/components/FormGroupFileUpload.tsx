@@ -33,11 +33,11 @@ export default function FormGroupImagen(props: formGroupImagen){
     }*/
 
     return (
-        <div className="form-group">
-            <label>{props.label}</label>
-            <div>
-                <input type="file"  onChange={ManejarOnChange} />
-            </div>
+        <div className="row col-xs-12 col-md-12 col-lg-12 mt-2">
+            <label className="col-md-4">{props.label}</label>
+           
+                <input type="file"  className="col-md-8" onChange={ManejarOnChange} />
+           
             {imagenBase64 ? 
             <div>
                 <div style={divStyle}>

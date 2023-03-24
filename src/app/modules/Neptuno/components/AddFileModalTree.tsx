@@ -22,17 +22,17 @@ return (<> <Modal
     contentClassName="shadow-none"
     show={showFileLoad}
 >
-    <div className="container rounded-2">
-        <div className="modal-header d-flex align-items-center justify-content-between border-0">
-            <div className="d-flex align-items-center">
+    <div className="container rounded">
+        <div className=" d-flex align-items-center justify-content-between border-0 text-primary mt-4 mb-4 rounded  bg-secondary">
+            <div className="d-flex align-items-center ">
                 {/* begin::Logo */}
-                <h3>CARGAR ARCHIVO</h3>
+                <h3 className="m-4">Cargar Archivo</h3>
                 {/* end::Logo */}
             </div>
 
             {/* begin::Close */}
             <div
-                className="btn btn-icon btn-sm btn-light-primary ms-2"
+                className="btn btn-icon btn-sm btn-primary ms-2"
                 onClick={() => handleshowFileLoad(false)}
             >
                 <KTSVG
@@ -42,7 +42,7 @@ return (<> <Modal
             </div>
             {/* end::Close */}
         </div>
-        <div>
+        <div className="bg-secondary rounded">
             <Formik
                 initialValues={{
                     upload: '',
@@ -51,36 +51,43 @@ return (<> <Modal
                 onSubmit={
                     values => {
 
-                        let src = (values.carpeta != "") ? `${srcFileLoad}/` : "";
-                        cargarArchivo(values.upload, handleshowFileLoad, `${src}${values.carpeta}`, contenedor, handlesdatosNeptuno);
+                        let src =  `${srcFileLoad}${(values.carpeta != "") ? `/${values.carpeta}` : ""}`;                     
+                        cargarArchivo(values.upload, handleshowFileLoad, src, contenedor, handlesdatosNeptuno);
                     }
                 }
             >
                 <Form>
-                    <Container>
-                        <div className="form-group">
-                            <label>Nueva Carpeta: </label>
+                    <div className=" m-4 mt-0 row text-primary ">
+                        
+                        <div className="row col-xs-12 col-md-12 col-lg-12 mt-2">
+                            <label className="col-xs-4 col-sm-4 col-lg-4">Nueva Carpeta: </label>
                             <Field
-                                className="ml-4"
+                                className="col-xs-8 col-sm-8 col-lg-8 border-0 shadow-sm "
                                 placeholder=""
                                 name="carpeta"
                                 autoComplete="off" type='text'
                             />
                         </div>
-                    </Container>
-                    <Container className="mt-2">
-                        <FormGroupImagen label={'Cargar Archivo:'} campo={'upload'} />
+
+                        <div className="row col-xs-12 col-md-12 col-lg-12 mt-2">
+                        <FormGroupImagen label={'Archivo:'} campo={'upload'} />
+                        </div>
+                        <div className="row col-xs-12 col-md-12 col-lg-12 mt-2">
                         <ErrorMessage name="upload">
                             {mensaje =>
                                 <div className='text-danger' >{mensaje}</div>
                             }
                         </ErrorMessage>
+                        </div>
+                        <div className="row col-xs-12 col-md-12 col-lg-12 align-right mt-2 mb-2 d-flex flex-row-reverse">
                         <button type='submit'
                             id="nept_search_upload_button"
-                            className="btn btn-primary -12 mt-2 mb-4">
+                            className="btn btn-primary col-md-4 ">
                             <span className="indicator-label">Cargar</span> </button>
-                    </Container>
-                </Form>
+                        </div>
+                    </div>
+                    </Form>
+                
                                                     </Formik>
 
         </div>

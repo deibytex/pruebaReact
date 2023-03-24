@@ -95,7 +95,7 @@ function getComponetsFromData(props: dataprops, handleshowFileLoad: ((arg0: bool
     if (contenedor) {
      
         return (
-            <>
+            <div className="card card-rounded bg-transparent " style={{ width: '100%' }}  >
                 {isLoaded ? (
                     <>
                         <ModalAddFile handleshowFileLoad={handleshowFileLoad} 
@@ -103,9 +103,9 @@ function getComponetsFromData(props: dataprops, handleshowFileLoad: ((arg0: bool
                         srcFileLoad={srcFileLoad} 
                         contenedor={contenedor} handlesdatosNeptuno={handlesdatosNeptuno}/>
                         <PageTitle>Neptuno App</PageTitle>
-                        <Row>
-                            <Col>
-                                <Container className='d-flex'>
+                        <Row className="rounded shadow-sm mt-2 bg-secondary  text-primary">
+                            <Col className='mt-2'>
+                             
                                     {/* begin::Form group */}
                                     <Formik
                                         initialValues={{
@@ -123,34 +123,38 @@ function getComponetsFromData(props: dataprops, handleshowFileLoad: ((arg0: bool
                                     >
                                         {() => (                                            <Form>
 
-                                                <div className="v-row mb-10 fv-plugins-icon-container d-flex flex-row-reverse">
-                                                    <ErrorMessage name="upload">
+                                                <div className="row">
+                                                    <ErrorMessage name="upload" className='col-sm-12 col-md-12 col-xs-12'>
                                                         {mensaje =>
                                                             <div className='text-danger' >{mensaje}</div>
                                                         }
                                                     </ErrorMessage>
+                                                    <div   className="row col-sm-4 col-md-4 col-xs-4" >
+                                                    <Field
+                                                   className="ms-4 mb-2 col-sm-8 col-md-8 col-xs-8 border-0 rounded" 
+                                                  placeholder="Buscar archivo"
+                                                  name="Buscar"
+                                                  autoComplete="off" type='text'
+                                              />
+                                                         </div>
+                                                   
                                                     <button
                                                         type="submit"
                                                         id="nept_search_submit_button"
-                                                        className="btn btn-primary -12">
+                                                        className="btn btn-primary mb-2 col-sm-2 col-md-2 col-xs-2">
                                                         <span className="indicator-label">Buscar</span>
                                                     </button>
-                                                    {' '}
-                                                    <Field
-                                                        placeholder="Buscar"
-                                                        name="Buscar"
-                                                        autoComplete="off" type='text'
-                                                    />
+                                                   
 
                                                 </div>
 
                                             </Form>
                                         )}
                                     </Formik>
-                                </Container>
+                           
                             </Col>
                         </Row>
-                        <Row>
+                        <Row className="rounded shadow-sm mt-2 bg-secondary  text-primary">
                             <Col >
                                 <TreeView
                                     aria-label="gmail"
@@ -200,10 +204,10 @@ function getComponetsFromData(props: dataprops, handleshowFileLoad: ((arg0: bool
                 ) : (
                     <> </>
                 )}
-            </>
+            </div>
         );
     } else
-        return <>USTED NO TIENE CONFIGURADO CONTENEDOR PARA MOSTRAR INFORMACION, FAVOR CONSULTE CON SU ADMINISTRADOR</>;
+        return <>USTED NO TIENE CONFIGURADO CONTENEDOR PARA MOSTRAR INFORMACIÓN, FAVOR CONSULTE CON SU ADMINISTRADOR</>;
 }
 
 

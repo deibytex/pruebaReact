@@ -45,7 +45,8 @@ export function successDialog(titulo: string, content :string) {
     Swal.fire({
         title: titulo,
         icon: 'success',
-        showCloseButton: true
+        showCloseButton: true,
+        html : content
     });
 }
 

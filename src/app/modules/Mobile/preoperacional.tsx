@@ -11,7 +11,7 @@ import moment from "moment"
 import { FechaServidor } from "../../../_start/helpers/Helper"
 import { isArray } from "lodash"
 
-export default function FatigueDashboard() {
+export default function Preoperacional() {
 
     // Traemos información del usuario Logueado
     const isAuthorized = useSelector<RootState>(
