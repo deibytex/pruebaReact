@@ -46,9 +46,7 @@ export const UpdateCorreos: React.FC<Props> = ({ show, handleClose, title }) => 
             if (title == "Agregar correo") {
                 setCorreoTx(Correo, TipoCorreo, ListaNotifacionId).then((response) => {
                     successDialog("Operación Éxitosa", "");
-                    // setCorreosTx([...CorreosTx, response.data[0]]);
-                    console.log('sinedit',[...CorreosTx]);
-                    console.log('con edit', [...CorreosTx, response.data[0]])
+                    setCorreosTx([...CorreosTx, response.data[0]]);
                     handleClose();
                 }).catch((error) => {
                     errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
