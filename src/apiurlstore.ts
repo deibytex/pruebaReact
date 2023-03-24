@@ -50,3 +50,12 @@ export const EBUS_SetClientesActiveEvent = `${apiURLDWH}/Ebus/SetClientesActiveE
 export const EBUS_GetLocations = `${apiURLDWH}/Ebus/GetLocations` 
 export const EBUS_GetUsuariosEsomos = `${apiURLDWH}/Ebus/GetUsuariosEsomos` 
 export const EBUS_GetListadoClientesUsuario = `${apiURLDWH}/Ebus/GetListadoClientesUsuario` 
+
+
+/* TX */
+export const TX_GetListaSemana = `${apiURLDWH}/Tx/GetListaSemanaReportesByTipo` 
+export const TX_GetUnidadesActivas = `${apiURLDWH}/Tx/GetReporteUnidadesActivas`
+export const TX_GetSnapShotTickets = `${apiURLDWH}/Tx/GetSnapShotTickets`
+export const TX_GetSnapShotTransmision = `${apiURLDWH}/Tx/GetSnapShotTransmision`
+
+

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ASSET_GetClientesClienteIds, CLIENTE_GetClientes, CORE_getconsultadinamicasUser, CORE_getconsultadinamicasUserDWH, DWH_GetConsultasDinamicas, EBUS_GetClientesUsuarios, EBUS_GetColumnasDatatable, EBUS_getEventActiveRecargaByDayAndClient, EBUS_getEventActiveViajesByDayAndClient, EBUS_GetListaClientesActiveEvent, EBUS_GetListadoClientesUsuario, EBUS_GetLocations, EBUS_GetTiempoActualizacion, EBUS_GetUltimaPosicionVehiculos, EBUS_GetUsuariosEsomos, EBUS_SetClientesActiveEvent, EBUS_SetColumnasDatatable } from "../../../apiurlstore";
+import { ASSET_GetClientesClienteIds, CLIENTE_GetClientes, CORE_getconsultadinamicasUser, CORE_getconsultadinamicasUserDWH, DWH_GetConsultasDinamicas, EBUS_GetClientesUsuarios, EBUS_GetColumnasDatatable, EBUS_getEventActiveRecargaByDayAndClient, EBUS_getEventActiveViajesByDayAndClient, EBUS_GetListaClientesActiveEvent, EBUS_GetListadoClientesUsuario, EBUS_GetLocations, EBUS_GetTiempoActualizacion, EBUS_GetUltimaPosicionVehiculos, EBUS_GetUsuariosEsomos, EBUS_SetClientesActiveEvent, EBUS_SetColumnasDatatable, TX_GetListaSemana, TX_GetSnapShotTickets, TX_GetSnapShotTransmision, TX_GetUnidadesActivas } from "../../../apiurlstore";
 import { ParamsEndPointDynamic } from "../Models/paramsConsultasDinamicas";
 
 export function Post_GetConsultasDinamicas(props: ParamsEndPointDynamic, body: any) {
@@ -159,5 +159,40 @@ export function Post_GetConsultasDinamicas(props: ParamsEndPointDynamic, body: a
       params : props
     });
   }
-
   
+  /* TX */
+  export function Post_GetListaSemanas(props: any) {
+    return  axios({
+      method: 'get',
+      url: TX_GetListaSemana,     
+      headers: { 'Content-Type': 'application/json' },
+      params : props
+    });
+  }
+
+  export function Post_UnidadesActivas(props: any) {
+    return  axios({
+      method: 'get',
+      url: TX_GetUnidadesActivas,     
+      headers: { 'Content-Type': 'application/json' },
+      params : props
+    });
+  }
+
+  export function Post_GetSnapShotTickets(props: any) {
+    return  axios({
+      method: 'get',
+      url: TX_GetSnapShotTickets,     
+      headers: { 'Content-Type': 'application/json' },
+      params : props
+    });
+  }
+  
+  export function Post_GetSnapShotTransmision(props: any) {
+    return  axios({
+      method: 'get',
+      url: TX_GetSnapShotTransmision,     
+      headers: { 'Content-Type': 'application/json' },
+      params : props
+    });
+  }

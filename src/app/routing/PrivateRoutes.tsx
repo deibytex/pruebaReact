@@ -20,9 +20,10 @@ import { EventoCarga } from "../modules/Ebus/EventoCarga";
 import preoperacional from "../modules/Mobile/preoperacional";
 import { Configuracion } from "../modules/Ebus/Configuracion";
 import { Reportes } from "../modules/Tx/Reportes";
-
+import  {Dashboard}  from "../modules/Tx/Dashboard";
 
 import React from "react";
+
 
 
 export function PrivateRoutes() {
@@ -52,6 +53,7 @@ export function PrivateRoutes() {
        <Route path="/mobile/preoperacional" component={preoperacional} />     
        <Route path="/ebus/Configuracion" component={Configuracion} />    
        <Route path="/Tx/Reportes" component={Reportes} />    
+        <Route path={"/Tx/Dashboard"} component={Dashboard}/>
       </Switch>
     </Suspense>
   );
