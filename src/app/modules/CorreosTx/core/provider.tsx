@@ -3,34 +3,50 @@ import { AxiosResponse } from "axios";
 import React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
 import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
-import { getListadoCLientes, getListaClienteNotifacion, getSites, getSitesNotifacion} from "../data/dataCorreosTx";
+import { getDetalleListas } from "../../Sotramac/data/dataSotramac";
+import { getListadoCLientes, getListaClienteNotifacion, getSites, getSitesNotifacion, getCorreosTx} from "../data/dataCorreosTx";
 
 // clase con los funciones  y datos a utiilizar
 export interface CorreosTxContextModel {
     Clientes?: any;
     setClientes: (lstClientes: any[]) => void;
     ClienteIdS?: any;
-    setClienteIdS: (ClientesId: any) => void;
+    setClienteIdS: (ClientesIdS: any) => void;
     ClienteId?: any;
     setClienteId: (ClientesId: any) => void;
     ListaNotifacion?: any;
     setListaNotifacion: (lstListaNotifacion: any[]) => void;
     ListaNotifacionId?: any;
-    setListaNotifacionId: (ClientesId: any) => void;
+    setListaNotifacionId: (ListaNotifacionId: any) => void;
     ListaSites?: any;
     setListaSites: (lstListaSites: any[]) => void;
     ListaSitesNotifacion?: any;
     setListaSitesNotifacion: (lstListaSitesNotifacion: any[]) => void;
+    CorreosTx?: any;
+    setCorreosTx: (lstCorreosTx: any[]) => void;
+    CorreoId?: any;
+    setCorreoId: (CorreoId: any) => void;
+    Correo?: any;
+    setCorreo: (Correo: any) => void;
+    TipoCorreo?: any;
+    setTipoCorreo: (ipoCorreo: any) => void;
+    detalleListas?: any;
+    setdetalleListas: (lstdetalleListas: any[]) => void;
 }
 
 const CorreosTxContext = createContext<CorreosTxContextModel>({
     setClientes: (lstdetalleClientes: any[]) => { },
-    setClienteIdS: (ClientesId: any) => (0),
+    setClienteIdS: (ClientesIdS: any) => (0),
     setClienteId: (ClientesId: any) => (0),
     setListaNotifacion: (lstNotifacion: any[]) => { },
-    setListaNotifacionId: (ClientesId: any) => (0),
+    setListaNotifacionId: (ListaNotifacionId: any) => (0),
     setListaSites: (lstSites: any[]) => { },
     setListaSitesNotifacion: (lstSitesNotifacion: any[]) => { },
+    setCorreosTx: (lstdetalleCorreosTx: any[]) => { },
+    setCorreoId: (CorreoId: any) => (0),
+    setCorreo: (Correo: any) => (""),
+    setTipoCorreo: (TipoCorreo: any) => (0),
+    setdetalleListas: (lstlistas: any[]) => { }
 });
 
 
@@ -42,6 +58,11 @@ const CorreosTxProvider: React.FC = ({ children }) => {
     const [ListaNotifacionId, setListaNotifacionId] = useState<any>(0);
     const [ListaSites, setListaSites] = useState<any[]>([]);
     const [ListaSitesNotifacion, setListaSitesNotifacion] = useState<any[]>([]);
+    const [CorreosTx, setCorreosTx] = useState<any[]>([]);
+    const [CorreoId, setCorreoId] = useState<any>(0);
+    const [Correo, setCorreo] = useState<any>("");
+    const [TipoCorreo, setTipoCorreo] = useState<any>(0);
+    const [detalleListas, setdetalleListas] = useState<any[]>([]);
 
 
 
@@ -60,6 +81,16 @@ const CorreosTxProvider: React.FC = ({ children }) => {
         setListaSites,
         ListaSitesNotifacion,
         setListaSitesNotifacion,
+        CorreosTx,
+        setCorreosTx,
+        CorreoId,
+        setCorreoId,
+        Correo,
+        setCorreo,
+        TipoCorreo,
+        setTipoCorreo,
+        detalleListas,
+        setdetalleListas,
     };
 
     return (
@@ -80,7 +111,7 @@ function useDataCorreosTx() {
 // segun parametrización que debe realizarse
 
 const DataCorreosTX: React.FC = ({ children }) => {
-    const { setClientes, setClienteIdS, setClienteId, setListaNotifacion, setListaSites, setListaSitesNotifacion } = useDataCorreosTx();
+    const { setClientes, setClienteIdS, setClienteId, setListaNotifacion, setListaSites, setListaSitesNotifacion, setCorreosTx, setdetalleListas } = useDataCorreosTx();
 
     useEffect(() => {
 
@@ -113,6 +144,29 @@ const DataCorreosTX: React.FC = ({ children }) => {
         }).catch((error) => {
             errorDialog("ListadoSitesNotifaacion", "Error al consultar ListadoSitesNotifaacion, no se puede desplegar informacion");
         });
+
+        getCorreosTx(null).then((response: AxiosResponse<any>) => {
+            setCorreosTx(response.data);
+        }).catch((error) => {
+            errorDialog("ListadoSitesNotifaacion", "Error al consultar ListadoSitesNotifaacion, no se puede desplegar informacion");
+        });
+
+        getDetalleListas("2").then((response: AxiosResponse<any>) => {
+            setdetalleListas(response.data);
+        }).catch((error) => {
+            errorDialog("ListadoTipoCorreos", "Error al consultar los tipos correos, no se puede desplegar informacion");
+        });
+
+        return () => {
+            setClientes([]);
+            setListaNotifacion([]);
+            setListaSites([]);
+            setListaSitesNotifacion([]);
+            setCorreosTx([]);
+            setClienteIdS(0);
+            setClienteId(0);
+            setdetalleListas([]);
+        };
 
     }, []);
 

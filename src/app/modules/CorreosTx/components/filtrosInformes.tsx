@@ -6,6 +6,7 @@ import "../../../../../node_modules/@availity/block-ui/src/BlockUi.css";
 import "../../../../../node_modules/@availity/block-ui/src/Loader.css";
 import { useDataCorreosTx } from "../core/provider";
 import { Clientes, ListaNotifacion } from "../models/dataModels"
+import { UpdateListaCorreos } from "./modalUpdatedListaCorreos";
 
 
 type Props = {
@@ -20,6 +21,19 @@ export const FiltrosCorreos: React.FC<Props> = () => {
     //Funciones de filtro - seteo
     const [lstListaNotifacion, setlstListaNotifacion] = useState<ListaNotifacion[]>([]);
     const [lstClientes, setlstClientes] = useState<Clientes[]>([]);
+    const [ListaNotificacionId, setListaNotificacionId] = useState('');
+
+    //Modal
+    const [tituloModalCorreos, settituloModalCorreos] = useState('');
+    const [show, setShow] = useState(false);
+    const handleClose = () => {
+        settituloModalCorreos('');        
+        setShow(false);        
+    };
+
+    const showModal = () => {
+        setShow(true);
+    }
 
 
     useEffect(() => {
@@ -54,10 +68,10 @@ export const FiltrosCorreos: React.FC<Props> = () => {
                 return (arr.ClienteIds == ClienteIdS)
             });
             setlstListaNotifacion(filterListas);
-            setListaNotifacionId(filterListas[0].ListaClienteNotifacionId)
+            ListaNotifacionId == 0 ? setListaNotifacionId(filterListas[0].ListaClienteNotifacionId) : setListaNotifacionId(ListaNotifacionId);
         }
 
-    }, [ClienteIdS, ListaNotifacion])
+    }, [ClienteIdS, ListaNotifacion, ListaNotifacionId])
 
     useEffect(() => {
         if (Clientes.length > 0) {
@@ -94,7 +108,7 @@ export const FiltrosCorreos: React.FC<Props> = () => {
 
     function SelectListaCorreos() {
             return (
-            <Form.Select className=" mb-3 " name="reporte" value={ListaNotifacionId} onChange={(e) => {
+            <Form.Select className=" mb-3 " name="reporte" value={ListaNotificacionId} onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
                 setListaNotifacionId(e.currentTarget.value as any);
             }}>
@@ -111,6 +125,16 @@ export const FiltrosCorreos: React.FC<Props> = () => {
         );        
     }
 
+    useEffect(() => {
+        setListaNotificacionId(ListaNotifacionId);
+    }, [ListaNotifacionId])
+
+
+    const modalSetCorreo = (title: string) => {
+        settituloModalCorreos(title);
+        showModal();
+    }
+
 
     //Retornamos los controles de filtro
     return (
@@ -121,10 +145,21 @@ export const FiltrosCorreos: React.FC<Props> = () => {
                     <SelectClientes />
                 </div>
                 <div className="col-sm-6 col-md-6 col-xs-6" >
-                    <label className="control-label label label-sm  m-3" style={{ fontWeight: 'bold' }}>Seleccione cliente:</label>
+                    <label className="control-label label label-sm  m-3" style={{ fontWeight: 'bold' }}>Seleccione Lista:</label>
                     <SelectListaCorreos />
                 </div>
             </div>
+            <div className="row">
+                <div className="mt-1 justify-content-end" style={{ textAlign: 'right' }}>
+                    <Button type="button" variant="primary" className="m-2" onClick={() => {modalSetCorreo("Modificar Lista")} }>
+                        Modificar
+                    </Button>
+                    <Button type="button" variant="primary" className="m-2" onClick={() => {modalSetCorreo("Crear Lista")} }>
+                        Crear
+                    </Button>
+                </div>
+            </div>
+            <UpdateListaCorreos show={show} handleClose={handleClose} title={tituloModalCorreos} />
         </>
     )
 } 
