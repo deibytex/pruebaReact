@@ -54,9 +54,22 @@ export const UpdateCorreos: React.FC<Props> = ({ show, handleClose, title }) => 
             }
             else {
                 updateCorreosTx(Correo, TipoCorreo, CorreoId).then((response) => {
-                    successDialog("Operación Éxitosa", "");
-                    // setData([...Data] as CorreosTx[]);
-                    handleClose();
+
+                    if (response.statusText == "OK") {
+                        let correosedit = (CorreosTx as CorreosTx[]).map(function (dato) {
+                            if (dato.CorreoTxIdS == CorreoId) {
+                                dato.correo = Correo;
+                                dato.tipoCorreo = TipoCorreo;
+                                dato.TipoEnvio = (detalleListas as DetalleListas[]).filter(lis => lis.DetalleListaId == TipoCorreo)[0].Nombre;
+                            }
+                            return dato;
+                        });
+                        setCorreosTx(correosedit); 
+                        successDialog("Operación Éxitosa", "");
+                        handleClose();
+                    }
+                    else
+                        errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
                 }).catch((error) => {
                     errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
                 });

@@ -41,9 +41,9 @@ export const SelectSites: React.FC<Props> = () => {
                 return item.SiteId;
             })
 
-            setselectedSites(initialSelected);
+            console.log(ListaSitesNotifacion);
 
-            // setselectedSites(dual);
+            setselectedSites(initialSelected);
         }
     }, [ListaNotifacionId, ClienteId, ListaSites, ListaSitesNotifacion])
 

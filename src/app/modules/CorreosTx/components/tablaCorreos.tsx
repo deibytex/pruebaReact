@@ -29,7 +29,7 @@ type Props = {
 
 export const TablaCorreosTx: React.FC<Props> = () => {
 
-    const { CorreosTx, ListaNotifacionId, setCorreoId, setCorreo, setTipoCorreo } = useDataCorreosTx();
+    const { CorreosTx, ListaNotifacionId, setCorreoId, setCorreo, setTipoCorreo, setCorreosTx } = useDataCorreosTx();
 
     const [lstCorreosTx, setlstCorreosTx] = useState<CorreosTx[]>([]);
 
@@ -80,10 +80,6 @@ export const TablaCorreosTx: React.FC<Props> = () => {
         }
     }, [CorreosTx, ListaNotifacionId])
 
-    // const modalrespuetas = (encabezadoId: number) => {
-    //     setencabezadoId(encabezadoId);
-    //     showModal()
-    // }
 
     const modalSetCorreo = (correoId: number | null, tipoCorreo: number | null, correo: string | null) => {
         correoId ? setCorreoId(correoId) : setCorreoId(0);
@@ -96,11 +92,15 @@ export const TablaCorreosTx: React.FC<Props> = () => {
     const deleteCorreo = (CorreoId: number) => {
         confirmarDialog(() => {
             deleteCorreosTx(CorreoId).then((response) => {
-                console.log(response);
-                successDialog("Operación Éxitosa", "");
+                if (response.statusText == "OK") {
+                    let correosFilter = (CorreosTx as CorreosTx[]).filter(lis => lis.CorreoTxIdS != CorreoId);
+                    setCorreosTx(correosFilter);
+                    successDialog("Operación Éxitosa", "");
+                } else
+                    errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
             }).catch((error) => {
-                errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
-            });
+                    errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
+                });
         }, `Esta seguro que desea eliminar el correo`
             , "Eliminar");
     }
