@@ -63,7 +63,6 @@ export const SelectSites: React.FC<Props> = () => {
     const updatedSites = () => {
         confirmarDialog(() => {
             setSitesCorreosTx(ListaNotifacionId, sitesSelected).then((response) => {
-                console.log('datanueva',response.data);
                 let sitesFilter = (ListaSitesNotifacion as SitesNotifacion[]).filter(lis => lis.ListaClienteNotifacionId != ListaNotifacionId);
                 setListaSitesNotifacion([...sitesFilter, ...response.data])
                 successDialog("Operación Éxitosa", "");

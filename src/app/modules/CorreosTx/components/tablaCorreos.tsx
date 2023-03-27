@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import { useDataCorreosTx } from "../core/provider";
 
-import MaterialReactTable, { MRT_ColumnDef, MRT_Row } from "material-react-table";
+import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { MRT_Localization_ES } from 'material-react-table/locales/es';
 
 import type {
@@ -11,11 +11,8 @@ import type {
     SortingState,
 } from '@tanstack/react-table';
 import { Box, IconButton, Tooltip } from "@mui/material";
-import { Delete, FormatListBulleted, Message, Update, Upgrade, VerifiedUser } from "@mui/icons-material";
-import { FechaServidor } from "../../../../_start/helpers/Helper";
-import { Console } from "console";
+import { Delete, Update } from "@mui/icons-material";
 import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/helpers/components/ConfirmDialog";
-import { boolean } from "yup";
 import { Button } from "react-bootstrap-v5";
 import "../../../../../node_modules/@availity/block-ui/src/BlockUi.css";
 import "../../../../../node_modules/@availity/block-ui/src/Loader.css";

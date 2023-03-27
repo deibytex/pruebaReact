@@ -82,7 +82,6 @@ export const UpdateListaCorreos: React.FC<Props> = ({ show, handleClose, title }
                         setClienteIdS(clientids);
 
                         setlistanotifacionid((response.data[0]["ListaClienteNotifacionId"]) as number);
-                        console.log(response.data[0]["ListaClienteNotifacionId"]);
                         handleClose();
                     }).catch((error) => {
                         errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
