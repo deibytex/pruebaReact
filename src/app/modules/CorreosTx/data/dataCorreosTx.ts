@@ -54,11 +54,12 @@ export function setSitesCorreosTx(ListaClienteNotifacionId: number, SitesIds: st
     params["ListaClienteNotifacionId"] = ListaClienteNotifacionId.toString();
     params["SitesIds"] = SitesIds == "" ? null : SitesIds;
     // hacemos la consulta 
-    return  Post_ExecProcedureByTipoConsulta({    
-        Clase : "TxQueryHelper",  
-        NombreConsulta: "setSiteCorreosTx", 
-        Pagina :null, 
-        RecordsPorPagina :null}, 
+    return  Post_getconsultadinamicas({
+        Clase: "TxQueryHelper",
+        NombreConsulta: "setSiteCorreosTx",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, 
         params);   
 }
 
