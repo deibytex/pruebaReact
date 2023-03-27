@@ -95,7 +95,6 @@ export const UpdateListaCorreos: React.FC<Props> = ({ show, handleClose, title }
                 tipoModificacion == 0 ? EsActivo = 1 : EsActivo = 0;
                 updateListasCorreosTx(ListaNotifacionId, NombreLista, EsActivo).then((response) => {
                     successDialog("Operación Éxitosa", "");
-                    console.log(response.data[0]["EsActivo"]);
                     if (response.data[0]["EsActivo"] == 1) {
                         (ListaNotifacion as ListaNotifacion[]).map(function (dato) {
                             if (dato.ListaClienteNotifacionId == ListaNotifacionId) {

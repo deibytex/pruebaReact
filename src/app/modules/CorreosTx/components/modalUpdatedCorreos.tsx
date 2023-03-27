@@ -7,6 +7,7 @@ import { Button, Form, Modal } from "react-bootstrap-v5"
 import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/helpers/components/ConfirmDialog";
 import { setCorreoTx, updateCorreosTx } from "../data/dataCorreosTx";
 import { CorreosTx, DetalleListas } from "../models/dataModels";
+import { CORE_ExecProcedureByTipoConsulta } from "../../../../apiurlstore";
 
 
 type Props = {
@@ -19,7 +20,7 @@ export const UpdateCorreos: React.FC<Props> = ({ show, handleClose, title }) => 
 
     const { ListaNotifacionId, CorreoId, Correo, TipoCorreo, detalleListas, CorreosTx, setCorreo, setTipoCorreo, setCorreosTx } = useDataCorreosTx();
 
-    const [Data, setData] = useState<CorreosTx[]>([]);
+    const [errorCorreo, seterrorCorreo] = useState<any>("");
 
     function SelectTipoCorreo() {
         return (
@@ -81,7 +82,9 @@ export const UpdateCorreos: React.FC<Props> = ({ show, handleClose, title }) => 
     };
 
     const getCorreo = (e: any) => {
+        const regex = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
         setCorreo(e.target.value);
+        !Correo || regex.test(Correo) === false ? seterrorCorreo("Correo No Valido") : seterrorCorreo("")
     };
 
     return (
@@ -98,6 +101,7 @@ export const UpdateCorreos: React.FC<Props> = ({ show, handleClose, title }) => 
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                             <label className="control-label label label-sm  m-3" htmlFor="correo" style={{ fontWeight: 'bold' }}>Correo:</label>
                             <input className="form-control  input input-sm mb-3" placeholder="Ingrese correo" type="email" onChange={getCorreo} value={Correo} />
+                            <span className="text-danger">{errorCorreo}</span>
                         </div>
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                             <label className="control-label label label-sm  m-3" htmlFor="correo" style={{ fontWeight: 'bold' }}>Tipo Correo:</label>
