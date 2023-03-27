@@ -95,7 +95,8 @@ export const UpdateListaCorreos: React.FC<Props> = ({ show, handleClose, title }
                 tipoModificacion == 0 ? EsActivo = 1 : EsActivo = 0;
                 updateListasCorreosTx(ListaNotifacionId, NombreLista, EsActivo).then((response) => {
                     successDialog("Operación Éxitosa", "");
-                    if (response.data[0][""] == 1) {
+                    console.log(response.data[0]["EsActivo"]);
+                    if (response.data[0]["EsActivo"] == 1) {
                         (ListaNotifacion as ListaNotifacion[]).map(function (dato) {
                             if (dato.ListaClienteNotifacionId == ListaNotifacionId) {
                                 dato.NombreLista = NombreLista;
@@ -105,6 +106,8 @@ export const UpdateListaCorreos: React.FC<Props> = ({ show, handleClose, title }
                     }
                     else {
                         var elimLista = (ListaNotifacion as ListaNotifacion[]).filter(nom => nom.ListaClienteNotifacionId != ListaNotifacionId);
+                        let id = (ListaNotifacion as ListaNotifacion[]).filter(nom => nom.ClienteIds == clientids)[0].ListaClienteNotifacionId;
+                        setlistanotifacionid(id);
                         setListaNotifacion(elimLista);
                     }
                     handleClose();
