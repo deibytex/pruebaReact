@@ -8,8 +8,10 @@ type Props = {
     className: string;
 }
 const UnidadesActivasChart : React.FC<Props>= ({ className}) =>{
+  let  colorsArray = ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5'];
+         let  colorsArrayLabels = ["danger", "warning", "primary", "success"]; 
     //Se importan los datos
-     const { Data, DataFiltrada } = useDataDashboard();
+     const { Data, DataFiltrada,Filtrado } = useDataDashboard();
      //se retorna las series
      const RetornarSerie = (data:any[]) => {
         if (data == null || data == undefined)
@@ -67,26 +69,48 @@ const UnidadesActivasChart : React.FC<Props>= ({ className}) =>{
             return;
           }
        
-         let  colorsArray = ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5'];
-         let  colorsArrayLabels = ["danger", "warning", "primary", "success"]; 
+          let  colorsArray = ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5'];
+        let  colorsArrayLabels = ["bg-danger", "bg-warning", "bg-primary", "bg-success"]; 
          let labelsArray:string[] = []//['Activas','Implementación'];
          let _data : number[] = [];
-          if(Data)
-          if(Data['Unidades'] != undefined){
-           let serie =  RetornarSerie(Data['Unidades'].filter(function (item:any) {
-                if (item.ClasificacionId == 'Activas' || item.ClasificacionId == 'Implementación')
-                    return item.ClasificacionId;
-            }))
-            _data = (serie != false ? serie:[]);
-            let labels =  retornarLabels(Data['Unidades'].filter(function (item:any) {
-                if (item.ClasificacionId == 'Activas' || item.ClasificacionId == 'Implementación')
-                    return item.ClasificacionId;
-            }));
-            labelsArray =(labels != false ? labels:[])
-          }
-               
-        const options = getChartOptions(_data, colorsArray, "Unidades Activas", labelsArray);
 
+
+
+      if(Filtrado){
+          let dataFiltrada:any[] =[] 
+          if(DataFiltrada)
+              if(DataFiltrada != undefined){
+                      let serie =  RetornarSerie(DataFiltrada.filter(function (item:any) {
+                        if (item.ClasificacionId == 'Activas' || item.ClasificacionId == 'Implementación')
+                        return item.ClasificacionId;
+                  }))
+                  _data = (serie != false  ? serie:[]);
+                  let labels =  retornarLabels(DataFiltrada.filter(function (item:any) {
+                    if (item.ClasificacionId == 'Activas' || item.ClasificacionId == 'Implementación')
+                    return item.ClasificacionId;
+                  }));
+                      labelsArray =(labels != false ? labels:[])
+                  }
+          }
+      else
+      {
+          if(Data)
+            if(Data['Unidades'] != undefined){
+
+              let serie =  RetornarSerie(Data['Unidades'].filter(function (item:any) {
+                    if (item.ClasificacionId == 'Activas' || item.ClasificacionId == 'Implementación')
+                        return item.ClasificacionId;
+                }))
+                _data = (serie != false ? serie:[]);
+                let labels =  retornarLabels(Data['Unidades'].filter(function (item:any) {
+                    if (item.ClasificacionId == 'Activas' || item.ClasificacionId == 'Implementación')
+                        return item.ClasificacionId;
+                }));
+                labelsArray =(labels != false ? labels:[])
+          }
+      }
+
+        const options = getChartOptions(_data, colorsArray, "Unidades Activas", labelsArray);
         const ctx = element.getContext("2d");
         let myDoughnut: Chart | null;
       
@@ -98,12 +122,12 @@ const UnidadesActivasChart : React.FC<Props>= ({ className}) =>{
             myDoughnut.destroy();
           }
         };
-    },[Data])
+    },[Data, Filtrado, DataFiltrada])
+
     return (
         <div className={className}>
             <canvas id="donuts-update"></canvas>
         </div>
-      
     );
 }
 export { UnidadesActivasChart }

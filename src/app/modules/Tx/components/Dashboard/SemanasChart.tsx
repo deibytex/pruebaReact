@@ -8,7 +8,7 @@ type Props = {
 }
 const SemanasChart :React.FC<Props> = ({className}) =>{
 //Se importan los datos
-const { Data, DataFiltrada } = useDataDashboard();
+const { Data, DataFiltrada, Filtrado } = useDataDashboard();
 const RetornarSerie = (data:any[]) => {
     var dataChart = data;
     //Para los datos de la grafica principal
@@ -54,18 +54,36 @@ const retornarLabels= (data:any[]) =>{
     let  colorsArrayLabels = ["danger", "warning", "primary", "success"]; 
     let labelsArray:string[] = []//['Activas','Implementación'];
     let _data : number[] = [];
-    if(Data)
-    if(Data['Unidades'] != undefined){
-    let serie =  RetornarSerie(Data['Unidades'].filter(function (item:any) {
-                return item.Vertical;
-        }))
-        _data = (serie.length != 0 ? serie:[]);
-        let labels =  retornarLabels(Data['Unidades'].filter(function (item:any) {
-                return item.Vertical;
-        }));
-        labelsArray =(labels != false ? labels:[])
-    }
+
+    if(Filtrado){
+        let dataFiltrada:any[] =[] 
+        if(DataFiltrada)
+            if(DataFiltrada != undefined){
+                    let serie =  RetornarSerie(DataFiltrada.filter(function (item:any) {
+                        return item.Vertical;
+                }))
+                _data = (serie.length != 0 ? serie:[]);
+                let labels =  retornarLabels(DataFiltrada.filter(function (item:any) {
+                        return item.Vertical;
+                }));
+                    labelsArray =(labels != false ? labels:[])
+                }
+        }
+    else{
+        if(Data)
+            if(Data['Unidades'] != undefined){
+            let serie =  RetornarSerie(Data['Unidades'].filter(function (item:any) {
+                        return item.Vertical;
+                }))
+                _data = (serie.length != 0 ? serie:[]);
+                let labels =  retornarLabels(Data['Unidades'].filter(function (item:any) {
+                        return item.Vertical;
+                }));
+                labelsArray =(labels != false ? labels:[])
+            }
         
+    }
+    
     const options = getChartOptions(_data, colorsArray, "Semana", labelsArray);
 
     const ctx = element.getContext("2d");
@@ -79,7 +97,7 @@ const retornarLabels= (data:any[]) =>{
         myDoughnut.destroy();
     }
     };
-},[Data])
+},[Data, Filtrado, DataFiltrada])
     return (
         
         <>

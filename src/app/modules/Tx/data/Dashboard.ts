@@ -1,4 +1,4 @@
-import { Post_Getconsultadinamicas, Post_getconsultadinamicasUser } from "../../../../_start/helpers/Axios/CoreService";
+import { Post_getconsultadinamicas, Post_Getconsultadinamicas, Post_getconsultadinamicasUser } from "../../../../_start/helpers/Axios/CoreService";
 import { Post_GetConsultasDinamicas, Post_GetListaSemanas, Post_GetSnapShotTickets, Post_GetSnapShotTransmision, Post_UnidadesActivas } from "../../../../_start/helpers/Axios/DWHService";
 
 
@@ -44,4 +44,10 @@ export  function GetSnapShotTransmision2(Fecha:string|null, ClienteId:string | n
     params['Fecha'] = Fecha;
     params['ClienteId'] = (ClienteId == "0" ? null : ClienteId);
     return  Post_GetSnapShotTransmision(params);
+}
+
+export function SetActualizaUnidadesActivas(Fecha:string){
+    var params: { [id: string]: string | null| undefined; } = {};
+    params['Fecha'] = Fecha;
+    return  Post_getconsultadinamicas({ Clase : "TXQueryHelper",  NombreConsulta: "SetSnapshotUnidadesActivasFecha", Pagina :null, RecordsPorPagina :null}, params);
 }

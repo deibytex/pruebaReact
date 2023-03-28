@@ -12,7 +12,7 @@ const TransmisionScatterChart : React.FC<Props> = ({ className}) =>{
    let  colorsArray = ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c',  '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5'];
     // let  colorsArray = ['#ff9896'];
   //  let  colorsArrayLabels = ['#F9EE07']; 
-    const { DataTx, DataFiltrada } = useDataDashboard();
+    const { DataTx, FiltradoTx,DataFiltradaTx } = useDataDashboard();
     const RetornarSerie = (data:any[]) => {
         var dataChart = data;
         //Para los datos de la grafica principal
@@ -68,20 +68,37 @@ const TransmisionScatterChart : React.FC<Props> = ({ className}) =>{
         if (!element) {
             return;
         }
-
     
         let labelsArray:string[] = []//['Activas','Implementación'];
         let _data : ChartDataSets[] = [];
-        if(DataTx)
-        if(DataTx['Transmision'] != undefined){
-            let serie =  RetornarSerie(DataTx['Transmision'].filter(function (item:any) {
-                        return item.Usuario;
-                }))
-            _data = (serie.length != 0 ? serie:[]);
-            let labels =  retornarLabels(DataTx['Transmision'].filter(function (item:any) {
-                return item.Fecha;
-            }),"Fecha");
-            labelsArray =(labels != false ? labels:[])
+
+        if(FiltradoTx){
+            let dataFiltrada:any[] =[] 
+            if(DataFiltradaTx)
+                if(DataFiltradaTx != undefined){
+                        let serie =  RetornarSerie(DataFiltradaTx.filter(function (item:any) {
+                            return item.Usuario;
+                    }))
+                    _data = (serie.length != 0 ? serie:[]);
+                    let labels =  retornarLabels(DataFiltradaTx.filter(function (item:any) {
+                        return item.Fecha;
+                    }),"Fecha");
+                        labelsArray =(labels != false ? labels:[])
+                }
+            }
+        else
+        {
+            if(DataTx)
+            if(DataTx['Transmision'] != undefined){
+                let serie =  RetornarSerie(DataTx['Transmision'].filter(function (item:any) {
+                            return item.Usuario;
+                    }))
+                _data = (serie.length != 0 ? serie:[]);
+                let labels =  retornarLabels(DataTx['Transmision'].filter(function (item:any) {
+                    return item.Fecha;
+                }),"Fecha");
+                labelsArray =(labels != false ? labels:[])
+            }
         }
         let Data = new Array();
     // Data.push({"x":[..._data], "y":[...labelsArray]});
@@ -98,7 +115,7 @@ const TransmisionScatterChart : React.FC<Props> = ({ className}) =>{
             myDoughnut.destroy();
         }
         };
-    },[DataTx])
+    },[DataTx, FiltradoTx,DataFiltradaTx ])
 
     return(
         <div className={className}>

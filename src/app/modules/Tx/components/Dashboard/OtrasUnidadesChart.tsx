@@ -10,7 +10,7 @@ type Props = {
 const OtrasUnidadesChart : React.FC<Props> = ({className}) =>{
 
 //Se importan los datos
-const { Data, DataFiltrada } = useDataDashboard();
+const { Data, DataFiltrada, Filtrado } = useDataDashboard();
 
  //se retorna las series
  const RetornarSerie = (data:any[]) => {
@@ -74,6 +74,25 @@ const retornarLabels= (data:any[]) =>{
         let  colorsArrayLabels = ["danger", "warning", "primary", "success"]; 
         let labelsArray:string[] = []//['Activas','Implementación'];
         let _data : number[] = [];
+
+        if(Filtrado){
+          let dataFiltrada:any[] =[] 
+          if(DataFiltrada)
+              if(DataFiltrada != undefined){
+                      let serie =  RetornarSerie(DataFiltrada.filter(function (item:any) {
+                        if (item.ClasificacionId != 'Activas' || item.ClasificacionId != 'Implementación')
+                        return item.ClasificacionId;
+                  }))
+                  _data = (serie != false  ? serie:[]);
+                  let labels =  retornarLabels(DataFiltrada.filter(function (item:any) {
+                    if (item.ClasificacionId != 'Activas' || item.ClasificacionId != 'Implementación')
+                    return item.ClasificacionId;
+                  }));
+                      labelsArray =(labels != false ? labels:[])
+                  }
+          }
+      else
+      {
         if(Data)
         if(Data['Unidades'] != undefined){
         let serie =  RetornarSerie(Data['Unidades'].filter(function (item:any) {
@@ -88,8 +107,8 @@ const retornarLabels= (data:any[]) =>{
             labelsArray =(labels != false ? labels:[])
         }
             
+      }
         const options = getChartOptions(_data, colorsArray, "Otras Unidades", labelsArray);
-
         const ctx = element.getContext("2d");
         let myDoughnut: Chart | null;
     
@@ -101,7 +120,7 @@ const retornarLabels= (data:any[]) =>{
             myDoughnut.destroy();
         }
         };
-    },[Data])
+    },[Data, Filtrado, DataFiltrada])
 
     return (
         <div className={className}>

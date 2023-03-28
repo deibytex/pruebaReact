@@ -26,8 +26,6 @@ export function Post_Getconsultadinamicas(props: ParamsEndPointDynamic, body: an
   });
 }
 
-
-
 export function Post_getconsultadinamicasUser(props: ParamsEndPointDynamic, body: any) {
   return axios({
     method: 'post',

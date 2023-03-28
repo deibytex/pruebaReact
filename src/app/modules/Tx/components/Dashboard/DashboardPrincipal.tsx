@@ -1,6 +1,7 @@
 import { AxiosError, AxiosResponse } from "axios"
 import moment from "moment"
 import { useEffect, useState } from "react"
+import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog"
 import { TituloDashboardTx } from "../../../../../_start/helpers/Texts/textosPorDefecto"
 import { PageTitle } from "../../../../../_start/layout/core"
 import { CargaClientes, DashboardProvider, useDataDashboard } from "../../core/DashboardProvider"
@@ -10,53 +11,61 @@ import { Transmision } from "./Transmision"
 import { UnidadesActivas } from "./UnidadesActivas"
 
 const DashboardPrincipal: React.FC = () =>{
-    const {Data, Clientes, ClienteSeleccionado, setData, setDataTx, setDataTk} = useDataDashboard()
+    const {Data, Clientes, ClienteSeleccionado, setData, setDataTx, setDataTk, setTabActive, SemanaSeleccionada} = useDataDashboard()
     const [montarTx, setmontarTx] = useState<boolean>(false);
     const [montarTicket, setMontarTicket] = useState<boolean>(false);
     const [montarUnidades, setmontarUnidades] = useState<boolean>(true);
-    async function ConsultarUnidades() {
-        let Fecha = moment().format("DD/MM/YYYY").toString();
-        await GetUnidadesActivas(null,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
-            let Unidades = response.data;
+
+     function ConsultarUnidades() {
+        let Fecha = (SemanaSeleccionada != undefined ? SemanaSeleccionada['fecha'] : moment().format("DD/MM/YYYY").toString())
+         GetUnidadesActivas(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
             setData({"Unidades":response.data});
         }).catch((error:AxiosError<any>) =>{
-
+            errorDialog("Ha ocurrido un error al consular las unidades","");
         });
     };
-    async function ConsultarTransmision() {
-
-        let Fecha = moment().format("DD/MM/YYYY").toString();
-        await GetSnapShotTransmision(null,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
-            setDataTx({"Transmision":response.data});
-         
-            
-        }).catch((error:AxiosError<any>) =>{
-
-        });
+    function ConsultarTransmision() {
+        let Fecha = (SemanaSeleccionada != undefined  ?  (SemanaSeleccionada?.length != 0 ?SemanaSeleccionada['fecha'] : moment().format("DD/MM/YYYY").toString()): moment().format("DD/MM/YYYY").toString());
+            GetSnapShotTransmision(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
+                setDataTx({"Transmision":response.data});
+            }).catch((error:AxiosError<any>) =>{
+                //errorDialog("Ha ocurrido un error al consular transmision","");
+            });
     };
-    async function ConsultarTickets() {
-        let Fecha = moment().format("DD/MM/YYYY").toString();
-        await GetSnapShotTickets(null,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
-            setDataTk({"Ticket":response.data});
+    // async function ConsultarTickets() {
+    //     let Fecha = (SemanaSeleccionada != undefined ? SemanaSeleccionada['fecha'] : moment().format("DD/MM/YYYY").toString())
+    //     await GetSnapShotTickets(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
+    //         setDataTk({"Ticket":response.data});
            
-        }).catch((error:AxiosError<any>) =>{
+    //     }).catch((error:AxiosError<any>) =>{
 
-        });
-    };
+    //     });
+    // };
     useEffect(() =>{
         ConsultarUnidades();
         ConsultarTransmision();
-        ConsultarTickets();
+        //ConsultarTickets();
         return () =>{
-            setData([])
+           setData([]);
+           setDataTx([]);
         }
-    }, [])
+    }, [SemanaSeleccionada])
+
+    useEffect(() =>{
+
+    },[])
 
     const MontarTransmision = (event:any) =>{
-        setmontarTx(true)
+        setmontarTx(true);
+        setTabActive("Tab2");
     }
     const MontarTicket = (event:any) =>{
         setMontarTicket(true)
+        setTabActive("Tab3");
+    }
+    const MontarUnidades = (event:any) =>{
+        setmontarUnidades(true);
+        setTabActive("Tab1");
     }
     return(
         <> 
@@ -64,7 +73,7 @@ const DashboardPrincipal: React.FC = () =>{
                 <div className="card-body">
                         <ul className="nav nav-pills mb-3 w-100" id="pills-tab" role="tablist">
                             <li className="nav-item w-33" role="presentation">
-                                <button className="nav-link active text-success fw-bolder" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">U. activas</button>
+                                <button onClick={MontarUnidades} className="nav-link active text-success fw-bolder" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">U. activas</button>
                             </li>
                             <li className="nav-item w-33" role="presentation">
                                 <button onClick={MontarTransmision} className="nav-link text-success fw-bolder" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Trasmisión</button>

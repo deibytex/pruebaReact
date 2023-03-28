@@ -13,7 +13,7 @@ import * as converter from 'react-native-converter';
 import { TransmisionBarChart } from "./TransmisionBarChart";
 
 const Transmision: React.FC = () =>{
-    const {DataTx, Clientes, ClienteSeleccionado, setData} = useDataDashboard()
+    const {DataTx, Clientes, ClienteSeleccionado, setData, DataFiltradaTx, FiltradoTx, setFiltradoTx, setDataFiltradaTx} = useDataDashboard()
     const [DataTxAdmin, setDataTxAdmin] = useState<any[]>([]);
     const [PlacaSinTx, setPlacaSinTx] = useState<string>("0");
     const [ClienteSinTx, setClienteSinTx] = useState<string>("0");
@@ -41,11 +41,12 @@ const [isError, setIsError] = useState(false);
    
     useEffect(() => {
        
-        setRowCount2((DataTx != undefined ? DataTx['Transmision'].length:0 ));
-
-        if(DataTx){
-            if (DataTx['Transmision'] != undefined){
-                DataTx['Transmision'].filter(function (item:any,index:any) {
+     
+    if(FiltradoTx){
+         setRowCount2((DataFiltradaTx != undefined ? DataFiltradaTx.length:0 ));
+        if(DataFiltradaTx){
+            if (DataFiltradaTx != undefined){
+                DataFiltradaTx.filter(function (item:any,index:any) {
                     var i = AdminsTransmision.findIndex(x => (x.usuarioIds == item.usuarioId && x.nombre == item.Usuario));
                     if (i <= -1) {
                         AdminsTransmision.push({"nombre":item.Usuario,"usuarioIds":item.usuarioId });
@@ -53,7 +54,7 @@ const [isError, setIsError] = useState(false);
                     return null;
                 });
                 // Para el listado de tabla de los clientes
-                let DataAdmins = DataTx['Transmision'].reduce((acc:any,obj:any) =>{
+                let DataAdmins =DataFiltradaTx.reduce((acc:any,obj:any) =>{
                     let key = obj['clientenNombre'];
                     if (!acc[key]) {
                         acc[key] = []
@@ -67,13 +68,13 @@ const [isError, setIsError] = useState(false);
                         "clientenNombre": Object.entries(DataAdmins)[index][0] , "DiasSinTx": value.length
                     });
                 })
-               
+            
                 setDataTxAdmin(Clientes);
                 setRowCount1((Clientes != undefined ? Clientes.length:0 ));
 
                 //La etiqueta de las placas totales sin TX
                 let _temp = 0;
-                DataTx['Transmision'].map((value:any)=>{
+                DataFiltradaTx.map((value:any)=>{
                     _temp = _temp + value.DiasSinTx;
 
                 })
@@ -85,14 +86,58 @@ const [isError, setIsError] = useState(false);
                 setClienteSinTx(format(ClienteSinTx));
             }
         }
+    }else{
+        setRowCount2((DataTx != undefined ? DataTx['Transmision'].length:0 ));
+            if(DataTx){
+                if (DataTx['Transmision'] != undefined){
+                    DataTx['Transmision'].filter(function (item:any,index:any) {
+                        var i = AdminsTransmision.findIndex(x => (x.usuarioIds == item.usuarioId && x.nombre == item.Usuario));
+                        if (i <= -1) {
+                            AdminsTransmision.push({"nombre":item.Usuario,"usuarioIds":item.usuarioId });
+                        }
+                        return null;
+                    });
+                    // Para el listado de tabla de los clientes
+                    let DataAdmins = DataTx['Transmision'].reduce((acc:any,obj:any) =>{
+                        let key = obj['clientenNombre'];
+                        if (!acc[key]) {
+                            acc[key] = []
+                        }
+                        acc[key].push(obj)
+                        return acc
+                    },{});
+                    let Clientes:TablaClientesTxDTO[] = [];
+                    Object.values(DataAdmins).map((value:any,index:any ) =>{
+                        Clientes.push({
+                            "clientenNombre": Object.entries(DataAdmins)[index][0] , "DiasSinTx": value.length
+                        });
+                    })
+                
+                    setDataTxAdmin(Clientes);
+                    setRowCount1((Clientes != undefined ? Clientes.length:0 ));
+
+                    //La etiqueta de las placas totales sin TX
+                    let _temp = 0;
+                    DataTx['Transmision'].map((value:any)=>{
+                        _temp = _temp + value.DiasSinTx;
+
+                    })
+                    let ClienteSinTx = 0;
+                    Clientes.map((val:any) =>{
+                        ClienteSinTx = ClienteSinTx + val.DiasSinTx;
+                    });
+                    setPlacaSinTx(format(_temp));
+                    setClienteSinTx(format(ClienteSinTx));
+                }
+            }
+        }   
         return () =>{
             setDataTxAdmin([]);
             setRowCount1(0);
             setRowCount2(0);
 
         }
-    }, [DataTx]);
-
+}, [DataTx, DataFiltradaTx, FiltradoTx]);
    
     let AdminsTransmision:{usuarioIds:string, nombre:string} []= [];
     AdminsTransmision.push({"usuarioIds":"0","nombre":"Todos"})
@@ -108,10 +153,27 @@ const [isError, setIsError] = useState(false);
         // setRowCount(DataTx['Transmision'].length);
      }
 
+     const FiltrarByAdminsTx = (event:any) =>{
+        let Usuario:string = event.target.attributes['data-bs-target'].value.split("--")[1];
+        switch(Usuario) {
+            case '0':
+                setFiltradoTx(false);
+                break;
+            default:
+                setFiltradoTx( true);
+                if(DataTx != undefined){
+                    let DataResulttx = DataTx['Transmision'].filter((val:any) =>{
+                        return (val.usuarioId == Usuario)
+                    });
+                    setDataFiltradaTx(DataResulttx);
+                }
+                 break;
+          }
+     }
      MenuAdministradoresTransmision = AdminsTransmision?.map((val:any,index:any) =>{
         return (
             <li key={val.nombre} className="nav-item" role="presentation">
-                <button key={val.nombre}  className={`nav-link text-success ${(index == 0 ? 'active':'')} fw-bolder`} id="pills-profile-tab" data-bs-toggle="pill" data-bs-target={`#pills-${val.usuarioIds}`} type="button" role="tab" aria-controls="pills-profile" aria-selected="false">{val.nombre}</button>
+                <button key={val.nombre} onClick={FiltrarByAdminsTx} className={`nav-link text-success ${(index == 0 ? 'active':'')} fw-bolder`} id="pills-profile-tab" data-bs-toggle="pill" data-bs-target={`#pills--${val.usuarioIds}`} type="button" role="tab" aria-controls="pills-profile" aria-selected="false">{val.nombre}</button>
             </li>
         )
     });
@@ -201,8 +263,7 @@ const [isError, setIsError] = useState(false);
                                         sx: { maxHeight: '400px' }, //give the table a max height
                                       }}
                                     columns={listadoCamposTabla2}
-                                    data={(DataTx != undefined ? DataTx['Transmision']: [])}
-                                    enableTopToolbar={true}
+                                    data={( FiltradoTx ? DataFiltradaTx :(DataTx != undefined ? DataTx['Transmision'] : []))}
                                     enableDensityToggle
                                     enableFilters
                                     enablePagination={false}

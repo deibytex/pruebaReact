@@ -7,12 +7,8 @@ import { VerticalChart } from "./VerticalChart";
 
 const UnidadesActivas : React.FC = () =>{
     const interval = useRef<any>();
-    const {  Data } = useDataDashboard();
+    const {  Data, setDataFiltrada, Filtrado, setFiltrado,  } = useDataDashboard();
    
-    // let result = Data?.filter((item,index)=>{
-    //     return Data.indexOf(item.usuarioIds) === index;
-    //   })
-
     let AdminsUnidadesActivas:{usuarioIds:string, nombre:string} []= [];
     AdminsUnidadesActivas.push({"usuarioIds":"0","nombre":"Todos"})
     if(Data)
@@ -26,14 +22,38 @@ const UnidadesActivas : React.FC = () =>{
          });
      }
     useEffect(() => {
-    
+        return () =>{
+            return 
+        }
     }, []);
    
+    const FiltrarByAdmins = (event:any) =>{
+        let Usuario:string = event.target.attributes['data-bs-target'].value.split("--")[1];
+        switch(Usuario) {
+            case '0':
+                setFiltrado(false);
+                break;
+            default:
+                setFiltrado( true);
+                if(Data != undefined){
+                    let DataResult = Data['Unidades'].filter((val:any) =>{
+                        return (val.usuarioIds == Usuario)
+                    });
+                    setDataFiltrada(DataResult);
+                }
+                 break;
+          }
+        }
+        
+
+      
+
+
     //para el menu de admins
     const MenuAdministradores = AdminsUnidadesActivas?.map((val:any,index:any) =>{
         return (
             <li key={val.nombre} className="nav-item" role="presentation">
-                <button key={val.nombre}  className= {`nav-link text-success ${(index == 0 ? 'active': '')} fw-bolder`} id="pills-profile-tab" data-bs-toggle="pill" data-bs-target={`#pills-${val.usuarioIds}`} type="button" role="tab" aria-controls="pills-profile" aria-selected="false">{val.nombre}</button>
+                <button onClick={FiltrarByAdmins} key={val.nombre}  className= {`nav-link text-success ${(index == 0 ? 'active': '')} fw-bolder`} id="pills-profile-tab" data-bs-toggle="pill" data-bs-target={`#pill--${val.usuarioIds}`} type="button" role="tab" aria-controls="pills-profile" aria-selected="false">{val.nombre}</button>
             </li>
         )
     });
@@ -41,7 +61,7 @@ const UnidadesActivas : React.FC = () =>{
     let DivAdminitradores = AdminsUnidadesActivas?.map((val:any,index:any) =>{
        //interval.current = setInterval(() => {
             return (
-                <div key={val.nombre} className= {`tab-pane fade show  ${(index == 0 ? "active":"")} border`} id={`pills-${val.usuarioIds}`} role="tabpanel" aria-labelledby="pills-home-tab">
+                <div key={val.nombre} className= {`tab-pane fade show  ${(index == 0 ? "active":"")} border`} id={`pill--${val.usuarioIds}`} role="tabpanel" aria-labelledby="pills-home-tab">
                     div de {val.nombre}
                 </div>    
             )
