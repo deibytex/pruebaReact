@@ -22,6 +22,7 @@ import  Configuracion  from "../modules/Ebus/Configuracion";
 import React from "react";
 import Reportes from "../modules/Sotramac/reporteExcelencia";
 import { default as ReporteEbus} from "../modules/Ebus/Reportes";
+import configuracionCorreosTx from "../modules/CorreosTx/configuracionCorreosTx";
 
 
 export function PrivateRoutes() {

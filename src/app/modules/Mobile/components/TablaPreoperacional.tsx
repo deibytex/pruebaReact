@@ -165,7 +165,6 @@ export const TablaProperacional: React.FC<Props> = ({ clienteid, fecha, filtro }
         confirmarDialog(() => {
             setGestor(UserId as string, '[' + JSON.stringify(GestorObervaciones) + ']', false, encabezadoId).then(() => {
                 getEncabezados(clienteid, fecha, 'null').then(
-
                     (response) => {
 
                         setEncabezados(response.data);
