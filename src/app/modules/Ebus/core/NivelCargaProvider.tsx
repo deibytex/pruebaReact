@@ -190,7 +190,13 @@ const DataEventosTiempoClientes: React.FC = ({ children }) => {
              consulta(children);
         }
 
-        return () =>  {  clearInterval(interval.current) };
+        return () =>  {  
+            clearInterval(interval.current);
+            setdataTable([]);
+            setClientes([]);
+            // limpiamos todas las variables a ser detruidas
+        
+        };
     }, [children]);
     return <>{(CargaListadoClientes(Clientes, ClienteSeleccionado, setClienteSeleccionado))}</>;
 };
