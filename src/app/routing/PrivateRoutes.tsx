@@ -23,6 +23,7 @@ import React from "react";
 import Reportes from "../modules/Sotramac/reporteExcelencia";
 import { default as ReporteEbus} from "../modules/Ebus/Reportes";
 import configuracionCorreosTx from "../modules/CorreosTx/configuracionCorreosTx";
+import ReporteOdometro from "../modules/Ebus/components/Reportes/Odometro";
 
 
 export function PrivateRoutes() {
@@ -128,6 +129,7 @@ export function PrivateRoutes() {
        <Route path="/bienvenido" component={Bienvenidos} />  
        <Route path="/politicaprivacidad" component={PoliticaPrivacidad} />      
        {importedModules.map( m=>  <Route key={`${m.path}`} path={`${m.path}`} component={m.component} />  )}
+       <Route path="/ebus/reporteodometro" component={ReporteOdometro} />  
       </Switch>
     </Suspense>
   );

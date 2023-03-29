@@ -52,7 +52,7 @@ const filterObjeto = (list:any, compare:any)=> {
 
 function Widget () {
     return (
-        <DualListBox
+        <DualListBox canFilter
             options={vehiculos}
             selected={selected}
             onChange={(selected:any) => setSelected(selected)}
