@@ -59,3 +59,6 @@ export const DRIVER_GetDriversClienteId = `${apiURLDWH}/Driver/GetDrivers/Client
 
 /* API PORTAL */
 export const PORTAL_getReporteSotramacMS = `${apiURLPORTAL}/Sotramac/DescargarReporte`
+
+/** SOTRAMAC DESCARGA REPORTE */
+export const SOTRA_descargaReporte  = `${apiURLDWH}/ExcOperacional/ReporteExcelencia`;

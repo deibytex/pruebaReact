@@ -11,8 +11,9 @@ import { SelectAssetsDrivers } from "./filtrosAssetsDrivers";
 import { ModalTablaReporteVH } from "./tablaReporteVH";
 import { ModalTablaReporteCO } from "./tablaReporteCO";
 import { ModalTablaReporteVHxCO } from "./tablaReporteVHxCO";
-import { getReportesSotramacMS } from "../data/dataSotramac";
+import { getReporteExcelSotramac } from "../data/dataSotramac";
 import { AxiosResponse } from "axios";
+import { string } from "yup";
 type Props = {
 
 }
@@ -238,16 +239,49 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             setconsultaReportCO(false);
         }
     }
+/**export interface ParamsReporte {
+
+    FechaInicial : string;
+     FechaFinal : string;
+     DriversIdS: string ;
+      assetsIds: string;
+       assetTypeId: string;
+       SiteId : string;
+} */
 
     const exportarReporte = () => {
-        getReportesSotramacMS(reporte, fechaInicial, fechaFinal, driverSelected, assetSelected, assetTypeId )
-        .then((respuesta: AxiosResponse<any>) => {
-            console.log(respuesta.data);
-            const FileDownload = require('js-file-download');
-              FileDownload(respuesta.data, "archivo.xls");  
+        getReporteExcelSotramac(
+            {
+                FechaInicial :fechaInicial,
+                FechaFinal :`${fechaFinal} 23:59:59`, 
+                DriversIdS:driverSelected,
+                assetsIds: assetSelected, 
+                assetTypeId: (assetTypeId as string) , 
+                SiteId: null
+            } ,
+            reporte)
+        .then((respuesta) => {
+            const a = document.createElement("a");
+        a.style.display = "none";
+        document.body.appendChild(a);
+        var sampleArr = base64ToArrayBuffer(respuesta?.data);
+        const url = window.URL.createObjectURL(new Blob([sampleArr], {type: "application/excel"}));
+        a.href = url;
+        a.download = "informe conductor.xls"; 
+        a.click();
+        window.URL.revokeObjectURL(url);
         });
     }
-
+    function base64ToArrayBuffer(base64: string) {
+        var binaryString = window.atob(base64);
+        var binaryLen = binaryString.length;
+        var bytes = new Uint8Array(binaryLen);
+        for (var i = 0; i < binaryLen; i++) {
+           var ascii = binaryString.charCodeAt(i);
+           bytes[i] = ascii;
+        }
+        return bytes;
+     }
     //Retornamos los controles de filtro
     return (
         <>

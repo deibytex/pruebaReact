@@ -61,3 +61,13 @@ export interface ReporteSotramac {
     VelPromedio: number;
 }
 
+
+export interface ParamsReporte {
+
+    FechaInicial : string;
+     FechaFinal : string;
+     DriversIdS: string ;
+      assetsIds: string;
+       assetTypeId: string;
+       SiteId : string | null;
+}

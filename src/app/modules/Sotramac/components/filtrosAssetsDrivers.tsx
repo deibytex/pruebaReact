@@ -63,7 +63,7 @@ export const SelectAssetsDrivers: React.FC<Props> = ({reporte}) => {
 
     function SelectAssets() {
         return (
-            <DualListBox className=" mb-3 "
+            <DualListBox className=" mb-3 " canFilter  
                 options={lstAssets}
                 selected={selectedAssets}
                 onChange={(selected: any) => setselectedAssets(selected)}
@@ -73,7 +73,7 @@ export const SelectAssetsDrivers: React.FC<Props> = ({reporte}) => {
 
     function SelectDrivers() {
         return (
-            <DualListBox className=" mb-3 "
+            <DualListBox className=" mb-3 " canFilter 
                 options={lstDrivers}
                 selected={selectedDrivers}
                 onChange={(selected: any) => setselectedDrivers(selected)}
@@ -97,11 +97,11 @@ export const SelectAssetsDrivers: React.FC<Props> = ({reporte}) => {
     return (
         <>
             <div className="col-sm-12 col-md-12 col-xs-12" hidden={showAssets}>
-                <label className="control-label label label-sm text-white m-3" style={{ fontWeight: 'bold' }}>Seleccione Vehículos:</label>
+                <label className="control-label label label-sm text-primary m-3" style={{ fontWeight: 'bold' }}>Seleccione Vehículos:</label>
                 <SelectAssets />
             </div>
             <div className="col-sm-12 col-md-12 col-xs-12" hidden={showDrivers}>
-                <label className="control-label label label-sm text-white m-3" style={{ fontWeight: 'bold' }}>Seleccione Conductores:</label>
+                <label className="control-label label label-sm text-primary m-3" style={{ fontWeight: 'bold' }}>Seleccione Conductores:</label>
                 <SelectDrivers />
             </div>
         </>

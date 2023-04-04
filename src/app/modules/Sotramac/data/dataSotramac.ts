@@ -1,8 +1,9 @@
 
 import axios from "axios";
-import { DWH_getconsultadinamicasprocedure, PORTAL_getReporteSotramacMS } from "../../../../apiurlstore";
+import { DWH_getconsultadinamicasprocedure, PORTAL_getReporteSotramacMS, SOTRA_descargaReporte } from "../../../../apiurlstore";
 import { Post_getconsultadinamicas } from "../../../../_start/helpers/Axios/CoreService";
 import { getConductoresClienteId, getVehiculosClienteId } from "../../../../_start/helpers/Axios/DWHService";
+import { ParamsReporte } from "../models/dataModels";
 
 const ClienteId = "1546695255495533982";
 const clienteIdS = "898";
@@ -71,7 +72,7 @@ export  function getReporteSotramacVH( FechaInicial : string, FechaFinal : strin
 
   var params: { [id: string]: string | null; } = {};
   params["FechaInicial"] = FechaInicial;
-  params["FechaFinal"] = FechaFinal;
+  params["FechaFinal"] =  `${FechaFinal} 23:59:59`;
   params["clienteIdS"] = clienteIdS;
   params["Assetsids"] = assetsIds;
   params["AssetTypeId"] = assetTypeId;
@@ -90,7 +91,7 @@ export  function getReporteSotramacCO( FechaInicial : string, FechaFinal : strin
 
   var params: { [id: string]: string | null; } = {};
   params["FechaInicial"] = FechaInicial;
-  params["FechaFinal"] = FechaFinal;
+  params["FechaFinal"] = `${FechaFinal} 23:59:59`;
   params["clienteIdS"] = clienteIdS;
   params["DriversIdS"] = DriversIdS;
   params["SiteId"] = null;
@@ -109,7 +110,7 @@ export  function getReporteSotramacVHxCO( FechaInicial : string, FechaFinal : st
 
   var params: { [id: string]: string | null; } = {};
   params["FechaInicial"] = FechaInicial;
-  params["FechaFinal"] = FechaFinal;
+  params["FechaFinal"] =  `${FechaFinal} 23:59:59`;
   params["clienteIdS"] = clienteIdS;
   params["DriversIdS"] = DriversIdS;
   params["Assetsids"] = assetsIds;
@@ -144,4 +145,30 @@ export  function getReportesSotramacMS(reporte: string, FechaInicial : string, F
     params: {}
   });
   
+};
+
+//ParamsReporte
+
+export  function getReporteExcelSotramac( parametros : ParamsReporte, TipoReporte  : string) {
+
+  var params: { [id: string]: string | null; } = {};
+   let NombreConsulta : string = "";
+   NombreConsulta = (TipoReporte === "EOAPC")? "getReporteSotramacCO" : ((TipoReporte === "EOAPV") ? "getReporteSotramacVH" : "getReporteSotramacVHxCO")
+   let NombreReporte : string =(TipoReporte === "EOAPC")? "InformeConductor" : ((TipoReporte === "EOAPV") ? "InformeVehiculos" : "InformeConductorVehiculos");
+  Object.entries(parametros).map(m => {
+         params[m[0]] = m[1]?.toString()
+
+
+  });
+  params["clienteIdS"] = clienteIdS;
+ 
+  return  axios({
+    method: 'post',
+    url: SOTRA_descargaReporte,
+    data: JSON.stringify(params),
+    headers: { 'Content-Type': 'application/json' },
+   // headers : {'Content-Type': 'blob'},
+   // responseType: 'arraybuffer',
+    params : { Clase: "SotramacQueryHelper" , NombreConsulta : NombreConsulta , TipoReporte:NombreReporte }
+  });
 };
