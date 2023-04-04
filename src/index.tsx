@@ -11,6 +11,9 @@ import axios from "axios";
 // Apps
 import { App } from "./app/App";
 import "./_start/assets/sass/style.scss";
+import "../node_modules/@availity/block-ui/src/BlockUi.css"
+import "../node_modules/@availity/block-ui/src/Loader.css"
+
 /**
  * Base URL of the website.
  *

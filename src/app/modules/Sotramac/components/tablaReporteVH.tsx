@@ -1,18 +1,14 @@
 import { useDataSotramac } from "../core/provider";
 import React, { useEffect, useState } from "react";
-import { AssetsTypes, DetalleListas, Listas, ReporteSotramac, Sites } from "../models/dataModels";
-import { Button, Form, Modal } from "react-bootstrap-v5";
-
-import "../../../../../node_modules/@availity/block-ui/src/BlockUi.css";
-import "../../../../../node_modules/@availity/block-ui/src/Loader.css";
-
-import { Fechas } from "./filtrosFechas";
-import { SelectAssetsDrivers } from "./filtrosAssetsDrivers";
+import {  ReporteSotramac } from "../models/dataModels";
+import { Button,  Modal } from "react-bootstrap-v5";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import { getReporteSotramacVH } from "../data/dataSotramac";
 import { AxiosResponse } from "axios";
+import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
+import BlockUi from "@availity/block-ui";
 type Props = {
     show: boolean;
     handleClose: () => void;
@@ -22,7 +18,7 @@ type Props = {
 
 export const ModalTablaReporteVH: React.FC<Props> = ({ show, handleClose, title, consultaReporteVH }) => {
 
-    const { fechaInicial, fechaFinal, assetSelected, assetTypeId } = useDataSotramac();
+    const { fechaInicial, fechaFinal, assetSelected, assetTypeId,loader, setloader } = useDataSotramac();
 
     const [lstReporteSotramacVh, setlstReporteSotramacVh] = useState<ReporteSotramac[]>([]);
 
@@ -158,10 +154,17 @@ export const ModalTablaReporteVH: React.FC<Props> = ({ show, handleClose, title,
 
         useEffect(() => {
             if (consultaReporteVH)
+            {
+                setloader(true);
             getReporteSotramacVH(fechaInicial, fechaFinal, assetSelected, assetTypeId.toString()).then((respuesta: AxiosResponse<ReporteSotramac[]>) => {
                 setlstReporteSotramacVh(respuesta.data);
                 setRowCount(respuesta.data.length);
-            });
+                setloader(false);
+            }).catch( () => {
+                errorDialog("Visualizar Informe", "Error al recibir datos del servidor.")
+                setloader(false);
+            }    
+            ); }
     
         }, [consultaReporteVH]) 
 
@@ -175,7 +178,7 @@ export const ModalTablaReporteVH: React.FC<Props> = ({ show, handleClose, title,
                     <Modal.Title>{title}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <div className="row">
+                <BlockUi tag="div"  keepInView blocking={loader ?? false}  message="Cargando datos, favor espere.....">
                         <MaterialReactTable
                             localization={MRT_Localization_ES}
                             displayColumnDefOptions={{
@@ -218,7 +221,7 @@ export const ModalTablaReporteVH: React.FC<Props> = ({ show, handleClose, title,
                                 sorting,
                             }}
                         />
-                    </div>
+                    </BlockUi>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button type="button" variant="secondary" onClick={handleClose}>

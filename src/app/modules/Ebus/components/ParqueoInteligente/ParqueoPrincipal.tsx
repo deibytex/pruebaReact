@@ -1,13 +1,11 @@
 import BlockUi from "@availity/block-ui";
 import { useState } from "react";
-import { toAbsoluteUrl } from "../../../../../_start/helpers/AssetHelpers";
-import { DataClientes,  ParqueoProvider, useDataParqueo } from "../../core/ParqueoProvider";
+import { useDataParqueo } from "../../core/ParqueoProvider";
 import { listTabs } from "../../models/ParqueoModels";
 import { Parqueo } from "./Parqueo";
 import { ParqueoMapa } from "./ParqueoMapa";
 import { UbicacionFlota } from "./UbicacionFlota";
-import "../../../../../../node_modules/@availity/block-ui/src/BlockUi.css"
-import "../../../../../../node_modules/@availity/block-ui/src/Loader.css"
+
 
 
 type Props = {

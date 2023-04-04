@@ -32,6 +32,8 @@ export interface SotramacContextModel {
     setassetTypeId: (lstassetTypeId: any) => void;
     iserror?: any;
     setError: (error: any) => void;
+    loader? : boolean ;
+    setloader: (loader: boolean) => void;
 
 }
 
@@ -48,7 +50,8 @@ const SotramacContext = createContext<SotramacContextModel>({
     setassetSelected: (assetSelected: any) => (""),
     setsiteId: (lstsiteId: any) => (0),
     setassetTypeId: (lstassetTypeId: any) => (0),
-    setError: (error: any) => { }
+    setError: (error: any) => { },
+    setloader: (loader: boolean) => { }
 });
 
 
@@ -67,7 +70,7 @@ const SotramacProvider: React.FC = ({ children }) => {
     const [siteId, setsiteId] = useState(0);
     const [assetTypeId, setassetTypeId]= useState(0);
     const [iserror, setError] = useState<any>({});
-
+    const [loader, setloader] = useState<boolean>(true);
     const value: SotramacContextModel = {
         listas,
         setlistas,
@@ -94,7 +97,7 @@ const SotramacProvider: React.FC = ({ children }) => {
         assetTypeId,
         setassetTypeId,
         iserror,
-        setError
+        setError,loader, setloader
     };
 
     return (
@@ -116,7 +119,7 @@ function useDataSotramac() {
 
 const DataReportesSotramac: React.FC = ({ children }) => {
     const { setlistas, setError, setlistasids, setdetalleListas, setassetTypes, setassets, setdrivers, setassetTypeId,
-             listasIds, iserror } = useDataSotramac();
+             listasIds,  setloader } = useDataSotramac();
 
     //Cosulta Listas (Opciones de categoria)
     let consultaListas = (Sigla: string) => {
@@ -192,6 +195,7 @@ const DataReportesSotramac: React.FC = ({ children }) => {
 
             (response) => {
                 setdrivers(response.data);
+                setloader(false);
             }
 
         ).catch((error) => {
@@ -204,7 +208,7 @@ const DataReportesSotramac: React.FC = ({ children }) => {
     useEffect(() => {
 
         if (children) {
-
+            setloader(true);
             consultaListas(children.toString());
             consultaAssetTypes();
             consultaAssets();

@@ -12,8 +12,8 @@ import { ModalTablaReporteVH } from "./tablaReporteVH";
 import { ModalTablaReporteCO } from "./tablaReporteCO";
 import { ModalTablaReporteVHxCO } from "./tablaReporteVHxCO";
 import { getReporteExcelSotramac } from "../data/dataSotramac";
-import { AxiosResponse } from "axios";
-import { string } from "yup";
+import BlockUi from "@availity/block-ui";
+import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
 type Props = {
 
 }
@@ -22,7 +22,9 @@ export const ReporteExcelencia: React.FC<Props> = () => {
 
     //Data desde el provider
     const { listas, detalleListas, assetTypes, assetTypeId, fechaInicial, fechaFinal, assetSelected, driverSelected,
-             setsiteId, setassetTypeId } = useDataSotramac();
+             setsiteId, setassetTypeId, loader, setloader } = useDataSotramac();
+
+    const [loaderL, setLoaderl] = useState<boolean>(true);
 
     //Carga Inicial filtros
     const [lstCategorias, setlstCategorias] = useState<Listas[]>([]);
@@ -250,6 +252,7 @@ export const ReporteExcelencia: React.FC<Props> = () => {
 } */
 
     const exportarReporte = () => {
+        setloader(true);
         getReporteExcelSotramac(
             {
                 FechaInicial :fechaInicial,
@@ -267,10 +270,18 @@ export const ReporteExcelencia: React.FC<Props> = () => {
         var sampleArr = base64ToArrayBuffer(respuesta?.data);
         const url = window.URL.createObjectURL(new Blob([sampleArr], {type: "application/excel"}));
         a.href = url;
-        a.download = "informe conductor.xls"; 
+        a.download = `${reporte} ${fechaInicial}.xls`; 
         a.click();
         window.URL.revokeObjectURL(url);
-        });
+
+        setloader(false);
+        }).catch( () => {
+            errorDialog("Descargar Informe", "Error al recibir datos del servidor.")
+            setloader(false);
+        }
+
+
+        );
     }
     function base64ToArrayBuffer(base64: string) {
         var binaryString = window.atob(base64);
@@ -285,6 +296,8 @@ export const ReporteExcelencia: React.FC<Props> = () => {
     //Retornamos los controles de filtro
     return (
         <>
+          <BlockUi tag="div"  keepInView blocking={loader ?? false}  >
+        
             <div className="row text-primary">
                 <div className="col-sm-6 col-md-6 col-xs-6" >
                     <label className="control-label label label-sm  m-3" style={{ fontWeight: 'bold' }}>Categoría:</label>
@@ -320,6 +333,7 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             <ModalTablaReporteVH show={show} handleClose={handleClose} title={"Reporte VH"} consultaReporteVH={consultaReportVH} />
             <ModalTablaReporteCO show={show2} handleClose={handleClose2} title={"Reporte CO"} consultaReporteCO={consultaReportCO}/>
             <ModalTablaReporteVHxCO show={show3} handleClose={handleClose3} title={"Reporte CO x VH"} consultaReportVHxCO={consultaReportVHxCO}/>
+            </BlockUi>
         </>
     )
 } 

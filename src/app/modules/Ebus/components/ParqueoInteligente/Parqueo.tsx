@@ -1,11 +1,6 @@
-import { width } from "@mui/system";
-import { AxiosResponse } from "axios";
 import moment from "moment";
 import { useEffect, useState } from "react";
-import { object } from "yup";
-import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 import { useDataParqueo } from "../../core/ParqueoProvider";
-import { GetUltimaPosicionVehiculos } from "../../data/Parqueo";
 import {  TablaDTO } from "../../models/ParqueoModels";
 import { ModalParqueo } from "./ModalParqueo";
 
@@ -15,14 +10,12 @@ type Props = {
     Visible : () =>void;
 };
 
- const  Parqueo: React.FC<Props> = ({ClienteIds, Visible, Data}) => {
-    const {setVisible} = useDataParqueo();
+ const  Parqueo: React.FC<Props> = ({ClienteIds, Visible, Data}) => {  
     const [posiciones, setPosiciones] = useState<{}>({})
     const [Datos, setDatos] = useState<[]>([])
     const [DataTabla,setDataTabla ] = useState<TablaDTO[]>([])
     const [show,setShow ] = useState<boolean>(false)
-    const [title,setTitle] = useState<string>("Detalles parqueo")
-    let Periodo = moment().format("MYYYY").toString();
+    const [title,setTitle] = useState<string>("Detalles parqueo")    
     const _LocDefault = 'En circulacion';
     useEffect(() =>{
         setDatos(Data);
@@ -32,10 +25,6 @@ type Props = {
 
     const filterObjeto = (list:any, compare:any)=> {
         var newList = [];
-        var countProp = compare.length;
-        var countMatch = 0;
-        var valComp;
-        var valList;
         for (var iList in list) {
             if (list[iList].locationId == compare)
                 newList.push(list[iList]);
