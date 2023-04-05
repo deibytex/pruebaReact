@@ -1,17 +1,12 @@
-import { Soc } from "./components/NivelCarga/Soc";
-import { BotonesFiltros, DataRecargaTiempoClientes, EventoCargaProvider, Indicador, IndicadorCargado, useDataEventoCarga } from "./core/EventoCargaProvider";
-import { useEffect, useState } from "react";
-
+import { BotonesFiltros, DataRecargaTiempoClientes, EventoCargaProvider, Indicador, IndicadorCargado } from "./core/EventoCargaProvider";
 import { EventoCargaPrincipal } from "./components/EventoCarga/EventoCargaPrincipal";
 import { PageTitle } from "../../../_start/layout/core";
 import { TituloEventoCarga } from "../../../_start/helpers/Texts/textosPorDefecto";
-import { ExportarExcel } from "./components/EventoCarga/ExportarExcel";
+
 
 
 export default function EventoCarga(){
 
-  
-    const {  ShowSoc, setShowSoc} = useDataEventoCarga()
     return(
     <>
         <EventoCargaProvider>

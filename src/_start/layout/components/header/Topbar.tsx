@@ -1,19 +1,16 @@
-import React, { useState } from "react";
+//import { useState } from "react";
 
 import { KTSVG } from "../../../helpers";
 
-import {
-  HeaderNotificationsMenu,
-  SearchModal,
-  HeaderUserMenu,
-  InboxCompose,
+import {  
+  HeaderUserMenu
 } from "../../../partials";
 import { useTheme } from "../../core";
 
 export function Topbar() {
   const { config } = useTheme();
-  const [showSearchModal, setShowSearchModal] = useState(false);
-  const [showInboxComposeModal, setShowInboxComposeModal] = useState(false);
+ // const [showSearchModal, setShowSearchModal] = useState(false);
+ // const [showInboxComposeModal, setShowInboxComposeModal] = useState(false);
  
   return (
     <>

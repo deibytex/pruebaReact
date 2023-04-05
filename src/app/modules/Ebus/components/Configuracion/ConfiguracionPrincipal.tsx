@@ -1,12 +1,12 @@
-import { AccessTimeFilled, AccountBox, AdjustSharp, Aod, Bedtime, BedTwoTone, Check, Delete, Download, Edit, House, Speed, SuperscriptTwoTone, SupervisorAccount, SupervisorAccountSharp, SupportAgent, Usb, Warehouse, Workspaces, WrongLocationSharp } from "@mui/icons-material";
+import { AccessTimeFilled,  Check,  House,  SupervisorAccount,  SupportAgent,  Workspaces } from "@mui/icons-material";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table"
 import { AxiosResponse } from "axios"
-import MaterialReactTable, { MRT_ColumnDef, MRT_Row } from "material-react-table"
+import MaterialReactTable, { MRT_ColumnDef } from "material-react-table"
 import { MRT_Localization_ES } from "material-react-table/locales/es"
 import moment from "moment"
-import { useCallback, useEffect, useState } from "react"
+import {  useEffect, useState } from "react"
 import { ObtenerClientesTabla, SetActiveEvent } from "../../data/Configuracion"
-import { TablaClienteEventoActivo, TablaDTO } from "../../models/ConfiguracionModels"
+import { TablaClienteEventoActivo } from "../../models/ConfiguracionModels"
 import { ConfiguracionPreferencia } from "./ConfiguracionPreferencia"
 import { ConfiguracionVariables } from "./ConfiguracionVariable"
 import { ModalAddClienteEbus } from "./ModalAddClienteEbus"
@@ -14,10 +14,9 @@ import { ModalConfiguracionTiempo } from "./ModalConfiguracionTiempo"
 import { ModalListadousuarioTabla } from "./ModalListadoUsuarioTabla"
 import { ModalLocaciones } from "./ModalLocaciones"
 import { ModalUsuarios } from "./ModalUsuarios"
-import { Box, IconButton, Tooltip, Typography } from "@mui/material";
+import { Box, IconButton, Tooltip } from "@mui/material";
 import confirmarDialog, { errorDialog, successDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
-import { Home, User, UserPlus } from "react-feather";
-import { useDataConfiguracionEbus } from "../../core/ConfiguracionProvider";
+
 import { useSelector } from "react-redux";
 import { UserModelSyscaf } from "../../../auth/models/UserModel";
 import { RootState } from "../../../../../setup";
@@ -36,8 +35,6 @@ const ConfiguracionPrincipal:React.FC<Props> = () =>{
   // convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
   const model = (isAuthorized as UserModelSyscaf);
 
-  
-    const { ClienteSeleccionado, Clientes} = useDataConfiguracionEbus();
     
     //table state
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -48,7 +45,7 @@ const ConfiguracionPrincipal:React.FC<Props> = () =>{
       pageSize: 10,
     });
     const [rowCount, setRowCount] = useState(0);
-    const [isLoading, setIsLoading] = useState(false);
+ //   const [isLoading, setIsLoading] = useState(false);
     const [isRefetching, setIsRefetching] = useState(false);
     const [isError, setIsError] = useState(false);
 
@@ -78,7 +75,7 @@ const ConfiguracionPrincipal:React.FC<Props> = () =>{
             accessorKey: 'nit',
             header: 'Documento',
             Cell({ cell, column, row, table, }) {
-                return (row.original.nit == null ? "0": row.original.nit);
+                return (row.original.nit === null ? "0": row.original.nit);
             },
             size: 5
         },
@@ -86,7 +83,7 @@ const ConfiguracionPrincipal:React.FC<Props> = () =>{
             accessorKey: 'telefono',
             header: 'Telefono',
             Cell({ cell, column, row, table, }) {
-                return (row.original.telefono == null ? "0": row.original.telefono);
+                return (row.original.telefono === null ? "0": row.original.telefono);
             },
             size: 5
         },
@@ -111,7 +108,7 @@ const ConfiguracionPrincipal:React.FC<Props> = () =>{
                 errorDialog("ha ocurrido un error contacte con el administrador","");
                 setEsVisible(false)
             });
-        }, `Esta seguro que desea ${ (ActiveEvent == "1") ? "guardar la asignación": "eliminar a el cliente"} `)
+        }, `Esta seguro que desea ${ (ActiveEvent === "1") ? "guardar la asignación": "eliminar a el cliente"} `)
     }
     useEffect(() =>{
       setEsVisible(true)
@@ -132,7 +129,7 @@ const ConsultarDatos = () => {
 };
 
     // ELIMINA LOGICAMENTE LA INFORMACION INGRESADA
-  const handleDeleteRow = useCallback(
+  /*const handleDeleteRow = useCallback(
     (row: MRT_Row<TablaClienteEventoActivo>) => {
 
       confirmarDialog(() => {
@@ -141,7 +138,7 @@ const ConsultarDatos = () => {
 
     },
     [data],
-  );
+  );*/
     return(
         <>
          <BlockUi tag="span" className="bg-primary"  keepInView blocking={EsVisible}>
@@ -188,7 +185,7 @@ const ConsultarDatos = () => {
                                     <Box sx={{ display: 'flex', gap: '1rem' }}>
                                         <Tooltip arrow placement="left" title="Activar e Inactivar clientes">
                                         <IconButton color="success" onClick={() => {
-                                                let Cliente = (row.original.clienteId != undefined ? row.original.clienteId:"");
+                                                let Cliente = (row.original.clienteId ?? "");
                                                 setActiveEventCliente(Cliente, "0");
                                             }} >
                                           <Check />
@@ -196,8 +193,8 @@ const ConsultarDatos = () => {
                                       </Tooltip>
                                       <Tooltip arrow placement="top" title="Consultar y/o agregar location del cliente">
                                         <IconButton color="info" onClick={() => {
-                                              let Cliente = (row.original.clienteId != undefined ? row.original.clienteId:"");
-                                              let ClienteIds = (row.original.clienteIdS != undefined ? row.original.clienteIdS:"");
+                                              let Cliente = (row.original.clienteId ?? "");
+                                              let ClienteIds = (row.original.clienteIdS ?? "");
                                             setClienteId(Cliente);
                                             setClienteIds(ClienteIds.toString());
                                             setshowModaLocacion(true)
@@ -210,7 +207,7 @@ const ConsultarDatos = () => {
                                       <Tooltip arrow placement="top" title="Consultar y/o agregar location del cliente">
                                         <IconButton color="success" onClick={() => {
                                              console.log("Consultar location")
-                                             let Cliente = (row.original.clienteIdS != undefined ? row.original.clienteIdS:"");
+                                             let Cliente = (row.original.clienteIdS ?? "");
                                              setClienteIds(Cliente.toString());
                                              setshowModalUsuarios(true);
                                         }
@@ -223,8 +220,8 @@ const ConsultarDatos = () => {
                                       <Tooltip arrow placement="top" title="Consultar listados de usuarios">
                                         <IconButton color="info"  onClick={() => 
                                             {
-                                                let Clienteids = (row.original.clienteIdS != undefined ? row.original.clienteIdS:"");
-                                                let Cliente = (row.original.clienteId != undefined ? row.original.clienteId:"");
+                                                let Clienteids = (row.original.clienteIdS ?? "");
+                                                let Cliente = (row.original.clienteId ?? "");
                                                 setClienteIds(Clienteids.toString());
                                                 setClienteId(Cliente);
                                                 setshowModalListaUsuarios(true)
@@ -235,8 +232,8 @@ const ConsultarDatos = () => {
                                       </Tooltip>
                                         <Tooltip arrow placement="top" title="Configurar tiempo para cliente">
                                             <IconButton color="success" onClick={() => {
-                                                 let Clienteids = (row.original.clienteIdS != undefined ? row.original.clienteIdS:"");
-                                                 let Cliente = (row.original.clienteId != undefined ? row.original.clienteId:"");
+                                                 let Clienteids = (row.original.clienteIdS ?? "");
+                                                 let Cliente = (row.original.clienteId ?? "");
                                                  setClienteIds(Clienteids.toString());
                                                  setClienteId(Cliente);
                                                 setshowModalTiempoCliente(true);
@@ -248,8 +245,8 @@ const ConsultarDatos = () => {
                                      
                                         <Tooltip arrow placement="right" title="Configurar variables del cliente">
                                             <IconButton color="warning" onClick={() => {
-                                                 let Clienteids = (row.original.clienteIdS != undefined ? row.original.clienteIdS:"");
-                                                 let Cliente = (row.original.clienteId != undefined ? row.original.clienteId:"");
+                                                 let Clienteids = (row.original.clienteIdS ?? "");
+                                                 let Cliente = (row.original.clienteId ?? "");
                                                  setClienteIds(Clienteids.toString());
                                                  setClienteId(Cliente);
                                                  setshowConfiguracionVariables(true);
@@ -265,7 +262,7 @@ const ConsultarDatos = () => {
                                   state={{
                                     columnFilters,
                                     globalFilter,
-                                    isLoading,
+                                  //  isLoading,
                                     pagination,
                                     showAlertBanner: isError,
                                     showProgressBars: isRefetching,
@@ -279,7 +276,7 @@ const ConsultarDatos = () => {
             <ConfiguracionPreferencia></ConfiguracionPreferencia>
             {(showModalTiempoCliente) && (<ModalConfiguracionTiempo show={showModalTiempoCliente} handleClose={() => setshowModalTiempoCliente(false)} ClienteIds={ClienteIds} Title={TitleModalTiempoCliente} UsuarioIds={model.usuarioIds.toString()}></ModalConfiguracionTiempo>)}
             {(showModalListaUsuarios) && (<ModalListadousuarioTabla show={showModalListaUsuarios} handleClose={ () => setshowModalListaUsuarios(false)} ClienteId={ClienteIds}></ModalListadousuarioTabla>)}
-            {(showModaLocacion) && (<ModalLocaciones show={showModaLocacion} handleClose={() => setshowModaLocacion(false)} ClienteId={(ClienteId != undefined ? ClienteId : "")} ClienteIds={ClienteIds}></ModalLocaciones>) } 
+            {(showModaLocacion) && (<ModalLocaciones show={showModaLocacion} handleClose={() => setshowModaLocacion(false)} ClienteId={(ClienteId ?? "")} ClienteIds={ClienteIds}></ModalLocaciones>) } 
             {(showModalUsuarios) && (<ModalUsuarios show={showModalUsuarios} handleClose={() => setshowModalUsuarios(false) } ClienteId={ClienteIds}></ModalUsuarios>)} 
             </BlockUi>
         </>

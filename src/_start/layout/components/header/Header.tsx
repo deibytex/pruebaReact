@@ -1,16 +1,15 @@
-import { Folder, Home } from "@mui/icons-material";
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { KTSVG, toAbsoluteUrl } from "../../../helpers";
+import {  Home } from "@mui/icons-material";
+import  { useState } from "react";
+
 import { MenuModal } from "../../../partials";
-import { usePageData, useTheme } from "../../core";
+import { usePageData } from "../../core";
 import { MenuInner } from "./MenuInner";
 import { Topbar } from "./Topbar";
 
 export function Header() {
   const [showMegaMenuModal, setShowMegaMenuModal] = useState(false);
-  const { config, classes, attributes } = useTheme();
-  const { pageTitle, moduleName } = usePageData();
+ // const { config, classes, attributes } = useTheme();
+  const { pageTitle/*, moduleName */} = usePageData();
 
  
   return (
@@ -25,7 +24,7 @@ export function Header() {
          
             <a href="/bienvenido" className="btn btn-lg text-white"> <Home/> </a>
             <span className="text-white">/</span>
-            <a className="btn btn-sm text-syscaf-amarillo fw-bolder my-1 fs-3">  {pageTitle}</a>
+            <span className="btn btn-sm text-syscaf-amarillo fw-bolder my-1 fs-3">  {pageTitle}</span>
        
         </div>
         {/* end::Left */}

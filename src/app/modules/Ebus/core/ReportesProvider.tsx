@@ -1,18 +1,7 @@
-import { AxiosResponse } from "axios";
-import moment from "moment";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { Button, Form, Modal } from "react-bootstrap-v5";
-import DualListBox from "react-dual-listbox";
-import { CirclesWithBar, Watch } from "react-loader-spinner";
-import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
-import { PostEventActiveRecargaByDayAndClient } from "../data/Eventocarga";
-import { GetClientesEsomos, GetVehiculos, ValidarTiempoActualizacion } from "../data/NivelCarga";
-import { ClienteDTO, dualListDTO, InicioCliente, TablaDTO } from "../models/EventoCargaModels";
-import { AssetsDTO } from "../models/NivelcargaModels";
-import 'react-dual-listbox/lib/react-dual-listbox.css'
-import Nouislider from "nouislider-react";
-import "nouislider/distribute/nouislider.css";
-import { ExportarExcel } from "../components/EventoCarga/ExportarExcel";
+
+import { createContext, useContext, useState } from "react";
+import { ClienteDTO,  InicioCliente } from "../models/EventoCargaModels";
+
 export interface ReportesContextModel {
     
     Clientes? : ClienteDTO[];

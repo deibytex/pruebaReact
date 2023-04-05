@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { TituloParqueo } from "../../../_start/helpers/Texts/textosPorDefecto";
 import { PageTitle } from "../../../_start/layout/core";
 import { ParqueoPrincipal } from "./components/ParqueoInteligente/ParqueoPrincipal";

@@ -66,8 +66,8 @@ export interface ParamsReporte {
 
     FechaInicial : string;
      FechaFinal : string;
-     DriversIdS: string ;
-      assetsIds: string;
+     DriversIdS?: string ;
+      assetsIds?: string;
        assetTypeId: string;
        SiteId : string | null;
 }

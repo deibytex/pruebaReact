@@ -3,11 +3,11 @@ import { ColumnFiltersState, SortingState, PaginationState } from "@tanstack/rea
 
 import MaterialReactTable, { MRT_ColumnDef, MRT_TableInstance } from "material-react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
-import moment, { isDate } from "moment";
+import moment from "moment";
 import { useEffect, useRef, useState } from "react"
-import { Button, Form, Modal } from "react-bootstrap-v5";
+import { Button,  Modal } from "react-bootstrap-v5";
 import DualListBox from "react-dual-listbox";
-import { DatePicker, DateRangePicker } from "rsuite";
+import { DatePicker } from "rsuite";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 import { PageTitle } from "../../../../../_start/layout/core";
 import { dualList } from "../../../CorreosTx/models/dataModels";
@@ -15,6 +15,7 @@ import { GetReporteOdometro } from "../../data/ReportesData";
 import {DescargarExcel} from "../../../../../_start/helpers/components/DescargarExcel"
 
 import { FormatoColombiaDDMMYYYHHmmss, FormatoSerializacionDDMMYYYHHmmss } from "../../../../../_start/helpers/Constants";
+import BlockUi from "react-block-ui";
 
 export default function ReporteOdometro() {
     //  variables de la tabla
@@ -90,7 +91,8 @@ export default function ReporteOdometro() {
     }, [lstSeleccionados, dataOdometro]);
 
     const ConsultarDataOdometro = () => {
-
+        setIsRefetching(true)
+        setIsLoading(true)
         GetReporteOdometro(moment(fechaSeleccionada).add(-1, 'days').format(FormatoSerializacionDDMMYYYHHmmss), 
         moment(fechaSeleccionada).format(FormatoSerializacionDDMMYYYHHmmss)).then((response) => {
             let data = response.data;
@@ -103,7 +105,11 @@ export default function ReporteOdometro() {
             setlstVehiculos(lstVehiculos);
             setDataOdometro(data);
             setRowCount(data.length)
+            setIsRefetching(false)
+            setIsLoading(false)
         }).catch((e) => {
+            setIsRefetching(false)
+            setIsLoading(false)
             errorDialog("Consultar Odometros", "Error al realizar consulta");
         })
 
@@ -147,6 +153,7 @@ export default function ReporteOdometro() {
             </div>
 
             <div className="row mt-2 col-sm-8 col-md-8 col-xs-8 rounded shadow-sm mx-auto">
+               
                 <MaterialReactTable
                     tableInstanceRef={refTabla}
                     localization={MRT_Localization_ES}

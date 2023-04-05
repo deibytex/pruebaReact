@@ -1,7 +1,6 @@
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { CORE_ExecProcedureByTipoConsulta,  CORE_getconsultadinamicas, CORE_getconsultadinamicasUser, CORE_GetConsultasDinamicas } from "../../../apiurlstore";
-import { UserModelSyscaf } from "../../../app/modules/auth/models/UserModel";
 import { RootState } from "../../../setup";
 import { ParamsEndPointDynamic } from "../Models/paramsConsultasDinamicas";
 import jwt_decode from "jwt-decode"
@@ -60,14 +59,14 @@ export function EsAutorizadoIngresar(NombreOpcion: string) {
   
   let tienePermiso = false;
 
-  menu.map((elemnt) => {
+  menu.forEach((elemnt) => {
 
     const nombre: string = elemnt["nombreOpcion"];
     if (nombre.toLowerCase() === NombreOpcion.toLowerCase()) {
 
       let operaciones = elemnt["lstOperacion"] as any[];
       // permite consultar si tiene permiso para entrar  
-      operaciones.map((operacion) => {
+      operaciones.forEach((operacion) => {
         if (operacion["Operacion"] === "ING")
           tienePermiso = true;
         return;
@@ -87,7 +86,7 @@ export function PermisosOpcion(NombreOpcion: string) {
   );
   const menu = menuString as any[];
   let operaciones : any[]= [];
-  menu.map((elemnt) => {
+  menu.forEach((elemnt) => {
 
     const nombre: string = elemnt["nombreOpcion"];
     if (nombre.toLowerCase() === NombreOpcion.toLowerCase()) {
@@ -103,7 +102,7 @@ export function PermisosOpcion(NombreOpcion: string) {
 export function EsPermitido(Operaciones : any[], operacion : string){
 
 let espermitido = false;
-Operaciones.map( (oper) => {
+Operaciones.forEach( (oper) => {
 
     if(oper["operacion"] === operacion)
     espermitido = true;

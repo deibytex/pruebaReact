@@ -19,12 +19,9 @@ import  ParqueoInteligente  from "../modules/Ebus/ParqueoInteligente";
 import  EventoCarga  from "../modules/Ebus/EventoCarga";
 import Preoperacional from "../modules/Mobile/preoperacional";
 import  Configuracion  from "../modules/Ebus/Configuracion";
-import React from "react";
 import Reportes from "../modules/Sotramac/reporteExcelencia";
-import { default as ReporteEbus} from "../modules/Ebus/Reportes";
-import configuracionCorreosTx from "../modules/CorreosTx/configuracionCorreosTx";
 import ReporteOdometro from "../modules/Ebus/components/Reportes/Odometro";
-
+import ReporteAlarmas from "../modules/Ebus/components/Reportes/Alarmas";
 
 export function PrivateRoutes() {
    // informacion del usuario almacenado en el sistema
@@ -113,11 +110,7 @@ export function PrivateRoutes() {
   },{
     path: '/sotramac/Reportes', 
     component: Reportes
-  },{
-    path: '/ebus/Reportes', 
-    component: ReporteEbus
   }
-
   
 
 ];
@@ -128,8 +121,10 @@ export function PrivateRoutes() {
       <Redirect exact from="/" to="/bienvenido" />     
        <Route path="/bienvenido" component={Bienvenidos} />  
        <Route path="/politicaprivacidad" component={PoliticaPrivacidad} />      
-       {importedModules.map( m=>  <Route key={`${m.path}`} path={`${m.path}`} component={m.component} />  )}
+       {importedModules.map( m=>  <Route exact key={`${m.path}`} path={`${m.path}`} component={m.component} />  )}
        <Route path="/ebus/reporteodometro" component={ReporteOdometro} />  
+       <Route path="/ebus/reportes/alarmas" component={ReporteAlarmas} />  
+       
       </Switch>
     </Suspense>
   );

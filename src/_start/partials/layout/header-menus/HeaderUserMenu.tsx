@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { UserModelSyscaf } from "../../../../app/modules/auth/models/UserModel";
 import { Perfil } from "../../../../app/modules/auth/Perfil";
-import { errorDialog } from "../../../helpers/components/ConfirmDialog";
+//import { errorDialog } from "../../../helpers/components/ConfirmDialog";
 import { GetDataUser } from "../../../../app/modules/auth/data/datPerfil";
 import { RootState } from "../../../../setup";
 import { KTSVG, toAbsoluteUrl } from "../../../helpers";
@@ -28,14 +28,14 @@ export function HeaderUserMenu() {
   const [path, setPath] = useState<string|undefined>("/media/svg/avatars/001-boy.svg")
   useEffect(() =>{
     GetDataUser().then((response) =>{
-        setPath((response.data[0].pic == "")?"/media/svg/avatars/001-boy.svg": response.data[0].pic);
+        setPath((response.data[0].pic === "")?"/media/svg/avatars/001-boy.svg": response.data[0].pic);
     }).catch((error) =>{
-        errorDialog("<i>Error comuniquese con el adminisrador<i/>","");
+        //errorDialog("<i>Error comuniquese con el adminisrador<i/>","");
     })
-},[]);
+},[model]);
   return (
     <>
-      {(model.Nombres != "") &&
+      {(model.Nombres !== "") &&
         <div
           className="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-bold w-300px"
           data-kt-menu="true"
@@ -52,7 +52,7 @@ export function HeaderUserMenu() {
               <span className="symbol-label bg-primary">
                 <img
                   alt="Logo"
-                  src={toAbsoluteUrl((path != undefined ? path: "/media/svg/avatars/001-boy.svg"))}
+                  src={toAbsoluteUrl((path !== undefined ? path: "/media/svg/avatars/001-boy.svg"))}
                   className="mh-35px"
                   style={{cursor:'pointer'}}
                   onClick={showModal}

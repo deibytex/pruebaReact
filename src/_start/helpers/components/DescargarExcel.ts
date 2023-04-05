@@ -8,13 +8,13 @@ export function DescargarExcel(datos: any[], columnas: MRT_ColumnDef<any>[], Nom
     const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;carset=UTF-8';
      const fileExtension = '.XLSX';
 
-     if (datos != undefined && datos.length > 0) {
+     if (datos !== undefined && datos.length > 0) {
 
          let finaldata = datos.map((item: any) => {
-             if (item != null) {
+            
                  let Objeto = {};
                  // iteramos las columnas que debemos usar
-                 columnas.map((columna) => {
+                 columnas.forEach((columna) => {
                       let nombreCampo : string =    columna.accessorKey as string;
                       let valuen = item[nombreCampo];
                      Objeto[columna.header] = 
@@ -22,7 +22,7 @@ export function DescargarExcel(datos: any[], columnas: MRT_ColumnDef<any>[], Nom
                  });
               
                  return Objeto;
-             }
+           
          })
          const ws = XLSX.utils.json_to_sheet(finaldata);
          const wb = { Sheets: { 'data': ws }, SheetNames: ['data'] };

@@ -11,7 +11,7 @@ import { ClienteDTO } from "./models/NivelcargaModels";
 
 
 
-export default function Reportes(){
+export  const  BaseReportes: React.FC = ({children}) =>{
 
     const { ClienteSeleccionado,  setClienteSeleccionado } = useDataReportes();
     const [Clientes, setClientes] = useState<ClienteDTO[]>();
@@ -26,7 +26,7 @@ export default function Reportes(){
                 errorDialog("<i>Eror al consultar los clientes</i>","")
             })
 
-            console.log("emtra la modulo");
+         
         }, []
     )
 
@@ -37,7 +37,7 @@ export default function Reportes(){
                     let lstClientes =  Clientes?.filter((value:any, index:any) => {
                         return value.clienteIdS === Number.parseInt(e.currentTarget.value)
                     })  
-                    if(lstClientes != undefined && lstClientes.length > 0)
+                    if(lstClientes !== undefined && lstClientes.length > 0)
                         setClienteSeleccionado(lstClientes[0]);
                 }} aria-label="Default select example"  defaultValue={ClienteSeleccionado?.clienteIdS}>
                   
@@ -68,7 +68,7 @@ export default function Reportes(){
             </div>
              {/*Para insertar el componete secundario o la pagina que corresponde al principal*/}
              <div className="col-sm-12 col-md-12 col-xs-12 rounded border  shadow-sm">
-                    <Alarmas/>
+                    {children}
                 </div>
             </div>
            

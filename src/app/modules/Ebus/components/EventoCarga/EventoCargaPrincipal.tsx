@@ -1,16 +1,13 @@
 import BlockUi from "@availity/block-ui";
-import { useEffect, useState } from "react"
-import { EventoCargaProvider, SocFiltro, useDataEventoCarga, VehiculosFiltros } from "../../core/EventoCargaProvider"
-import { Soc } from "../NivelCarga/Soc";
+import {  useState } from "react"
+import {  SocFiltro, useDataEventoCarga, VehiculosFiltros } from "../../core/EventoCargaProvider"
 import { TablaEventoCarga } from "./TablaEventoCarga";
-import "../../../../../../node_modules/@availity/block-ui/src/BlockUi.css"
-import "../../../../../../node_modules/@availity/block-ui/src/Loader.css"
 import { TablaDTO } from "../../models/NivelcargaModels";
 
 
 const  EventoCargaPrincipal : React.FC = () =>{
-const {contador, showVehiculos, setShowSoc, ShowSoc, setShowVehiculos, IsFiltrado, dataTableFiltrada,  
-     ClienteSeleccionado,  setdataTableFiltrada,  Visible,  dataTable, setIsFiltrado, VehiculosFiltrados, MinSocCarga, MaxSocCarga } = useDataEventoCarga();
+const { setShowSoc, ShowSoc, setShowVehiculos, IsFiltrado,   
+       setdataTableFiltrada,  Visible,  setIsFiltrado } = useDataEventoCarga();
 const [Data, setData] = useState<TablaDTO[]>([]); 
 const [showV, setShowV] = useState<boolean>(false)
 

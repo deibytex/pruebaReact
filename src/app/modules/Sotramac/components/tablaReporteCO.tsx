@@ -8,7 +8,7 @@ import { MRT_Localization_ES } from "material-react-table/locales/es";
 import { getReporteSotramacCO } from "../data/dataSotramac";
 import { AxiosResponse } from "axios";
 import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
-import BlockUi from "@availity/block-ui";
+
 type Props = {
     show: boolean;
     handleClose: () => void;
@@ -132,14 +132,20 @@ export const ModalTablaReporteCO: React.FC<Props> = ({ show, handleClose, title,
 
             if (consultaReporteCO) {
                 setloader(true);
+                setIsRefetching(true)
+                setIsLoading(true)
                 getReporteSotramacCO(fechaInicial, fechaFinal, driverSelected, assetTypeId.toString())
                 .then((respuesta: AxiosResponse<ReporteSotramac[]>) => {
                     setlstReporteSotramacCO(respuesta.data);
                     setRowCount(respuesta.data.length);
                     setloader(false);
+                    setIsRefetching(false)
+                    setIsLoading(false)
                 }).catch( () => {
                     errorDialog("Visualizar Informe", "Error al recibir datos del servidor.")
                     setloader(false);
+                    setIsRefetching(false)
+                    setIsLoading(false)
                 }    
                 );
             }
@@ -158,7 +164,7 @@ export const ModalTablaReporteCO: React.FC<Props> = ({ show, handleClose, title,
                 </Modal.Header>
                 <Modal.Body>
                    
-                        <BlockUi tag="div"  keepInView blocking={loader ?? false}  message="Cargando datos, favor espere.....">
+                     
                         <MaterialReactTable
                             localization={MRT_Localization_ES}
                             displayColumnDefOptions={{
@@ -201,7 +207,7 @@ export const ModalTablaReporteCO: React.FC<Props> = ({ show, handleClose, title,
                                 sorting,
                             }}
                         />
-                        </BlockUi>
+                        
                     
                 </Modal.Body>
                 <Modal.Footer>

@@ -2,10 +2,6 @@ import { useDataSotramac } from "../core/provider";
 import React, { useEffect, useState } from "react";
 import { AssetsTypes, DetalleListas, Listas, Sites } from "../models/dataModels";
 import { Button, Form } from "react-bootstrap-v5";
-
-import "../../../../../node_modules/@availity/block-ui/src/BlockUi.css";
-import "../../../../../node_modules/@availity/block-ui/src/Loader.css";
-
 import { Fechas } from "./filtrosFechas";
 import { SelectAssetsDrivers } from "./filtrosAssetsDrivers";
 import { ModalTablaReporteVH } from "./tablaReporteVH";
@@ -23,8 +19,6 @@ export const ReporteExcelencia: React.FC<Props> = () => {
     //Data desde el provider
     const { listas, detalleListas, assetTypes, assetTypeId, fechaInicial, fechaFinal, assetSelected, driverSelected,
              setsiteId, setassetTypeId, loader, setloader } = useDataSotramac();
-
-    const [loaderL, setLoaderl] = useState<boolean>(true);
 
     //Carga Inicial filtros
     const [lstCategorias, setlstCategorias] = useState<Listas[]>([]);
@@ -241,17 +235,10 @@ export const ReporteExcelencia: React.FC<Props> = () => {
             setconsultaReportCO(false);
         }
     }
-/**export interface ParamsReporte {
 
-    FechaInicial : string;
-     FechaFinal : string;
-     DriversIdS: string ;
-      assetsIds: string;
-       assetTypeId: string;
-       SiteId : string;
-} */
 
     const exportarReporte = () => {
+        let NombreReporte : string =(reporte === "EOAPC")? "Informe Conductor" : ((reporte === "EOAPV") ? "Informe Vehiculos" : "Informe Conductor Vehiculos");
         setloader(true);
         getReporteExcelSotramac(
             {
@@ -270,7 +257,7 @@ export const ReporteExcelencia: React.FC<Props> = () => {
         var sampleArr = base64ToArrayBuffer(respuesta?.data);
         const url = window.URL.createObjectURL(new Blob([sampleArr], {type: "application/excel"}));
         a.href = url;
-        a.download = `${reporte} ${fechaInicial}.xls`; 
+        a.download = `${NombreReporte} ${fechaInicial}.xls`; 
         a.click();
         window.URL.revokeObjectURL(url);
 

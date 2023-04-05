@@ -3,14 +3,14 @@ import { Check, Edit } from "@mui/icons-material";
 import { Box, IconButton, Tooltip } from "@mui/material";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
 import { AxiosResponse } from "axios";
-import MaterialReactTable, { MaterialReactTableProps, MRT_Cell, MRT_ColumnDef } from "material-react-table";
+import MaterialReactTable, { MaterialReactTableProps,  MRT_ColumnDef } from "material-react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import moment from "moment";
-import { useCallback, useEffect, useState } from "react";
+import {  useEffect, useState } from "react";
 import { Modal } from "react-bootstrap-v5";
 import confirmarDialog, { errorDialog, successDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 import { GetVariables, SetEstadoParametros, SetVariablesCliente } from "../../data/Configuracion";
-import { TablaParametrizacionVariables } from "../../models/ConfiguracionModels";
+
 import { ModalConfiguracionVariableAdd } from "./ModalConfiguracionVariableAdd"
 
 type Props = {

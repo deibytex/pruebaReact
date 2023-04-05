@@ -155,7 +155,16 @@ export  function getReporteExcelSotramac( parametros : ParamsReporte, TipoReport
    let NombreConsulta : string = "";
    NombreConsulta = (TipoReporte === "EOAPC")? "getReporteSotramacCO" : ((TipoReporte === "EOAPV") ? "getReporteSotramacVH" : "getReporteSotramacVHxCO")
    let NombreReporte : string =(TipoReporte === "EOAPC")? "InformeConductor" : ((TipoReporte === "EOAPV") ? "InformeVehiculos" : "InformeConductorVehiculos");
+// eliminamos las propiedades que no se necesiten por el tipo de reporte
+// solo se pueden eliminar propiedades que esten marcadas como opcional.
+if(TipoReporte === "EOAPC") 
+ delete parametros.assetsIds;
+ if(TipoReporte === "EOAPV") 
+ delete parametros.DriversIdS;
+
   Object.entries(parametros).map(m => {
+
+    
          params[m[0]] = m[1]?.toString()
 
 

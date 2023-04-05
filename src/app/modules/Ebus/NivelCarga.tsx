@@ -1,5 +1,5 @@
 import moment from "moment";
-import { useEffect, useRef, useState } from "react";
+import { useEffect,  useState } from "react";
 import { TituloNivelCarga } from "../../../_start/helpers/Texts/textosPorDefecto";
 import { PageTitle } from "../../../_start/layout/core/PageData";
 import { Principal } from "./components/NivelCarga/principal";
@@ -11,16 +11,16 @@ import { BotonesFiltros, DataEventosTiempoClientes, Indicador, IndicadorCargado,
 
     //Para los use state
 
-    const [tamaMapa, settamaMapa] = useState(true);
+    const [tamaMapa] = useState(true);
     const [tamaTabla, settamaTabla] = useState("6");
     const [VisibleL, setVisibleL]  = useState(true);
-    const {Visible ,setisExpandido,} = useDataNivelCarga()
+    const {Visible } = useDataNivelCarga()
     const [Reset, setReset]  = useState(false);
     //el  useEffect
     useEffect(() =>{
         (Reset ? setReset(true):setReset(false));
-        setVisibleL((Visible == undefined ? false:Visible));
-    },[Reset])
+        setVisibleL((Visible === undefined ? false:Visible));
+    },[Reset,Visible])
    
      const ExpandirContraerTabla = () =>{  
            let result =   (tamaTabla === '6') ? "12" : "6";
