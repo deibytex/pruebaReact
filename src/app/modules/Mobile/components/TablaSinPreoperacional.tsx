@@ -17,9 +17,9 @@ import moment from "moment";
 import { msToTime } from "../../../../_start/helpers/Helper";
 import { Button } from "react-bootstrap-v5";
 import { ExportarExcel } from "./ExportarExcel";
-import BlockUi from "react-block-ui";
 import "../../../../../node_modules/@availity/block-ui/src/BlockUi.css";
 import "../../../../../node_modules/@availity/block-ui/src/Loader.css";
+import BlockUi from "@availity/block-ui";
 
 
 type Props = {

@@ -22,9 +22,10 @@ import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/
 import { boolean } from "yup";
 import { Button } from "react-bootstrap-v5";
 import { ExportarExcel } from "./ExportarExcel";
-import BlockUi from "react-block-ui";
+
 import "../../../../../node_modules/@availity/block-ui/src/BlockUi.css";
 import "../../../../../node_modules/@availity/block-ui/src/Loader.css";
+import BlockUi from "@availity/block-ui";
 
 
 type Props = {

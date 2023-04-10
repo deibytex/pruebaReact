@@ -62,3 +62,11 @@ export const PORTAL_getReporteSotramacMS = `${apiURLPORTAL}/Sotramac/DescargarRe
 
 /** SOTRAMAC DESCARGA REPORTE */
 export const SOTRA_descargaReporte  = `${apiURLDWH}/ExcOperacional/ReporteExcelencia`;
+
+/* TX */
+export const TX_GetListaSemana = `${apiURLDWH}/Tx/GetListaSemanaReportesByTipo` 
+export const TX_GetUnidadesActivas = `${apiURLDWH}/Tx/GetReporteUnidadesActivas`
+export const TX_GetSnapShotTickets = `${apiURLDWH}/Tx/GetSnapShotTickets`
+export const TX_GetSnapShotTransmision = `${apiURLDWH}/Tx/GetSnapShotTransmision`
+
+

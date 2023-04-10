@@ -22,6 +22,11 @@ import  Configuracion  from "../modules/Ebus/Configuracion";
 import Reportes from "../modules/Sotramac/reporteExcelencia";
 import ReporteOdometro from "../modules/Ebus/components/Reportes/Odometro";
 import ReporteAlarmas from "../modules/Ebus/components/Reportes/Alarmas";
+import  {Dashboard}  from "../modules/Tx/Dashboard";
+
+import React from "react";
+
+
 
 export function PrivateRoutes() {
    // informacion del usuario almacenado en el sistema
@@ -110,6 +115,10 @@ export function PrivateRoutes() {
   },{
     path: '/sotramac/Reportes', 
     component: Reportes
+  }, {
+    path: '/soporte/dashboard',
+    component: Dashboard
+
   }
   
 

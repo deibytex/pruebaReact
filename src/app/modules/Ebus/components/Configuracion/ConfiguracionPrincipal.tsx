@@ -141,135 +141,137 @@ const ConsultarDatos = () => {
   );*/
     return(
         <>
-         <BlockUi tag="span" className="bg-primary"  keepInView blocking={EsVisible}>
-              <div className=" card card-border mt-2">
-                    <div className="col-sm-6 col-md-6 col-xs-6">
+         <BlockUi tag="span" className="shadow-sm"  keepInView blocking={EsVisible}>
+              <div className="card card-border mt-2">
+                   <div className="row w-100">
+                      <div className="col-sm-6 col-md-6 col-xs-6 w-50">
                          
-                    </div>
-                    <div className="col-sm-6 col-md-6 col-xs-6 mt-2 text-aling-right">
-                        <div  style={{float:'right'}}>
-                            <button type="button" title="Agregar cliente" className="btn btn-sm btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" onClick={() => setModalClienteAdd(true)}><i className="bi-file-person-fill" ></i> Agregar cliente</button>
-                        </div>
-                    </div>
-                    <div style={{paddingTop:'10px'}}></div>
-                    <div className="col-sm-12 col-md-12 col-xs-12">
-                            <MaterialReactTable
-                                localization={MRT_Localization_ES}
-                                displayColumnDefOptions={{
-                                    'mrt-row-actions': {
-                                      muiTableHeadCellProps: {
-                                        align: 'center',
-                                      },
-                                      size: 50,
-                                    },
-                                  }}
-                                columns={listadoCampos}
-                                data={data}
-                                enableEditing
-                                editingMode="modal" //default 
-                                onColumnFiltersChange={setColumnFilters}
-                                onGlobalFilterChange={setGlobalFilter}
-                                onPaginationChange={setPagination}
-                                onSortingChange={setSorting}
-                                rowCount={rowCount}
-                                muiToolbarAlertBannerProps={
-                                    isError
-                                      ? {
-                                        color: 'error',
-                                        children: 'Error al cargar información',
-                                      }
-                                      : undefined
-                                  }
-                                initialState={{ density: 'compact' }}
-                                renderRowActions={({ row, table }) => (
-                                    <Box sx={{ display: 'flex', gap: '1rem' }}>
-                                        <Tooltip arrow placement="left" title="Activar e Inactivar clientes">
-                                        <IconButton color="success" onClick={() => {
-                                                let Cliente = (row.original.clienteId ?? "");
-                                                setActiveEventCliente(Cliente, "0");
-                                            }} >
-                                          <Check />
-                                        </IconButton>
-                                      </Tooltip>
-                                      <Tooltip arrow placement="top" title="Consultar y/o agregar location del cliente">
-                                        <IconButton color="info" onClick={() => {
-                                              let Cliente = (row.original.clienteId ?? "");
-                                              let ClienteIds = (row.original.clienteIdS ?? "");
-                                            setClienteId(Cliente);
-                                            setClienteIds(ClienteIds.toString());
-                                            setshowModaLocacion(true)
-                                        }
-                                       
-                                          } >
-                                          <House />
-                                        </IconButton>
-                                      </Tooltip>
-                                      <Tooltip arrow placement="top" title="Consultar y/o agregar location del cliente">
-                                        <IconButton color="success" onClick={() => {
-                                             console.log("Consultar location")
-                                             let Cliente = (row.original.clienteIdS ?? "");
-                                             setClienteIds(Cliente.toString());
-                                             setshowModalUsuarios(true);
-                                        }
-                                           
-                                          } >
-                                             <SupportAgent />
+                         </div>
+                         <div className="col-sm-6 col-md-6 col-xs-6 mt-2 w-50">
+                             <div  className="float-end">
+                                 <button type="button" title="Agregar cliente" className="btn btn-sm btn-primary" data-bs-toggle="tooltip" data-bs-placement="top" onClick={() => setModalClienteAdd(true)}><i className="bi-file-person-fill" ></i> Agregar cliente</button>
+                             </div>
+                         </div>
+                         <div className="mt-10"></div>
+                         <div className="col-sm-12 col-md-12 col-xs-12">
+                                 <MaterialReactTable
+                                     localization={MRT_Localization_ES}
+                                     displayColumnDefOptions={{
+                                         'mrt-row-actions': {
+                                           muiTableHeadCellProps: {
+                                             align: 'center',
+                                           },
+                                           size: 50,
+                                         },
+                                       }}
+                                     columns={listadoCampos}
+                                     data={data}
+                                     enableEditing
+                                     editingMode="modal" //default 
+                                     onColumnFiltersChange={setColumnFilters}
+                                     onGlobalFilterChange={setGlobalFilter}
+                                     onPaginationChange={setPagination}
+                                     onSortingChange={setSorting}
+                                     rowCount={rowCount}
+                                     muiToolbarAlertBannerProps={
+                                         isError
+                                           ? {
+                                             color: 'error',
+                                             children: 'Error al cargar información',
+                                           }
+                                           : undefined
+                                       }
+                                     initialState={{ density: 'compact' }}
+                                     renderRowActions={({ row, table }) => (
+                                         <Box sx={{ display: 'flex', gap: '1rem' }}>
+                                             <Tooltip arrow placement="left" title="Activar e Inactivar clientes">
+                                             <IconButton color="success" onClick={() => {
+                                                     let Cliente = (row.original.clienteId != undefined ? row.original.clienteId:"");
+                                                     setActiveEventCliente(Cliente, "0");
+                                                 }} >
+                                               <Check />
+                                             </IconButton>
+                                           </Tooltip>
+                                           <Tooltip arrow placement="top" title="Consultar y/o agregar location del cliente">
+                                             <IconButton color="info" onClick={() => {
+                                                   let Cliente = (row.original.clienteId != undefined ? row.original.clienteId:"");
+                                                   let ClienteIds = (row.original.clienteIdS != undefined ? row.original.clienteIdS:"");
+                                                 setClienteId(Cliente);
+                                                 setClienteIds(ClienteIds.toString());
+                                                 setshowModaLocacion(true)
+                                             }
+                                            
+                                               } >
+                                               <House />
+                                             </IconButton>
+                                           </Tooltip>
+                                           <Tooltip arrow placement="top" title="Consultar y/o agregar location del cliente">
+                                             <IconButton color="success" onClick={() => {
+                                                  console.log("Consultar location")
+                                                  let Cliente = (row.original.clienteIdS != undefined ? row.original.clienteIdS:"");
+                                                  setClienteIds(Cliente.toString());
+                                                  setshowModalUsuarios(true);
+                                             }
+                                                
+                                               } >
+                                                  <SupportAgent />
+                                               
+                                             </IconButton>
+                                           </Tooltip>
+                                           <Tooltip arrow placement="top" title="Consultar listados de usuarios">
+                                             <IconButton color="info"  onClick={() => 
+                                                 {
+                                                     let Clienteids = (row.original.clienteIdS != undefined ? row.original.clienteIdS:"");
+                                                     let Cliente = (row.original.clienteId != undefined ? row.original.clienteId:"");
+                                                     setClienteIds(Clienteids.toString());
+                                                     setClienteId(Cliente);
+                                                     setshowModalListaUsuarios(true)
+                                                 }
+                                               } >
+                                              <SupervisorAccount />
+                                             </IconButton>
+                                           </Tooltip>
+                                             <Tooltip arrow placement="top" title="Configurar tiempo para cliente">
+                                                 <IconButton color="success" onClick={() => {
+                                                      let Clienteids = (row.original.clienteIdS != undefined ? row.original.clienteIdS:"");
+                                                      let Cliente = (row.original.clienteId != undefined ? row.original.clienteId:"");
+                                                      setClienteIds(Clienteids.toString());
+                                                      setClienteId(Cliente);
+                                                     setshowModalTiempoCliente(true);
+                                                     setTitleModalTiempoCliente(`Cliente:  ${row.original.clienteNombre}`)
+                                                 }}>
+                                                     <AccessTimeFilled />
+                                                 </IconButton>
+                                             </Tooltip>
                                           
-                                        </IconButton>
-                                      </Tooltip>
-                                      <Tooltip arrow placement="top" title="Consultar listados de usuarios">
-                                        <IconButton color="info"  onClick={() => 
-                                            {
-                                                let Clienteids = (row.original.clienteIdS ?? "");
-                                                let Cliente = (row.original.clienteId ?? "");
-                                                setClienteIds(Clienteids.toString());
-                                                setClienteId(Cliente);
-                                                setshowModalListaUsuarios(true)
-                                            }
-                                          } >
-                                         <SupervisorAccount />
-                                        </IconButton>
-                                      </Tooltip>
-                                        <Tooltip arrow placement="top" title="Configurar tiempo para cliente">
-                                            <IconButton color="success" onClick={() => {
-                                                 let Clienteids = (row.original.clienteIdS ?? "");
-                                                 let Cliente = (row.original.clienteId ?? "");
-                                                 setClienteIds(Clienteids.toString());
-                                                 setClienteId(Cliente);
-                                                setshowModalTiempoCliente(true);
-                                                setTitleModalTiempoCliente(`Cliente:  ${row.original.clienteNombre}`)
-                                            }}>
-                                                <AccessTimeFilled />
-                                            </IconButton>
-                                        </Tooltip>
-                                     
-                                        <Tooltip arrow placement="right" title="Configurar variables del cliente">
-                                            <IconButton color="warning" onClick={() => {
-                                                 let Clienteids = (row.original.clienteIdS ?? "");
-                                                 let Cliente = (row.original.clienteId ?? "");
-                                                 setClienteIds(Clienteids.toString());
-                                                 setClienteId(Cliente);
-                                                 setshowConfiguracionVariables(true);
-                                                 setTitleModalConfiguracionVariable(`Configuración variables para ${row.original.clienteNombre}`)
-                                            }}>
-                                                <Workspaces />
-                                            </IconButton>
-                                        </Tooltip>
-                                      
-                                    </Box>
-                                  )
-                                  }
-                                  state={{
-                                    columnFilters,
-                                    globalFilter,
-                                  //  isLoading,
-                                    pagination,
-                                    showAlertBanner: isError,
-                                    showProgressBars: isRefetching,
-                                    sorting,
-                                  }}
-                            />
-                    </div>
+                                             <Tooltip arrow placement="right" title="Configurar variables del cliente">
+                                                 <IconButton color="warning" onClick={() => {
+                                                      let Clienteids = (row.original.clienteIdS != undefined ? row.original.clienteIdS:"");
+                                                      let Cliente = (row.original.clienteId != undefined ? row.original.clienteId:"");
+                                                      setClienteIds(Clienteids.toString());
+                                                      setClienteId(Cliente);
+                                                      setshowConfiguracionVariables(true);
+                                                      setTitleModalConfiguracionVariable(`Configuración variables para ${row.original.clienteNombre}`)
+                                                 }}>
+                                                     <Workspaces />
+                                                 </IconButton>
+                                             </Tooltip>
+                                           
+                                         </Box>
+                                       )
+                                       }
+                                       state={{
+                                         columnFilters,
+                                         globalFilter,
+                                         isLoading,
+                                         pagination,
+                                         showAlertBanner: isError,
+                                         showProgressBars: isRefetching,
+                                         sorting,
+                                       }}
+                                 />
+                         </div>
+                   </div>
             </div>
             <ModalAddClienteEbus show={showModalClienteAdd} handleClose={() => setModalClienteAdd(false)} title={"Agregar cliente"} recargarDatos={ConsultarDatos}></ModalAddClienteEbus>
             {(showConfiguracionVariables) && ( <ConfiguracionVariables show={showConfiguracionVariables} handleClose={() => setshowConfiguracionVariables(false)} title={TitleModalConfiguracionVariable} ClienteId={ClienteId} UsuarioIds={model.usuarioIds.toString()} ClienteIds={ClienteIds}></ConfiguracionVariables>)}
