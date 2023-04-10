@@ -3,15 +3,15 @@ import { useEffect, useState } from "react";
 import { getCSSVariableValue } from "../../../../_start/assets/ts/_utils";
 import { KTSVG, toAbsoluteUrl } from "../../../../_start/helpers";
 import { useDataFatigue } from "../core/provider";
-import { getEventosActivosPorDia } from "../data/dashBoardData";
+
 import { listTabs } from "../data/tabListPanelCentral";
 import { EventoActivo } from "../models/EventosActivos";
 import CardContainer from "./baseCard_Tab4";
 import { CardContainerEventos } from "./cardEventosDetallados_Tab3";
-import { ListaDesplegableChart } from "./ListaDesplegableChart_Tab1";
+
 import { FAG_TablaPanelRiesgo } from "./TablaPanelRiesgo_Tab1";
 
-import { MapTab } from "./TabMap_Tab2";
+
 import { TimeLineAlertas } from "./TimeLineAlertas_Tab1";
 
 type Props = {
