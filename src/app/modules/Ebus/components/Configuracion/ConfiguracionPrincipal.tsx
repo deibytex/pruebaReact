@@ -263,7 +263,7 @@ const ConsultarDatos = () => {
                                        state={{
                                          columnFilters,
                                          globalFilter,
-                                         isLoading,
+                                      //   isLoading,
                                          pagination,
                                          showAlertBanner: isError,
                                          showProgressBars: isRefetching,

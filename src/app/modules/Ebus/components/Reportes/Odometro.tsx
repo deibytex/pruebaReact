@@ -13,9 +13,8 @@ import { PageTitle } from "../../../../../_start/layout/core";
 import { dualList } from "../../../CorreosTx/models/dataModels";
 import { GetReporteOdometro } from "../../data/ReportesData";
 import {DescargarExcel} from "../../../../../_start/helpers/components/DescargarExcel"
+import { FormatoColombiaDDMMYYYHHmmss, FormatoSerializacionYYYY_MM_DD_HHmmss } from "../../../../../_start/helpers/Constants";
 
-import { FormatoColombiaDDMMYYYHHmmss, FormatoSerializacionDDMMYYYHHmmss } from "../../../../../_start/helpers/Constants";
-import BlockUi from "react-block-ui";
 
 export default function ReporteOdometro() {
     //  variables de la tabla
@@ -93,8 +92,9 @@ export default function ReporteOdometro() {
     const ConsultarDataOdometro = () => {
         setIsRefetching(true)
         setIsLoading(true)
-        GetReporteOdometro(moment(fechaSeleccionada).add(-1, 'days').format(FormatoSerializacionDDMMYYYHHmmss), 
-        moment(fechaSeleccionada).format(FormatoSerializacionDDMMYYYHHmmss)).then((response) => {
+        setIsError(false)
+        GetReporteOdometro(moment(fechaSeleccionada).add(-1, 'days').format(FormatoSerializacionYYYY_MM_DD_HHmmss), 
+        moment(fechaSeleccionada).format(FormatoSerializacionYYYY_MM_DD_HHmmss)).then((response) => {
             let data = response.data;
             // de la consulta escogemos los vehiculos que nos serviran de filtro
             let lstVehiculos: dualList[] = [];
@@ -109,7 +109,8 @@ export default function ReporteOdometro() {
             setIsLoading(false)
         }).catch((e) => {
             setIsRefetching(false)
-            setIsLoading(false)
+            setIsLoading(false)            
+            setIsError(true)
             errorDialog("Consultar Odometros", "Error al realizar consulta");
         })
 

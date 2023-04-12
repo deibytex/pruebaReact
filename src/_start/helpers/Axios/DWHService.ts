@@ -1,5 +1,12 @@
 import axios from "axios";
-import { ASSET_GetClientesClienteIds, CLIENTE_GetClientes, CORE_getconsultadinamicasUser, CORE_getconsultadinamicasUserDWH, DWH_GetConsultasDinamicas, EBUS_GetClientesUsuarios, EBUS_GetColumnasDatatable, EBUS_getEventActiveRecargaByDayAndClient, EBUS_getEventActiveViajesByDayAndClient, EBUS_GetListaClientesActiveEvent, EBUS_GetListadoClientesUsuario, EBUS_GetLocations, EBUS_GetTiempoActualizacion, EBUS_GetUltimaPosicionVehiculos, EBUS_GetUsuariosEsomos, EBUS_SetClientesActiveEvent, EBUS_SetColumnasDatatable } from "../../../apiurlstore";
+import { ASSET_GetAssetsClienteId, ASSET_GetClientesClienteIds, CLIENTE_GetClientes, CORE_getconsultadinamicasUser,
+   CORE_getconsultadinamicasUserDWH, DRIVER_GetDriversClienteId, DWH_GetConsultasDinamicas, DWH_getDynamicValueProcedureDWHTabla, EBUS_GetClientesUsuarios, 
+   EBUS_GetColumnasDatatable, EBUS_getEventActiveRecargaByDayAndClient, 
+   EBUS_getEventActiveViajesByDayAndClient, EBUS_GetListaClientesActiveEvent, 
+   EBUS_GetListadoClientesUsuario, EBUS_GetLocations, EBUS_GetTiempoActualizacion,
+    EBUS_GetUltimaPosicionVehiculos, EBUS_GetUsuariosEsomos, EBUS_SetClientesActiveEvent, 
+    EBUS_SetColumnasDatatable, 
+    TX_GetListaSemana, TX_GetSnapShotTickets, TX_GetSnapShotTransmision, TX_GetUnidadesActivas } from "../../../apiurlstore";
 import { ParamsEndPointDynamic } from "../Models/paramsConsultasDinamicas";
 
 export function Post_GetConsultasDinamicas(props: ParamsEndPointDynamic, body: any) {

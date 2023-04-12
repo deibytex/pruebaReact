@@ -1,5 +1,5 @@
 import { Post_getconsultadinamicas, Post_Getconsultadinamicas, Post_getconsultadinamicasUser } from "../../../../_start/helpers/Axios/CoreService";
-import { Post_GetConsultasDinamicas, Post_GetListaSemanas, Post_GetSnapShotTickets, Post_GetSnapShotTransmision, Post_UnidadesActivas } from "../../../../_start/helpers/Axios/DWHService";
+import { Post_GetListaSemanas, Post_GetSnapShotTickets, Post_GetSnapShotTransmision, Post_UnidadesActivas } from "../../../../_start/helpers/Axios/DWHService";
 
 
 export  function GetListadoSemanas(Anio:string) {

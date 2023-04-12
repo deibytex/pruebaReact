@@ -1,15 +1,11 @@
-import { Box, Typography } from "@mui/material";
+
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
-import { AxiosError, AxiosResponse } from "axios";
 import MaterialReactTable, { MRT_ColumnDef} from "material-react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
-import moment from "moment";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {  useEffect, useRef, useState } from "react";
 import { useDataDashboard } from "../../core/DashboardProvider";
-import { GetSnapShotTransmision } from "../../data/Dashboard";
 import { TablaClientesTxDTO } from "../../models/DasboardModels";
 import { TransmisionScatterChart } from "./TransmisionScatterChart";
-import * as converter from 'react-native-converter';
 import { TransmisionBarChart } from "./TransmisionBarChart";
 
 const Transmision: React.FC = () =>{
