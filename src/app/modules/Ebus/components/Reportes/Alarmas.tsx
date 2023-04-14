@@ -1,33 +1,32 @@
-
 import moment from "moment";
 import { useEffect, useRef, useState } from "react";
 import { useDataReportes } from "../../core/ReportesProvider";
-import { GetReporteAlarmas, ValidarFechas } from "../../data/ReportesData";
+import { GetReporteAlarmas } from "../../data/ReportesData";
 import { PageTitle } from "../../../../../_start/layout/core";
 import { DateRangePicker, Notification, Placeholder, useToaster } from "rsuite";
 import BlockUi from "@availity/block-ui";
 import { DescargarExcel } from "../../../../../_start/helpers/components/DescargarExcel";
-import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
+import MaterialReactTable, { MRT_ColumnDef, MRT_TableInstance } from "material-react-table";
 import { FormatoColombiaDDMMYYY, FormatoColombiaDDMMYYYHHmmss, FormatoSerializacionYYYY_MM_DD_HHmmss } from "../../../../../_start/helpers/Constants";
 import { BaseReportes } from "../../Reportes";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import DualListBox from "react-dual-listbox";
 import { dualList } from "../../../CorreosTx/models/dataModels";
-import { Button, Modal } from "react-bootstrap-v5";
+import { Button, Card, Modal } from "react-bootstrap-v5";
 import ReactApexChart from "react-apexcharts";
-import { DateRange } from "rsuite/esm/DateRangePicker";
 import { FiltrosReportes } from "../../models/eBus";
+
 
 export default function ReporteAlarmas() {
 
-  let Filtros : FiltrosReportes = {
-    FechaInicialInicial: moment().add(-7, 'days').toDate(),
-    FechaFinalInicial: moment().toDate(),
-    FechaInicial: moment().add(-7, 'days').toDate(),
-    FechaFinal: moment().toDate(),
+  let Filtros: FiltrosReportes = {
+    FechaInicialInicial: moment().add(-7, 'days').startOf('day').toDate(),
+    FechaFinalInicial: moment().startOf('day').toDate(),
+    FechaInicial: moment().startOf('day').add(-7, 'days').toDate(),
+    FechaFinal: moment().startOf('day').toDate(),
     IndGrafica: -1,
-    FechaGrafica : null,
+    FechaGrafica: "",
     Vehiculos: [],
     Operadores: null
   }
@@ -36,9 +35,14 @@ export default function ReporteAlarmas() {
 
 
   const refChart = useRef<ReactApexChart>(null);
+  const tablaAlarmas = useRef<MRT_TableInstance<any>>(null);
+
   const { ClienteSeleccionado, setClienteSeleccionado, Clientes } = useDataReportes();
-  const [filtros, setFiltros] = useState<FiltrosReportes >(Filtros);
+  const [filtros, setFiltros] = useState<FiltrosReportes>(Filtros);
   const [loader, setloader] = useState<boolean>(false);
+  const [lablesAxisx, setlablesAxisx] = useState<string[]>([]);
+  const [idxSeleccionado, setidxSeleccionado] = useState<number>(-2);
+  const [isCallData, setisCallData] = useState<boolean>(false);
 
 
   const [dataAlarmas, setDataAlarmas] = useState<any[]>([]);
@@ -110,6 +114,7 @@ export default function ReporteAlarmas() {
 
   // useefet que se ejecuta la primera vez, cuando el cliente es seleccionado 
   useEffect(() => {
+
     // consulta la informacion de las alarmas cuando 
     // cambia el ciente seleecionado y las fechas 
     if (ClienteSeleccionado === undefined && Clientes !== undefined)
@@ -117,24 +122,70 @@ export default function ReporteAlarmas() {
 
 
     ConsultarDataAlarmas();
-    if(allowedMaxDays)
-     allowedMaxDays(7);
 
-     if(allowedRange)
-     allowedRange(moment().add(-6, "months").toDate(), moment().toDate());
+    // configuramos el chart
+
+    // WARNING --  HAY QUE TENER PRESENTE QUE LOS USESTATE
+    // DENTRO DE LOS EVENTOS DE LA GRAFICA NO USA EL ESTADO ACTUAL SINO EL ESTADO
+    // AL MOMENTO DE SER CREADO, SE DEBEN USAR LOS SETUSETATE Y LOS CLICK EVENTS 
+    // PARA QUE USE LOS USESTATE CON LA INFORMACIONF REAL
+
+    let defaultopciones = {
+      options: {
+        chart: {
+          id: 'apexchart-example',
+          events: {
+            dataPointSelection: function (event: any, chartContext: any, config: any) {
+              // seleccionamos el index de la grafica para posteriormente filtrar
+              setidxSeleccionado(config.dataPointIndex);
+              // onClickDataPoint(config.dataPointIndex);
+              console.log("datapointselection", Filtros)
+            }
+          }
+        },
+        xaxis: {
+          categories: []
+        }
+      },
+      series: [],
+      dataLabels: {
+        enabled: true
+      }
+    }
+    // asingamos las opciones
+    setOpciones(defaultopciones)
+
+    if (allowedMaxDays)
+      allowedMaxDays(7);
+
+    if (allowedRange)
+      allowedRange(moment().add(-6, "months").toDate(), moment().toDate());
     return function cleanUp() {
       //SE DEBE DESTRUIR EL OBJETO CHART
     };
   }, []);
-  // metodo qeu consulta los datos de las alarmas
-  const ConsultarDataAlarmas = () => {
-    let cliente = "";
-    if (ClienteSeleccionado === undefined && Clientes !== undefined)
-      cliente = Clientes[0].clienteIdS.toString();
-     console.log('dataalarmas', dataAlarmas)
-    if (dataAlarmas.length == 0 || ValidarFechas(filtros, setFiltros)) {
+  useEffect(() => {
+    // VALIDAMOS EL INDEX SELECCIONADO
+    if (idxSeleccionado !== -2) // lo hacemos para que no dispare varias veces el llamado de la base de datos la primera vez que se carga
+      setFiltros({
+        ...filtros,
+        IndGrafica: idxSeleccionado,
+        FechaGrafica: lablesAxisx[idxSeleccionado]
+      });
+  }, [idxSeleccionado])
+
+  useEffect(() => {
+    if (idxSeleccionado !== -2)// lo hacemos para que no dispare varias veces el llamado de la base de datos la primera vez que se carga
+      ConsultarDataAlarmas();
+  }, [filtros])
 
 
+
+
+  // metodo qeu consulta los datos de las alarmasg
+  let ConsultarDataAlarmas = () => {
+
+    if (dataAlarmas.length == 0 || isCallData) {
       setIsError(false)
       setIsLoading(true)
       setIsRefetching(true)
@@ -143,8 +194,8 @@ export default function ReporteAlarmas() {
         moment(filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss))
         .then((response) => {
           //asignamos la informcion consultada 
-          setDataAlarmas(response.data);        
-            
+          setDataAlarmas(response.data);
+
           // vamos a llenar la informacion de los movils
           let lstVehiculos = (response.data as any[]).reduce((p, c) => {
             let movil = c["Movil"];
@@ -157,6 +208,7 @@ export default function ReporteAlarmas() {
           setlstVehiculos(lstVehiculos);
           // datos filtrados que al principio son los mismos extraidos
           datosfiltrados(response.data)
+          setidxSeleccionado(-1)
           // quitamos los loaders despues de cargado
           setIsLoading(false)
           setIsRefetching(false)
@@ -169,51 +221,56 @@ export default function ReporteAlarmas() {
           setloader(false);
           setIsLoading(false)
           setIsRefetching(false)
-        })
+        }).finally(() => {
+          setloader(false);
+
+
+        });
 
     }
     else
-    datosfiltrados(dataAlarmas)
+      datosfiltrados(dataAlarmas)
 
   }
+  // FILTRA LOS DATOS QUE SE CONSULTAN DE LA BASE DE DATOS
+  // SI EXISTE SE PASA LOS DATOS ALMACENADOS EN EL SISTEMA
   let datosfiltrados = (datos: any[]) => {
-    console.log("datos filtrados");
+    let fechaGraficaActual = filtros.FechaGrafica;
+    let FechaInicial: Date = filtros.FechaInicial;
+    let FechaFinal: Date = filtros.FechaFinal;
 
-    let FechaInicial:Date = Filtros.FechaInicial;
-    let FechaFinal : Date = Filtros.FechaFinal; 
+    let datosFiltrados: any[] = datos;
+    if (filtros.IndGrafica != -1) {
+      FechaInicial = moment(filtros.FechaGrafica, FormatoColombiaDDMMYYY).toDate();
+      FechaFinal = moment(filtros.FechaGrafica, FormatoColombiaDDMMYYY).toDate();
+    }
 
-    let datosFiltrados : any[] = datos;
+
+    // filtramos por las fechas
+    datosFiltrados = datosFiltrados.
+      filter(f => moment(f.Fecha).toDate() >= FechaInicial && moment(f.Fecha).toDate() <= FechaFinal);
+
+    // filtramos por los vehivulos
+
+    if (filtros.Vehiculos.length > 0) {
+      datosFiltrados = datosFiltrados.filter(f => filtros.Vehiculos.indexOf(f.Movil) > -1);
+    }
     setDataAlarmasFiltrada(datosFiltrados);
-   
-
-      if(filtros.IndGrafica != -1)
-      {
-        FechaInicial = moment(filtros.FechaGrafica, FormatoColombiaDDMMYYY).toDate();
-        FechaFinal =  moment(filtros.FechaGrafica, FormatoColombiaDDMMYYY).toDate();        
-      }
-      // filtramos por las fechas
-    //  datosFiltrados = datosFiltrados.filter( f=> moment(f.Fecha).toDate() >= FechaInicial && moment(f.Fecha).toDate() <= FechaInicial);
-
-      // filtramos por los vehivulos
-
-      if(filtros.Vehiculos.length > 0)
-      {
-        datosFiltrados = datosFiltrados.filter( f=> filtros.Vehiculos.indexOf(f.Movil) > -1 );
-      }
+    setRowCount(datosFiltrados.length); // actualizamos la informacion de las filas
     // agrupa los elementos para ser mostrado por la grafica
-    let totalPastillas = new Array();   
-    let totalTemperatura = new Array();   
-    let labels = new Array();    
- // agrupamos por fechas la informacion
+    let totalPastillas = new Array();
+    let totalTemperatura = new Array();
+    let labels = new Array();
+    // agrupamos por fechas la informacion
     let agrupadofecha = datosFiltrados
-        .reduce((p, c) => {
-          let name = moment(c.Fecha).format(FormatoColombiaDDMMYYY);
-          p[name] = p[name] ?? [];
-          p[name].push(c);
-          return p;
-        }, {});
+      .reduce((p, c) => {
+        let name = moment(c.Fecha).format(FormatoColombiaDDMMYYY);
+        p[name] = p[name] ?? [];
+        p[name].push(c);
+        return p;
+      }, {});
 
-        console.log(agrupadofecha)
+
     Object.entries(agrupadofecha).map((elem: any) => {
       labels.push(elem[0]);
       // agrupamos por descripcion para saber el total de alarmas por cada uno 
@@ -231,51 +288,29 @@ export default function ReporteAlarmas() {
 
       totalPastillas.push(ttPastillas ?? 0);
       totalTemperatura.push(ttTemperatura ?? 0);
-
-     
-
-      let defaultopciones = {
-        options: {
-          chart: {
-            id: 'apexchart-example',
-            events: {
-              dataPointSelection: function (event: any, chartContext: any, config: any) {
-                // seleccionamos el index de la grafica para posteriormente filtrar
-                const fechaSeleccionada : string = labels[config.seriesIndex];
-                if(filtros.IndGrafica > -1 && filtros.FechaGrafica ===fechaSeleccionada) 
-                setFiltros({
-                  ...filtros,
-                  IndGrafica: -1,
-                  FechaGrafica : null
-                });
-                else
-                setFiltros({
-                  ...filtros,
-                  IndGrafica: config.seriesIndex,
-                  FechaGrafica : labels[config.seriesIndex]
-                });
-                ConsultarDataAlarmas();
-              }
+      setlablesAxisx(labels)
+      // se debe volver actualizar los eventos pues 'estos no
+      // se reflejan los usestate y utilizan los datos que tienen las variables
+      // al momento de crearse
+      ApexCharts.exec('apexchart-example', 'updateOptions', {
+        chart: {
+          events: {
+            dataPointSelection: (event: any, chartContext: any, config: any) => {
+              // seleccionamos el index de la grafica para posteriormente filtrar
+              let labelSeleccionado = config.w.config.xaxis.categories[config.dataPointIndex];
+              // si la informacion del label seleccionado es igual al label que se encuentra en los filtros
+              // asginamos  -1 y limpiamos la grafica para que muestre todos los datos
+              setidxSeleccionado((labelSeleccionado === fechaGraficaActual) ? -1 : config.dataPointIndex);
             }
-          },
-          xaxis: {
-            categories: labels
           }
         },
-        series: [{
-          name: 'EV: Alarma Cambio Pastillas Disco Frenos',
-          data: totalPastillas
-        },
-        {
-          name: 'EV: Alarma Temperatura Celda Batería > 45°C',
-          data: totalTemperatura
-        }],
-        dataLabels: {
-          enabled: true
+        xaxis: {
+          categories: labels
         }
-      }
-      // asingamos las opciones
-      setOpciones(defaultopciones)
+      });
+      // funcion que actualiza los datos de las series
+      // se debe pasar el id configurado al momento de su creaci'on para poder
+      // actializar los datos
       ApexCharts.exec('apexchart-example', 'updateSeries', [{
         name: 'EV: Alarma Cambio Pastillas Disco Frenos',
         data: totalPastillas
@@ -290,6 +325,38 @@ export default function ReporteAlarmas() {
 
 
   }
+
+  // VERIFICA QUE SE DEBA CONSULTAR NUEVAMENTE LA INFORMACION EN LA BASE DE DATOS
+
+  // VALIDA LAS FECHAS QUE SEAN LAS CORRECTAS Y ACTUALIZA LOS FILTROS
+  let ValidarFechas = (Range: Date[]) => {
+
+    let FechaInicial: Date = Range[0];
+    let FechaFinal: Date = Range[1];
+    let FechaInicialInicial: Date = filtros.FechaInicialInicial;
+    let FechaFinalInicial: Date = filtros.FechaFinalInicial;
+
+    setisCallData(
+
+      (filtros.FechaInicialInicial > FechaInicial || filtros.FechaFinalInicial < FechaFinal
+        || (filtros.FechaInicialInicial > FechaInicial &&
+          filtros.FechaFinalInicial > FechaFinal)
+      )
+    )
+
+    // cambiamos los datos iniciales 
+    if ((filtros.FechaInicialInicial > FechaInicial)
+      || (filtros.FechaInicialInicial > FechaInicial && filtros.FechaFinalInicial > FechaFinal))
+      FechaInicialInicial = FechaInicial;
+
+    if ((FechaFinal > filtros.FechaFinalInicial)
+      || (filtros.FechaInicialInicial > FechaInicial && filtros.FechaFinalInicial > FechaFinal))
+      FechaFinalInicial = FechaFinal;
+
+    setFiltros({ ...filtros, FechaInicial, FechaFinal, FechaInicialInicial, FechaFinalInicial })
+
+  }
+
 
   // seleccion de vehiculos
   function SelectVehiculos() {
@@ -318,35 +385,34 @@ export default function ReporteAlarmas() {
       <BaseReportes>
         <div className="card card-rounded bg-transparent " style={{ width: '100%' }}  >
 
-          <div className="row  col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mt-2 bg-secondary  text-primary" style={{ width: '100%' }} >
-            <h3 className="card-title fs-4 m-0 ms-2"> Filtros</h3>
-            <div className="col-sm-6 col-md-6 col-xs-6 d-flex justify-content-start">
-              <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fecha inicial: </label>
+          <Card className="bg-secondary  text-primary m-0">            
+            <Card.Body className="m-0">
+            <h3 className="fs-4 m-2 ms-2 d-flex justify-content-center"> Filtros</h3>
+              <div className="row">
+                <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8"> <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fecha inicial: </label>
+                  <DateRangePicker className="mt-2" format="dd/MM/yyyy" value={[filtros.FechaInicial, filtros.FechaFinal]}
+                    onChange={(value, e) => {
+                      if (value !== null) {
+                        ValidarFechas(
+                          [value[0],
+                          value[1]]
+                        );
+                      }
+                    }} />
 
-              <DateRangePicker className="mt-2" format="dd/MM/yyyy" value={[filtros.FechaInicial, filtros.FechaFinal]}
-                onChange={(value, e) => {
-                  if (value !== null) {
-                    setFiltros({
-                      ...filtros,
-                      FechaInicial: value[0],
-                      FechaFinal: value[1]
-                    });
-                  }
-                }} />
+                  <Button className="m-2  btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}><i className="bi-car-front-fill"></i></Button>
+                  <Button className="m-2  btn btn-sm btn-primary" onClick={() => { ConsultarDataAlarmas() }}><i className="bi-search"></i></Button>
+                  </div>
+                <div className="col-sm-4 col-md-4 col-xs-4 col-lg-4 d-flex justify-content-end">
+                  <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataAlarmasFiltrada, listadoCampos, "Reporte Alarmas") }}>
+                    <i className="bi-file-earmark-excel"></i></button>
+                </div>
+              </div>
 
-              <button className="m-2  btn btn-sm btn-primary" title="Consultar" type="button" onClick={() => { ConsultarDataAlarmas() }}><i className="bi-search"></i></button>
 
-            </div>
+            </Card.Body>
+          </Card>
 
-            <div className="col-sm-6 col-md-6 col-xs-6 d-flex justify-content-end">
-              <button className="m-2 btn btn-sm btn-primary" title="Consultar" type="button" onClick={() => { setShowModal(true) }}>
-                <i className="bi-car-front-fill"></i></button>
-
-              <button className="m-2 ms-0 btn btn-sm btn-primary" title="Consultar" type="button" onClick={() => { DescargarExcel(dataAlarmasFiltrada, listadoCampos, "Reporte Alarmas") }}>
-                <i className="bi-file-earmark-excel"></i></button>
-
-            </div>
-          </div>
         </div>
         {/* begin::Chart */}
         <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
@@ -356,12 +422,14 @@ export default function ReporteAlarmas() {
               series={opciones.series} type="bar"
               height={320} />)}
 
+
+
         </div>
         {/* end::Chart      */}
         <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
 
           <MaterialReactTable
-
+            tableInstanceRef={tablaAlarmas}
             localization={MRT_Localization_ES}
             displayColumnDefOptions={{
               'mrt-row-actions': {
@@ -426,11 +494,11 @@ export default function ReporteAlarmas() {
         </div>
       </Modal.Body>
       <Modal.Footer>
-        <Button type="button" variant="secondary" onClick={() => { setShowModal(false); setSeleccionados([]); }}>
-          Cancelar
+        <Button type="button" variant="secondary" onClick={() => { setSeleccionados([]);  /*actualizamos los filtros*/setFiltros({ ...filtros, Vehiculos: [] }) }}>
+          Limpiar
         </Button>
         <Button type="button" variant="primary" onClick={() => { setShowModal(false); }}>
-          Filtrar
+          Cerrar
         </Button>
       </Modal.Footer>
     </Modal>

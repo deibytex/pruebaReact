@@ -23,25 +23,3 @@ export  function GetReporteOdometro(FechaInicial:string, FechaFinal: string) {
         RecordsPorPagina: null
     }, params);
 }
-
-export let ValidarFechas = (Filtros: FiltrosReportes, SetFiltro: ((arg0: FiltrosReportes) => void)) => {
-
-    let flag = false;
-     flag = (Filtros.FechaInicialInicial < Filtros.FechaInicial ||  Filtros.FechaFinal > Filtros.FechaFinal
-        || (Filtros.FechaInicialInicial > Filtros.FechaInicial && 
-            Filtros.FechaFinalInicial > Filtros.FechaFinal)
-        )
-
-
-         // cambiamos los datos iniciales 
-    if ((Filtros.FechaInicialInicial > Filtros.FechaInicial) 
-    || (Filtros.FechaInicialInicial > Filtros.FechaInicial && Filtros.FechaFinalInicial > Filtros.FechaFinal))
-            SetFiltro({...Filtros, FechaInicialInicial: Filtros.FechaInicial})
-   
-if ((Filtros.FechaFinal > Filtros.FechaFinalInicial) || (Filtros.FechaInicialInicial > Filtros.FechaInicial && Filtros.FechaFinalInicial > Filtros.FechaFinal))
-SetFiltro({...Filtros, FechaFinalInicial: Filtros.FechaFinal})   
-
-return flag;
-
-
-}
