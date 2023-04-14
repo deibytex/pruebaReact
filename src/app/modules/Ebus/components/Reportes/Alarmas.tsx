@@ -13,9 +13,14 @@ import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/rea
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import DualListBox from "react-dual-listbox";
 import { dualList } from "../../../CorreosTx/models/dataModels";
-import { Button, Card, Modal } from "react-bootstrap-v5";
+import { Button, Card, Form, Modal } from "react-bootstrap-v5";
 import ReactApexChart from "react-apexcharts";
 import { FiltrosReportes } from "../../models/eBus";
+import { ClienteDTO } from "../../models/NivelcargaModels";
+import { AxiosResponse } from "axios";
+import { GetClientesEsomos } from "../../data/NivelCarga";
+import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
+import { InicioCliente } from "../../models/NivelcargaModels";
 
 
 export default function ReporteAlarmas() {
@@ -37,7 +42,8 @@ export default function ReporteAlarmas() {
   const refChart = useRef<ReactApexChart>(null);
   const tablaAlarmas = useRef<MRT_TableInstance<any>>(null);
 
-  const { ClienteSeleccionado, setClienteSeleccionado, Clientes } = useDataReportes();
+  const [ ClienteSeleccionado,  setClienteSeleccionado ] =useState<ClienteDTO>(InicioCliente);
+    const [Clientes, setClientes] = useState<ClienteDTO[]>();
   const [filtros, setFiltros] = useState<FiltrosReportes>(Filtros);
   const [loader, setloader] = useState<boolean>(false);
   const [lablesAxisx, setlablesAxisx] = useState<string[]>([]);
@@ -112,16 +118,29 @@ export default function ReporteAlarmas() {
 
     ];
 
+   
+    useEffect(
+        () => {
+            GetClientesEsomos().then((response:AxiosResponse<any>) =>{
+                setClientes(response.data);
+                setClienteSeleccionado(response.data[0])
+             
+            }).catch((error) =>{
+                console.log(error);
+                errorDialog("<i>Eror al consultar los clientes</i>","")
+            })
+
+         
+        }, []
+    )
+
   // useefet que se ejecuta la primera vez, cuando el cliente es seleccionado 
   useEffect(() => {
 
     // consulta la informacion de las alarmas cuando 
     // cambia el ciente seleecionado y las fechas 
-    if (ClienteSeleccionado === undefined && Clientes !== undefined)
-      setClienteSeleccionado(Clientes[0])
-
-
-    ConsultarDataAlarmas();
+    if (ClienteSeleccionado.clienteIdS != 0 )
+     ConsultarDataAlarmas();
 
     // configuramos el chart
 
@@ -138,8 +157,7 @@ export default function ReporteAlarmas() {
             dataPointSelection: function (event: any, chartContext: any, config: any) {
               // seleccionamos el index de la grafica para posteriormente filtrar
               setidxSeleccionado(config.dataPointIndex);
-              // onClickDataPoint(config.dataPointIndex);
-              console.log("datapointselection", Filtros)
+             
             }
           }
         },
@@ -163,7 +181,9 @@ export default function ReporteAlarmas() {
     return function cleanUp() {
       //SE DEBE DESTRUIR EL OBJETO CHART
     };
-  }, []);
+  }, [ClienteSeleccionado]);
+
+
   useEffect(() => {
     // VALIDAMOS EL INDEX SELECCIONADO
     if (idxSeleccionado !== -2) // lo hacemos para que no dispare varias veces el llamado de la base de datos la primera vez que se carga
@@ -190,7 +210,7 @@ export default function ReporteAlarmas() {
       setIsLoading(true)
       setIsRefetching(true)
       setloader(true)
-      GetReporteAlarmas("914", moment(filtros.FechaInicial).format(FormatoSerializacionYYYY_MM_DD_HHmmss),
+      GetReporteAlarmas(ClienteSeleccionado.clienteIdS.toString(), moment(filtros.FechaInicial).format(FormatoSerializacionYYYY_MM_DD_HHmmss),
         moment(filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss))
         .then((response) => {
           //asignamos la informcion consultada 
@@ -337,7 +357,6 @@ export default function ReporteAlarmas() {
     let FechaFinalInicial: Date = filtros.FechaFinalInicial;
 
     setisCallData(
-
       (filtros.FechaInicialInicial > FechaInicial || filtros.FechaFinalInicial < FechaFinal
         || (filtros.FechaInicialInicial > FechaInicial &&
           filtros.FechaFinalInicial > FechaFinal)
@@ -353,7 +372,9 @@ export default function ReporteAlarmas() {
       || (filtros.FechaInicialInicial > FechaInicial && filtros.FechaFinalInicial > FechaFinal))
       FechaFinalInicial = FechaFinal;
 
-    setFiltros({ ...filtros, FechaInicial, FechaFinal, FechaInicialInicial, FechaFinalInicial })
+      // cuando hay una consulta por fechas se debe quitar el filtro por gráfica para que pueda
+      // visualizar correctamente la información
+    setFiltros({ ...filtros, FechaInicial, FechaFinal, FechaInicialInicial, FechaFinalInicial , IndGrafica: -1, FechaGrafica: ""})
 
   }
 
@@ -376,15 +397,43 @@ export default function ReporteAlarmas() {
       />
     );
   }
+  function CargaListadoClientes( ) {
+    return (           
+            <Form.Select   className=" mb-3 " onChange={(e) => {
+                // buscamos el objeto completo para tenerlo en el sistema
+                let lstClientes =  Clientes?.filter((value:any, index:any) => {
+                    return value.clienteIdS === Number.parseInt(e.currentTarget.value)
+                })  
+                if(lstClientes !== undefined && lstClientes.length > 0)
+                    setClienteSeleccionado(lstClientes[0]);
+            }} aria-label="Default select example"  defaultValue={ClienteSeleccionado?.clienteIdS}>
+              
+                {                        
+                    Clientes?.map((element:any,i:any) => {
+                          
+                        return (<option key={element.clienteIdS}   value={(element.clienteIdS != null ? element.clienteIdS:0)}>{element.clienteNombre}</option>)
+                    })
+                }
+            </Form.Select>               
+    );
+  }
 
 
   return (<>
     <PageTitle>Reporte Alarmas</PageTitle>
-    <BlockUi tag="div" keepInView blocking={loader ?? false}  >
+    <BlockUi tag="div" keepInView blocking={loader ?? false}  >  
 
-      <BaseReportes>
         <div className="card card-rounded bg-transparent " style={{ width: '100%' }}  >
-
+          <div className="row  col-sm-12 col-md-12 col-xs-12 rounded border  mt-1 mb-2 shadow-sm "  style={{width:'100%'}}  >
+           
+               
+                <div className="col-sm-12 col-md-12 col-xs-12">
+                    <div  style={{float:'right'}}>
+                    <CargaListadoClientes/>
+                    </div>
+                </div>
+                
+            </div>
           <Card className="bg-secondary  text-primary m-0">            
             <Card.Body className="m-0">
             <h3 className="fs-4 m-2 ms-2 d-flex justify-content-center"> Filtros</h3>
@@ -479,7 +528,7 @@ export default function ReporteAlarmas() {
             }}
           />
         </div>
-      </BaseReportes>
+      
     </BlockUi>
 
     <Modal show={showModal} onHide={setShowModal} size="lg">
