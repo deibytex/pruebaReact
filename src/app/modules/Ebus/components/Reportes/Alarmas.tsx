@@ -1,6 +1,5 @@
 import moment from "moment";
 import { useEffect, useRef, useState } from "react";
-import { useDataReportes } from "../../core/ReportesProvider";
 import { GetReporteAlarmas } from "../../data/ReportesData";
 import { PageTitle } from "../../../../../_start/layout/core";
 import { DateRangePicker, Notification, Placeholder, useToaster } from "rsuite";
@@ -8,7 +7,6 @@ import BlockUi from "@availity/block-ui";
 import { DescargarExcel } from "../../../../../_start/helpers/components/DescargarExcel";
 import MaterialReactTable, { MRT_ColumnDef, MRT_TableInstance } from "material-react-table";
 import { FormatoColombiaDDMMYYY, FormatoColombiaDDMMYYYHHmmss, FormatoSerializacionYYYY_MM_DD_HHmmss } from "../../../../../_start/helpers/Constants";
-import { BaseReportes } from "../../Reportes";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import DualListBox from "react-dual-listbox";
@@ -20,7 +18,8 @@ import { ClienteDTO } from "../../models/NivelcargaModels";
 import { AxiosResponse } from "axios";
 import { GetClientesEsomos } from "../../data/NivelCarga";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
-import { InicioCliente } from "../../models/NivelcargaModels";
+import { InicioCliente } from "../../../../../_start/helpers/Models/ClienteDTO";
+
 
 
 export default function ReporteAlarmas() {
@@ -43,7 +42,7 @@ export default function ReporteAlarmas() {
   const tablaAlarmas = useRef<MRT_TableInstance<any>>(null);
 
   const [ ClienteSeleccionado,  setClienteSeleccionado ] =useState<ClienteDTO>(InicioCliente);
-    const [Clientes, setClientes] = useState<ClienteDTO[]>();
+  const [Clientes, setClientes] = useState<ClienteDTO[]>();
   const [filtros, setFiltros] = useState<FiltrosReportes>(Filtros);
   const [loader, setloader] = useState<boolean>(false);
   const [lablesAxisx, setlablesAxisx] = useState<string[]>([]);
@@ -312,6 +311,7 @@ export default function ReporteAlarmas() {
       // se debe volver actualizar los eventos pues 'estos no
       // se reflejan los usestate y utilizan los datos que tienen las variables
       // al momento de crearse
+    
       ApexCharts.exec('apexchart-example', 'updateOptions', {
         chart: {
           events: {
