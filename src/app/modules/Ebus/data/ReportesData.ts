@@ -23,3 +23,17 @@ export  function GetReporteOdometro(FechaInicial:string, FechaFinal: string) {
         RecordsPorPagina: null
     }, params);
 }
+
+export  function GetReporteEficiencia(FechaInicial:string, FechaFinal: string, clientesIds :number, tipo : number) {
+    var params: { [id: string]: string | null | undefined;} = {};
+    params['FechaInicio'] = FechaInicial;
+    params['FechaFin'] = FechaFinal;
+    params['tipo'] = `${tipo}`;
+    params['ClienteIds'] = `${clientesIds}`;
+   
+    return  Post_GetConsultasDinamicas({
+        NombreConsulta: "GetReporteEficienciaMesVehiculo", Clase: "EBUSQueryHelper",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, params);
+}

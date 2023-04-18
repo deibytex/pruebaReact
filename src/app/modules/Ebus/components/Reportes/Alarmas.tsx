@@ -307,6 +307,7 @@ export default function ReporteAlarmas() {
 
       totalPastillas.push(ttPastillas ?? 0);
       totalTemperatura.push(ttTemperatura ?? 0);
+    });
       setlablesAxisx(labels)
       // se debe volver actualizar los eventos pues 'estos no
       // se reflejan los usestate y utilizan los datos que tienen las variables
@@ -341,7 +342,7 @@ export default function ReporteAlarmas() {
       }]);
 
 
-    });
+ 
 
 
   }

@@ -23,7 +23,8 @@ import Reportes from "../modules/Sotramac/reporteExcelencia";
 import ReporteOdometro from "../modules/Ebus/components/Reportes/Odometro";
 import ReporteAlarmas from "../modules/Ebus/components/Reportes/Alarmas";
 import  {Dashboard}  from "../modules/Tx/Dashboard";
-
+import ReportesIFrame from "../../_start/helpers/components/RenderIframe";
+import ReporteConductorNoId from "../modules/Ebus/components/Reportes/ConductorNoId";
 import React from "react";
 
 
@@ -123,7 +124,7 @@ export function PrivateRoutes() {
   
 
 ];
-
+const url ="https://app.powerbi.com/view?r=eyJrIjoiMjkzODk0YmItZDQwZC00NTg3LThiMjYtMmY2NmRhNjZlOGY5IiwidCI6ImU0ZWZjMTcxLTRjM2EtNDFhYS04NGUzLTViZTYyMzEyNTdjYiJ9"
   return (
     <Suspense fallback={<FallbackView />}>
       <Switch>
@@ -133,7 +134,9 @@ export function PrivateRoutes() {
        {importedModules.map( m=>  <Route exact key={`${m.path}`} path={`${m.path}`} component={m.component} />  )}
        <Route path="/ebus/reporteodometro" component={ReporteOdometro} />  
        <Route path="/ebus/reportes/alarmas" component={ReporteAlarmas} />  
+       <Route path="/ebus/reportes/noconductor" component={ReporteConductorNoId} />  
        
+       <Route path="/reportes/bat/viajes" render={ ()=> ReportesIFrame("Viajes",url )    }/>
       </Switch>
     </Suspense>
   );
