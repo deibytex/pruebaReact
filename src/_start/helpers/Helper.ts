@@ -1,5 +1,11 @@
 import moment from "moment";
-
+export const formatSimple = "YYYY/MM/DD";
+export const  formatable = "YYYY/MM/DD HH:mm";
+export const  formatableJson = "YYYY-MM-DDTHH:mm";
+export const  formatSimpleJson = "YYYY-MM-DD";
+export const  formatSimpleJsonColombia = "DD-MM-YYYY";
+export const  formatFechasView = "DD/MM/YYYY";
+export const  formatViewHoraMinuto = "DD/MM/YYYY HH:mm";
 
 var utcMoment = moment.utc().add(-5 , 'hours');
 export const FechaServidor =new Date( utcMoment.format() );
