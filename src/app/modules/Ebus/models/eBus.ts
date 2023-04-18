@@ -6,7 +6,8 @@ export interface FiltrosReportes {
   IndGrafica : number,
   FechaGrafica: string | null,
   Vehiculos : string[],
-  Operadores: string[] | null
+  Operadores: string[] | null,
+  limitdate : Number | null
 
 }
 

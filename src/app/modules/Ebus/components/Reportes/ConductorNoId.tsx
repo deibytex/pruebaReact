@@ -33,7 +33,8 @@ export default function ReporteConductorNoId() {
     IndGrafica: -1,
     FechaGrafica: "",
     Vehiculos: [],
-    Operadores: null
+    Operadores: null,
+    limitdate : 180
   }
 
   const { allowedMaxDays, allowedRange } = DateRangePicker;
