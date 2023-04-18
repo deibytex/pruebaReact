@@ -25,6 +25,7 @@ import ReporteAlarmas from "../modules/Ebus/components/Reportes/Alarmas";
 import  {Dashboard}  from "../modules/Tx/Dashboard";
 import ReportesIFrame from "../../_start/helpers/components/RenderIframe";
 import ReporteConductorNoId from "../modules/Ebus/components/Reportes/ConductorNoId";
+import { default as ZPOperadorMovil} from "../modules/Ebus/ZPOperadorMovil";
 import React from "react";
 
 
@@ -119,7 +120,10 @@ export function PrivateRoutes() {
   }, {
     path: '/soporte/dashboard',
     component: Dashboard
-
+  },
+  {
+    path: '/ebus/ZPOperadorMovil', 
+    component: ZPOperadorMovil
   }
   
 
