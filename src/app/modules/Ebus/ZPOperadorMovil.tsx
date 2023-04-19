@@ -1,7 +1,7 @@
 import moment from "moment";
 import { TituloReporteZP } from "../../../_start/helpers/Texts/textosPorDefecto";
 import { PageTitle } from "../../../_start/layout/core";
-import { ZPOperadorMovilPrincipal } from "./components/Zp/ZPOperadorMovilPrincipal";
+import { ZPOperadorMovilPrincipal } from "./components/Reportes/ZPOperadorMovilPrincipal";
 import { ZpOperadorMovilProvider } from "./core/ZpOperadorMovilProvider";
 
 export default function  ZPOperadorMovil (){
