@@ -7,7 +7,7 @@ import { DateRangePicker, useToaster } from "rsuite";
 import DatePicker from 'rsuite/DatePicker';
 import { formatFechasView, formatSimple } from "../../../../../_start/helpers/Helper"
 import { AxiosResponse } from 'axios';
-import { GetReporteOperadorMovil } from '../../data/ReportesData';
+import { GetReporteOperadorMovil, listTabs } from '../../data/ReportesData';
 import { useDataZpOperadorMovil } from '../../core/ZpOperadorMovilProvider';
 import { Graficas } from './Graficas';
 import { MRT_Localization_ES } from 'material-react-table/locales/es';
@@ -23,6 +23,7 @@ import { truncate } from 'fs';
 import BlockUi from 'react-block-ui';
 import { DescargarExcel } from '../../../../../_start/helpers/components/DescargarExcel';
 import ReactApexChart from 'react-apexcharts';
+import { toAbsoluteUrl } from '../../../../../_start/helpers';
 type Props = {
 
 }
@@ -60,9 +61,9 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
 
   const TipoReporteBase = [
     /*{ reporte: tblmovilmes, tabla: tblmovilmes, filtros: { ...filtrosBase }, botonesFiltros: btmVehiculo, Data: null, tipo: 1 },*/
-    { reporte: "tblmovildia", tabla: "tblmovildia", filtros: { ...filtrosBase }, botonesFiltros: btmVehiculo, Data: [], tipo: 1 },
-    { reporte: "tbloperadordia", tabla: "tbloperadordia", filtros: { ...filtrosBase }, botonesFiltros: btmOperador, Data: [], tipo: 2 },
-    { reporte: "tbloperadorgrafica", tabla: "tbloperadorgrafica", filtros: { ...filtrosBase }, botonesFiltros: btmOperador, Data: [], tipo: 3 },
+    { reporte: "tblmovildia", tabla: "tblmovildia", filtros: { ...filtrosBase }, botonesFiltros: btmVehiculo, Data: [], tipo: 1, consultar: true },
+    { reporte: "tbloperadordia", tabla: "tbloperadordia", filtros: { ...filtrosBase }, botonesFiltros: btmOperador, Data: [], tipo: 2  ,consultar: true},
+    { reporte: "tbloperadorgrafica", tabla: "tbloperadorgrafica", filtros: { ...filtrosBase }, botonesFiltros: btmOperador, Data: [], tipo: 3, consultar: true },
   ]
 
   // filtros para los que son diarios, maximo 30 dias
@@ -73,17 +74,14 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
   TipoReporteBase[1].filtros.limitdate = 5;
 
   const [TipoReporte, setTipoReporte] = useState(TipoReporteBase);
-
+  
   const [idxSeleccionado, setidxSeleccionado] = useState<number>(-2);
-  const [key, setKey] = useState('Movil');
-  const [showGraficas, setShowGraficas] = useState<boolean>(false);
+
   const [loader, setloader] = useState<boolean>(false);
   const [tabSel, settabSel] = useState<number>(0);
   const [opciones, setOpciones] = useState<any>(null);
   const [OpcionesAcumulado, setAcumulado] = useState<any>(null);
 
-  const [opcionesO, setOpcionesO] = useState<any>(null);
-  const [OpcionesAcumuladoO, setAcumuladoO] = useState<any>(null);
 
   const [DateTableMovil, setDateTableMovil] = useState<any[]>([]);
   const [DateTableOperador, setDateTableOperador] = useState<any[]>([]);
@@ -184,12 +182,7 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
     // asingamos las opciones
     setOpciones(defaultopciones);
     setAcumulado(defaultopcionesAcumulado);
-    let opcionesOperador = { ...defaultopciones };
-    opcionesOperador.options.chart.id = "charstackedoperador"
-    let opcionesOperadorAcumulado = { ...defaultopcionesAcumulado };
-    opcionesOperadorAcumulado.options.chart.id = "charstackedoperador"
-    setOpcionesO(opcionesOperador);
-    setAcumuladoO(opcionesOperadorAcumulado);
+
 
     return function cleanUp() {
       //SE DEBE DESTRUIR EL OBJETO CHART
@@ -224,7 +217,7 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
 
   const Consultar = () => {
     console.log("Consultar", TipoReporte[tabSel], tabSel)
-    if (TipoReporte[tabSel].Data.length == 0 || isCallData) {
+    if (TipoReporte[tabSel].consultar || isCallData) {
       ObtenerDatos(null);
     }
     else
@@ -381,7 +374,9 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
     GetReporteOperadorMovil(moment(TipoReporte[0].filtros.FechaInicial).format(FormatoSerializacionYYYY_MM_DD_HHmmss)
       , moment(TipoReporte[0].filtros.FechaInicial).format(FormatoSerializacionYYYY_MM_DD_HHmmss), (key == null || key == undefined ? "0" : key.toString())).then((response: AxiosResponse<any>) => {
         let Tiporeporte = [...TipoReporte];
-         Tiporeporte[tabSel].Data = response.data;
+        Tiporeporte[tabSel].Data = response.data;
+        Tiporeporte[tabSel].consultar = false;
+        setisCallData(false);
         setTipoReporte(Tiporeporte);
         // vamos a llenar la informacion de los movils
         let lstVehiculos = (response.data as any[]).reduce((p, c) => {
@@ -443,7 +438,7 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
 
     // cuando hay una consulta por fechas se debe quitar el filtro por gráfica para que pueda
     // visualizar correctamente la información
-    filtros = {...Tiporeporte[tabSel].filtros,FechaInicial, FechaFinal, FechaInicialInicial, FechaFinalInicial, IndGrafica: -1, FechaGrafica: ""  }
+    filtros = { ...Tiporeporte[tabSel].filtros, FechaInicial, FechaFinal, FechaInicialInicial, FechaFinalInicial, IndGrafica: -1, FechaGrafica: "" }
     Tiporeporte[tabSel].filtros = filtros;
     setTipoReporte(Tiporeporte)
 
@@ -675,14 +670,10 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
 
   };
 
-  const OnClickTabs = (event: any) => {
-    setKey(event);
+  const OnClickTabs = (Tab: number) => {
+   
     setisCallData(false);
-    setidxSeleccionado(-1);
-
-    // asignamos el index tab seleccinado apra poder realizar las consultas
-    let Tab = (event == "Movil" ? 0 : (event == "Operador" ? 1 : 2));
-
+    setidxSeleccionado(-1);    
     settabSel(Tab);
     changeDateControl()
     //RenderGrafica()
@@ -694,10 +685,6 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
       //setModales();
       filtarDatosSistema();
     }
-    // (tabSel > 1) ? $(ind_graficaInicial).css("display", "none") : $(ind_graficaInicial).css("display", "block");
-    // (tabSel > 1) ? $(ind_graficaAgrupada).css("display", "none") : $(ind_graficaAgrupada).css("display", "block");
-    // ;
-    setShowGraficas((tabSel == 2))
   }
   function CargaListadoClientes() {
     return (
@@ -730,8 +717,8 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
           setSeleccionados(selected)
           // modificacion de filtros
           let tiporeporte = [...TipoReporte];
-           tiporeporte[tabSel].filtros =  {...TipoReporte[0].filtros, Vehiculos :selected};
-           setTipoReporte(tiporeporte)
+          tiporeporte[tabSel].filtros = { ...TipoReporte[0].filtros, Vehiculos: selected };
+          setTipoReporte(tiporeporte)
         }}
       />
     );
@@ -776,194 +763,229 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
           </Card>
           <div className="card-body">
 
-            <Tabs transition={false} activeKey={key} onSelect={OnClickTabs} id="rep_operadormovil" className="nav nav-tabs nav-tabs-highlight mb-3" style={{ backgroundColor: '#d4edda', borderRadius: '10px 10px 0px 0px !important' }}>
+            <div className=" flex-wrap flex-xxl-nowrap justify-content-center justify-content-md-start pt-4">
+              {/* begin::Nav */}
+              <div className="me-sm-10 me-0">
+                <ul className="nav nav-tabs nav-pills nav-pills-custom">
+                  {listTabs.map((tab, idx) => {
+                    
+                    return (<li className="nav-item mb-3" key={`tabenc_${idx}`}>
+                      <a
+                        onClick={() => OnClickTabs(idx)}
+                        className={`nav-link w-225px h-70px ${tabSel === idx ? "active btn-active-light" : ""
+                          } fw-bolder me-2`}
+                        id={`tab${idx}`}
+                      >
+                        <div className="nav-icon me-3">
+                          <img
+                            alt=""
+                            src={toAbsoluteUrl(tab.icon)}
+                            className="default"
+                          />
 
-
-              <Tab eventKey="Movil" title="Movil">
-                
-                <div className="" id="solid-movil">
-                  { (tabSel == 0) && ( <div className='tab-pane' hidden={showGraficas}>
-                    <div className="card-body d-lg-flex align-items-lg-center justify-content-lg-between flex-lg-wrap border mt-2 mb-2">
-                      <div className="row w-100" id="efi-chartzpMovilAgrupado">
-                        {(OpcionesAcumulado != null) && (
-                          <ReactApexChart
-                            options={OpcionesAcumulado.options}
-                            series={OpcionesAcumulado.series} type="bar"
-                            height={200} />)}
-                      </div>
-                    </div>
-                    <div className="card" id="efi-chartzpMovil" style={{ border: '1px solid #5ab55e', borderRadius: '5px' }}>
-                      <div className="card-body">
-                        <div className="chart-container">
-                          <div className="row">
-                            {(opciones != null) && (
-                              <ReactApexChart
-                                options={opciones.options}
-                                series={opciones.series} type="bar"
-                                height={320} />)}
-                          </div>
+                          <img
+                            alt=""
+                            src={toAbsoluteUrl(tab.iconColored)}
+                            className="active"
+                          />
                         </div>
-
-                      </div>
-                    </div>
-                  </div> )}
-                  {/*Tabla de los moviles */}
-                  {(DateTableMovil.length != 0) && (ColumnasTablas[0]['movil'] != undefined) && (<MaterialReactTable
-                    // tableInstanceRef={ColumnasTablas['movil']}
-                    localization={MRT_Localization_ES}
-                    displayColumnDefOptions={{
-                      'mrt-row-actions': {
-                        muiTableHeadCellProps: {
-                          align: 'center',
-                        },
-                        size: 120,
-                      },
-                    }}
-                    muiTableHeadCellProps={{
-                      sx: (theme) => ({
-                        fontSize: 14,
-                        fontStyle: 'bold',
-                        color: 'rgb(27, 66, 94)'
-
-                      }),
-                    }}
-                    columns={ColumnasTablas[0]['movil']}
-                    data={DateTableMovil}
-                    // editingMode="modal" //default         
-                    // enableTopToolbar={false}
-                    enableColumnOrdering
-                    // enableEditing
-                    /* onEditingRowSave={handleSaveRowEdits}
-                        onEditingRowCancel={handleCancelRowEdits}*/
-                    muiToolbarAlertBannerProps={
-                      isError
-                        ? {
-                          color: 'error',
-                          children: 'Error al cargar información',
-                        }
-                        : undefined
-                    }
-                    onColumnFiltersChange={setColumnFilters}
-                    onGlobalFilterChange={setGlobalFilter}
-                    onPaginationChange={setPagination}
-                    onSortingChange={setSorting}
-                    rowCount={rowCountMovil}
-                    state={{
-                      columnFilters,
-                      globalFilter,
-                      isLoading,
-                      pagination,
-                      showAlertBanner: isError,
-                      showProgressBars: isRefetching,
-                      sorting,
-                    }}
-                  />)}
-
-                </div>
-              </Tab>
-              <Tab eventKey="Operador" title="Operador">
-                <div className="" id="solid-operador">
-                  {(tabSel == 1) && ( <div className='tab-pane' hidden={showGraficas}>
-                    <div className="card-body d-lg-flex align-items-lg-center justify-content-lg-between flex-lg-wrap border mt-2 mb-2">
-                      <div className="row w-100" id="efi-chartzpMovilAgrupado">
-                        {(OpcionesAcumuladoO != null) && (
-                          <ReactApexChart
-                            options={OpcionesAcumuladoO.options}
-                            series={OpcionesAcumuladoO.series} type="bar"
-                            height={200} />)}
-                      </div>
-                    </div>
-                    <div className="card" id="efi-chartzpMovil" style={{ border: '1px solid #5ab55e', borderRadius: '5px' }}>
-                      <div className="card-body">
-                        <div className="chart-container">
-                          <div className="row">
-                            {(opcionesO != null) && (
-                              <ReactApexChart
-                                options={opcionesO.options}
-                                series={opcionesO.series} type="bar"
-                                height={320} />)}
-                          </div>
+                        <div className="ps-1">
+                          <span className="nav-text text-gray-600 fw-bolder fs-6">
+                            {tab.titulo}
+                          </span>
+                          <span className="text-muted fw-bold d-block pt-1">
+                            {tab.subtitulo}
+                          </span>
                         </div>
+                      </a>
+                    </li>
+                    )
+                  })}
 
-                      </div>
+
+                </ul>
+              </div>
+              {/* end::Nav */}
+              {/* begin::Tab Content */}
+              <div className="tab-content flex-grow-1">
+                {/* begin::Tab Pane 1 */}
+
+                <div  style={{display: (tabSel != 2)  ? "block" : "none"  }} >
+                  <div className="card-body d-lg-flex align-items-lg-center justify-content-lg-between flex-lg-wrap border mt-2 mb-2">
+                    <div className="row w-100" id="efi-chartzpMovilAgrupado">
+                      {(OpcionesAcumulado != null) && (
+                        <ReactApexChart
+                          options={OpcionesAcumulado.options}
+                          series={OpcionesAcumulado.series} type="bar"
+                          height={200} />)}
                     </div>
-                  </div>)}
-                 
-                  {/*Tabla de los operadores */}
-                  {(DateTableMovil.length != 0) && (ColumnasTablas[1]['operador'] != undefined) && (<MaterialReactTable
-                    // tableInstanceRef={ColumnasTablas['movil']}
-                    localization={MRT_Localization_ES}
-                    displayColumnDefOptions={{
-                      'mrt-row-actions': {
-                        muiTableHeadCellProps: {
-                          align: 'center',
-                        },
-                        size: 120,
-                      },
-                    }}
-                    muiTableHeadCellProps={{
-                      sx: (theme) => ({
-                        fontSize: 14,
-                        fontStyle: 'bold',
-                        color: 'rgb(27, 66, 94)'
-
-                      }),
-                    }}
-                    columns={ColumnasTablas[1]['operador']}
-                    data={DateTableMovil}
-                    // editingMode="modal" //default         
-                    // enableTopToolbar={false}
-                    enableColumnOrdering
-                    // enableEditing
-                    /* onEditingRowSave={handleSaveRowEdits}
-                        onEditingRowCancel={handleCancelRowEdits}*/
-                    muiToolbarAlertBannerProps={
-                      isError
-                        ? {
-                          color: 'error',
-                          children: 'Error al cargar información',
-                        }
-                        : undefined
-                    }
-                    onColumnFiltersChange={setColumnFilters}
-                    onGlobalFilterChange={setGlobalFilter}
-                    onPaginationChange={setPagination}
-                    onSortingChange={setSorting}
-                    rowCount={rowCountOperador}
-                    state={{
-                      columnFilters,
-                      globalFilter,
-                      isLoading,
-                      pagination,
-                      showAlertBanner: isError,
-                      showProgressBars: isRefetching,
-                      sorting,
-                    }}
-                  />)}
-                </div>
-              </Tab>
-              <Tab eventKey="Zonas" title="Zonas Operador">
-
-                <div className="" id="solid-operadorgrafica">
-                  <div className="card" style={{ border: '1px solid #5ab55e', borderRadius: '5px' }}>
+                  </div>
+                  <div className="card" id="efi-chartzpMovil" style={{ border: '1px solid #5ab55e', borderRadius: '5px' }}>
                     <div className="card-body">
                       <div className="chart-container">
                         <div className="row">
-                          <div className="col-xs-6 col-sm-6 col-md-6" style={{ height: '400px', overflowY: 'scroll' }}>
-                            <div className="text-center"><label className="label control-label label-sm font-weight-bold" style={{ fontSize: '16px' }}>Zonas:EV: 4. Potencia [150&lt;P&lt;175]</label></div>
-                            <div className="chart" id="ZpZonaOperador"></div>
-                          </div>
-                          <div className="col-xs-6 col-sm-6 col-md-6" style={{ height: '400px', overflowY: 'scroll' }}>
-                            <div className="text-center"><label className="label control-label label-sm font-weight-bold" style={{ fontSize: '16px' }}>Zonas:EV: 5. Potencia [&gt;175]</label></div>
-                            <div className="chart" id="ZpZonaOperadorEv5"></div>
+                          {(opciones != null) && (
+                            <ReactApexChart
+                              options={opciones.options}
+                              series={opciones.series} type="bar"
+                              height={320} />)}
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+                <div className={`tab-pane fade ${tabSel === 0 ? "show active" : ""}`} id="tab0_content" >
+                  {/* begin::Cards */}
+                  <div className="overflow-auto">
+                    {(DateTableMovil.length != 0) && (ColumnasTablas[0]['movil'] != undefined) && (<MaterialReactTable
+                      // tableInstanceRef={ColumnasTablas['movil']}
+                      localization={MRT_Localization_ES}
+                      displayColumnDefOptions={{
+                        'mrt-row-actions': {
+                          muiTableHeadCellProps: {
+                            align: 'center',
+                          },
+                          size: 120,
+                        },
+                      }}
+                      muiTableHeadCellProps={{
+                        sx: (theme) => ({
+                          fontSize: 14,
+                          fontStyle: 'bold',
+                          color: 'rgb(27, 66, 94)'
+
+                        }),
+                      }}
+                      columns={ColumnasTablas[0]['movil']}
+                      data={DateTableMovil}
+                      // editingMode="modal" //default         
+                      // enableTopToolbar={false}
+                      enableColumnOrdering
+                      // enableEditing
+                      /* onEditingRowSave={handleSaveRowEdits}
+                          onEditingRowCancel={handleCancelRowEdits}*/
+                      muiToolbarAlertBannerProps={
+                        isError
+                          ? {
+                            color: 'error',
+                            children: 'Error al cargar información',
+                          }
+                          : undefined
+                      }
+                      onColumnFiltersChange={setColumnFilters}
+                      onGlobalFilterChange={setGlobalFilter}
+                      onPaginationChange={setPagination}
+                      onSortingChange={setSorting}
+                      rowCount={rowCountMovil}
+                      state={{
+                        columnFilters,
+                        globalFilter,
+                        isLoading,
+                        pagination,
+                        showAlertBanner: isError,
+                        showProgressBars: isRefetching,
+                        sorting,
+                      }}
+                    />)}
+                  </div>
+                  {/* end::Cards      */}
+                </div>
+                {/* end::Tab Pane 1 */}
+
+                {/* begin::Tab Pane 2 */}
+                <div className={`tab-pane fade ${tabSel === 1 ? "show active" : ""}`} id="tab1_content">
+                  {/* begin::Cards */}
+                  <div className="overflow-auto">
+                    {/*Tabla de los operadores */}
+                    {(DateTableMovil.length != 0) && (ColumnasTablas[1]['operador'] != undefined) && (<MaterialReactTable
+                      // tableInstanceRef={ColumnasTablas['movil']}
+                      localization={MRT_Localization_ES}
+                      displayColumnDefOptions={{
+                        'mrt-row-actions': {
+                          muiTableHeadCellProps: {
+                            align: 'center',
+                          },
+                          size: 120,
+                        },
+                      }}
+                      muiTableHeadCellProps={{
+                        sx: (theme) => ({
+                          fontSize: 14,
+                          fontStyle: 'bold',
+                          color: 'rgb(27, 66, 94)'
+
+                        }),
+                      }}
+                      columns={ColumnasTablas[1]['operador']}
+                      data={DateTableMovil}
+                      // editingMode="modal" //default         
+                      // enableTopToolbar={false}
+                      enableColumnOrdering
+                      // enableEditing
+                      /* onEditingRowSave={handleSaveRowEdits}
+                          onEditingRowCancel={handleCancelRowEdits}*/
+                      muiToolbarAlertBannerProps={
+                        isError
+                          ? {
+                            color: 'error',
+                            children: 'Error al cargar información',
+                          }
+                          : undefined
+                      }
+                      onColumnFiltersChange={setColumnFilters}
+                      onGlobalFilterChange={setGlobalFilter}
+                      onPaginationChange={setPagination}
+                      onSortingChange={setSorting}
+                      rowCount={rowCountOperador}
+                      state={{
+                        columnFilters,
+                        globalFilter,
+                        isLoading,
+                        pagination,
+                        showAlertBanner: isError,
+                        showProgressBars: isRefetching,
+                        sorting,
+                      }}
+                    />)}
+                  </div>
+                  {/* end::Cards      */}
+                </div>
+
+
+                {/* end::Tab Pane 2 */}
+                {/* begin::Tab Pane 3 */}
+                <div className={`tab-pane fade ${tabSel === 2 ? "show active" : ""}`} id="tab2_content">
+                  {/* begin::Cards */}
+                  <div className="overflow-auto">
+                    <div className="" id="solid-operadorgrafica">
+                      <div className="card" style={{ border: '1px solid #5ab55e', borderRadius: '5px' }}>
+                        <div className="card-body">
+                          <div className="chart-container">
+                            <div className="row">
+                              <div className="col-xs-6 col-sm-6 col-md-6" style={{ height: '400px', overflowY: 'scroll' }}>
+                                <div className="text-center"><label className="label control-label label-sm font-weight-bold" style={{ fontSize: '16px' }}>Zonas:EV: 4. Potencia [150&lt;P&lt;175]</label></div>
+                                <div className="chart" id="ZpZonaOperador"></div>
+                              </div>
+                              <div className="col-xs-6 col-sm-6 col-md-6" style={{ height: '400px', overflowY: 'scroll' }}>
+                                <div className="text-center"><label className="label control-label label-sm font-weight-bold" style={{ fontSize: '16px' }}>Zonas:EV: 5. Potencia [&gt;175]</label></div>
+                                <div className="chart" id="ZpZonaOperadorEv5"></div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
+                  {/* end::Cards      */}
                 </div>
-              </Tab>
-            </Tabs>
+
+                {/* end::Tab Pane 3 */}
+
+              </div>
+              {/* end::Tab Content */}
+            </div>
+           
           </div>
         </div>
       </BlockUi>
@@ -979,11 +1001,12 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button type="button" variant="secondary" onClick={() => { setSeleccionados([]);  /*actualizamos los filtros*/
-          
-          let tiporeporte = [...TipoReporte];
-          tiporeporte[tabSel].filtros =  {...TipoReporte[0].filtros, Vehiculos :[], Operadores: []};
-          setTipoReporte(tiporeporte)
+          <Button type="button" variant="secondary" onClick={() => {
+            setSeleccionados([]);  /*actualizamos los filtros*/
+
+            let tiporeporte = [...TipoReporte];
+            tiporeporte[tabSel].filtros = { ...TipoReporte[0].filtros, Vehiculos: [], Operadores: [] };
+            setTipoReporte(tiporeporte)
           }}>
             Limpiar
           </Button>

@@ -32,7 +32,8 @@ export default function ReporteAlarmas() {
     IndGrafica: -1,
     FechaGrafica: "",
     Vehiculos: [],
-    Operadores: null
+    Operadores: null,
+    limitdate: null
   }
 
   const { allowedMaxDays, allowedRange } = DateRangePicker;

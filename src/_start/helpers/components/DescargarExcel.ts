@@ -4,6 +4,7 @@ import moment from "moment";
 import XLSX from 'sheetjs-style';
 import { FormatoColombiaDDMMYYYHHmmss } from "../Constants";
 import { errorDialog } from "./ConfirmDialog";
+import { locateFormatNumberNDijitos, locateFormatPercentNDijitos } from "../Helper";
 export function DescargarExcel(datos: any[], columnas: MRT_ColumnDef<any>[], NombreArchivo: string) {
     const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;carset=UTF-8';
      const fileExtension = '.XLSX';
@@ -18,7 +19,8 @@ export function DescargarExcel(datos: any[], columnas: MRT_ColumnDef<any>[], Nom
                       let nombreCampo : string =    columna.accessorKey as string;
                       let valuen = item[nombreCampo];
                      Objeto[columna.header] = 
-                     (!isNaN(valuen)) ? valuen.toFixed(2) :  ((moment(valuen).isValid()) ? moment(valuen).format(FormatoColombiaDDMMYYYHHmmss) : valuen);
+                     (columna.header.includes('%') ?  locateFormatPercentNDijitos(valuen,2) : 
+                     (!isNaN(valuen)) ? valuen :  ((moment(valuen).isValid()) ? moment(valuen).format(FormatoColombiaDDMMYYYHHmmss) : valuen));
                  });
               
                  return Objeto;

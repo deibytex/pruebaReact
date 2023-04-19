@@ -7,13 +7,14 @@ import moment from "moment";
 import { useEffect, useRef, useState } from "react"
 import { Button,  Modal } from "react-bootstrap-v5";
 import DualListBox from "react-dual-listbox";
-import { DatePicker } from "rsuite";
+import { DatePicker, DateRangePicker } from "rsuite";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 import { PageTitle } from "../../../../../_start/layout/core";
 import { dualList } from "../../../CorreosTx/models/dataModels";
 import { GetReporteOdometro } from "../../data/ReportesData";
 import {DescargarExcel} from "../../../../../_start/helpers/components/DescargarExcel"
 import { FormatoColombiaDDMMYYYHHmmss, FormatoSerializacionYYYY_MM_DD_HHmmss } from "../../../../../_start/helpers/Constants";
+import { isBefore, isAfter } from "rsuite/esm/utils/dateUtils";
 
 
 export default function ReporteOdometro() {
@@ -39,6 +40,7 @@ export default function ReporteOdometro() {
     const [lstSeleccionados, setSeleccionados] = useState<string[]>([]);
 
     const [showModal, setShowModal] = useState<boolean>(false);
+    const { allowedMaxDays, allowedRange, combine } = DateRangePicker;
 
     const refTabla = useRef<MRT_TableInstance<any>>(null);
 
@@ -136,7 +138,10 @@ export default function ReporteOdometro() {
                 <div className="col-sm-6 col-md-6 col-xs-6 d-flex justify-content-start">
                     <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fecha inicial: </label>
 
+               
                     <DatePicker className="mt-2" format="dd/MM/yyyy HH:mm" value={fechaSeleccionada.toDate()}
+                   
+                   disabledDate={date  => (isAfter(date ?? moment().toDate(), new Date()) || isBefore(date ?? moment().toDate(), moment().add(-6, 'months').toDate()) ) }
                         onSelect={(e) => { setFechaSeleccionada(moment(e)) }} />
 
                     <button className="m-2  btn btn-sm btn-primary" title="Consultar" type="button" onClick={() => { ConsultarDataOdometro() }}><i className="bi-search"></i></button>

@@ -1,12 +1,12 @@
 import moment from "moment";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { GetReporteAlarmas, GetReporteEficiencia } from "../../data/ReportesData";
 import { PageTitle } from "../../../../../_start/layout/core";
-import { DateRangePicker, Notification, Placeholder, useToaster } from "rsuite";
+import { DateRangePicker, Notification, Placeholder, Stack, useToaster } from "rsuite";
 import BlockUi from "@availity/block-ui";
 import { DescargarExcel } from "../../../../../_start/helpers/components/DescargarExcel";
 import MaterialReactTable, { MRT_ColumnDef, MRT_TableInstance } from "material-react-table";
-import { FormatoColombiaDDMMYYY, FormatoColombiaDDMMYYYHHmmss, FormatoSerializacionYYYY_MM_DD_HHmmss } from "../../../../../_start/helpers/Constants";
+import { FormatoColombiaDDMMYYY,  FormatoSerializacionYYYY_MM_DD_HHmmss } from "../../../../../_start/helpers/Constants";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import DualListBox from "react-dual-listbox";
@@ -20,6 +20,8 @@ import { GetClientesEsomos } from "../../data/NivelCarga";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 import { InicioCliente } from "../../../../../_start/helpers/Models/ClienteDTO";
 import { right } from "@popperjs/core";
+import { Box } from "@mui/material";
+import { locateFormatNumberNDijitos, locateFormatPercentNDijitos } from "../../../../../_start/helpers/Helper";
 
 
 
@@ -34,10 +36,10 @@ export default function ReporteConductorNoId() {
     FechaGrafica: "",
     Vehiculos: [],
     Operadores: null,
-    limitdate : 180
+    limitdate: 180
   }
 
-  const { allowedMaxDays, allowedRange } = DateRangePicker;
+  const { allowedMaxDays, allowedRange, combine } = DateRangePicker;
 
 
   const refChart = useRef<ReactApexChart>(null);
@@ -73,6 +75,7 @@ export default function ReporteConductorNoId() {
   const [isError, setIsError] = useState(false);
   const [opciones, setOpciones] = useState<any>(null);
   const [opcionesTotal, setOpcionesTotal] = useState<any>(null);
+
   // variable que contendra los datos de los odometros
   ///////////// FIN TABLE STATE
   const toaster = useToaster();
@@ -97,30 +100,59 @@ export default function ReporteConductorNoId() {
         accessorKey: 'total',
         header: "Total [km]",
         size: 60,
-        Cell({ cell, column, row, table, }) {         
-          
-           return row.original.total.toFixed(2);   
-               }      
-    }
+        Cell({  row }) {
+
+          return locateFormatNumberNDijitos(row.original.total,2);
+        },
+        Footer: () =>  { 
+          const totalKm = dataFiltrada.reduce((acc, curr) => acc + curr.total, 0);
+        
+          return (          
+            <Box color="warning.main">
+              {locateFormatNumberNDijitos(totalKm,2)}
+            </Box>          
+        ) }
+      }
       , {
         accessorKey: 'noid',
         header: "No Id [km]",
         size: 60,
-       Cell({ cell, column, row, table, }) {          
-        return row.original.noid.toFixed(2);       
-      }     
-     }
-        , {
+        
+        Cell({ cell, column, row, table, }) {
+          return locateFormatNumberNDijitos(row.original.noid,2);
+        },
+        Footer: () => {
+          let totalnoid = dataFiltrada.reduce((acc, curr) => acc + curr.noid, 0);
+          
+          return(          
+            <Box color="warning.main">
+              {locateFormatNumberNDijitos(totalnoid,2)}
+            </Box>          
+          )
+        }
+      }
+      , {
         accessorKey: 'noidporc',
         header: 'No Id [%]',
         size: 60,
-       Cell({ cell, column, row, table, }) {          
-        return row.original.noidporc.toFixed(2);     }
+        Cell({ cell, column, row, table, }) {
+          return locateFormatPercentNDijitos(row.original.noidporc,2);
+        },
+        Footer: () =>{ 
+          let totalnoid = dataFiltrada.reduce((acc, curr) => acc + curr.noid, 0);
+          const totalKm = dataFiltrada.reduce((acc, curr) => acc + curr.total, 0);
+          return (
+          
+            <Box color="warning.main">
+              {locateFormatPercentNDijitos((totalnoid/((totalKm ==0 ) ?1 : totalKm)) ,2)}
+            </Box>
+          
+        ) }
       }
 
     ];
 
-// PRIMER USE EFFECT QUE TRAE LOS CLIENTES
+  // PRIMER USE EFFECT QUE TRAE LOS CLIENTES
   useEffect(
     () => {
       GetClientesEsomos().then((response: AxiosResponse<any>) => {
@@ -132,7 +164,13 @@ export default function ReporteConductorNoId() {
         errorDialog("<i>Eror al consultar los clientes</i>", "")
       })
 
-
+      return function cleanUp() {
+        let chart = document.getElementById("ReporteDistanciaTotal");
+        console.log(refChart)
+        //SE DEBE DESTRUIR EL OBJETO CHART
+        if (chart)
+          ApexCharts.exec('ReporteDistanciaTotal', 'destroy')
+      };
     }, []
   )
 
@@ -160,17 +198,17 @@ export default function ReporteConductorNoId() {
               // seleccionamos el index de la grafica para posteriormente filtrar
               setidxSeleccionado(config.dataPointIndex);
             }
-          }          
+          }
         },
         xaxis: {
           categories: []
         },
         legend: {
           showForSingleSeries: true,
-          position : 'top'
+          position: 'top'
         }
       },
-      series: [],     
+      series: [],
       dataLabels: {
         enabled: true
       }
@@ -179,12 +217,12 @@ export default function ReporteConductorNoId() {
 
     // asingamos las opciones
     setOpciones(defaultDistanciaPorc)
-   
+
     let defaultDistanciatotal = {
       options: {
         chart: {
           id: 'ReporteDistanciaTotal',
-          
+
           events: {
             dataPointSelection: function (event: any, chartContext: any, config: any) {
               // seleccionamos el index de la grafica para posteriormente filtrar
@@ -198,26 +236,20 @@ export default function ReporteConductorNoId() {
         },
         legend: {
           showForSingleSeries: true,
-          position : 'top'
+          position: 'top'
         }
       },
       series: [],
       dataLabels: {
         enabled: true
       },
-      title: {text : "total talgo" }
+      title: { text: "total talgo" }
     }
-  
+
     setOpcionesTotal(defaultDistanciatotal)
 
-    if (allowedMaxDays)
-      allowedMaxDays(7);
+   
 
-    if (allowedRange)
-      allowedRange(moment().add(-6, "months").toDate(), moment().toDate());
-    return function cleanUp() {
-      //SE DEBE DESTRUIR EL OBJETO CHART
-    };
   }, [ClienteSeleccionado]);
 
 
@@ -264,7 +296,7 @@ export default function ReporteConductorNoId() {
           // listados de vehiculos de los datos que traemos
           setlstVehiculos(lstVehiculos);
           // datos filtrados que al principio son los mismos extraidos
-        //  datosfiltrados(response.data)
+          //  datosfiltrados(response.data)
           setidxSeleccionado(-1)
           // quitamos los loaders despues de cargado
           setIsLoading(false)
@@ -325,7 +357,7 @@ export default function ReporteConductorNoId() {
           if (c.Operador.includes('Desconocido'))
             distanciaportipo.noid = c.Distancia;
 
-            distanciaportipo.noidporc = (distanciaportipo.noid / (distanciaportipo.total  == 0 ? 1 : distanciaportipo.total )) * 100
+          distanciaportipo.noidporc = (distanciaportipo.noid / (distanciaportipo.total == 0 ? 1 : distanciaportipo.total)) 
           distanciaportipo.original.push(c);
           p.push(distanciaportipo);
         }
@@ -335,7 +367,7 @@ export default function ReporteConductorNoId() {
           if (c.Operador.includes('Desconocido'))
             objeto.noid += c.Distancia;
 
-          objeto.noidporc = (objeto.noid / (objeto.total  == 0 ? 1 : objeto.total )) * 100
+          objeto.noidporc = (objeto.noid / (objeto.total == 0 ? 1 : objeto.total)) 
           objeto.original.push(c);
         }
         return p;
@@ -385,7 +417,7 @@ export default function ReporteConductorNoId() {
       // al momento de crearse
     });
     setlablesAxisx(labels)
-  
+
     ApexCharts.exec('ReporteDistanciaTotal', 'updateOptions', {
       chart: {
         events: {
@@ -427,11 +459,11 @@ export default function ReporteConductorNoId() {
     }]);
 
     ApexCharts.exec('ReporteDistanciaTotal', 'updateSeries', [
-    {
-      name: 'Total Distancia Conductor Desconocido',
-      data: totalDistancia,
-      color : '#F44336'
-    }]);
+      {
+        name: 'Total Distancia Conductor Desconocido',
+        data: totalDistancia,
+        color: '#F44336'
+      }]);
 
 
 
@@ -475,7 +507,7 @@ export default function ReporteConductorNoId() {
   // seleccion de vehiculos
   function SelectVehiculos() {
     return (
-      <DualListBox className=" mb-3 " 
+      <DualListBox className=" mb-3 "
         canFilter
         options={lstVehiculos}
         selected={lstSeleccionados}
@@ -530,15 +562,23 @@ export default function ReporteConductorNoId() {
             <h3 className="fs-4 m-2 ms-2 d-flex justify-content-left"> Filtros</h3>
             <div className="row">
               <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8"> <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fecha inicial: </label>
-                <DateRangePicker className="mt-2" format="dd/MM/yyyy" value={[filtros.FechaInicial, filtros.FechaFinal]}
-                  onChange={(value, e) => {
-                    if (value !== null) {
-                      ValidarFechas(
-                        [value[0],
-                        value[1]]
-                      );
-                    }
-                  }} />
+               {(combine && allowedMaxDays && allowedRange) && (
+                 <DateRangePicker className="mt-2" format="dd/MM/yyyy" value={[filtros.FechaInicial, filtros.FechaFinal]}
+                 disabledDate = {combine(allowedMaxDays(7), allowedRange(
+                  moment().add(-200, 'days').startOf('day').toDate(), moment().startOf('day').toDate()
+                 )) }
+                   onChange={(value, e) => {
+                     if (value !== null) {
+                       ValidarFechas(
+                         [value[0],
+                         value[1]]
+                       );
+                     }
+                   }}
+                   
+                   />
+               )}
+               
 
                 <Button className="m-2  btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}><i className="bi-car-front-fill"></i></Button>
                 <Button className="m-2  btn btn-sm btn-primary" onClick={() => { ConsultarDataReporte() }}><i className="bi-search"></i></Button>
@@ -556,26 +596,26 @@ export default function ReporteConductorNoId() {
       </div>
 
       <div className="row">
-     
-      <div className="row text-center text-primary mb-2" style= {{paddingTop: 40 }}>
-                        <div className="form-horizontal  row col-sm-12 col-md-12 col-xs-12 mx-auto">
-                            <div className="form-horizontal  row col-sm-4 col-md-4 col-xs-4 mx-auto">
 
-                            </div>
-                            <div className="form-horizontal  row col-sm-4 col-md-4 col-xs-4 mx-auto">
-                                <div className="ms-3">
-                                    <h3 className="mb-0">Reporte Conductor No Identificado</h3>
-                                </div>
-                            </div>
-                            <div className="form-horizontal  row col-sm-4 col-md-4 col-xs-4 mx-auto">
-                                <div className="ms-3">
+        <div className="row text-center text-primary mb-2" style={{ paddingTop: 40 }}>
+          <div className="form-horizontal  row col-sm-12 col-md-12 col-xs-12 mx-auto">
+            <div className="form-horizontal  row col-sm-4 col-md-4 col-xs-4 mx-auto">
 
-                                </div>
-                            </div>
+            </div>
+            <div className="form-horizontal  row col-sm-4 col-md-4 col-xs-4 mx-auto">
+              <div className="ms-3">
+                <h3 className="mb-0">Reporte Conductor No Identificado</h3>
+              </div>
+            </div>
+            <div className="form-horizontal  row col-sm-4 col-md-4 col-xs-4 mx-auto">
+              <div className="ms-3">
+
+              </div>
+            </div>
 
 
-                        </div>
-                    </div>
+          </div>
+        </div>
         <div className="mt-2 col-sm-6 col-md-6 col-xs-6 rounded shadow-sm">
 
           <MaterialReactTable
@@ -586,7 +626,7 @@ export default function ReporteConductorNoId() {
                 muiTableHeadCellProps: {
                   align: 'center',
                 },
-               
+
               },
             }}
             muiTableHeadCellProps={{
@@ -602,7 +642,7 @@ export default function ReporteConductorNoId() {
             // editingMode="modal" //default         
             // enableTopToolbar={false}
             enableColumnOrdering
-           // enablePagination= {false}
+            // enablePagination= {false}
             enableRowNumbers
             //enableRowVirtualization
             // enableEditing
@@ -632,27 +672,27 @@ export default function ReporteConductorNoId() {
             }}
           />
         </div>
-     
-      {/* begin::Chart */}
-      <div className="mt-2 col-sm-6 col-md-6 col-xs-6 rounded shadow-sm ">
-        <div className="card-body">
-          <div className="chart-container">
-            {(opciones != null) && (
-              <ReactApexChart ref={refChart}
-                options={opciones.options}
-                series={opciones.series} type="bar"
-                height={320} />)}
 
-            {(opcionesTotal != null) && (
-              <ReactApexChart
-                options={opcionesTotal.options}
-                series={opcionesTotal.series} type="bar"
-                height={320} />)}
+        {/* begin::Chart */}
+        <div className="mt-2 col-sm-6 col-md-6 col-xs-6 rounded shadow-sm ">
+          <div className="card-body">
+            <div className="chart-container">
+              {(opciones != null) && (
+                <ReactApexChart ref={refChart}
+                  options={opciones.options}
+                  series={opciones.series} type="bar"
+                  height={320} />)}
 
+              {(opcionesTotal != null) && (
+                <ReactApexChart
+                  options={opcionesTotal.options}
+                  series={opcionesTotal.series} type="bar"
+                  height={320} />)}
+
+            </div>
           </div>
         </div>
-      </div>
-      {/* end::Chart      */}
+        {/* end::Chart      */}
 
       </div>
     </BlockUi>

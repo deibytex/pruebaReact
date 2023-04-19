@@ -29,3 +29,18 @@ export  function msToTime(s : number) {
     return pad(hrs) + ':' + pad(mins) + ':' + pad(secs) + '.' + pad(ms, 3);
   }
 
+  export function locateFormatNumberNDijitos(number: number, digits: number)
+  {
+    return number.toLocaleString?.('es-En', {
+      minimumFractionDigits:digits,
+      maximumFractionDigits: digits
+    } )
+  } 
+  export function locateFormatPercentNDijitos(number: number, digits: number)
+  {
+    return number.toLocaleString?.('es-En', {
+      style: "percent",
+      minimumFractionDigits:digits,
+      maximumFractionDigits: digits
+    } )
+  } 
