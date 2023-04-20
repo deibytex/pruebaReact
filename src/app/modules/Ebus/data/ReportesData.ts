@@ -51,3 +51,34 @@ const tab2 : TabProperty = {  icon: "/media/icons/duotone/files/Deleted-file.svg
 const tab3 : TabProperty = {  icon: "/media/icons/duotone/files/DownloadedFile.svg", iconColored : "/media/svg/logo/colored/fox-hub-2.svg", titulo: "Operador", subtitulo : "Zona"}
 
 export const listTabs : TabProperty[] = [tab1,tab2,tab3]
+
+export function GetReporteNivelCarga(FechaInicial:string, FechaFinal:string, clientesIds :number) {
+    var params: { [id: string]: string | null | undefined;} = {};
+    params['FechaInicial'] = FechaInicial;
+    params['FechaFinal'] = FechaFinal; 
+    params['Movil'] = null;
+   
+    return  Post_GetConsultasDinamicas({
+        NombreConsulta: "GetRecargasDetalladoPorFechasyVehiculo", Clase: "EBUSQueryHelper",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, params);
+}
+
+export function GetInformacionOdometro(FechaInicial:string, FechaFinal:string, clientesIds :number) {
+    var params: { [id: string]: string | null | undefined;} = {};
+    params['FechaInicial'] = FechaInicial;
+    params['FechaFinal'] = FechaFinal; 
+       
+    return  Post_GetConsultasDinamicas({
+        NombreConsulta: "GetReporteUltimoOdometro", Clase: "EBUSQueryHelper",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, params);
+}
+
+const tabEfi1 : TabProperty = {  icon: "/media/icons/duotone/files/Selected-file.svg", iconColored : "/media/svg/logo/colored/fox-hub-2.svg", titulo: "Móvil", subtitulo : "Mensual"}
+const tabEfi2 : TabProperty = {  icon: "/media/icons/duotone/files/Deleted-file.svg", iconColored : "/media/svg/logo/colored/fox-hub-2.svg", titulo: "Móvil", subtitulo : "Diario"}
+const tabEfi3 : TabProperty = {  icon: "/media/icons/duotone/files/DownloadedFile.svg", iconColored : "/media/svg/logo/colored/fox-hub-2.svg", titulo: "Operador", subtitulo : "Mensual"}
+const tabEfi4 : TabProperty = {  icon: "/media/icons/duotone/files/DownloadedFile.svg", iconColored : "/media/svg/logo/colored/fox-hub-2.svg", titulo: "Operador", subtitulo : "Diario"}
+export const listTabsEficiencia : TabProperty[] = [tabEfi1,tabEfi2,tabEfi3,tabEfi4]

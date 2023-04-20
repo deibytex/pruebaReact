@@ -26,7 +26,9 @@ import  {Dashboard}  from "../modules/Tx/Dashboard";
 import ReportesIFrame from "../../_start/helpers/components/RenderIframe";
 import ReporteConductorNoId from "../modules/Ebus/components/Reportes/ConductorNoId";
 import { default as ZPOperadorMovil} from "../modules/Ebus/ZPOperadorMovil";
+import ReporteNivelCarga from "../modules/Ebus/components/Reportes/NivelCarga";
 import React from "react";
+import ReporteComparacionOdometro from "../modules/Ebus/components/Reportes/ComparacionOdometro";
 
 
 
@@ -122,8 +124,31 @@ export function PrivateRoutes() {
     component: Dashboard
   },
   {
-    path: '/ebus/ZPOperadorMovil', 
+    path: '/ebus/reportes/zpoperadormovil', 
     component: ZPOperadorMovil
+  },
+  {
+    path: '/ebus/reportes/nivelcarga', 
+    component: ReporteNivelCarga
+  }
+  ,
+  {
+    path: '/ebus/reportes/odometro', 
+    component: ReporteOdometro
+  }
+  ,
+  {
+    path: '/ebus/reportes/alarmas', 
+    component: ReporteAlarmas
+  },
+  {
+    path: '/ebus/reportes/noconductor', 
+    component: ReporteConductorNoId
+  }
+  ,
+  {
+    path: '/ebus/reportes/codometro', 
+    component: ReporteComparacionOdometro
   }
   
 
@@ -136,9 +161,7 @@ const url ="https://app.powerbi.com/view?r=eyJrIjoiMjkzODk0YmItZDQwZC00NTg3LThiM
        <Route path="/bienvenido" component={Bienvenidos} />  
        <Route path="/politicaprivacidad" component={PoliticaPrivacidad} />      
        {importedModules.map( m=>  <Route exact key={`${m.path}`} path={`${m.path}`} component={m.component} />  )}
-       <Route path="/ebus/reporteodometro" component={ReporteOdometro} />  
-       <Route path="/ebus/reportes/alarmas" component={ReporteAlarmas} />  
-       <Route path="/ebus/reportes/noconductor" component={ReporteConductorNoId} />  
+       
        
        <Route path="/reportes/bat/viajes" render={ ()=> ReportesIFrame("Viajes",url )    }/>
       </Switch>

@@ -19,6 +19,8 @@ import { AxiosResponse } from "axios";
 import { GetClientesEsomos } from "../../data/NivelCarga";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 import { InicioCliente } from "../../../../../_start/helpers/Models/ClienteDTO";
+import { locateFormatNumberNDijitos } from "../../../../../_start/helpers/Helper";
+import { Box } from "@mui/material";
 
 
 
@@ -36,7 +38,7 @@ export default function ReporteAlarmas() {
     limitdate: null
   }
 
-  const { allowedMaxDays, allowedRange } = DateRangePicker;
+  const { allowedMaxDays, allowedRange,combine } = DateRangePicker;
 
 
   const refChart = useRef<ReactApexChart>(null);
@@ -89,7 +91,13 @@ export default function ReporteAlarmas() {
       {
         accessorKey: 'Movil',
         header: 'Móvil',
-        size: 100
+        size: 100,        
+        Footer: () =>  { 
+        return (          
+            <Box color="success.main">
+             Total:
+            </Box>          
+        ) }
       },
       {
         accessorKey: 'Fecha',
@@ -112,8 +120,16 @@ export default function ReporteAlarmas() {
         accessorKey: 'DuracionHora',
         header: 'Duración [h]',
         Cell({ cell, column, row, table, }) {
-          return (row.original.DuracionHora.toFixed(2))
-        }
+          return  (locateFormatNumberNDijitos(row.original.DuracionHora,2))
+        },
+        Footer: () =>  { 
+          const totalKm = dataAlarmasFiltrada.reduce((acc, curr) => acc + curr.DuracionHora, 0);
+        
+          return (          
+            <Box color="warning.main">
+              {locateFormatNumberNDijitos(totalKm,2)}
+            </Box>          
+        ) }
       }
 
     ];
@@ -215,7 +231,7 @@ export default function ReporteAlarmas() {
         .then((response) => {
           //asignamos la informcion consultada 
           setDataAlarmas(response.data);
-
+          setisCallData(false)
           // vamos a llenar la informacion de los movils
           let lstVehiculos = (response.data as any[]).reduce((p, c) => {
             let movil = c["Movil"];
@@ -425,46 +441,51 @@ export default function ReporteAlarmas() {
     <PageTitle>Reporte Alarmas</PageTitle>
     <BlockUi tag="div" keepInView blocking={loader ?? false}  >  
 
-        <div className="card card-rounded bg-transparent " style={{ width: '100%' }}  >
-          <div className="row  col-sm-12 col-md-12 col-xs-12 rounded border  mt-1 mb-2 shadow-sm "  style={{width:'100%'}}  >
+    <div className="card card-rounded shadow mt-2" style={{ width: '100%' }}  >
+       
+       <div className="d-flex justify-content-end mt-2">
+           <div style={{ float: 'right' }}>
+             <CargaListadoClientes />
+           </div>
+         </div>
+         <div className="d-flex justify-content-between mb-2">
+         <div className="mx-auto">
+             <div className="ms-3 text-center">
+               <h3 className="mb-0">Alarmas</h3>
+               <span className="text-muted m-3">Detallado</span>
+
+             </div>
+           </div>
+           </div>
+         
+           <div className="card bg-secondary d-flex justify-content-between">
+           <h3 className="fs-4 m-2 ms-2 d-flex "> Filtros</h3>
+             <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8"> <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fecha inicial: </label>
+               {(combine && allowedMaxDays && allowedRange) && (
+                 <DateRangePicker className="mt-2" format="dd/MM/yyyy" value={[filtros.FechaInicial, filtros.FechaFinal]}
+                   disabledDate={combine(allowedMaxDays(7), allowedRange(
+                     moment().add(-200, 'days').startOf('day').toDate(), moment().startOf('day').toDate()
+                   ))}
+                   onChange={(value, e) => {
+                     if (value !== null) {
+                       ValidarFechas(
+                         [value[0],
+                         value[1]]
+                       );
+                     }
+                   }}
+
+                 />
+               )}
+
+               <Button className="m-2  btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}><i className="bi-car-front-fill"></i></Button>
+               <Button className="m-2  btn btn-sm btn-primary" onClick={() => { ConsultarDataAlarmas() }}><i className="bi-search"></i></Button>
+             </div>
            
-               
-                <div className="col-sm-12 col-md-12 col-xs-12">
-                    <div  style={{float:'right'}}>
-                    <CargaListadoClientes/>
-                    </div>
-                </div>
-                
-            </div>
-          <Card className="bg-secondary  text-primary m-0">            
-            <Card.Body className="m-0">
-            <h3 className="fs-4 m-2 ms-2 d-flex justify-content-center"> Filtros</h3>
-              <div className="row">
-                <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8"> <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fecha inicial: </label>
-                  <DateRangePicker className="mt-2" format="dd/MM/yyyy" value={[filtros.FechaInicial, filtros.FechaFinal]}
-                    onChange={(value, e) => {
-                      if (value !== null) {
-                        ValidarFechas(
-                          [value[0],
-                          value[1]]
-                        );
-                      }
-                    }} />
-
-                  <Button className="m-2  btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}><i className="bi-car-front-fill"></i></Button>
-                  <Button className="m-2  btn btn-sm btn-primary" onClick={() => { ConsultarDataAlarmas() }}><i className="bi-search"></i></Button>
-                  </div>
-                <div className="col-sm-4 col-md-4 col-xs-4 col-lg-4 d-flex justify-content-end">
-                  <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataAlarmasFiltrada, listadoCampos, "Reporte Alarmas") }}>
-                    <i className="bi-file-earmark-excel"></i></button>
-                </div>
-              </div>
+           </div>
 
 
-            </Card.Body>
-          </Card>
-
-        </div>
+     </div>
         {/* begin::Chart */}
         <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
           {(opciones != null) && (
@@ -480,14 +501,28 @@ export default function ReporteAlarmas() {
         <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
 
           <MaterialReactTable
+           enableFilters={false}
+           initialState={{ density: 'compact' }}
+           enableColumnOrdering
+           enableColumnDragging={false}
+           enablePagination={false}
+           enableStickyHeader
+           enableStickyFooter
+           enableDensityToggle = {false}
+           enableRowVirtualization
+           enableTableFooter
             tableInstanceRef={tablaAlarmas}
             localization={MRT_Localization_ES}
+            muiTableContainerProps={{
+              sx: { maxHeight: '400px' }, //give the table a max height
+
+          }}
             displayColumnDefOptions={{
               'mrt-row-actions': {
                 muiTableHeadCellProps: {
                   align: 'center',
-                },
-                size: 120,
+                }
+                
               },
             }}
             muiTableHeadCellProps={{
@@ -500,12 +535,7 @@ export default function ReporteAlarmas() {
             }}
             columns={listadoCampos}
             data={dataAlarmasFiltrada}
-            // editingMode="modal" //default         
-            // enableTopToolbar={false}
-            enableColumnOrdering
-            // enableEditing
-            /* onEditingRowSave={handleSaveRowEdits}
-                onEditingRowCancel={handleCancelRowEdits}*/
+          
             muiToolbarAlertBannerProps={
               isError
                 ? {
@@ -528,6 +558,17 @@ export default function ReporteAlarmas() {
               showProgressBars: isRefetching,
               sorting,
             }}
+            renderTopToolbarCustomActions={({ table }) => (
+              <Box
+                sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
+              >
+                
+                  <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataAlarmas, listadoCampos, `Alarmas`) }}>
+                    <i className="bi-file-earmark-excel"></i></button>
+               
+                
+              </Box>
+            )}
           />
         </div>
       
