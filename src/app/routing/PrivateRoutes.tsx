@@ -29,7 +29,7 @@ import { default as ZPOperadorMovil} from "../modules/Ebus/ZPOperadorMovil";
 import ReporteNivelCarga from "../modules/Ebus/components/Reportes/NivelCarga";
 import React from "react";
 import ReporteComparacionOdometro from "../modules/Ebus/components/Reportes/ComparacionOdometro";
-
+import ReporteEficiencia from "../modules/Ebus/components/Reportes/Eficiencia";
 
 
 export function PrivateRoutes() {
@@ -150,7 +150,11 @@ export function PrivateRoutes() {
     path: '/ebus/reportes/codometro', 
     component: ReporteComparacionOdometro
   }
-  
+  ,
+  {
+    path: '/ebus/reportes/eficiencia', 
+    component: ReporteEficiencia
+  }
 
 ];
 const url ="https://app.powerbi.com/view?r=eyJrIjoiMjkzODk0YmItZDQwZC00NTg3LThiMjYtMmY2NmRhNjZlOGY5IiwidCI6ImU0ZWZjMTcxLTRjM2EtNDFhYS04NGUzLTViZTYyMzEyNTdjYiJ9"

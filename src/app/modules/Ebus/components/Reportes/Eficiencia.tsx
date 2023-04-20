@@ -1,6 +1,6 @@
 import moment from "moment";
 import { useEffect, useRef, useState, UIEvent, useCallback } from "react";
-import { GetReporteAlarmas, GetReporteNivelCarga, listTabsEficiencia } from "../../data/ReportesData";
+import { GetDataEficiencia, GetReporteAlarmas, GetReporteNivelCarga, listTabsEficiencia } from "../../data/ReportesData";
 import { PageTitle } from "../../../../../_start/layout/core";
 import { DateRangePicker, Notification, Placeholder, useToaster } from "rsuite";
 import BlockUi from "@availity/block-ui";
@@ -19,19 +19,20 @@ import { AxiosResponse } from "axios";
 import { GetClientesEsomos } from "../../data/NivelCarga";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 import { InicioCliente } from "../../../../../_start/helpers/Models/ClienteDTO";
-import { locateFormatNumberNDijitos } from "../../../../../_start/helpers/Helper";
+import { locateFormatNumberNDijitos, locateFormatPercentNDijitos } from "../../../../../_start/helpers/Helper";
 import { Box } from "@mui/material";
 import { toAbsoluteUrl } from "../../../../../_start/helpers";
+import * as Icons from "@mui/icons-material";
 
 
 
 
-export default function ReporteNivelCarga() {
+export default function ReporteEficiencia() {
 
   let filtrosBase: FiltrosReportes = {
-    FechaInicialInicial: moment().add(180, 'days').startOf('day').toDate(),
+    FechaInicialInicial: moment().add(-180, 'days').startOf('day').toDate(),
     FechaFinalInicial: moment().startOf('day').toDate(),
-    FechaInicial: moment().startOf('day').add(-7, 'days').toDate(),
+    FechaInicial: moment().startOf('day').add(-180, 'days').toDate(),
     FechaFinal: moment().startOf('day').toDate(),
     IndGrafica: -1,
     FechaGrafica: "",
@@ -39,26 +40,130 @@ export default function ReporteNivelCarga() {
     Operadores: [],
     limitdate: 180
   }
-  const FechaInicialDiario =  moment().add(-7, 'days').startOf('day').toDate();
 
+
+  const FechaInicialDiario = moment().add(-7, 'days').startOf('day').toDate();
+  let getListadoCampoPorTipo = (EsMovil: boolean, EsDiario: boolean) => {
+    let listadoCamposOperador: MRT_ColumnDef<any>[] =
+      [
+        {
+          accessorKey: `${EsMovil ? 'Movil' : 'Operador'}`,
+          header: `${EsMovil ? 'Movil' : 'Operador'}`,
+          size: 100
+        },
+        {
+          accessorKey: `${EsDiario ? 'Fecha' : 'mes'}`,
+          header: `${EsDiario ? 'Fecha' : 'Mes'}`,
+          Cell({ cell, column, row, table, }) {
+            let value = row.original[`${EsDiario ? 'Fecha' : 'mes'}`];
+            return ((EsDiario ? moment(value).format(FormatoColombiaDDMMYYY) : value))
+          }
+        },
+        {
+          accessorKey: 'Distancia',
+          header: 'Distancia [km]',
+          Cell({ cell, column, row, table, }) {
+            return (locateFormatNumberNDijitos(row.original.Distancia ?? 0, 2))
+          }
+        },
+        {
+          accessorKey: 'Duracion',
+          header: 'Dur[h]',
+          Cell({ cell, column, row, table, }) {
+            return (locateFormatNumberNDijitos(row.original.Duracion ?? 0, 2))
+          }
+        },
+        {
+          accessorKey: 'Energia',
+          header: 'Energía [kWh]',
+          Cell({ cell, column, row, table, }) {
+            return (locateFormatNumberNDijitos(row.original.Energia ?? 0, 2))
+          }
+        },
+        {
+          accessorKey: 'Eficiencia',
+          header: 'Efic [km/kWh]',
+          Cell({ cell, column, row, table, }) {
+            return (locateFormatNumberNDijitos(row.original.Eficiencia ?? 0, 2))
+          }
+        },
+        {
+          accessorKey: 'Regeneracion',
+          header: 'Regen [%]',
+          Cell({ cell, column, row, table, }) {
+            return (locateFormatPercentNDijitos(row.original.Regeneracion ?? 0, 2))
+          }
+        },
+        {
+          accessorKey: 'VelProm',
+          header: 'VelProm [km/h]',
+          Cell({ cell, column, row, table, }) {
+            return (locateFormatNumberNDijitos(row.original.VelProm ?? 0, 2))
+          }
+        },
+        {
+          accessorKey: 'Dsoc',
+          header: 'DSOC'
+        }
+
+      ];
+    let listadoCamposMovil: MRT_ColumnDef<any>[] = [...listadoCamposOperador];
+
+    listadoCamposMovil.splice(9, 0,
+      {
+        accessorKey: 'Descarga',
+        header: 'E. Descarga [kWh]',
+        Cell({ cell, column, row, table, }) {
+          return (locateFormatPercentNDijitos(row.original.Descarga ?? 0, 2))
+        }
+      },
+      {
+        accessorKey: 'Carga',
+        header: 'E. Carga [kWh]',
+        Cell({ cell, column, row, table, }) {
+          return (locateFormatNumberNDijitos(row.original.Carga ?? 0, 2))
+        }
+      }
+    );
+
+    return EsMovil ? listadoCamposMovil : listadoCamposOperador;
+  }
   const TipoReporteBase = [
-    { reporte: "Móvil Mensual",  filtros: { ...filtrosBase, MaxDay:30   }, tipo:1,  Data: [],  consultar: true },
-    { reporte: "Móvil Diario",  filtros: { ...filtrosBase , MaxDay:7 , 
-      FechaInicialInicial :FechaInicialDiario,
-      FechaInicial :FechaInicialDiario}, tipo:2,  Data: [],consultar: true},
-    { reporte: "Operador Mensual",  filtros: { ...filtrosBase , MaxDay:30 }, tipo:1,  Data: [],  consultar: true },
-    { reporte: "Operador Diario",  filtros: { ...filtrosBase , MaxDay:7 , 
-      FechaInicialInicial :FechaInicialDiario,
-      FechaInicial :FechaInicialDiario}, tipo:2,  Data: [],  consultar: true }
+    {
+      reporte: "Móvil Mensual", columnas: getListadoCampoPorTipo(true, false),
+      filtros: { ...filtrosBase, MaxDay: 30 }, tipo: 1, Data: [], consultar: true, EsMovil: true
+    },
+    {
+      reporte: "Móvil Diario", columnas: getListadoCampoPorTipo(true, true),
+      filtros: {
+        ...filtrosBase, MaxDay: 7,
+        FechaInicialInicial: FechaInicialDiario,
+        FechaInicial: FechaInicialDiario
+      }, tipo: 2, Data: [], consultar: true, EsMovil: true
+    },
+    { reporte: "Operador Mensual", columnas: getListadoCampoPorTipo(false, false), filtros: { ...filtrosBase, MaxDay: 30 }, tipo: 1, Data: [], consultar: true },
+    {
+      reporte: "Operador Diario", columnas: getListadoCampoPorTipo(false, true), filtros: {
+        ...filtrosBase, MaxDay: 7,
+        FechaInicialInicial: FechaInicialDiario,
+        FechaInicial: FechaInicialDiario
+      }, tipo: 2, Data: [], consultar: true
+    }
   ]
 
   const [TipoReporte, setTipoReporte] = useState(TipoReporteBase);
   const [tabSel, settabSel] = useState<number>(0);
+  const [lstIndicadores, setListIndicadores] = useState<any>({
+    "Distancia [km]": 0,
+    "Eficiencia [km/kWh]": 0,
+    "Regeneración [%]": 0,
+    "VelProm [km/h]": 0,
+  });
   const { allowedMaxDays, allowedRange, combine } = DateRangePicker;
 
   const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente);
 
-  const [totalEnergia, setTotalEnergia] = useState<number>(0);
+
   const [Clientes, setClientes] = useState<ClienteDTO[]>();
   const [loader, setloader] = useState<boolean>(false);
   const [lablesAxisx, setlablesAxisx] = useState<string[]>([]);
@@ -100,87 +205,9 @@ export default function ReporteNivelCarga() {
         </Notification>
       );
   */
+
   // listado de campos a extraer
-  let listadoCampos: MRT_ColumnDef<any>[] =
 
-    [
-      {
-        accessorKey: 'Movil',
-        header: 'Móvil',
-        size: 100
-      },
-      {
-        accessorKey: 'FechaCorte',
-        header: 'Fecha',
-        Cell({ cell, column, row, table, }) {
-          return (moment(row.original.Fecha).format(FormatoColombiaDDMMYYY))
-        }
-      },
-      {
-        accessorKey: 'FechaInicioCarga',
-        header: 'Inicio',
-        Cell({ cell, column, row, table, }) {
-          return (moment(row.original.FechaInicioCarga).format(FormatoColombiaDDMMYYYHHmmss))
-        }
-      },
-
-      {
-        accessorKey: 'FechaFinCarga',
-        header: 'Fin',
-        Cell({ cell, column, row, table, }) {
-          return (moment(row.original.FechaFinCarga).format(FormatoColombiaDDMMYYYHHmmss))
-        }
-      },
-      {
-        accessorKey: 'DuracionHora',
-        header: 'Dur[h]',
-        Cell({ cell, column, row, table, }) {
-          return (locateFormatNumberNDijitos(row.original.DuracionHora ?? 0, 2))
-        }
-      },
-      {
-        accessorKey: 'SOCInicial',
-        header: 'SOC Ini'
-      },
-      {
-        accessorKey: 'SOC',
-        header: 'SOC Fin'
-      },
-      {
-        accessorKey: 'Energia',
-        header: 'Energía [kWh]',
-        Cell({ cell, column, row, table, }) {
-          return (locateFormatNumberNDijitos(row.original.Energia ?? 0, 2))
-        }
-      },
-      {
-        accessorKey: 'Odometro',
-        header: 'Odómetro',
-        Cell({ cell, column, row, table, }) {
-          return (locateFormatNumberNDijitos(row.original.Odometro ?? 0, 2))
-        }
-      },
-      {
-        accessorKey: 'Dsoc',
-        header: 'Dsoc'
-      },
-      {
-        accessorKey: 'NroRecarga',
-        header: '#Conex'
-      },
-      {
-        accessorKey: 'PotenciaPromedio',
-        header: 'PotPro[kW]',
-        Cell({ cell, column, row, table, }) {
-          return (locateFormatNumberNDijitos(row.original.PotenciaPromedio ?? 0, 2))
-        }
-      },
-      {
-        accessorKey: 'Ubicacion',
-        header: 'Ubicación'
-      }
-
-    ];
 
 
   useEffect(
@@ -205,7 +232,7 @@ export default function ReporteNivelCarga() {
     // consulta la informacion de las alarmas cuando 
     // cambia el ciente seleecionado y las fechas 
     if (ClienteSeleccionado.clienteIdS != 0)
-      ConsultarDataAlarmas();
+      ConsultarData();
 
     // configuramos el chart
 
@@ -224,7 +251,8 @@ export default function ReporteNivelCarga() {
               setidxSeleccionado(config.dataPointIndex);
 
             }
-          }
+          },
+          type: 'bar'
         },
         xaxis: {
           categories: []
@@ -233,46 +261,45 @@ export default function ReporteNivelCarga() {
           showAlways: true,
           tickAmount: 5,
           min: 0,
-
-          // seriesName: 'Energía [kWh]',
           labels: {
             formatter: function (val: number, index: any) {
-              return val.toFixed(0);
+              return val.toFixed(1);
             }
           },
           title: {
-            text: "Total Energía [kWh]"
+            text: "Eficiencia  [kWh]"
           }
-
         },
         {
           showAlways: true,
           tickAmount: 5,
           min: 0,
-          max: 500,
-          //  seriesName: 'Móviles Recargados',
-
+          max: 120,
           opposite: true,
           title: {
-            text: "#Moviles Recargados"
+            text: "VelProm[km/h] - Regeneracion[%]"
+          }, labels: {
+            formatter: function (val: number, index: any) {
+              return val.toFixed(0);
+            }
           }
-
-        }],
+        },
+        {
+          min: 0,
+          max: 1,
+          opposite: true,
+          show: false
+        }
+        ],
         dataLabels: {
+
           enabled: true,
           enabledOnSeries: true,
           formatter: function (value: any, { seriesIndex, dataPointIndex, w }: any) {
 
-            return seriesIndex == 0 ? locateFormatNumberNDijitos(value, 1) : value
+            return seriesIndex == 2 ? locateFormatPercentNDijitos(value, 2) : locateFormatNumberNDijitos(value, 2)
           },
-         
-        },
-        plotOptions: {
-          bar: {
-            dataLabels: {
-              position: 'top'
-            }
-          }
+
         }
       },
       series: []
@@ -304,25 +331,37 @@ export default function ReporteNivelCarga() {
   }, [idxSeleccionado])
 
 
+  useEffect(() => {
+    if (ClienteSeleccionado.clienteIdS != 0)
+      ConsultarData();
+
+  }, [tabSel, TipoReporte])
 
 
   // metodo qeu consulta los datos de las alarmasg
-  let ConsultarDataAlarmas = () => {
+  let ConsultarData = () => {
 
     if (TipoReporte[tabSel].consultar || isCallData) {
       setIsError(false)
       setIsLoading(true)
       setIsRefetching(true)
       setloader(true)
-      GetReporteNivelCarga(moment(TipoReporte[0].filtros.FechaInicial).format(FormatoSerializacionYYYY_MM_DD_HHmmss)
-      , moment(TipoReporte[0].filtros.FechaInicial).format(FormatoSerializacionYYYY_MM_DD_HHmmss), ClienteSeleccionado.clienteIdS)
+      GetDataEficiencia(moment(TipoReporte[tabSel].filtros.FechaInicial).format(FormatoSerializacionYYYY_MM_DD_HHmmss)
+        , moment(TipoReporte[tabSel].filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss), ClienteSeleccionado.clienteIdS,
+        tabSel
+      )
         .then((response) => {
           //asignamos la informcion consultada 
+          let Tiporeporte = [...TipoReporte];
+          Tiporeporte[tabSel].Data = response.data;
+          Tiporeporte[tabSel].consultar = false;
+          setisCallData(false);
+          setTipoReporte(Tiporeporte);
           setData(response.data);
           setisCallData(false)
           // vamos a llenar la informacion de los movils
           let lstVehiculos = (response.data as any[]).reduce((p, c) => {
-            let movil = c["Movil"];
+            let movil = (TipoReporte[tabSel].EsMovil) ? c["Movil"] : c["Operador"];
             let isExists = p.filter((f: any) => f["value"] === movil);
             if (isExists.length == 0)
               p.push({ "value": movil, "label": movil })
@@ -353,14 +392,15 @@ export default function ReporteNivelCarga() {
 
     }
     else
-      datosfiltrados(data)
+      datosfiltrados(TipoReporte[tabSel].Data)
 
   }
   // FILTRA LOS DATOS QUE SE CONSULTAN DE LA BASE DE DATOS
   // SI EXISTE SE PASA LOS DATOS ALMACENADOS EN EL SISTEMA
   let datosfiltrados = (datos: any[]) => {
-    
+
     let filtros = TipoReporte[tabSel].filtros;
+    let EsDiario = (TipoReporte[tabSel].tipo == 2);
     let fechaGraficaActual = filtros.FechaGrafica;
     let FechaInicial: Date = filtros.FechaInicial;
     let FechaFinal: Date = filtros.FechaFinal;
@@ -374,12 +414,14 @@ export default function ReporteNivelCarga() {
 
     // filtramos por las fechas
     datosFiltrados = datosFiltrados.
-      filter(f => moment(f.FechaCorte).toDate() >= FechaInicial && moment(f.FechaCorte).toDate() <= FechaFinal);
+      filter(f =>
+        EsDiario ? moment(f.Fecha).toDate() : new Date(f.anio, f.mes, 1) >= FechaInicial
+          && EsDiario ? moment(f.Fecha).toDate() : new Date(f.anio, f.mes, 1) <= FechaFinal);
 
     // filtramos por los vehivulos
 
     if (filtros.Vehiculos.length > 0) {
-      datosFiltrados = datosFiltrados.filter(f => filtros.Vehiculos.indexOf(f.Movil) > -1);
+      datosFiltrados = datosFiltrados.filter(f => filtros.Vehiculos.indexOf(f[(TipoReporte[tabSel].EsMovil) ? "Movil" : "Operador"]) > -1);
     }
     setDataFiltrada(datosFiltrados);
     setRowCount(datosFiltrados.length); // actualizamos la informacion de las filas
@@ -388,37 +430,72 @@ export default function ReporteNivelCarga() {
     // agrupamos por fechas la informacion
     let agrupadofecha = datosFiltrados
       .reduce((p, c) => {
-        let name = moment(c.FechaCorte).format(FormatoColombiaDDMMYYY);
+        let name = EsDiario ? moment(c.Fecha).format(FormatoColombiaDDMMYYY) : `${c.anio}-${c.mes}`;
         p[name] = p[name] ?? [];
         p[name].push(c);
         return p;
       }, {});
 
     // agrupa los elementos para ser mostrado por la grafica
-    let totalvehiculos = new Array();
-    let totalEnergia = new Array();
+    let totalEficiencia = new Array();
+    let totalVelProm = new Array();
+    let totalRegeneracion = new Array();
+    let totalDistanciaA = new Array();
+
+
+
     let labels = new Array();
-    let totalEnergiasum = 0;
+    let EficienciaSum = 0;
+    let DistanciaSum = 0;
+    let CargaSum = 0;
+    let DescargaSum = 0;
+    let EnergiaSum = 0;
+    let TotalDuracionSum = 0;
+
 
     Object.entries(agrupadofecha).map((elem: any) => {
+
       labels.push(elem[0]);
-      // agrupamos por vehiculo 
-      let agrupadovehiculo = elem[1].reduce((p: any, c: any) => {
-        let name = c.Movil;
-        if (!p.hasOwnProperty(name)) {
-          p[name] = 0;
-        }
-        p[name]++;
-        return p;
-      }, {});
-      // y sumamos el total , esto es porque hay vehiculos que tiene mas de una recarga
-      totalvehiculos.push(Object.entries(agrupadovehiculo).length)
-      let totalSumaEnergia = (elem[1].map((m: any) => { return m.Energia }).reduce((a: number, b: number) => a + b, 0));
-      totalEnergia.push(totalSumaEnergia.toFixed(2).toString());
-      totalEnergiasum = totalEnergiasum + totalSumaEnergia;
+      // totalizamos por propiedad que se necesite
+      let totalCarga = (elem[1].map((m: any) => { return m.Carga }).reduce((a: number, b: number) => a + b, 0));
+      let totalDescarga = (elem[1].map((m: any) => { return m.Descarga }).reduce((a: number, b: number) => a + b, 0));
+      let totalDistancia = (elem[1].map((m: any) => { return m.Distancia }).reduce((a: number, b: number) => a + b, 0));
+      let totalDuracion = (elem[1].map((m: any) => { return m.Duracion }).reduce((a: number, b: number) => a + b, 0));
+
+      // sumamos los indicadores por fecha 
+
+      let energia = totalDescarga - totalCarga;
+      let porcRegeneracion = totalCarga / totalDescarga;
+      let eficiencia = totalDistancia / energia;
+      let velPromedio = totalDistancia / totalDuracion;
+
+      // para la grafica de eficiencia
+      totalEficiencia.push(eficiencia);
+      totalVelProm.push(velPromedio);
+      totalRegeneracion.push(porcRegeneracion);
+
+      // para la grafica de distancia
+      totalDistanciaA.push(totalDistancia);
+
+      DistanciaSum += totalDistancia;
+      CargaSum += totalCarga;
+      DescargaSum += totalDescarga;
+      TotalDuracionSum += totalDuracion;
     });
+
+    EnergiaSum = DescargaSum - CargaSum;
+    EficienciaSum = DistanciaSum / EnergiaSum;
+    let PorRegeneracionsum = CargaSum / DescargaSum;
+
+    setListIndicadores({
+      "Distancia [km]": locateFormatNumberNDijitos(DistanciaSum, 2),
+      "Eficiencia [km/kWh]": locateFormatNumberNDijitos(EficienciaSum, 2),
+      "Regeneración [%]": locateFormatPercentNDijitos(PorRegeneracionsum, 2),
+      "VelProm [km/h]": locateFormatNumberNDijitos((DistanciaSum / (TotalDuracionSum)), 2),
+    });
+
     setlablesAxisx(labels)
-    setTotalEnergia(totalEnergiasum);
+
     // se debe volver actualizar los eventos pues 'estos no
     // se reflejan los usestate y utilizan los datos que tienen las variables
     // al momento de crearse
@@ -444,11 +521,19 @@ export default function ReporteNivelCarga() {
     // actializar los datos
     ApexCharts.exec('apexchart-example', 'updateSeries', [
       {
-        name: 'Energía [kWh]',
-        data: totalEnergia
+        name: 'Eficiencia [Km/kwh]',
+        data: totalEficiencia,
+        type: 'bar'
       }, {
-        name: 'Móviles Recargados',
-        data: totalvehiculos
+        name: 'VelProm [km/h]',
+        data: totalVelProm,
+        type: 'line',
+        color: '#F44336'
+      }, {
+        name: 'Regeneracion [%]',
+        data: totalRegeneracion,
+        type: 'line',
+        color: '#99C2A2'
       }]);
 
 
@@ -531,389 +616,259 @@ export default function ReporteNivelCarga() {
       </Form.Select>
     );
   }
-  function OnClickTabs(idx: number): void {
-    throw new Error("Function not implemented.");
-  }
 
+  const DynamicFaIcon : React.FC<{ name: string, isactive:boolean }> = ({name, isactive}) => {
+    const IconComponent  = Icons[name];
+  
+    if (!IconComponent) { // Return a default one
+      return <Icons.Check />;
+    }
+  
+    return <IconComponent color ={`${isactive ? "success" : "primary"}`}/>;
+  };
   return (<>
     <PageTitle>Reporte Nivel Carga</PageTitle>
     <BlockUi tag="div" keepInView blocking={loader ?? false}  >
-      <div className="card card-rounded shadow mt-2" style={{ width: '100%' }}  >
+      <div className="card card-rounded shadow mt-2 text-primary" style={{ width: '100%' }}  >
 
         <div className="d-flex justify-content-end mt-2">
           <div style={{ float: 'right' }}>
             <CargaListadoClientes />
           </div>
         </div>
-        <div className="d-flex justify-content-between mb-2">          
-            <div className="form-horizontal  row col-sm-12 col-md-12 col-xs-12 mx-auto">
-              <div className="form-horizontal  row col-sm-4 col-md-4 col-xs-4 mx-auto">
-
-              </div>
-              <div className="form-horizontal  row col-sm-4 col-md-4 col-xs-4 mx-auto">
-                <div className="ms-3">
-                  <h3 className="mb-0">Eventos de Carga</h3>
-                  <span className="text-muted m-3">Enegía Electrolinera por Día</span>
-
-                </div>
-              </div>
-              <div className="form-horizontal  row col-sm-4 col-md-4 col-xs-4 mx-auto">
-                <div className="ms-3">
-                  <h2 className="mb-0"><span id="totalenergia"> {locateFormatNumberNDijitos(totalEnergia, 2)}</span></h2>
-                  <span className="text-muted">Energía Total [kWh]</span>
-                </div>
-              </div>
+        <div className="d-flex justify-content-between mb-2">
+          <div className="d-flex justify-content-between mx-auto">
+            <div className="ms-9 text-center">
+              <h3 className="mb-0">Reporte Eficiencia</h3>
+              <span className="text-muted m-3">{TipoReporte[tabSel].reporte}</span>
             </div>
-         
+          </div>
         </div>
-          <div className="card bg-secondary d-flex justify-content-between">
-            <h3 className="fs-4 m-2 ms-2 d-flex "> Filtros</h3>
-            <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8"> 
+
+        <div className="row">
+          <div className="row col-sm-12 col-md-12 col-xs-12 mx-auto">
+
+            {
+
+              Object.entries(lstIndicadores).map((element: any) => {
+
+                return (
+                  <div key={`indicadores_${element[0]}`} className="row card shadow m-2 col-sm-3 col-md-3 col-xs-3 mx-auto">
+                    <div className="ms-3 text-center m-4">
+                      <h2 className="mb-0"><span id={element[0]}>{element[1]}</span></h2>
+                      <span className="text-muted">{element[0]}</span>
+                    </div>
+                  </div>
+                )
+
+              })
+            }
+
+          </div>
+        </div>
+        <div className="card bg-secondary d-flex justify-content-between">
+          <h3 className="fs-4 m-2 ms-2 d-flex "> Filtros</h3>
+          <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8">
             <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fecha inicial: </label>
-              {(combine && allowedMaxDays && allowedRange) && (
-                <DateRangePicker className="mt-2" format="dd/MM/yyyy" value={[TipoReporte[tabSel].filtros.FechaInicial, TipoReporte[tabSel].filtros.FechaFinal]}
-                  disabledDate={combine(allowedMaxDays(30), allowedRange(
-                    moment().add(-200, 'days').startOf('day').toDate(), moment().startOf('day').toDate()
-                  ))}
-                  onChange={(value, e) => {
-                    if (value !== null) {
-                      ValidarFechas(
-                        [value[0],
-                        value[1]]
-                      );
-                    }
-                  }}
+            {(combine && allowedMaxDays && allowedRange) && (
+              <DateRangePicker className="mt-2" format="dd/MM/yyyy" value={[TipoReporte[tabSel].filtros.FechaInicial, TipoReporte[tabSel].filtros.FechaFinal]}
+                disabledDate={combine(allowedMaxDays(TipoReporte[tabSel].filtros.MaxDay), allowedRange(
+                  moment().add(-200, 'days').startOf('day').toDate(), moment().startOf('day').toDate()
+                ))}
+                onChange={(value, e) => {
+                  if (value !== null) {
+                    ValidarFechas(
+                      [value[0],
+                      value[1]]
+                    );
+                  }
+                }}
 
-                />
-              )}
-
-              <Button className="m-2  btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}><i className="bi-car-front-fill"></i></Button>
-              <Button className="m-2  btn btn-sm btn-primary" onClick={() => { ConsultarDataAlarmas() }}><i className="bi-search"></i></Button>
-            </div>
-
-        
-
-
+              />
+            )}
+            <Button className="m-2  btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}>
+              <i className={`${TipoReporte[tabSel].EsMovil ? "bi-car-front-fill" : "bi-person"}`}></i></Button>
+            <Button className="m-2  btn btn-sm btn-primary" onClick={() => { ConsultarData() }}><i className="bi-search"></i></Button>
+          </div>
         </div>
-
-
-
-
-
       </div>
       {/* begin::Chart */}
       <div className=" flex-wrap flex-xxl-nowrap justify-content-center justify-content-md-start pt-4">
-              {/* begin::Nav */}
-              <div className="me-sm-10 me-0">
-                <ul className="nav nav-tabs nav-pills nav-pills-custom">
-                  {listTabsEficiencia.map((tab, idx) => {
-                    
+        {/* begin::Nav */}
+        <div className="me-sm-10 me-0">
+          <ul className="nav nav-tabs nav-pills nav-pills-custom">
+            {listTabsEficiencia.map((tab, idx) => {
+              return (<li className="nav-item mb-3" key={`tabenc_${idx}`}>
+                <a
+                  onClick={() => settabSel(idx)}
+                  className={`nav-link w-225px h-70px ${tabSel === idx ? "active btn-active-light" : ""
+                    } fw-bolder me-2`}
+                  id={`tab${idx}`}
+                >
+                  <div className="nav-icon me-3">
+                  <DynamicFaIcon name={tab.icon} isactive={(tabSel === idx)}/>
                    
-
-                    return (<li className="nav-item mb-3" key={`tabenc_${idx}`}>
-                      <a
-                        onClick={() => OnClickTabs(idx)}
-                        className={`nav-link w-225px h-70px ${tabSel === idx ? "active btn-active-light" : ""
-                          } fw-bolder me-2`}
-                        id={`tab${idx}`}
-                      >
-                        <div className="nav-icon me-3">
-                          <img
-                            alt=""
-                            src={toAbsoluteUrl(tab.icon)}
-                            className="default"
-                          />
-
-                          <img
-                            alt=""
-                            src={toAbsoluteUrl(tab.iconColored)}
-                            className="active"
-                          />
-                        </div>
-                        <div className="ps-1">
-                          <span className="nav-text text-gray-600 fw-bolder fs-6">
-                            {tab.titulo}
-                          </span>
-                          <span className="text-muted fw-bold d-block pt-1">
-                            {tab.subtitulo}
-                          </span>
-                        </div>
-                      </a>
-                    </li>
-                    )
-                  })}
-
-
-                </ul>
-              </div>
-              {/* end::Nav */}
-              {/* begin::Tab Content */}
-              <div className="tab-content flex-grow-1">
-                {/* begin::Tab Pane 1 */}
-
-                <div  style={{display: (tabSel != 2)  ? "block" : "none"  }} >
-                  <div className="card-body d-lg-flex align-items-lg-center justify-content-lg-between flex-lg-wrap border mt-2 mb-2">
-                    <div className="row w-100" id="efi-chartzpMovilAgrupado">
-                      {(OpcionesAcumulado != null) && (
-                        <ReactApexChart
-                          options={OpcionesAcumulado.options}
-                          series={OpcionesAcumulado.series} type="bar"
-                          height={200} />)}
-                    </div>
                   </div>
-                  <div className="card" id="efi-chartzpMovil" style={{ border: '1px solid #5ab55e', borderRadius: '5px' }}>
-                    <div className="card-body">
-                      <div className="chart-container">
-                        <div className="row">
-                          {(opciones != null) && (
-                            <ReactApexChart
-                              options={opciones.options}
-                              series={opciones.series} type="bar"
-                              height={320} />)}
-                        </div>
-                      </div>
-
-                    </div>
+                  <div className="ps-1">
+                    <span className="nav-text text-gray-600 fw-bolder fs-6">
+                      {tab.titulo}
+                    </span>
+                    <span className="text-muted fw-bold d-block pt-1">
+                      {tab.subtitulo}
+                    </span>
                   </div>
-                </div>
-                <div className={`tab-pane fade ${tabSel === 0 ? "show active" : ""}`} id="tab0_content" >
-                  {/* begin::Cards */}
-                  <div className="overflow-auto">
-                    {(DateTableMovil.length != 0) && (ColumnasTablas[0]['movil'] != undefined) && (<MaterialReactTable
-                      // tableInstanceRef={ColumnasTablas['movil']}
-                      localization={MRT_Localization_ES}
-                      displayColumnDefOptions={{
-                        'mrt-row-actions': {
-                          muiTableHeadCellProps: {
-                            align: 'center',
-                          },
-                          size: 120,
-                        },
-                      }}
-                      muiTableHeadCellProps={{
-                        sx: (theme) => ({
-                          fontSize: 14,
-                          fontStyle: 'bold',
-                          color: 'rgb(27, 66, 94)'
-
-                        }),
-                      }}
-                      columns={ColumnasTablas[0]['movil']}
-                      data={DateTableMovil}
-                      // editingMode="modal" //default         
-                      // enableTopToolbar={false}
-                      enableColumnOrdering
-                      // enableEditing
-                      /* onEditingRowSave={handleSaveRowEdits}
-                          onEditingRowCancel={handleCancelRowEdits}*/
-                      muiToolbarAlertBannerProps={
-                        isError
-                          ? {
-                            color: 'error',
-                            children: 'Error al cargar información',
-                          }
-                          : undefined
-                      }
-                      onColumnFiltersChange={setColumnFilters}
-                      onGlobalFilterChange={setGlobalFilter}
-                      onPaginationChange={setPagination}
-                      onSortingChange={setSorting}
-                      rowCount={rowCountMovil}
-                      state={{
-                        columnFilters,
-                        globalFilter,
-                        isLoading,
-                        pagination,
-                        showAlertBanner: isError,
-                        showProgressBars: isRefetching,
-                        sorting,
-                      }}
-                    />)}
-                  </div>
-                  {/* end::Cards      */}
-                </div>
-                {/* end::Tab Pane 1 */}
-
-                {/* begin::Tab Pane 2 */}
-                <div className={`tab-pane fade ${tabSel === 1 ? "show active" : ""}`} id="tab1_content">
-                  {/* begin::Cards */}
-                  <div className="overflow-auto">
-                    {/*Tabla de los operadores */}
-                    {(DateTableMovil.length != 0) && (ColumnasTablas[1]['operador'] != undefined) && (<MaterialReactTable
-                      // tableInstanceRef={ColumnasTablas['movil']}
-                      localization={MRT_Localization_ES}
-                      displayColumnDefOptions={{
-                        'mrt-row-actions': {
-                          muiTableHeadCellProps: {
-                            align: 'center',
-                          },
-                          size: 120,
-                        },
-                      }}
-                      muiTableHeadCellProps={{
-                        sx: (theme) => ({
-                          fontSize: 14,
-                          fontStyle: 'bold',
-                          color: 'rgb(27, 66, 94)'
-
-                        }),
-                      }}
-                      columns={ColumnasTablas[1]['operador']}
-                      data={DateTableMovil}
-                      // editingMode="modal" //default         
-                      // enableTopToolbar={false}
-                      enableColumnOrdering
-                      // enableEditing
-                      /* onEditingRowSave={handleSaveRowEdits}
-                          onEditingRowCancel={handleCancelRowEdits}*/
-                      muiToolbarAlertBannerProps={
-                        isError
-                          ? {
-                            color: 'error',
-                            children: 'Error al cargar información',
-                          }
-                          : undefined
-                      }
-                      onColumnFiltersChange={setColumnFilters}
-                      onGlobalFilterChange={setGlobalFilter}
-                      onPaginationChange={setPagination}
-                      onSortingChange={setSorting}
-                      rowCount={rowCountOperador}
-                      state={{
-                        columnFilters,
-                        globalFilter,
-                        isLoading,
-                        pagination,
-                        showAlertBanner: isError,
-                        showProgressBars: isRefetching,
-                        sorting,
-                      }}
-                    />)}
-                  </div>
-                  {/* end::Cards      */}
-                </div>
+                </a>
+              </li>
+              )
+            })}
 
 
-                {/* end::Tab Pane 2 */}
-                {/* begin::Tab Pane 3 */}
-                <div className={`tab-pane fade ${tabSel === 2 ? "show active" : ""}`} id="tab2_content">
-                  {/* begin::Cards */}
-                  <div className="overflow-auto">
-                    <div className="" id="solid-operadorgrafica">
-                      <div className="card" style={{ border: '1px solid #5ab55e', borderRadius: '5px' }}>
-                        <div className="card-body">
-                          <div className="chart-container">
-                            <div className="row">
-                              <div className="col-xs-6 col-sm-6 col-md-6" style={{ height: '400px', overflowY: 'scroll' }}>
-                                <div className="text-center"><label className="label control-label label-sm font-weight-bold" style={{ fontSize: '16px' }}>Zonas:EV: 4. Potencia [150&lt;P&lt;175]</label></div>
-                                <div className="chart" id="ZpZonaOperador"></div>
-                              </div>
-                              <div className="col-xs-6 col-sm-6 col-md-6" style={{ height: '400px', overflowY: 'scroll' }}>
-                                <div className="text-center"><label className="label control-label label-sm font-weight-bold" style={{ fontSize: '16px' }}>Zonas:EV: 5. Potencia [&gt;175]</label></div>
-                                <div className="chart" id="ZpZonaOperadorEv5"></div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  {/* end::Cards      */}
-                </div>
+          </ul>
+        </div>
+        {/* end::Nav */}
+        {/* begin::Tab Content */}
+        <div className="tab-content flex-grow-1">
+          {/* begin::Tab Pane 1 */}
 
-                {/* end::Tab Pane 3 */}
 
-              </div>
-              {/* end::Tab Content */}
+          <div className="card" >
+              {(OpcionesAcumulado != null) && (
+                <ReactApexChart
+                  options={OpcionesAcumulado.options}
+                  series={OpcionesAcumulado.series}
+                  height={200} />)}
+     
+          </div>
+          <div className="card" >
+           
+                  {(opciones != null) && (
+                    <ReactApexChart
+                      options={opciones.options}
+                      series={opciones.series}
+                      height={300} />)}
+               
+          </div>
+          <MaterialReactTable
+            enableFilters={false}
+            initialState={{ density: 'compact' }}
+            enableColumnOrdering
+            enableColumnDragging={false}
+            enablePagination={false}
+            enableStickyHeader
+            enableDensityToggle={false}
+            enableRowVirtualization
+            localization={MRT_Localization_ES}
+            displayColumnDefOptions={{
+              'mrt-row-actions': {
+                muiTableHeadCellProps: {
+                  align: 'center',
+                }
+              },
+            }}
+            defaultColumn={{
+              minSize: 20, //allow columns to get smaller than default
+              maxSize: 100, //allow columns to get larger than default
+              size: 80, //make columns wider by default
+            }}
+            muiTableContainerProps={{
+              ref: tableContainerRef, //get access to the table container element
+              sx: { maxHeight: '400px' }, //give the table a max height
+
+            }}
+            muiTableHeadCellProps={{
+              sx: (theme) => ({
+                fontSize: 14,
+                fontStyle: 'bold',
+                color: 'rgb(27, 66, 94)',
+                //backgroundColor: 'yellow'
+
+              }),
+            }}
+            columns={TipoReporteBase[tabSel].columnas}
+            data={dataFiltrada}
+            // editingMode="modal" //default         
+            // enableTopToolbar={false}
+
+            // enableEditing
+            /* onEditingRowSave={handleSaveRowEdits}
+                onEditingRowCancel={handleCancelRowEdits}*/
+            muiToolbarAlertBannerProps={
+              isError
+                ? {
+                  color: 'error',
+                  children: 'Error al cargar información',
+                }
+                : undefined
+            }
+            onColumnFiltersChange={setColumnFilters}
+            onGlobalFilterChange={setGlobalFilter}
+            onPaginationChange={setPagination}
+            onSortingChange={setSorting}
+            rowCount={rowCount}
+            state={{
+              columnFilters,
+              globalFilter,
+              isLoading,
+              pagination,
+              showAlertBanner: isError,
+              showProgressBars: isRefetching,
+              sorting,
+            }}
+            renderTopToolbarCustomActions={({ table }) => (
+              <Box
+                sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
+              >
+
+                <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataFiltrada, TipoReporteBase[tabSel].columnas, TipoReporteBase[tabSel].reporte) }}>
+                  <i className="bi-file-earmark-excel"></i></button>
+
+
+              </Box>
+            )}
+          />
+          <div className={`tab-pane fade ${tabSel === 0 ? "show active" : ""}`} id="tab0_content" >
+            {/* begin::Cards */}
+            <div className="overflow-auto">
+
             </div>
-      {/* end::Chart      */}
-      <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
+            {/* end::Cards      */}
+          </div>
+          {/* end::Tab Pane 1 */}
 
-        <MaterialReactTable
-          enableFilters={false}
-          initialState={{ density: 'compact' }}
-          enableColumnOrdering
-          enableColumnDragging={false}
-          enablePagination={false}
-          enableStickyHeader
-          enableDensityToggle={false}
-          enableRowVirtualization
-          localization={MRT_Localization_ES}
-          displayColumnDefOptions={{
-            'mrt-row-actions': {
-              muiTableHeadCellProps: {
-                align: 'center',
-              }
-            },
-          }}
-          defaultColumn={{
-            minSize: 20, //allow columns to get smaller than default
-            maxSize: 100, //allow columns to get larger than default
-            size: 80, //make columns wider by default
-          }}
-          muiTableContainerProps={{
-            ref: tableContainerRef, //get access to the table container element
-            sx: { maxHeight: '400px' }, //give the table a max height
+          {/* begin::Tab Pane 2 */}
+          <div className={`tab-pane fade ${tabSel === 1 ? "show active" : ""}`} id="tab1_content">
+            {/* begin::Cards */}
+            <div className="overflow-auto">
+              {/*Tabla de los operadores */}
 
-          }}
-          muiTableHeadCellProps={{
-            sx: (theme) => ({
-              fontSize: 14,
-              fontStyle: 'bold',
-              color: 'rgb(27, 66, 94)',
-              //backgroundColor: 'yellow'
-
-            }),
-          }}
-          columns={listadoCampos}
-          data={dataFiltrada}
-          // editingMode="modal" //default         
-          // enableTopToolbar={false}
-
-          // enableEditing
-          /* onEditingRowSave={handleSaveRowEdits}
-              onEditingRowCancel={handleCancelRowEdits}*/
-          muiToolbarAlertBannerProps={
-            isError
-              ? {
-                color: 'error',
-                children: 'Error al cargar información',
-              }
-              : undefined
-          }
-          onColumnFiltersChange={setColumnFilters}
-          onGlobalFilterChange={setGlobalFilter}
-          onPaginationChange={setPagination}
-          onSortingChange={setSorting}
-          rowCount={rowCount}
-          state={{
-            columnFilters,
-            globalFilter,
-            isLoading,
-            pagination,
-            showAlertBanner: isError,
-            showProgressBars: isRefetching,
-            sorting,
-          }}
-          renderTopToolbarCustomActions={({ table }) => (
-            <Box
-              sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
-            >
-
-              <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataFiltrada, listadoCampos, "Eventos Carga") }}>
-                <i className="bi-file-earmark-excel"></i></button>
+            </div>
+            {/* end::Cards      */}
+          </div>
 
 
-            </Box>
-          )}
-        />
+          {/* end::Tab Pane 2 */}
+          {/* begin::Tab Pane 3 */}
+          <div className={`tab-pane fade ${tabSel === 2 ? "show active" : ""}`} id="tab2_content">
+            {/* begin::Cards */}
+            <div className="overflow-auto">
+
+            </div>
+            {/* end::Cards      */}
+          </div>
+
+          {/* end::Tab Pane 3 */}
+
+        </div>
+        {/* end::Tab Content */}
       </div>
+      {/* end::Chart      */}
+
 
     </BlockUi>
 
     <Modal show={showModal} onHide={setShowModal} size="lg">
       <Modal.Header closeButton>
-        <Modal.Title> Filtro por vehiculos</Modal.Title>
+        <Modal.Title> {`Filtro ${TipoReporte[tabSel].EsMovil ? "Movil" : "Vehículo"}`}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <div className="row">
@@ -929,7 +884,7 @@ export default function ReporteNivelCarga() {
           let tiporeporte = [...TipoReporte];
           tiporeporte[tabSel].filtros = { ...TipoReporte[0].filtros, Vehiculos: [], Operadores: [] };
           setTipoReporte(tiporeporte)
-           }}>
+        }}>
           Limpiar
         </Button>
         <Button type="button" variant="primary" onClick={() => { setShowModal(false); }}>

@@ -530,14 +530,14 @@ export default function ReporteNivelCarga() {
 
               </div>
               <div className="form-horizontal  row col-sm-4 col-md-4 col-xs-4 mx-auto">
-                <div className="ms-3">
+                <div className="ms-3 text-center">
                   <h3 className="mb-0">Eventos de Carga</h3>
                   <span className="text-muted m-3">Enegía Electrolinera por Día</span>
 
                 </div>
               </div>
               <div className="form-horizontal  row col-sm-4 col-md-4 col-xs-4 mx-auto">
-                <div className="ms-3">
+                <div className="ms-3 text-center">
                   <h2 className="mb-0"><span id="totalenergia"> {locateFormatNumberNDijitos(totalEnergia, 2)}</span></h2>
                   <span className="text-muted">Energía Total [kWh]</span>
                 </div>
