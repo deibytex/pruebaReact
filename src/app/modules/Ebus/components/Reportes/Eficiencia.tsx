@@ -23,6 +23,7 @@ import { locateFormatNumberNDijitos, locateFormatPercentNDijitos } from "../../.
 import { Box } from "@mui/material";
 import { toAbsoluteUrl } from "../../../../../_start/helpers";
 import * as Icons from "@mui/icons-material";
+import { DrawDynamicIconMuiMaterial } from "../../../../../_start/helpers/components/IconsMuiDynamic";
 
 
 
@@ -617,15 +618,7 @@ export default function ReporteEficiencia() {
     );
   }
 
-  const DynamicFaIcon : React.FC<{ name: string, isactive:boolean }> = ({name, isactive}) => {
-    const IconComponent  = Icons[name];
-  
-    if (!IconComponent) { // Return a default one
-      return <Icons.Check />;
-    }
-  
-    return <IconComponent color ={`${isactive ? "success" : "primary"}`}/>;
-  };
+ 
   return (<>
     <PageTitle>Reporte Nivel Carga</PageTitle>
     <BlockUi tag="div" keepInView blocking={loader ?? false}  >
@@ -706,7 +699,7 @@ export default function ReporteEficiencia() {
                   id={`tab${idx}`}
                 >
                   <div className="nav-icon me-3">
-                  <DynamicFaIcon name={tab.icon} isactive={(tabSel === idx)}/>
+                  <DrawDynamicIconMuiMaterial name={tab.icon} isactive={(tabSel === idx)}/>
                    
                   </div>
                   <div className="ps-1">
