@@ -18,36 +18,23 @@ import { FiltrosReportes } from "../../models/eBus";
 import { FormatoColombiaDDMMYYY, FormatoSerializacionYYYY_MM_DD_HHmmss } from '../../../../../_start/helpers/Constants';
 import DualListBox from 'react-dual-listbox';
 import { dualList } from '../../../../../_start/helpers/Models/DualListDTO';
-import { truncate } from 'fs';
 import BlockUi from 'react-block-ui';
 import { DescargarExcel } from '../../../../../_start/helpers/components/DescargarExcel';
 import ReactApexChart from 'react-apexcharts';
 import { toAbsoluteUrl } from '../../../../../_start/helpers';
+import {Totales } from '../../models/ZpOperadorMovilModels'
+import { number } from 'yup';
+import ProgressBar from '@ramonak/react-progress-bar';
 type Props = {
 
 }
 const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
-  const { fechaInicial, fechaFinal, setfechaInicial, setfechafinal } = useDataZpOperadorMovil();
-  // const [fechaFiltro, setfechaFiltro] = useState<string>(moment().startOf('day').add(-1, 'days').toString());
-  // const [fechaactual, setfechaactual] = useState<string>(moment().endOf('day').startOf('day').toString());
+  const { fechaInicial, fechaFinal } = useDataZpOperadorMovil();
   // declaracion de variables
-  const btmOperador = [
-    '<button class="btn btn-sm btn-primary ml-2 mr-2 btnFiltroOperador" title = "Filtro Operador" id = "btnFiltroOperador">',
-    '  <i class="fa-floating-icon fas fa-user"></i>',
-    ' </button>',
-    '<button class="btn btn-sm btn-primary descargarExcel"><i class="icon-statistics mr-2"></i> Excel</button>'
-  ]
-  const btmVehiculo = [
-    '<button class="btn btn-sm btn-primary ml-2 mr-2 btnFiltroVehiculo" title="Filtro vehiculos" id="btnFiltroVehiculo">',
-    '<i class="fa-floating-icon fas fa-car"></i>',
-    '</button>',
-    '<button class="btn btn-sm btn-primary descargarExcel"><i class="icon-statistics mr-2"></i> Excel</button>'
-  ]
-  const { allowedMaxDays, allowedRange } = DateRangePicker;
   let filtrosBase: FiltrosReportes = {
-    FechaInicialInicial: moment().add(-7, 'days').startOf('day').toDate(),
+    FechaInicialInicial: moment().add(-5, 'days').startOf('day').toDate(),
     FechaFinalInicial: moment().startOf('day').toDate(),
-    FechaInicial: moment().startOf('day').add(-7, 'days').toDate(),
+    FechaInicial: moment().startOf('day').add(-5, 'days').toDate(),
     FechaFinal: moment().startOf('day').toDate(),
     IndGrafica: -1,
     FechaGrafica: "",
@@ -61,9 +48,9 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
 
   const TipoReporteBase = [
     /*{ reporte: tblmovilmes, tabla: tblmovilmes, filtros: { ...filtrosBase }, botonesFiltros: btmVehiculo, Data: null, tipo: 1 },*/
-    { reporte: "tblmovildia", tabla: "tblmovildia", filtros: { ...filtrosBase }, botonesFiltros: btmVehiculo, Data: [], tipo: 1 },
-    { reporte: "tbloperadordia", tabla: "tbloperadordia", filtros: { ...filtrosBase }, botonesFiltros: btmOperador, Data: [], tipo: 2 },
-    { reporte: "tbloperadorgrafica", tabla: "tbloperadorgrafica", filtros: { ...filtrosBase }, botonesFiltros: btmOperador, Data: [], tipo: 3 },
+    { reporte: "tblmovildia", tabla: "tblmovildia", filtros: { ...filtrosBase }, Data: [], tipo: 1 },
+    { reporte: "tbloperadordia", tabla: "tbloperadordia", filtros: { ...filtrosBase },  Data: [], tipo: 2 },
+    { reporte: "tbloperadorgrafica", tabla: "tbloperadorgrafica", filtros: { ...filtrosBase }, Data: [], tipo: 3 },
   ]
 
   // filtros para los que son diarios, maximo 30 dias
@@ -73,29 +60,21 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
   TipoReporteBase[1].filtros.FechaFinal = (fechaFinal != undefined ? fechaFinal : moment().startOf('day').toDate());
   TipoReporteBase[1].filtros.limitdate = 5;
 
+  const [ExcelVisible, setExcelVisible] = useState<string>("block");
   const [TipoReporte, setTipoReporte] = useState(TipoReporteBase);
-
   const [idxSeleccionado, setidxSeleccionado] = useState<number>(-2);
-
   const [loader, setloader] = useState<boolean>(false);
   const [tabSel, settabSel] = useState<number>(0);
   const [opciones, setOpciones] = useState<any>(null);
   const [OpcionesAcumulado, setAcumulado] = useState<any>(null);
-  const [OpcionesZonaOperador, setZonaOperador] = useState<any>(null);
-  const [OpcionesZpMovilV5, setZpMovilV5] = useState<any>(null);
-
   const [DateTableMovil, setDateTableMovil] = useState<any[]>([]);
-  const [DateTableOperador, setDateTableOperador] = useState<any[]>([]);
   const [isCallData, setisCallData] = useState<boolean>(false); // permite validar 
   const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente);
   const [Clientes, setClientes] = useState<ClienteDTO[]>([]);
   const [lablesAxisx, setlablesAxisx] = useState<string[]>([]);
-  const [lablesAxisxAcumulado, setlablesAxisxAcumulado] = useState<string[]>([]);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [lstVehiculos, setlstVehiculos] = useState<dualList[]>([]);
   const [lstSeleccionados, setSeleccionados] = useState<string[]>([]);
-
-
   //TABLES
   //table state
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -105,15 +84,19 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
     pageIndex: 0,
     pageSize: 10,
   });
+  const [heightGrafica, setheightGrafica] = useState<number>(320);
+  const [heightGraficaAgrupada, setheightGraficaAgrupada] = useState<number>(200);
   const [rowCountMovil, setRowCountMovil] = useState(0);
-  const [rowCountOperador, setrowCountOperador] = useState(0);
-
   const [isLoading, setIsLoading] = useState(false);
   const [isRefetching, setIsRefetching] = useState(false);
   const [isError, setIsError] = useState(false);
   //TABLES
-
   const toaster = useToaster();
+  const [Totales, setTotales] = useState<Totales[]> ([]);
+  const [TotalesV5, setTotalesV5] = useState<Totales[]> ([]);
+    //Vertical grafica
+    // let Totales:{"Operador":string, "Total":number}[] = [];
+    // let TotalesV5:{"Operador":string, "Total":number}[] = [];
   useEffect(
     () => {
       GetClientesEsomos().then((response: AxiosResponse<any>) => {
@@ -154,7 +137,7 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
 
             }
           },
-          stacked: true
+          stacked: true,
         },
         xaxis: {
           categories: [],
@@ -168,48 +151,10 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
     let defaultopcionesAcumulado = {
       options: {
         chart: {
-          id: 'apexchart-acumulado'
+          id: 'apexchart-acumulado',
         },
         xaxis: {
           categories: [],
-        }
-      },
-      series: [],
-      dataLabels: {
-        enabled: true
-      }
-    }
-    let GraficaZpZonaOperador = {
-      options: {
-        chart: {
-          id: 'GraficaZpZonaOperador'
-        },
-        xaxis: {
-          categories: [],
-        }
-      },
-      plotOptions: {
-        bar: {
-          horizontal: true
-        }
-      },
-      series: [],
-      dataLabels: {
-        enabled: true
-      }
-    }
-    let vertical_chart_ZpMovilV5 = {
-      options: {
-        chart: {
-          id: 'vertical_chart_ZpMovilV5'
-        },
-        xaxis: {
-          categories: [],
-        }
-      },
-      plotOptions: {
-        bar: {
-          horizontal: true
         }
       },
       series: [],
@@ -221,15 +166,11 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
     // asingamos las opciones
     setOpciones(defaultopciones);
     setAcumulado(defaultopcionesAcumulado);
-    setZonaOperador(GraficaZpZonaOperador);
-    setZpMovilV5(vertical_chart_ZpMovilV5);
-
     return function cleanUp() {
       //SE DEBE DESTRUIR EL OBJETO CHART
     };
 
   }, [ClienteSeleccionado]);
-
   useEffect(() => {
     // VALIDAMOS EL INDEX SELECCIONADO
 
@@ -251,18 +192,47 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
       Consultar();
     return function cleanUp() {
     };
-
-
   }, [TipoReporte])
-
   const Consultar = () => {
     console.log("Consultar", TipoReporte[tabSel], tabSel)
     if (TipoReporte[tabSel].filtros.consultar ==  true || isCallData) {
       ObtenerDatos(tabSel);
     }
     else
-      filtarDatosSistema();
+      filtarDatosSistema(tabSel);
   }
+  let ColumnasGraficaZonaOperador:MRT_ColumnDef<Totales>[] = [{
+    accessorKey: 'Operador',
+    header: 'Operador',
+    Header:({ column, header, table }) =>{
+      return "";
+  },
+  },{
+    accessorKey: 'Total',
+    header: 'Total',
+    Header:({ column, header, table }) =>{
+        return "";
+    },
+    size:300,
+    maxSize:300,
+    minSize:300,
+    Cell:({cell, column, row, table}) =>{
+      let Total = (row.original.Total == null ? 0: row.original.Total)
+      return  <span title={`${ row.original.Completo?.toString()} : ${Total}` }>
+          <ProgressBar 
+            className='text-center fw-bolder' 
+            baseBgColor='transparent' 
+            bgColor= {`${(row.original.Id == "EV: 4. Potencia 150<P<175" ? '#ebba09' :'#F44336')}`} 
+            labelSize={`10px` } 
+            width='200px' 
+            customLabel={`${Total}`} 
+            completed={`${(Number(Total)*100+50)}`} 
+            maxCompleted={500}>
+          </ProgressBar> 
+        </span>
+    }
+    
+  }];
 
   let ColumnasTablas: any[] = [{
     "movil": [
@@ -400,21 +370,19 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
       }
     ]
   }];
-
   const RetornarLabel = (Data: any) => {
     return <span >{Data}</span>;
   };
-
   function ObtenerDatos(key: any | null | undefined) {
     setIsError(false)
     setIsLoading(true)
     setIsRefetching(true)
     setloader(true)
-
+    let Tab = (key == null || key == undefined ? "0" : key.toString());
     GetReporteOperadorMovil(moment(TipoReporte[0].filtros.FechaInicial).format(FormatoSerializacionYYYY_MM_DD_HHmmss)
-      , moment(TipoReporte[0].filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss), (key == null || key == undefined ? "0" : key.toString())).then((response: AxiosResponse<any>) => {
+      , moment(TipoReporte[0].filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss), Tab).then((response: AxiosResponse<any>) => {
         let Tiporeporte = [...TipoReporte];
-        Tiporeporte[tabSel].Data = response.data;
+        Tiporeporte[Tab].Data = response.data;
         setTipoReporte(Tiporeporte);
         // vamos a llenar la informacion de los movils
         let lstVehiculos = (response.data as any[]).reduce((p, c) => {
@@ -428,7 +396,7 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
         setlstVehiculos(lstVehiculos);
 
         // setModales();
-        filtarDatosSistema();
+        filtarDatosSistema(Tab);
         setIsLoading(false)
         setIsRefetching(false)
         Tiporeporte[tabSel].filtros.consultar = false;
@@ -445,11 +413,6 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
         setloader(false);
       })
   };
-  // carga la informacion de los modales segun la informacion extraida por los datos
-
-  // valida los rango de fecha
-  // y tambien valida que no se deba volver a visitar el servidor a menos que las fechas
-  //iniciales y finales cambien
   // VALIDA LAS FECHAS QUE SEAN LAS CORRECTAS Y ACTUALIZA LOS FILTROS
   let ValidarFechas = (Range: Date[]) => {
 
@@ -483,53 +446,32 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
     setTipoReporte(Tiporeporte)
 
   }
-
   // funcion que cambia el rango de fechas por tipo de reporte
   // 6 meses y ultimos 30 dias respectivamente
-  // function setDatosInicialesFechas() {
-  //   let filtros = TipoReporte[tabSel].filtros;
-  //   // $(`${reporte_fecha_final}`).data('daterangepicker').setStartDate(filtros.fechafinal.format(formatViewHoraMinuto))
-  // }
-  function changeDateControl() {
-    let filtros = TipoReporte[tabSel].filtros;
-    let tiporeporte = TipoReporte[tabSel].tipo;
-  }
-
   useEffect(() => {
-    ObtenerDatos(tabSel);
+   Consultar();
     // ColumnasTablas.push({movil});
     // ColumnasTablas.push({operador});
-    return () => { TipoReporte[tabSel].Data = [] }
+    return function cleanUp() {
+    };
   }, [])
-
-  // useEffect(() => {
-  //   setRowCountMovil(DateTableMovil.length);
-  //   return () => setRowCountMovil(0)
-  // }, [DateTableMovil])
-
-  // useEffect(() => {
-  //   setrowCountOperador(DateTableOperador.length)
-  //   return () => setrowCountOperador(0)
-  // }, [DateTableOperador])
-
-  const filtarDatosSistema = () => {
-    const tabla = TipoReporte[tabSel].tabla;
-    let filtros = TipoReporte[tabSel].filtros;
+  const filtarDatosSistema = (key: any | null | undefined) => {
+    let Tab = parseInt(key);
+    const tabla = TipoReporte[Tab].tabla;
+    let filtros = TipoReporte[Tab].filtros;
     let fechaGraficaActual = filtros.FechaGrafica;
     let FechaInicial: Date = filtros.FechaInicial;
     let FechaFinal: Date = filtros.FechaFinal;
     // datos traidos del c liente
-    let datosfiltrados = TipoReporte[tabSel].Data;
-
-
+    let datosfiltrados = TipoReporte[Tab].Data;
     if (filtros.IndGrafica != -1) {
       FechaInicial = moment(filtros.FechaGrafica, FormatoColombiaDDMMYYY).toDate();
       FechaFinal = moment(filtros.FechaGrafica, FormatoColombiaDDMMYYY).toDate();
     }
-
     // filtramos por las fechas
-    datosfiltrados = datosfiltrados.
-      filter((f: any) => moment(f.Fecha).toDate() >= FechaInicial && moment(f.Fecha).toDate() <= FechaFinal);
+    if(key <2)
+      datosfiltrados = datosfiltrados.
+        filter((f: any) =>  moment(f.Fecha).toDate() >= FechaInicial && moment(f.Fecha).toDate() <= FechaFinal);
     // filtramos por los vehivulos
     if (filtros.Vehiculos.length > 0) {
       datosfiltrados = datosfiltrados.filter((f: any) => filtros.Vehiculos.indexOf(f.Movil) > -1);
@@ -550,16 +492,17 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
         return p;
       }, {});
 
+
     //Agrupamos por operador
-    let agrupadoOperador = datosfiltrados
-      .reduce((p: any, c: any) => {
-        let name = c.Operador;
-        p[name] = p[name] ?? [];
-        p[name].push(c);
-        return p;
-      }, {});
-
-
+    let agrupadoOperador :any[] = [];
+    if(Tab == 1 || Tab == 2)
+      agrupadoOperador = datosfiltrados
+        .reduce((p: any, c: any) => {
+          let name = c.Operador;
+          p[name] = p[name] ?? [];
+          p[name].push(c);
+          return p;
+        }, {});
 
     let labels = new Array();
     let labelsConductores = new Array();
@@ -600,56 +543,57 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
       PorEV4Agrupado = PorEV4Agrupado + item.EV4Potencia150P175;
       PorEV5Agrupado = PorEV5Agrupado + item.EV5Potencia175;
     });
-
-    Object.entries(agrupadofecha).map((elem: any) => {
-      labels.push(moment(elem[0]).format(formatFechasView));
-      // totalizamos por propiedad que se necesite
-      // totalizamos por propiedad que se necesite
-      let EV0Regeneracion0P = (elem[1].map((m: any) => { return m.EV0Regeneracion0P }).reduce((a: any, b: any) => a + b, 0));
-      let EV1Potencia0P50 = (elem[1].map((m: any) => { return m.EV1Potencia0P50 }).reduce((a: any, b: any) => a + b, 0));
-      let EV2Potencia50P100 = (elem[1].map((m: any) => { return m.EV2Potencia50P100 }).reduce((a: any, b: any) => a + b, 0));
-      let EV3Potencia100P150 = (elem[1].map((m: any) => { return m.EV3Potencia100P150 }).reduce((a: any, b: any) => a + b, 0));
-      let EV4Potencia150P175 = (elem[1].map((m: any) => { return m.EV4Potencia150P175 }).reduce((a: any, b: any) => a + b, 0));
-      let EV5Potencia175 = (elem[1].map((m: any) => { return m.EV5Potencia175 }).reduce((a: any, b: any) => a + b, 0));
-      let EVTotal = (
-        elem[1].map((m: any) => {
-          return (m.Total)
-        }).reduce((a: any, b: any) => a + b, 0));
-      PorEV0Regeneracion0P = (EV0Regeneracion0P / EVTotal * 100)
-      PorEV1Potencia0P50 = (EV1Potencia0P50 / EVTotal * 100)
-      PorEV2Potencia50P100 = (EV2Potencia50P100 / EVTotal * 100)
-      PorEV3Potencia100P150 = (EV3Potencia100P150 / EVTotal * 100)
-      PorEV4Potencia150P175 = (EV4Potencia150P175 / EVTotal * 100)
-      PorEV5Potencia175 = (EV5Potencia175 / EVTotal * 100)
-      // sumamos los indicadores por fecha 
-      Ev0.push(PorEV0Regeneracion0P.toFixed(1));
-      Ev1.push(PorEV1Potencia0P50.toFixed(1));
-      Ev2.push(PorEV2Potencia50P100.toFixed(1));
-      Ev3.push(PorEV3Potencia100P150.toFixed(1));
-      Ev4.push(PorEV4Potencia150P175.toFixed(1));
-      Ev5.push(PorEV5Potencia175.toFixed(1));
-    });
-    //para sacar el total de los valores del agrupado.
-    let TotalAgrupado = PorEV0Agrupado + PorEV1Agrupado + PorEV2Agrupado + PorEV3Agrupado + PorEV4Agrupado + PorEV5Agrupado;
-    //Agrego lo valores agrupados a los array
-    Ev0Agrupado.push((PorEV0Agrupado / TotalAgrupado * 100).toFixed(1));
-    Ev1Agrupado.push((PorEV1Agrupado / TotalAgrupado * 100).toFixed(1));
-    Ev2Agrupado.push((PorEV2Agrupado / TotalAgrupado * 100).toFixed(1));
-    Ev3Agrupado.push((PorEV3Agrupado / TotalAgrupado * 100).toFixed(1));
-    Ev4Agrupado.push((PorEV4Agrupado / TotalAgrupado * 100).toFixed(1));
-    Ev5Agrupado.push((PorEV5Agrupado / TotalAgrupado * 100).toFixed(1));
-    //Fin agrupado
-    setlablesAxisx(labels)
     let LabelPeriodo = ["Periodo"];
-    setlablesAxisxAcumulado(LabelPeriodo)
-  //Vertical grafica
-  let Totales:any[] = [];
-  let TotalesV5:any[] = [];
+    if(Tab < 2){
+      Object.entries(agrupadofecha).map((elem: any) => {
+        labels.push(moment(elem[0]).format(formatFechasView));
+        // totalizamos por propiedad que se necesite
+        // totalizamos por propiedad que se necesite
+        let EV0Regeneracion0P = (elem[1].map((m: any) => { return m.EV0Regeneracion0P }).reduce((a: any, b: any) => a + b, 0));
+        let EV1Potencia0P50 = (elem[1].map((m: any) => { return m.EV1Potencia0P50 }).reduce((a: any, b: any) => a + b, 0));
+        let EV2Potencia50P100 = (elem[1].map((m: any) => { return m.EV2Potencia50P100 }).reduce((a: any, b: any) => a + b, 0));
+        let EV3Potencia100P150 = (elem[1].map((m: any) => { return m.EV3Potencia100P150 }).reduce((a: any, b: any) => a + b, 0));
+        let EV4Potencia150P175 = (elem[1].map((m: any) => { return m.EV4Potencia150P175 }).reduce((a: any, b: any) => a + b, 0));
+        let EV5Potencia175 = (elem[1].map((m: any) => { return m.EV5Potencia175 }).reduce((a: any, b: any) => a + b, 0));
+        let EVTotal = (
+          elem[1].map((m: any) => {
+            return (m.Total)
+          }).reduce((a: any, b: any) => a + b, 0));
+        PorEV0Regeneracion0P = (EV0Regeneracion0P / EVTotal * 100)
+        PorEV1Potencia0P50 = (EV1Potencia0P50 / EVTotal * 100)
+        PorEV2Potencia50P100 = (EV2Potencia50P100 / EVTotal * 100)
+        PorEV3Potencia100P150 = (EV3Potencia100P150 / EVTotal * 100)
+        PorEV4Potencia150P175 = (EV4Potencia150P175 / EVTotal * 100)
+        PorEV5Potencia175 = (EV5Potencia175 / EVTotal * 100)
+        // sumamos los indicadores por fecha 
+        Ev0.push(PorEV0Regeneracion0P.toFixed(1));
+        Ev1.push(PorEV1Potencia0P50.toFixed(1));
+        Ev2.push(PorEV2Potencia50P100.toFixed(1));
+        Ev3.push(PorEV3Potencia100P150.toFixed(1));
+        Ev4.push(PorEV4Potencia150P175.toFixed(1));
+        Ev5.push(PorEV5Potencia175.toFixed(1));
+      });
+      //para sacar el total de los valores del agrupado.
+      let TotalAgrupado = PorEV0Agrupado + PorEV1Agrupado + PorEV2Agrupado + PorEV3Agrupado + PorEV4Agrupado + PorEV5Agrupado;
+      //Agrego lo valores agrupados a los array
+      Ev0Agrupado.push((PorEV0Agrupado / TotalAgrupado * 100).toFixed(1));
+      Ev1Agrupado.push((PorEV1Agrupado / TotalAgrupado * 100).toFixed(1));
+      Ev2Agrupado.push((PorEV2Agrupado / TotalAgrupado * 100).toFixed(1));
+      Ev3Agrupado.push((PorEV3Agrupado / TotalAgrupado * 100).toFixed(1));
+      Ev4Agrupado.push((PorEV4Agrupado / TotalAgrupado * 100).toFixed(1));
+      Ev5Agrupado.push((PorEV5Agrupado / TotalAgrupado * 100).toFixed(1));
+      //Fin agrupado
+      setlablesAxisx(labels)
+    }
+   
+
   if (tabla == "tbloperadorgrafica"){
+    let TotalTemp : any [] = [];
+    let TotalesV5Temp : any[] = [];
     Object.entries(agrupadoOperador).map((elem:any) => {
       let TotalesConductor = 0;
       let TotalesConductorV5 = 0;
-      labelsConductores.push((elem[0] != undefined ? `${(elem[0].split("&")[1] != undefined) ? elem[0].split("&")[1].substring(0, 18) : elem[0].substring(0, 18)}...` : null));
+      // labelsConductores.push((elem[0] != undefined ? `${(elem[0].split("&")[1] != undefined) ? elem[0].split("&")[1].substring(0, 18) : elem[0].substring(0, 18)}...` : null));
       elem[1].map((m:any) => {
           if (m.Descripcion == "EV: 4. Potencia 150<P<175") {
               TotalesConductor = TotalesConductor + m.Total;
@@ -658,45 +602,30 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
           }
 
       });
-      Totales.sort((a, b) => {
-          return b - a;
-      }).push(TotalesConductor);
-      TotalesV5.sort((a, b) => {
-          return b - a;
-      }).push(TotalesConductorV5);
+      TotalTemp.push({
+        Id:"EV: 4. Potencia 150<P<175",
+        Completo:elem[0],
+        Operador:(elem[0] != undefined ? `${(elem[0].split("&")[1] != undefined) ? elem[0].split("&")[1].substring(0, 18) : elem[0].substring(0, 18)}..` : ""),Total: Number(TotalesConductor.toFixed(2))});
+        TotalesV5Temp.push({ 
+          Id:"EV: 5. Potencia >175",
+          Completo:elem[0],
+          Operador:(elem[0] != undefined ? `${(elem[0].split("&")[1] != undefined) ? elem[0].split("&")[1].substring(0, 18) : elem[0].substring(0, 18)}..` : ""),Total: Number(TotalesConductorV5.toFixed(2))});
   });
 
-  labelsConductores = labelsConductores.filter((val) => { return val != null });
-
-  ApexCharts.exec('GraficaZpZonaOperador', 'updateOptions', {
-    xaxis: {
-      categories: labelsConductores
-    }
-  });
-
-  ApexCharts.exec('vertical_chart_ZpMovilV5', 'updateOptions', {
-    xaxis: {
-      categories: labelsConductores
-    }
-  });
-
-  //Agrupado
-  ApexCharts.exec('GraficaZpZonaOperador', 'updateSeries', [{
-    name: 'EV: 4. Potencia 150<P<175',
-    data: Totales
-  }]);
-
-  ApexCharts.exec('vertical_chart_ZpMovilV5', 'updateSeries', [{
-    name: 'EV: 5. Potencia >175',
-    data: TotalesV5
-  }]);
+    setTotales(TotalTemp.sort((a:any,b:any) =>{
+      return b.Total - a.Total
+    }));
+    setTotalesV5(TotalesV5Temp.sort((a:any,b:any) =>{
+      return b.Total - a.Total
+    }));
       //fin vertical grafica
-
   }
-  
 
     ApexCharts.exec('apexchart-example', 'updateOptions', {
       chart: {
+        toolbar: {
+          show: false
+        },
         events: {
           dataPointSelection: (event: any, chartContext: any, config: any) => {
             // seleccionamos el index de la grafica para posteriormente filtrar
@@ -712,11 +641,15 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
       }
     });
     ApexCharts.exec('apexchart-acumulado', 'updateOptions', {
+      chart: {
+        toolbar: {
+          show: false
+        },
+      },
       xaxis: {
         categories: LabelPeriodo
       }
     });
-
   
     // funcion que actualiza los datos de las series
     // se debe pasar el id configurado al momento de su creaci'on para poder
@@ -760,29 +693,21 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
       name: 'EV: 5. Potencia >175',
       data: Ev5Agrupado
     }]);
-
-      
-   
-
     setDateTableMovil(datosfiltrados);
     setRowCountMovil(datosfiltrados.length);
-
   };
-
   const OnClickTabs = (Tab: number) => {
-   
     setisCallData(false);
     setidxSeleccionado(-1);    
     settabSel(Tab);
-    changeDateControl()
     //RenderGrafica()
     let data = TipoReporte[Tab].Data
-    if (data.length == 0) {
+    if (TipoReporte[Tab].filtros.consultar ==  true) {
       // BlockStart();
-      ObtenerDatos(Tab);
+     Consultar();
     } else {
       //setModales();
-      filtarDatosSistema();
+      filtarDatosSistema(Tab);
     }
   }
   function CargaListadoClientes() {
@@ -823,6 +748,10 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
     );
   }
 
+ 
+  useEffect(() =>{
+    (tabSel != 2)  ? setExcelVisible("block") :setExcelVisible("none")
+  },[tabSel])
   return (
     <>
       <BlockUi tag="div" keepInView blocking={loader ?? false}  >
@@ -851,8 +780,10 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
                   <Button className="m-2  btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}><i className="bi-car-front-fill"></i></Button>
                   <Button className="m-2  btn btn-sm btn-primary" onClick={() => { Consultar() }}><i className="bi-search"></i></Button>
                 </div>
-                <div className="col-sm-4 col-md-4 col-xs-4 col-lg-4 d-flex justify-content-end">
-                  <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel([], [], "Reporte") }}>
+                <div className="col-sm-4 col-md-4 col-xs-4 col-lg-4 d-flex justify-content-end"  style={{display: ExcelVisible}}>
+                  <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => {
+                     DescargarExcel(DateTableMovil,(tabSel == 0 ?ColumnasTablas[0]['movil']:ColumnasTablas[1]['operador']) , "Reporte") 
+                     }}>
                     <i className="bi-file-earmark-excel"></i></button>
                 </div>
               </div>
@@ -867,7 +798,6 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
               <div className="me-sm-10 me-0">
                 <ul className="nav nav-tabs nav-pills nav-pills-custom" > {/**/}
                   {listTabs.map((tab, idx) => {
-                    
                     return (<li className="nav-item mb-3" key={`tabenc_${idx}`}>
                       <a
                         onClick={() => OnClickTabs(idx)}
@@ -892,9 +822,9 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
                           <span className="nav-text text-gray-600 fw-bolder fs-6">
                             {tab.titulo}
                           </span>
-                          {/* <span className="text-muted fw-bold d-block pt-1">
+                          <span className="text-muted fw-bold d-block pt-1">
                             {tab.subtitulo}
-                          </span> */}
+                          </span>
                         </div>
                       </a>
                     </li>
@@ -916,21 +846,20 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
                         <ReactApexChart
                           options={OpcionesAcumulado.options}
                           series={OpcionesAcumulado.series} type="bar"
-                          height={200} />)}
+                          height={200}
+                          />)}
                     </div>
                   </div>
                   <div className="card" id="efi-chartzpMovil" style={{ border: '1px solid #5ab55e', borderRadius: '5px' }}>
                     <div className="card-body">
-                      <div className="chart-container">
                         <div className="row">
                           {(opciones != null) && (
                             <ReactApexChart
                               options={opciones.options}
                               series={opciones.series} type="bar"
-                              height={320} />)}
+                              height={320}
+                             />)}
                         </div>
-                      </div>
-
                     </div>
                   </div>
                 </div>
@@ -977,6 +906,18 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
                       onPaginationChange={setPagination}
                       onSortingChange={setSorting}
                       rowCount={rowCountMovil}
+                      enableStickyHeader
+                      enableDensityToggle = {false}
+                      enableRowVirtualization
+                      defaultColumn={{
+                        minSize: 150, //allow columns to get smaller than default
+                        maxSize: 400, //allow columns to get larger than default
+                        size: 150, //make columns wider by default
+                      }}
+                      muiTableContainerProps={{
+                        sx: { maxHeight: '400px' }, //give the table a max height
+                      }}
+                      initialState={{ density: 'compact'}}
                       state={{
                         columnFilters,
                         globalFilter,
@@ -1036,7 +977,19 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
                       onGlobalFilterChange={setGlobalFilter}
                       onPaginationChange={setPagination}
                       onSortingChange={setSorting}
-                      rowCount={rowCountOperador}
+                      rowCount={rowCountMovil}
+                      enableStickyHeader
+                      enableDensityToggle = {false}
+                      enableRowVirtualization
+                      defaultColumn={{
+                        minSize: 150, //allow columns to get smaller than default
+                        maxSize: 400, //allow columns to get larger than default
+                        size: 150, //make columns wider by default
+                      }}
+                      muiTableContainerProps={{
+                        sx: { maxHeight: '400px' }, //give the table a max height
+                      }}
+                      initialState={{ density: 'compact'}}
                       state={{
                         columnFilters,
                         globalFilter,
@@ -1062,21 +1015,100 @@ const ReporteZpMovilOperador: React.FC<Props> = ({ }) => {
                         <div className="card-body">
                           <div className="chart-container">
                             <div className="row">
-                              <div className="col-xs-6 col-sm-6 col-md-6" style={{ height: '400px', overflowY: 'scroll' }}>
-                                <div className="text-center"><label className="label control-label label-sm font-weight-bold" style={{ fontSize: '16px' }}>Zonas:EV: 4. Potencia [150&lt;P&lt;175]</label></div>
-                                {(OpcionesZonaOperador != null) && (
-                                  <ReactApexChart
-                                    options={OpcionesZonaOperador.options}
-                                    series={OpcionesZonaOperador.series} type="bar"
-                                    height={320} />)}
+                              <div className="col-xs-6 col-sm-6 col-md-6" >
+                                <div className="text-center"><label className="label control-label label-sm fw-bolder" style={{ fontSize: '16px' }}>Zonas:EV: 4. Potencia [150&lt;P&lt;175]</label></div>
+                               {(Totales.length != 0) && (<MaterialReactTable
+                                    // tableInstanceRef={ColumnasTablas['movil']}
+                                    displayColumnDefOptions={{
+                                      'mrt-row-actions': {
+                                        muiTableHeadCellProps: {
+                                          align: 'center',
+                                        },
+                                        size: 0,
+                                      },
+                                    }}
+                                  
+                                    localization={MRT_Localization_ES}
+                                    columns={ColumnasGraficaZonaOperador}
+                                    data={Totales}
+                                    enableColumnOrdering={false}
+                                    enableColumnActions={false}
+                                    enableSorting={true}
+                                    enableFilters={false}
+                                    manualSorting={false}
+                                    enableGlobalFilterRankedResults={false}
+                                    enableDensityToggle={false}
+                                    enableColumnDragging={false}
+                                    enablePagination={false}
+                                    enableHiding={false}
+                                    enableFullScreenToggle={false}
+                                    enableSortingRemoval={false}
+                                    enableStickyHeader
+                                    enableRowVirtualization
+                                    defaultColumn={{
+                                      minSize: 150, //allow columns to get smaller than default
+                                      maxSize: 400, //allow columns to get larger than default
+                                      size: 150, //make columns wider by default
+                                    }}
+                                    initialState={{ density: 'compact' }}
+                                    state={{
+                                      columnFilters,
+                                      globalFilter,
+                                      isLoading,
+                                      pagination,
+                                      showAlertBanner: isError,
+                                      showProgressBars: isRefetching,
+                                      sorting,
+                                    }}
+                                  />)}
+                              
                               </div>
-                              <div className="col-xs-6 col-sm-6 col-md-6" style={{ height: '400px', overflowY: 'scroll' }}>
-                                <div className="text-center"><label className="label control-label label-sm font-weight-bold" style={{ fontSize: '16px' }}>Zonas:EV: 5. Potencia [&gt;175]</label></div>
-                                    {(OpcionesZpMovilV5 != null) && (
-                                <ReactApexChart
-                                  options={OpcionesZpMovilV5.options}
-                                  series={OpcionesZpMovilV5.series} type="bar"
-                                  height={320} />)}
+                              <div className="col-xs-6 col-sm-6 col-md-6">
+                                <div className="text-center"><label className="label control-label label-sm fw-bolder" style={{ fontSize: '16px' }}>Zonas:EV: 5. Potencia [&gt;175]</label></div>
+                                {(TotalesV5.length != 0) && (<MaterialReactTable
+                                    // tableInstanceRef={ColumnasTablas['movil']}
+                                    displayColumnDefOptions={{
+                                      'mrt-row-actions': {
+                                        muiTableHeadCellProps: {
+                                          align: 'center',
+                                        },
+                                        size: 0,
+                                      },
+                                    }}
+                                  
+                                    localization={MRT_Localization_ES}
+                                    columns={ColumnasGraficaZonaOperador}
+                                    data={TotalesV5}
+                                    enableColumnOrdering={false}
+                                    enableColumnActions={false}
+                                    enableSorting={true}
+                                    enableFilters={false}
+                                    manualSorting={false}
+                                    enableGlobalFilterRankedResults={false}
+                                    enableDensityToggle={false}
+                                    enableColumnDragging={false}
+                                    enablePagination={false}
+                                    enableHiding={false}
+                                    enableFullScreenToggle={false}
+                                    enableSortingRemoval={false}
+                                    enableStickyHeader
+                                    enableRowVirtualization
+                                    defaultColumn={{
+                                      minSize: 150, //allow columns to get smaller than default
+                                      maxSize: 400, //allow columns to get larger than default
+                                      size: 150, //make columns wider by default
+                                    }}
+                                    initialState={{ density: 'compact' }}
+                                    state={{
+                                      columnFilters,
+                                      globalFilter,
+                                      isLoading,
+                                      pagination,
+                                      showAlertBanner: isError,
+                                      showProgressBars: isRefetching,
+                                      sorting,
+                                    }}
+                                  />)}
                               </div>
                             </div>
                           </div>

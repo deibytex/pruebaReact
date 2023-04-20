@@ -46,8 +46,8 @@ export function GetReporteOperadorMovil(FechaInicial:string, FechaFinal:string, 
     return  Post_GetConsultasDinamicas({ Clase : "EbusQueryHelper",  NombreConsulta: NombreConsulta, Pagina :null, RecordsPorPagina :null}, params);
 }
 
-const tab1 : TabProperty = {  icon: "/media/icons/duotone/files/Selected-file.svg", iconColored : "/media/svg/logo/colored/fox-hub-2.svg", titulo: "Móvil", subtitulo : ""}
-const tab2 : TabProperty = {  icon: "/media/icons/duotone/files/Deleted-file.svg", iconColored : "/media/svg/logo/colored/fox-hub-2.svg", titulo: "Operador", subtitulo : ""}
-const tab3 : TabProperty = {  icon: "/media/icons/duotone/files/DownloadedFile.svg", iconColored : "/media/svg/logo/colored/fox-hub-2.svg", titulo: "Operador", subtitulo : "Zona"}
+const tab1 : TabProperty = {  icon: "/media/icons/duotone/Code/Option.svg", iconColored : "/media/svg/logo/colored/fox-hub-2.svg", titulo: "Móvil", subtitulo : ""}
+const tab2 : TabProperty = {  icon: "/media/icons/duotone/General/User.svg", iconColored : "/media/svg/logo/colored/fox-hub-2.svg", titulo: "Operador", subtitulo : ""}
+const tab3 : TabProperty = {  icon: "/media/icons/duotone/Files/User-folder.svg", iconColored : "/media/svg/logo/colored/fox-hub-2.svg", titulo: "Operador", subtitulo : "Zona"}
 
 export const listTabs : TabProperty[] = [tab1,tab2,tab3]

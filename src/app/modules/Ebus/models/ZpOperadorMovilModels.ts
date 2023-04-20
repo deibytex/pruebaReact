@@ -24,3 +24,9 @@ export interface FiltrosReportes {
 
    export const listTabs : TabProperty[] = [tab1,tab2,tab3]
    
+   export type Totales =  {
+    Operador:string | null;
+    Total:string | null;
+    Completo:string|null;
+    Id:string|null;
+   }
