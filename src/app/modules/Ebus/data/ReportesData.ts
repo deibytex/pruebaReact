@@ -99,3 +99,17 @@ export function GetDataEficiencia(FechaInicial:string, FechaFinal:string, client
         RecordsPorPagina: null
     }, params);
 }
+
+export function GetDataSafety(FechaInicial:string, FechaFinal:string, clientesIds :number, tipo : number) {
+    var params: { [id: string]: string | null | undefined;} = {};
+    params['FechaInicio'] = FechaInicial;
+    params['FechaFin'] = FechaFinal; 
+    params['tipo'] = `${tipo}`; 
+    params['ClienteIds'] = `${clientesIds}`; 
+       
+    return  Post_GetConsultasDinamicas({
+        NombreConsulta: "getReporteSafety", Clase: "RagQueryHelper",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, params);
+}
