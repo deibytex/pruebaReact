@@ -1,6 +1,6 @@
 import moment from "moment";
 import { useEffect, useRef, useState, UIEvent, useCallback } from "react";
-import { GetDataEficiencia, GetDataSafety, GetReporteAlarmas, GetReporteNivelCarga, listTabsEficiencia } from "../../data/ReportesData";
+import { GetDataEficiencia, GetDataSafety, GetReporteAlarmas, GetReporteNivelCarga, listTabsSafety } from "../../data/ReportesData";
 import { PageTitle } from "../../../../../_start/layout/core";
 import { DateRangePicker, Notification, Placeholder, useToaster } from "rsuite";
 import BlockUi from "@availity/block-ui";
@@ -140,14 +140,14 @@ export default function ReporteSafety() {
                     accessorKey: 'DuracionHora',
                     header: 'Duracion',
                     Cell({ cell, column, row, table, }) {
-                        return (locateFormatNumberNDijitos(row.original.Distancia ?? 0, 2))
+                        return (locateFormatNumberNDijitos(row.original.DuracionHora ?? 0, 2))
                     }
                 },
                 {
                     accessorKey: 'ValorMax',
                     header: 'Valor Max',
                     Cell({ cell, column, row, table, }) {
-                        return (locateFormatNumberNDijitos(row.original.Duracion ?? 0, 2))
+                        return (locateFormatNumberNDijitos(row.original.ValorMax ?? 0, 2))
                     }
                 }
 
@@ -303,7 +303,7 @@ export default function ReporteSafety() {
                     enabledOnSeries: true,
                     formatter: function (value: any, { seriesIndex, dataPointIndex, w }: any) {
 
-                        return locateFormatPercentNDijitos(value, 2)
+                        return locateFormatNumberNDijitos(value, 2)
                     },
                 }
             },
@@ -366,12 +366,13 @@ export default function ReporteSafety() {
                     setisCallData(false)
                     // vamos a llenar la informacion de los Operadores
                     let lstOperadores = (response.data as any[]).reduce((p, c) => {
-                        let operador = c["Operador"];
+                        let operador = c["operador"];
                         let isExists = p.filter((f: any) => f["value"] === operador);
                         if (isExists.length == 0)
                             p.push({ "value": operador, "label": operador })
                         return p;
                     }, []);
+
                     // listados de operadores de los datos que traemos
                     setlstOperadores(lstOperadores);
                     // datos filtrados que al principio son los mismos extraidos
@@ -486,9 +487,7 @@ export default function ReporteSafety() {
 
         let scoretotal = sumScores / SumDistancia;
 
-        setListIndicadores({
-            "Calificación Total": locateFormatNumberNDijitos(scoretotal, 2),
-        });
+
 
         //AGRUPAMOS VALORES EVENTOS TOTALES POR EVENTO - OPERADOR
         let agrupadoOperadormensual = datosFiltrados
@@ -508,7 +507,7 @@ export default function ReporteSafety() {
                 }
                 return p;
             }, []);// contenemos la informacion en un array de datos agrupados
-            
+
         //ORDENAMOS POR CANTIDAD
         agrupadoOperadormensual.forEach((e: { totalPorOperador: any; original: any[]; }) => {
             e.totalPorOperador = e.original.reduce((p1, c1) => {
@@ -539,7 +538,7 @@ export default function ReporteSafety() {
                     }
 
                     p1.push(objetoOperadorScore);
-             
+
 
                 } else {
                     let rowOperador = isExistsOperador[0];
@@ -577,15 +576,12 @@ export default function ReporteSafety() {
             score <= 2 ? verde += 1 : score > 2 && score <= 5 ? ambar += 1 : rojo += 1;
         });
 
-        const indicadoresFinal = {
+        setListIndicadores({
             "Cond Rojo": rojo,
             "Cond Ambar": ambar,
             "Cond Verde": verde,
-            ...lstIndicadores,
-        };
-        
-        setListIndicadores(indicadoresFinal);
-
+            "Calificación Total": locateFormatNumberNDijitos(scoretotal, 2),
+        });
 
         setlablesAxisx(labels)
 
@@ -703,7 +699,7 @@ export default function ReporteSafety() {
         <BlockUi tag="div" keepInView blocking={loader ?? false}  >
             <div className="card card-rounded shadow mt-2 text-primary" style={{ width: '100%' }}  >
 
-                <div className="d-flex justify-content-end mt-2">
+                <div className="d-flex justify-content-end mt-2 m-2">
                     <div style={{ float: 'right' }}>
                         <CargaListadoClientes />
                     </div>
@@ -723,12 +719,13 @@ export default function ReporteSafety() {
                         {
 
                             Object.entries(lstIndicadores).map((element: any) => {
-
+                                
                                 return (
-                                    <div key={`indicadores_${element[0]}`} className="row card shadow m-2 col-sm-3 col-md-3 col-xs-3 mx-auto">
+                                    <div key={`indicadores_${element[0]}`} className={`row card shadow m-2 col-sm-3 col-md-3 col-xs-3 mx-auto 
+                                            ${(element[0] == "Cond Rojo") ? "bg-danger" : (element[0] == "Cond Ambar") ? "bg-warning" : (element[0] == "Cond Verde") ? "bg-success" : ""}`}>
                                         <div className="ms-3 text-center m-4">
-                                            <h2 className="mb-0"><span id={element[0]}>{element[1]}</span></h2>
-                                            <span className="text-muted">{element[0]}</span>
+                                            <h2 className={`mb-0 ${(element[0] != "Calificación Total") ? "text-white" : ""}`}><span id={element[0]}>{element[1]}</span></h2>
+                                            <span className={`${(element[0] != "Calificación Total") ? "text-white" : "text-muted"}`}>{element[0]}</span>
                                         </div>
                                     </div>
                                 )
@@ -769,7 +766,7 @@ export default function ReporteSafety() {
                 {/* begin::Nav */}
                 <div className="me-sm-10 me-0">
                     <ul className="nav nav-tabs nav-pills nav-pills-custom">
-                        {listTabsEficiencia.map((tab, idx) => {
+                        {listTabsSafety.map((tab, idx) => {
                             return (<li className="nav-item mb-3" key={`tabenc_${idx}`}>
                                 <a
                                     onClick={() => settabSel(idx)}
@@ -914,20 +911,7 @@ export default function ReporteSafety() {
                         </div>
                         {/* end::Cards      */}
                     </div>
-
-
                     {/* end::Tab Pane 2 */}
-                    {/* begin::Tab Pane 3 */}
-                    <div className={`tab-pane fade ${tabSel === 2 ? "show active" : ""}`} id="tab2_content">
-                        {/* begin::Cards */}
-                        <div className="overflow-auto">
-
-                        </div>
-                        {/* end::Cards      */}
-                    </div>
-
-                    {/* end::Tab Pane 3 */}
-
                 </div>
                 {/* end::Tab Content */}
             </div>
