@@ -22,6 +22,7 @@ import { InicioCliente } from "../../../../../_start/helpers/Models/ClienteDTO";
 import { formatNumberChart, locateFormatNumberNDijitos, locateFormatPercentNDijitos } from "../../../../../_start/helpers/Helper";
 import { Box } from "@mui/material";
 import { DrawDynamicIconMuiMaterial } from "../../../../../_start/helpers/components/IconsMuiDynamic";
+import { subDays, addDays } from "rsuite/esm/utils/dateUtils";
 
 
 
@@ -29,9 +30,9 @@ import { DrawDynamicIconMuiMaterial } from "../../../../../_start/helpers/compon
 export default function ReporteEficiencia() {
 
   let filtrosBase: FiltrosReportes = {
-    FechaInicialInicial: moment().add(-180, 'days').startOf('day').toDate(),
+    FechaInicialInicial: moment().add(-6, 'months').startOf('day').toDate(),
     FechaFinalInicial: moment().startOf('day').toDate(),
-    FechaInicial: moment().startOf('day').add(-180, 'days').toDate(),
+    FechaInicial: moment().add(-6, 'months').startOf('day').toDate(),
     FechaFinal: moment().startOf('day').toDate(),
     IndGrafica: -1,
     FechaGrafica: "",
@@ -130,7 +131,7 @@ export default function ReporteEficiencia() {
   const TipoReporteBase = [
     {
       reporte: "Móvil Mensual", columnas: getListadoCampoPorTipo(true, false),
-      filtros: { ...filtrosBase, MaxDay: 30 }, tipo: 1, Data: [], consultar: true, EsMovil: true
+      filtros: { ...filtrosBase, MaxDay: 31 }, tipo: 1, Data: [], consultar: true, EsMovil: true
     },
     {
       reporte: "Móvil Diario", columnas: getListadoCampoPorTipo(true, true),
@@ -140,7 +141,7 @@ export default function ReporteEficiencia() {
         FechaInicial: FechaInicialDiario
       }, tipo: 2, Data: [], consultar: true, EsMovil: true
     },
-    { reporte: "Operador Mensual", columnas: getListadoCampoPorTipo(false, false), filtros: { ...filtrosBase, MaxDay: 30 }, tipo: 1, Data: [], consultar: true },
+    { reporte: "Operador Mensual", columnas: getListadoCampoPorTipo(false, false), filtros: { ...filtrosBase, MaxDay: 31 }, tipo: 1, Data: [], consultar: true },
     {
       reporte: "Operador Diario", columnas: getListadoCampoPorTipo(false, true), filtros: {
         ...filtrosBase, MaxDay: 7,
@@ -158,7 +159,7 @@ export default function ReporteEficiencia() {
     "Regeneración [%]": 0,
     "VelProm [km/h]": 0,
   });
-  const { allowedMaxDays, allowedRange, combine } = DateRangePicker;
+  const { allowedMaxDays, allowedRange, combine, before, after } = DateRangePicker;
 
   const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente);
 
@@ -744,11 +745,17 @@ export default function ReporteEficiencia() {
           <h3 className="fs-4 m-2 ms-2 d-flex "> Filtros</h3>
           <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8">
             <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fecha inicial: </label>
-            {(combine && allowedMaxDays && allowedRange) && (
-              <DateRangePicker className="mt-2" format="dd/MM/yyyy" value={[TipoReporte[tabSel].filtros.FechaInicial, TipoReporte[tabSel].filtros.FechaFinal]}
-                disabledDate={combine(allowedMaxDays(TipoReporte[tabSel].filtros.MaxDay), allowedRange(
-                  moment().add(-200, 'days').startOf('day').toDate(), moment().startOf('day').toDate()
-                ))}
+            {(combine && before && allowedRange && allowedMaxDays) && (
+              <DateRangePicker size="lg" className="mt-2" format="dd/MM/yyyy" value={[TipoReporte[tabSel].filtros.FechaInicial, TipoReporte[tabSel].filtros.FechaFinal]}
+              hoverRange={
+                TipoReporte[tabSel].tipo == 1  ? `month` : undefined //date =>  [subDays(date, 3), addDays(date,3)]
+              }
+              disabledDate={combine( allowedRange(
+              ( TipoReporte[tabSel].tipo == 1 ) ? moment().add(-6, 'months').startOf('month').toDate() : moment().add(-6, 'months').toDate(),
+              ( TipoReporte[tabSel].tipo == 1 ) ? moment().endOf('month').toDate() : moment().toDate()
+              ) ,
+              allowedMaxDays(31)
+              )}
                 onChange={(value, e) => {
                   if (value !== null) {
                     ValidarFechas(
