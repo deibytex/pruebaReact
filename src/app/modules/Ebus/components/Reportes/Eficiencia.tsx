@@ -1,12 +1,12 @@
 import moment from "moment";
-import { useEffect, useRef, useState, UIEvent, useCallback } from "react";
-import { GetDataEficiencia, GetReporteAlarmas, GetReporteNivelCarga, listTabsEficiencia } from "../../data/ReportesData";
+import { useEffect, useRef, useState} from "react";
+import { GetDataEficiencia,  listTabsEficiencia } from "../../data/ReportesData";
 import { PageTitle } from "../../../../../_start/layout/core";
 import { DateRangePicker, Notification, Placeholder, useToaster } from "rsuite";
 import BlockUi from "@availity/block-ui";
 import { DescargarExcel } from "../../../../../_start/helpers/components/DescargarExcel";
 import MaterialReactTable, { MRT_ColumnDef, MRT_TableInstance } from "material-react-table";
-import { FormatoColombiaDDMMYYY, FormatoColombiaDDMMYYYHHmmss, FormatoSerializacionYYYY_MM_DD_HHmmss } from "../../../../../_start/helpers/Constants";
+import { FormatoColombiaDDMMYYY,  FormatoSerializacionYYYY_MM_DD_HHmmss } from "../../../../../_start/helpers/Constants";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import DualListBox from "react-dual-listbox";
@@ -19,10 +19,8 @@ import { AxiosResponse } from "axios";
 import { GetClientesEsomos } from "../../data/NivelCarga";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 import { InicioCliente } from "../../../../../_start/helpers/Models/ClienteDTO";
-import { locateFormatNumberNDijitos, locateFormatPercentNDijitos } from "../../../../../_start/helpers/Helper";
+import { formatNumberChart, locateFormatNumberNDijitos, locateFormatPercentNDijitos } from "../../../../../_start/helpers/Helper";
 import { Box } from "@mui/material";
-import { toAbsoluteUrl } from "../../../../../_start/helpers";
-import * as Icons from "@mui/icons-material";
 import { DrawDynamicIconMuiMaterial } from "../../../../../_start/helpers/components/IconsMuiDynamic";
 
 
@@ -173,7 +171,7 @@ export default function ReporteEficiencia() {
   const [opciones, setOpciones] = useState<any>(null);
   const [OpcionesAcumulado, setAcumulado] = useState<any>(null);
 
-  const [data, setData] = useState<any[]>([]);
+  const [columnas, setcolumnas] = useState<any[]>([]);
   const [dataFiltrada, setDataFiltrada] = useState<any[]>([]);
 
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -252,8 +250,7 @@ export default function ReporteEficiencia() {
               setidxSeleccionado(config.dataPointIndex);
 
             }
-          },
-          type: 'bar'
+          }
         },
         xaxis: {
           categories: []
@@ -289,7 +286,12 @@ export default function ReporteEficiencia() {
           min: 0,
           max: 1,
           opposite: true,
-          show: false
+          show: false, labels: {
+            formatter: function (val: number, index: any) {
+              return locateFormatPercentNDijitos(val, 2)
+            
+            }
+          }
         }
         ],
         dataLabels: {
@@ -306,8 +308,58 @@ export default function ReporteEficiencia() {
       series: []
 
     }
+
+    let defaultopcionesDistancia = {
+      options: {
+        chart: {
+          id: 'totalDistancia',
+          events: {
+            dataPointSelection: function (event: any, chartContext: any, config: any) {
+              // seleccionamos el index de la grafica para posteriormente filtrar
+              setidxSeleccionado(config.dataPointIndex);
+
+            }
+          }
+        },
+        xaxis: {
+          categories: []
+        },
+        yaxis: [{
+          showAlways: true,
+          tickAmount: 5,
+          min: 0,
+          labels: {
+            formatter: function (val: number, index: any) {
+              return formatNumberChart(val);
+            }
+          },
+          title: {
+            text: "Distancia [km]"
+          }
+        }
+        ],
+        dataLabels: {
+          enabled: true,
+          enabledOnSeries: true,
+          formatter: function (value: any, { seriesIndex, dataPointIndex, w }: any) {
+            return formatNumberChart(value)
+          },
+
+        },
+        plotOptions: {
+          line: {
+            dataLabels: {
+              position: 'top'
+            }
+          }
+        }
+      },
+      series: []
+
+    }
     // asingamos las opciones
     setOpciones(defaultopciones)
+    setAcumulado(defaultopcionesDistancia)
 
     return function cleanUp() {
       //SE DEBE DESTRUIR EL OBJETO CHART
@@ -358,7 +410,7 @@ export default function ReporteEficiencia() {
           Tiporeporte[tabSel].consultar = false;
           setisCallData(false);
           setTipoReporte(Tiporeporte);
-          setData(response.data);
+         
           setisCallData(false)
           // vamos a llenar la informacion de los movils
           let lstVehiculos = (response.data as any[]).reduce((p, c) => {
@@ -408,22 +460,28 @@ export default function ReporteEficiencia() {
 
     let datosFiltrados: any[] = datos;
     if (filtros.IndGrafica != -1) {
-      FechaInicial = moment(filtros.FechaGrafica, FormatoColombiaDDMMYYY).toDate();
-      FechaFinal = moment(filtros.FechaGrafica, FormatoColombiaDDMMYYY).toDate();
+      let fecha = filtros.FechaGrafica
+      if(!EsDiario ){
+        let mensual : string[] = filtros.FechaGrafica?.split('-') ?? ['2023','01'];
+        fecha = `01/${mensual[1].padStart(2,'0')}/${mensual[0]}`;
+      }
+      FechaInicial = moment(fecha, FormatoColombiaDDMMYYY).toDate();
+      FechaFinal = moment(fecha, FormatoColombiaDDMMYYY).toDate();
     }
 
 
     // filtramos por las fechas
     datosFiltrados = datosFiltrados.
       filter(f =>
-        EsDiario ? moment(f.Fecha).toDate() : new Date(f.anio, f.mes, 1) >= FechaInicial
-          && EsDiario ? moment(f.Fecha).toDate() : new Date(f.anio, f.mes, 1) <= FechaFinal);
+        (EsDiario ? moment(f.Fecha).toDate() : moment(`01/${f.mes.toString().padStart(2,'0')}/${f.anio.toString()}`, FormatoColombiaDDMMYYY).toDate()) >= FechaInicial
+          && (EsDiario ? moment(f.Fecha).toDate() : moment(`01/${f.mes.toString().padStart(2,'0')}/${f.anio.toString()}`, FormatoColombiaDDMMYYY).toDate()) <= FechaFinal);
 
     // filtramos por los vehivulos
 
     if (filtros.Vehiculos.length > 0) {
       datosFiltrados = datosFiltrados.filter(f => filtros.Vehiculos.indexOf(f[(TipoReporte[tabSel].EsMovil) ? "Movil" : "Operador"]) > -1);
     }
+    setcolumnas(TipoReporte[tabSel].columnas);
     setDataFiltrada(datosFiltrados);
     setRowCount(datosFiltrados.length); // actualizamos la informacion de las filas
     // agrupa los elementos para ser mostrado por la grafica
@@ -489,7 +547,7 @@ export default function ReporteEficiencia() {
     let PorRegeneracionsum = CargaSum / DescargaSum;
 
     setListIndicadores({
-      "Distancia [km]": locateFormatNumberNDijitos(DistanciaSum, 2),
+      "Distancia [km]": formatNumberChart(DistanciaSum),
       "Eficiencia [km/kWh]": locateFormatNumberNDijitos(EficienciaSum, 2),
       "Regeneración [%]": locateFormatPercentNDijitos(PorRegeneracionsum, 2),
       "VelProm [km/h]": locateFormatNumberNDijitos((DistanciaSum / (TotalDuracionSum)), 2),
@@ -504,11 +562,28 @@ export default function ReporteEficiencia() {
     ApexCharts.exec('apexchart-example', 'updateOptions', {
       chart: {
         events: {
-          dataPointSelection: (event: any, chartContext: any, config: any) => {
+          markerClick: (event: any, chartContext: any, config: any) => {
             // seleccionamos el index de la grafica para posteriormente filtrar
-            let labelSeleccionado = config.w.config.xaxis.categories[config.dataPointIndex];
+            let labelSeleccionado = labels[config.dataPointIndex];
             // si la informacion del label seleccionado es igual al label que se encuentra en los filtros
             // asginamos  -1 y limpiamos la grafica para que muestre todos los datos
+            setidxSeleccionado((labelSeleccionado === fechaGraficaActual) ? -1 : config.dataPointIndex);
+          }
+        }
+      },
+      xaxis: { 
+        categories: labels
+      }
+    });
+    ApexCharts.exec('totalDistancia', 'updateOptions', {
+      chart: {
+        events: {
+          markerClick: (event: any, chartContext: any, config: any) => {
+            // seleccionamos el index de la grafica para posteriormente filtrar
+            let labelSeleccionado = labels[config.dataPointIndex];
+            // si la informacion del label seleccionado es igual al label que se encuentra en los filtros
+            // asginamos  -1 y limpiamos la grafica para que muestre todos los datos
+          
             setidxSeleccionado((labelSeleccionado === fechaGraficaActual) ? -1 : config.dataPointIndex);
           }
         }
@@ -537,7 +612,13 @@ export default function ReporteEficiencia() {
         color: '#99C2A2'
       }]);
 
+      ApexCharts.exec('totalDistancia', 'updateSeries', [
+        {
+          name: 'Distancia [km]',
+          data: totalDistanciaA
+        }]);
 
+//totalDistancia
 
 
 
@@ -620,7 +701,7 @@ export default function ReporteEficiencia() {
 
  
   return (<>
-    <PageTitle>Reporte Nivel Carga</PageTitle>
+    <PageTitle>Reporte Eficiencia</PageTitle>
     <BlockUi tag="div" keepInView blocking={loader ?? false}  >
       <div className="card card-rounded shadow mt-2 text-primary" style={{ width: '100%' }}  >
 
@@ -777,7 +858,7 @@ export default function ReporteEficiencia() {
 
               }),
             }}
-            columns={TipoReporteBase[tabSel].columnas}
+            columns={columnas}
             data={dataFiltrada}
             // editingMode="modal" //default         
             // enableTopToolbar={false}

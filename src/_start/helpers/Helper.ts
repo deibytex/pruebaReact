@@ -44,3 +44,11 @@ export  function msToTime(s : number) {
       maximumFractionDigits: digits
     } )
   } 
+
+  export function formatNumberChart(number :number)
+  {
+      if (!isNaN(number))
+          return (number >= 1000000) ? `${(number / 1000000).toFixed(2)}M` : `${(number / 1000).toFixed(2)}K`
+  
+      return `${number.toFixed(2)}`
+  }
