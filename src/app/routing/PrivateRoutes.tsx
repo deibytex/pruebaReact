@@ -25,7 +25,7 @@ import ReporteAlarmas from "../modules/Ebus/components/Reportes/Alarmas";
 import  {Dashboard}  from "../modules/Tx/Dashboard";
 import ReportesIFrame from "../../_start/helpers/components/RenderIframe";
 import ReporteConductorNoId from "../modules/Ebus/components/Reportes/ConductorNoId";
-import { default as ZPOperadorMovil} from "../modules/Ebus/ZPOperadorMovil";
+import { default as ZPOperadorMovil} from "../modules/Ebus/components/Reportes/ZPOperadorMovil";
 import React from "react";
 
 
@@ -122,7 +122,7 @@ export function PrivateRoutes() {
     component: Dashboard
   },
   {
-    path: '/ebus/ZPOperadorMovil', 
+    path: '/ebus/reportes/ZPOperadorMovil', 
     component: ZPOperadorMovil
   }
   
@@ -139,7 +139,7 @@ const url ="https://app.powerbi.com/view?r=eyJrIjoiMjkzODk0YmItZDQwZC00NTg3LThiM
        <Route path="/ebus/reporteodometro" component={ReporteOdometro} />  
        <Route path="/ebus/reportes/alarmas" component={ReporteAlarmas} />  
        <Route path="/ebus/reportes/noconductor" component={ReporteConductorNoId} />  
-       
+       <Route path="/ebus/reportes/ZPOperadorMovil" component={ZPOperadorMovil} />  
        <Route path="/reportes/bat/viajes" render={ ()=> ReportesIFrame("Viajes",url )    }/>
       </Switch>
     </Suspense>
