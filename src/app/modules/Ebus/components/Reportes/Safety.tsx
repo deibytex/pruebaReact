@@ -1,17 +1,17 @@
 import moment from "moment";
-import { useEffect, useRef, useState, UIEvent, useCallback } from "react";
-import { GetDataEficiencia, GetDataSafety, GetReporteAlarmas, GetReporteNivelCarga, listTabsSafety } from "../../data/ReportesData";
+import { useEffect, useRef, useState } from "react";
+import { GetDataSafety, listTabsSafety } from "../../data/ReportesData";
 import { PageTitle } from "../../../../../_start/layout/core";
-import { DateRangePicker, Notification, Placeholder, useToaster } from "rsuite";
+import { DateRangePicker } from "rsuite";
 import BlockUi from "@availity/block-ui";
 import { DescargarExcel } from "../../../../../_start/helpers/components/DescargarExcel";
-import MaterialReactTable, { MRT_ColumnDef, MRT_TableInstance } from "material-react-table";
+import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { FormatoColombiaDDMMYYY, FormatoColombiaDDMMYYYHHmmss, FormatoSerializacionYYYY_MM_DD_HHmmss } from "../../../../../_start/helpers/Constants";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import DualListBox from "react-dual-listbox";
 import { dualList } from "../../../CorreosTx/models/dataModels";
-import { Button, Card, Form, Modal } from "react-bootstrap-v5";
+import { Button, Form, Modal } from "react-bootstrap-v5";
 import ReactApexChart from "react-apexcharts";
 import { FiltrosReportes } from "../../models/eBus";
 import { ClienteDTO } from "../../models/NivelcargaModels";
@@ -19,14 +19,9 @@ import { AxiosResponse } from "axios";
 import { GetClientesEsomos } from "../../data/NivelCarga";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 import { InicioCliente } from "../../../../../_start/helpers/Models/ClienteDTO";
-import { locateFormatNumberNDijitos, locateFormatPercentNDijitos } from "../../../../../_start/helpers/Helper";
+import { locateFormatNumberNDijitos } from "../../../../../_start/helpers/Helper";
 import { Box } from "@mui/material";
-import { toAbsoluteUrl } from "../../../../../_start/helpers";
-import * as Icons from "@mui/icons-material";
 import { DrawDynamicIconMuiMaterial } from "../../../../../_start/helpers/components/IconsMuiDynamic";
-
-
-
 
 export default function ReporteSafety() {
 
@@ -42,8 +37,8 @@ export default function ReporteSafety() {
         limitdate: 180
     }
 
-
     const FechaInicialDiario = moment().add(-7, 'days').startOf('day').toDate();
+
     let getListadoCampoPorTipo = (EsDetallado: boolean, EsDiario: boolean) => {
         let listadoCamposOperador: MRT_ColumnDef<any>[] =
             [
@@ -133,7 +128,7 @@ export default function ReporteSafety() {
                     accessorKey: 'Fecha',
                     header: 'Inicio',
                     Cell({ cell, column, row, table, }) {
-                        return (moment(row.original.Fecha).format(FormatoColombiaDDMMYYY))
+                        return (moment(row.original.Fecha).format(FormatoColombiaDDMMYYYHHmmss))
                     }
                 },
                 {
@@ -150,13 +145,13 @@ export default function ReporteSafety() {
                         return (locateFormatNumberNDijitos(row.original.ValorMax ?? 0, 2))
                     }
                 }
-
             ];
 
         return EsDetallado ? listadoCamposDetallado : listadoCamposOperador;
     }
+
     const TipoReporteBase = [
-        { reporte: "Operador Mensual", columnas: getListadoCampoPorTipo(false, false), filtros: { ...filtrosBase, MaxDay: 30 }, tipo: 1, Data: [], consultar: true },
+        { reporte: "Operador Mensual", columnas: getListadoCampoPorTipo(false, false), filtros: { ...filtrosBase, MaxDay: 31 }, tipo: 1, Data: [], consultar: true },
         {
             reporte: "Operador Diario", columnas: getListadoCampoPorTipo(false, true), filtros: {
                 ...filtrosBase, MaxDay: 7,
@@ -169,7 +164,7 @@ export default function ReporteSafety() {
                 ...filtrosBase, MaxDay: 7,
                 FechaInicialInicial: FechaInicialDiario,
                 FechaInicial: FechaInicialDiario
-            }, tipo: 2, Data: [], consultar: true
+            }, tipo: 2, Data: [], consultar: true, EsDetallado: true
         }
     ]
 
@@ -181,7 +176,7 @@ export default function ReporteSafety() {
         "Cond Verde": 0,
         "Calificación Total": 0,
     });
-    const { allowedMaxDays, allowedRange, combine } = DateRangePicker;
+    const { allowedMaxDays, allowedRange, combine, before } = DateRangePicker;
 
     const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente);
 
@@ -194,11 +189,12 @@ export default function ReporteSafety() {
     const [opciones, setOpciones] = useState<any>(null);
     const [OpcionesAcumulado, setAcumulado] = useState<any>(null);
 
-    const [data, setData] = useState<any[]>([]);
+    const [columnas, setcolumnas] = useState<any[]>([]);
     const [dataFiltrada, setDataFiltrada] = useState<any[]>([]);
 
     const [showModal, setShowModal] = useState<boolean>(false);
     const [lstSeleccionados, setSeleccionados] = useState<string[]>([]);
+    const [lstOperadores, setlstOperadores] = useState<dualList[]>([]);
     //////////////// TABLE STATE
     //table state
     const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -211,28 +207,14 @@ export default function ReporteSafety() {
         pageSize: 10,
     });
 
-    const [lstOperadores, setlstOperadores] = useState<dualList[]>([]);
     const [rowCount, setRowCount] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [isRefetching, setIsRefetching] = useState(false);
     const [isError, setIsError] = useState(false);
 
-    // variable que contendra los datos de los odometros
     ///////////// FIN TABLE STATE
-    const toaster = useToaster();
-    /*
-     const message = (
-          <Notification type="success" header="success" closable>
-            <Placeholder.Paragraph style={{ width: 320 }} rows={3} />
-  
-          </Notification>
-        );
-    */
 
     // listado de campos a extraer
-
-
-
     useEffect(
         () => {
             setIsLoading(true);
@@ -264,52 +246,53 @@ export default function ReporteSafety() {
 
         let defaultopciones = {
             options: {
-                chart: {
-                    id: 'apexchart-example',
-                    events: {
-                        dataPointSelection: function (event: any, chartContext: any, config: any) {
-                            // seleccionamos el index de la grafica para posteriormente filtrar
-                            setidxSeleccionado(config.dataPointIndex);
-
-                        }
-                    },
-                    type: 'bar'
-                },
-                xaxis: {
-                    categories: []
-                },
-                yaxis: [{
-                    showAlways: true,
-                    tickAmount: 5,
-                    min: 0,
-                    labels: {
-                        formatter: function (val: number, index: any) {
-                            return val.toFixed(1);
-                        }
-                    },
-                    title: {
-                        text: "Score"
-                    }
-                },
-                {
-                    min: 0,
-                    max: 1,
-                    opposite: true,
-                    show: false
+              chart: {
+                id: 'totalScore',
+                events: {
+                  dataPointSelection: function (event: any, chartContext: any, config: any) {
+                    // seleccionamos el index de la grafica para posteriormente filtrar
+                    setidxSeleccionado(config.dataPointIndex);
+      
+                  }
                 }
-                ],
-                dataLabels: {
-                    enabled: true,
-                    enabledOnSeries: true,
-                    formatter: function (value: any, { seriesIndex, dataPointIndex, w }: any) {
-
-                        return locateFormatNumberNDijitos(value, 2)
-                    },
+              },
+              xaxis: {
+                categories: []
+              },
+              yaxis: [{
+                showAlways: true,
+                tickAmount: 5,
+                min: 0,
+                labels: {
+                  formatter: function (val: number, index: any) {
+                    return locateFormatNumberNDijitos(val, 1);
+                  }
+                },
+                title: {
+                  text: "Score"
                 }
+              }
+              ],
+              dataLabels: {
+                enabled: true,
+                enabledOnSeries: true,
+                formatter: function (value: any, { seriesIndex, dataPointIndex, w }: any) {
+                  return locateFormatNumberNDijitos(value, 1)
+                },
+      
+              },
+              plotOptions: {
+                line: {
+                  dataLabels: {
+                    position: 'top'
+                  }
+                }
+              }
             },
             series: []
+      
+          }
 
-        }
         // asingamos las opciones
         setOpciones(defaultopciones)
 
@@ -329,7 +312,6 @@ export default function ReporteSafety() {
             TipoReporte[tabSel].filtros.FechaGrafica = lablesAxisx[idxSeleccionado];
             setTipoReporte(Tiporeporte)
         }
-
 
         return function cleanUp() {
         };
@@ -362,8 +344,6 @@ export default function ReporteSafety() {
                     Tiporeporte[tabSel].consultar = false;
                     setisCallData(false);
                     setTipoReporte(Tiporeporte);
-                    setData(response.data);
-                    setisCallData(false)
                     // vamos a llenar la informacion de los Operadores
                     let lstOperadores = (response.data as any[]).reduce((p, c) => {
                         let operador = c["operador"];
@@ -392,15 +372,12 @@ export default function ReporteSafety() {
                     setIsRefetching(false)
                 }).finally(() => {
                     setloader(false);
-
-
                 });
-
         }
         else
             datosfiltrados(TipoReporte[tabSel].Data)
-
     }
+
     // FILTRA LOS DATOS QUE SE CONSULTAN DE LA BASE DE DATOS
     // SI EXISTE SE PASA LOS DATOS ALMACENADOS EN EL SISTEMA
     let datosfiltrados = (datos: any[]) => {
@@ -412,23 +389,30 @@ export default function ReporteSafety() {
         let FechaFinal: Date = filtros.FechaFinal;
 
         let datosFiltrados: any[] = datos;
+
         if (filtros.IndGrafica != -1) {
-            FechaInicial = moment(filtros.FechaGrafica, FormatoColombiaDDMMYYY).toDate();
-            FechaFinal = moment(filtros.FechaGrafica, FormatoColombiaDDMMYYY).toDate();
+            let fecha = filtros.FechaGrafica
+            if (!EsDiario) {
+                let mensual: string[] = filtros.FechaGrafica?.split('-') ?? ['2023', '01'];
+                fecha = `01/${mensual[1].padStart(2, '0')}/${mensual[0]}`;
+            }
+            FechaInicial = moment(fecha, FormatoColombiaDDMMYYY).toDate();
+            FechaFinal = moment(fecha, FormatoColombiaDDMMYYY).toDate();
         }
 
-
         // filtramos por las fechas
-        datosFiltrados = datosFiltrados.
-            filter(f =>
-                EsDiario ? moment(f.Fecha).toDate() : new Date(f.anio, f.mes, 1) >= FechaInicial
-                    && EsDiario ? moment(f.Fecha).toDate() : new Date(f.anio, f.mes, 1) <= FechaFinal);
+        datosFiltrados = datosFiltrados.filter(f =>
+            (EsDiario ? moment(f.Fecha).toDate() : moment(`01/${f.mes.toString().padStart(2, '0')}/${f.anio.toString()}`
+                , FormatoColombiaDDMMYYY).toDate()) >= FechaInicial
+            && (EsDiario ? moment(f.Fecha).toDate() : moment(`01/${f.mes.toString().padStart(2, '0')}/${f.anio.toString()}`
+                , FormatoColombiaDDMMYYY).toDate()) <= FechaFinal);
 
         // filtramos por los Operadores
-
         if ((filtros.Operadores as string[]).length > 0) {
             datosFiltrados = datosFiltrados.filter(f => (filtros.Operadores as string[]).indexOf(f["Operador"]) > -1);
         }
+
+        setcolumnas(TipoReporte[tabSel].columnas);
         setDataFiltrada(datosFiltrados);
         setRowCount(datosFiltrados.length); // actualizamos la informacion de las filas
         // agrupa los elementos para ser mostrado por la grafica
@@ -589,14 +573,15 @@ export default function ReporteSafety() {
         // se reflejan los usestate y utilizan los datos que tienen las variables
         // al momento de crearse
 
-        ApexCharts.exec('apexchart-example', 'updateOptions', {
+        ApexCharts.exec('totalScore', 'updateOptions', {
             chart: {
                 events: {
-                    dataPointSelection: (event: any, chartContext: any, config: any) => {
+                    markerClick: (event: any, chartContext: any, config: any) => {
                         // seleccionamos el index de la grafica para posteriormente filtrar
-                        let labelSeleccionado = config.w.config.xaxis.categories[config.dataPointIndex];
+                        let labelSeleccionado = labels[config.dataPointIndex];
                         // si la informacion del label seleccionado es igual al label que se encuentra en los filtros
                         // asginamos  -1 y limpiamos la grafica para que muestre todos los datos
+
                         setidxSeleccionado((labelSeleccionado === fechaGraficaActual) ? -1 : config.dataPointIndex);
                     }
                 }
@@ -608,14 +593,13 @@ export default function ReporteSafety() {
         // funcion que actualiza los datos de las series
         // se debe pasar el id configurado al momento de su creaci'on para poder
         // actializar los datos
-        ApexCharts.exec('apexchart-example', 'updateSeries', [
+        ApexCharts.exec('totalScore', 'updateSeries', [
             {
                 name: 'Score',
                 data: totalScoreA,
                 type: 'bar'
             }
         ]);
-
     }
 
     // VERIFICA QUE SE DEBA CONSULTAR NUEVAMENTE LA INFORMACION EN LA BASE DE DATOS
@@ -651,9 +635,7 @@ export default function ReporteSafety() {
         filtros = { ...Tiporeporte[tabSel].filtros, FechaInicial, FechaFinal, FechaInicialInicial, FechaFinalInicial, IndGrafica: -1, FechaGrafica: "" }
         Tiporeporte[tabSel].filtros = filtros;
         setTipoReporte(Tiporeporte)
-
     }
-
 
     // seleccion de Operadores
     function SelectOperadores() {
@@ -672,6 +654,7 @@ export default function ReporteSafety() {
             />
         );
     }
+
     function CargaListadoClientes() {
         return (
             <Form.Select className=" mb-3 " onChange={(e) => {
@@ -682,10 +665,8 @@ export default function ReporteSafety() {
                 if (lstClientes !== undefined && lstClientes.length > 0)
                     setClienteSeleccionado(lstClientes[0]);
             }} aria-label="Default select example" defaultValue={ClienteSeleccionado?.clienteIdS}>
-
                 {
                     Clientes?.map((element: any, i: any) => {
-
                         return (<option key={element.clienteIdS} value={(element.clienteIdS != null ? element.clienteIdS : 0)}>{element.clienteNombre}</option>)
                     })
                 }
@@ -693,12 +674,10 @@ export default function ReporteSafety() {
         );
     }
 
-
     return (<>
         <PageTitle>Reporte Safety</PageTitle>
         <BlockUi tag="div" keepInView blocking={loader ?? false}  >
-            <div className="card card-rounded shadow mt-2 text-primary" style={{ width: '100%' }}  >
-
+            <div className="card card-rounded shadow mt-2 text-primary" style={{ width: '100%' }}>
                 <div className="d-flex justify-content-end mt-2 m-2">
                     <div style={{ float: 'right' }}>
                         <CargaListadoClientes />
@@ -717,9 +696,8 @@ export default function ReporteSafety() {
                     <div className="row col-sm-12 col-md-12 col-xs-12 mx-auto">
 
                         {
-
                             Object.entries(lstIndicadores).map((element: any) => {
-                                
+
                                 return (
                                     <div key={`indicadores_${element[0]}`} className={`row card shadow m-2 col-sm-3 col-md-3 col-xs-3 mx-auto 
                                             ${(element[0] == "Cond Rojo") ? "bg-danger" : (element[0] == "Cond Ambar") ? "bg-warning" : (element[0] == "Cond Verde") ? "bg-success" : ""}`}>
@@ -729,21 +707,25 @@ export default function ReporteSafety() {
                                         </div>
                                     </div>
                                 )
-
                             })
                         }
-
                     </div>
                 </div>
                 <div className="card bg-secondary d-flex justify-content-between">
                     <h3 className="fs-4 m-2 ms-2 d-flex "> Filtros</h3>
                     <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8">
                         <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fecha inicial: </label>
-                        {(combine && allowedMaxDays && allowedRange) && (
-                            <DateRangePicker className="mt-2" format="dd/MM/yyyy" value={[TipoReporte[tabSel].filtros.FechaInicial, TipoReporte[tabSel].filtros.FechaFinal]}
-                                disabledDate={combine(allowedMaxDays(TipoReporte[tabSel].filtros.MaxDay), allowedRange(
-                                    moment().add(-200, 'days').startOf('day').toDate(), moment().startOf('day').toDate()
-                                ))}
+                        {(combine && before && allowedRange && allowedMaxDays) && (
+                            <DateRangePicker size="lg" className="mt-2" format="dd/MM/yyyy" value={[TipoReporte[tabSel].filtros.FechaInicial, TipoReporte[tabSel].filtros.FechaFinal]}
+                                hoverRange={
+                                    TipoReporte[tabSel].tipo == 1 ? `month` : undefined //date =>  [subDays(date, 3), addDays(date,3)]
+                                }
+                                disabledDate={combine(allowedRange(
+                                    (TipoReporte[tabSel].tipo == 1) ? moment().add(-6, 'months').startOf('month').toDate() : moment().add(-6, 'months').toDate(),
+                                    (TipoReporte[tabSel].tipo == 1) ? moment().endOf('month').toDate() : moment().toDate()
+                                ),
+                                    allowedMaxDays(180)
+                                )}
                                 onChange={(value, e) => {
                                     if (value !== null) {
                                         ValidarFechas(
@@ -752,7 +734,6 @@ export default function ReporteSafety() {
                                         );
                                     }
                                 }}
-
                             />
                         )}
                         <Button className="m-2  btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}>
@@ -776,7 +757,6 @@ export default function ReporteSafety() {
                                 >
                                     <div className="nav-icon me-3">
                                         <DrawDynamicIconMuiMaterial name={tab.icon} isactive={(tabSel === idx)} />
-
                                     </div>
                                     <div className="ps-1">
                                         <span className="nav-text text-gray-600 fw-bolder fs-6">
@@ -796,24 +776,19 @@ export default function ReporteSafety() {
                 {/* begin::Tab Content */}
                 <div className="tab-content flex-grow-1">
                     {/* begin::Tab Pane 1 */}
-
-
                     <div className="card" >
                         {(OpcionesAcumulado != null) && (
                             <ReactApexChart
                                 options={OpcionesAcumulado.options}
                                 series={OpcionesAcumulado.series}
                                 height={200} />)}
-
                     </div>
                     <div className="card" >
-
                         {(opciones != null) && (
                             <ReactApexChart
                                 options={opciones.options}
                                 series={opciones.series}
                                 height={300} />)}
-
                     </div>
                     <MaterialReactTable
                         enableFilters={false}
@@ -840,7 +815,6 @@ export default function ReporteSafety() {
                         muiTableContainerProps={{
                             ref: tableContainerRef, //get access to the table container element
                             sx: { maxHeight: '400px' }, //give the table a max height
-
                         }}
                         muiTableHeadCellProps={{
                             sx: (theme) => ({
@@ -848,10 +822,9 @@ export default function ReporteSafety() {
                                 fontStyle: 'bold',
                                 color: 'rgb(27, 66, 94)',
                                 //backgroundColor: 'yellow'
-
                             }),
                         }}
-                        columns={TipoReporteBase[tabSel].columnas}
+                        columns={columnas}
                         data={dataFiltrada}
                         // editingMode="modal" //default         
                         // enableTopToolbar={false}
@@ -885,29 +858,23 @@ export default function ReporteSafety() {
                             <Box
                                 sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
                             >
-
                                 <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataFiltrada, TipoReporteBase[tabSel].columnas, TipoReporteBase[tabSel].reporte) }}>
                                     <i className="bi-file-earmark-excel"></i></button>
-
-
                             </Box>
                         )}
                     />
                     <div className={`tab-pane fade ${tabSel === 0 ? "show active" : ""}`} id="tab0_content" >
                         {/* begin::Cards */}
                         <div className="overflow-auto">
-
                         </div>
                         {/* end::Cards      */}
                     </div>
                     {/* end::Tab Pane 1 */}
-
                     {/* begin::Tab Pane 2 */}
                     <div className={`tab-pane fade ${tabSel === 1 ? "show active" : ""}`} id="tab1_content">
                         {/* begin::Cards */}
                         <div className="overflow-auto">
                             {/*Tabla de los operadores */}
-
                         </div>
                         {/* end::Cards      */}
                     </div>
@@ -916,8 +883,6 @@ export default function ReporteSafety() {
                 {/* end::Tab Content */}
             </div>
             {/* end::Chart      */}
-
-
         </BlockUi>
 
         <Modal show={showModal} onHide={setShowModal} size="lg">
