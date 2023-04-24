@@ -13,7 +13,7 @@ import { ColumnFiltersState, PaginationState, SortingState } from '@tanstack/rea
 import { GetClientesEsomos } from "../../data/NivelCarga";
 import { ClienteDTO, InicioCliente } from '../../../../../_start/helpers/Models/ClienteDTO';
 import { errorDialog } from '../../../../../_start/helpers/components/ConfirmDialog';
-import { FiltrosReportes } from "../../models/eBus";
+import {  FiltrosReportesZp } from "../../models/eBus";
 import { FormatoColombiaDDMMYYY, FormatoSerializacionYYYY_MM_DD_HHmmss } from '../../../../../_start/helpers/Constants';
 import DualListBox from 'react-dual-listbox';
 import { dualList } from '../../../../../_start/helpers/Models/DualListDTO';
@@ -25,7 +25,7 @@ import { Totales } from '../../models/ZpOperadorMovilModels'
 import ProgressBar from '@ramonak/react-progress-bar';
 
 export default function ZPOperadorMovil() {
-    let filtrosBase: FiltrosReportes = {
+    let filtrosBase: FiltrosReportesZp = {
         FechaInicialInicial: moment().add(-5, 'days').startOf('day').toDate(),
         FechaFinalInicial: moment().startOf('day').toDate(),
         FechaInicial: moment().startOf('day').add(-5, 'days').toDate(),

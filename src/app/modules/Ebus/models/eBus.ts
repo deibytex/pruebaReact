@@ -7,7 +7,10 @@ export interface FiltrosReportes {
   FechaGrafica: string | null,
   Vehiculos : string[],
   Operadores: string[] | null,
-  limitdate : Number | null,
+  limitdate : Number | null
+}
+
+export interface FiltrosReportesZp extends  FiltrosReportes {
   consultar:boolean | null 
 }
 
