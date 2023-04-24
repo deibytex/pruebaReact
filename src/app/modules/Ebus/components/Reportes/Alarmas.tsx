@@ -306,7 +306,7 @@ export default function ReporteAlarmas() {
         return p;
       }, {});
 
-
+      console.log('agrupadofecha',agrupadofecha)
     Object.entries(agrupadofecha).map((elem: any) => {
       labels.push(elem[0]);
       // agrupamos por descripcion para saber el total de alarmas por cada uno 
@@ -318,6 +318,7 @@ export default function ReporteAlarmas() {
         p[name]++;
         return p;
       }, {});
+       
       //tomamos la cantidad por descripcion
       let ttPastillas = agrupadoDescripcion["EV: Alarma Cambio Pastillas Disco Frenos"];
       let ttTemperatura = agrupadoDescripcion["EV: Alarma Temperatura Celda Batería > 45°C"]
@@ -463,8 +464,8 @@ export default function ReporteAlarmas() {
              <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8"> <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fecha inicial: </label>
                {(combine && allowedMaxDays && allowedRange) && (
                  <DateRangePicker className="mt-2" format="dd/MM/yyyy" value={[filtros.FechaInicial, filtros.FechaFinal]}
-                   disabledDate={combine(allowedMaxDays(7), allowedRange(
-                     moment().add(-200, 'days').startOf('day').toDate(), moment().startOf('day').toDate()
+                   disabledDate={combine(allowedMaxDays(31), allowedRange(
+                     moment().add(-6, 'months').startOf('day').toDate(), moment().startOf('day').toDate()
                    ))}
                    onChange={(value, e) => {
                      if (value !== null) {
@@ -510,6 +511,7 @@ export default function ReporteAlarmas() {
            enableStickyFooter
            enableDensityToggle = {false}
            enableRowVirtualization
+           enableRowNumbers
            enableTableFooter
             tableInstanceRef={tablaAlarmas}
             localization={MRT_Localization_ES}

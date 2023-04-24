@@ -222,7 +222,9 @@ export default function ReporteEficiencia() {
         errorDialog("<i>Eror al consultar los clientes</i>", "")
       })
 
-
+  return ()=>{
+    setTipoReporte(TipoReporteBase)
+  }
     }, []
   )
 
@@ -362,9 +364,7 @@ export default function ReporteEficiencia() {
     setOpciones(defaultopciones)
     setAcumulado(defaultopcionesDistancia)
 
-    return function cleanUp() {
-      //SE DEBE DESTRUIR EL OBJETO CHART
-    };
+    
   }, [ClienteSeleccionado]);
 
 
@@ -380,8 +380,7 @@ export default function ReporteEficiencia() {
     }
 
 
-    return function cleanUp() {
-    };
+   
   }, [idxSeleccionado])
 
 
@@ -745,7 +744,7 @@ export default function ReporteEficiencia() {
           <h3 className="fs-4 m-2 ms-2 d-flex "> Filtros</h3>
           <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8">
             <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fecha inicial: </label>
-            {(combine && before && allowedRange && allowedMaxDays) && (
+            {(combine && allowedRange && allowedMaxDays) && (
               <DateRangePicker size="lg" className="mt-2" format="dd/MM/yyyy" value={[TipoReporte[tabSel].filtros.FechaInicial, TipoReporte[tabSel].filtros.FechaFinal]}
               hoverRange={
                 TipoReporte[tabSel].tipo == 1  ? `month` : undefined //date =>  [subDays(date, 3), addDays(date,3)]
