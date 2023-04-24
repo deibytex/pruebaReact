@@ -19,7 +19,7 @@ import { AxiosResponse } from "axios";
 import { GetClientesEsomos } from "../../data/NivelCarga";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 import { InicioCliente } from "../../../../../_start/helpers/Models/ClienteDTO";
-import { locateFormatNumberNDijitos } from "../../../../../_start/helpers/Helper";
+import { locateFormatNumberNDijitos, formatNumberChart } from "../../../../../_start/helpers/Helper";
 import { Box } from "@mui/material";
 import { DrawDynamicIconMuiMaterial } from "../../../../../_start/helpers/components/IconsMuiDynamic";
 
@@ -244,57 +244,93 @@ export default function ReporteSafety() {
         // AL MOMENTO DE SER CREADO, SE DEBEN USAR LOS SETUSETATE Y LOS CLICK EVENTS 
         // PARA QUE USE LOS USESTATE CON LA INFORMACIONF REAL
 
-        let defaultopciones = {
+        let defaultoOpcionesAcumulado = {
             options: {
-              chart: {
-                id: 'totalScore',
-                events: {
-                  dataPointSelection: function (event: any, chartContext: any, config: any) {
-                    // seleccionamos el index de la grafica para posteriormente filtrar
-                    setidxSeleccionado(config.dataPointIndex);
-      
-                  }
-                }
-              },
-              xaxis: {
-                categories: []
-              },
-              yaxis: [{
-                showAlways: true,
-                tickAmount: 5,
-                min: 0,
-                labels: {
-                  formatter: function (val: number, index: any) {
-                    return locateFormatNumberNDijitos(val, 1);
-                  }
+                chart: {
+                    id: 'detalladoAgrupado'
                 },
-                title: {
-                  text: "Score"
-                }
-              }
-              ],
-              dataLabels: {
-                enabled: true,
-                enabledOnSeries: true,
-                formatter: function (value: any, { seriesIndex, dataPointIndex, w }: any) {
-                  return locateFormatNumberNDijitos(value, 1)
+                xaxis: {
+                    categories: []
                 },
-      
-              },
-              plotOptions: {
-                line: {
-                  dataLabels: {
-                    position: 'top'
-                  }
+                yaxis: [{
+                    showAlways: true,
+                    tickAmount: 5,
+                    min: 0,
+                    labels: {
+                        formatter: function (val: number, index: any) {
+                            return val.toFixed(0);
+                        }
+                    },
+                    title: {
+                        text: "Eventos"
+                    }
+                },
+                // {
+                //     min: 0,
+                //     max: 1,
+                //     opposite: true,
+                //     show: false, 
+                //     labels: {
+                //         formatter: function (val: number, index: any) {
+                //             return formatNumberChart(val)
+                //         }
+                //     }
+                // }
+                ],
+                dataLabels: {
+                    enabled: true,
+                    enabledOnSeries: true,
+                    formatter: function (value: any, { seriesIndex, dataPointIndex, w }: any) {
+                        return value
+                    },
                 }
-              }
             },
             series: []
-      
-          }
+        };
+
+        let defaultopciones = {
+            options: {
+                chart: {
+                    id: 'totalScore',
+                    events: {
+                        dataPointSelection: function (event: any, chartContext: any, config: any) {
+                            // seleccionamos el index de la grafica para posteriormente filtrar
+                            setidxSeleccionado(config.dataPointIndex);
+                        }
+                    }
+                },
+                xaxis: {
+                    categories: []
+                },
+                yaxis: [{
+                    showAlways: true,
+                    tickAmount: 5,
+                    min: 0,
+                    labels: {
+                        formatter: function (val: number, index: any) {
+                            return locateFormatNumberNDijitos(val, 1);
+                        }
+                    },
+                    title: {
+                        text: "Score"
+                    }
+                }
+                ],
+                dataLabels: {
+                    enabled: true,
+                    enabledOnSeries: true,
+                    formatter: function (value: any, { seriesIndex, dataPointIndex, w }: any) {
+                        return locateFormatNumberNDijitos(value, 1)
+                    },
+
+                }
+            },
+            series: []
+        }
 
         // asingamos las opciones
-        setOpciones(defaultopciones)
+        setOpciones(defaultopciones);
+        setAcumulado(defaultoOpcionesAcumulado);
 
         return function cleanUp() {
             //SE DEBE DESTRUIR EL OBJETO CHART
@@ -384,6 +420,7 @@ export default function ReporteSafety() {
 
         let filtros = TipoReporte[tabSel].filtros;
         let EsDiario = (TipoReporte[tabSel].tipo == 2);
+        let EsDetallado = (TipoReporte[tabSel].EsDetallado);
         let fechaGraficaActual = filtros.FechaGrafica;
         let FechaInicial: Date = filtros.FechaInicial;
         let FechaFinal: Date = filtros.FechaFinal;
@@ -470,8 +507,6 @@ export default function ReporteSafety() {
         });
 
         let scoretotal = sumScores / SumDistancia;
-
-
 
         //AGRUPAMOS VALORES EVENTOS TOTALES POR EVENTO - OPERADOR
         let agrupadoOperadormensual = datosFiltrados
@@ -567,7 +602,7 @@ export default function ReporteSafety() {
             "Calificación Total": locateFormatNumberNDijitos(scoretotal, 2),
         });
 
-        setlablesAxisx(labels)
+        setlablesAxisx(labels);        
 
         // se debe volver actualizar los eventos pues 'estos no
         // se reflejan los usestate y utilizan los datos que tienen las variables
@@ -593,6 +628,7 @@ export default function ReporteSafety() {
         // funcion que actualiza los datos de las series
         // se debe pasar el id configurado al momento de su creaci'on para poder
         // actializar los datos
+
         ApexCharts.exec('totalScore', 'updateSeries', [
             {
                 name: 'Score',
@@ -600,6 +636,106 @@ export default function ReporteSafety() {
                 type: 'bar'
             }
         ]);
+
+        //Validamos si son las graficas de detallado
+        if (EsDetallado) {
+            // agrupamos los datos para la grafica
+            let agrupadofechadetalle = datosFiltrados
+                .reduce((p, c) => {
+                    let name = moment(c.Fecha).format(FormatoColombiaDDMMYYY);
+                    p[name] = p[name] ?? [];
+                    p[name].push(c);
+                    return p;
+                }, {});
+
+            // agrupa los elementos para ser mostrado por la grafica
+            let Ev0 = new Array();
+            let Ev1 = new Array();
+            let Ev2 = new Array();
+            let Ev3 = new Array();
+            let Ev4 = new Array();
+            let Ev5 = new Array();
+
+            let labelsdetallado = new Array();
+
+            //totalizamos por propiedad
+            Object.entries(agrupadofechadetalle).map((elem: any) => {
+                labelsdetallado.push(elem[0]);
+                // totalizamos por propiedad que se necesite
+                let EV0Aceleracion0P = (elem[1].map((m: any) => { if (m.Evento == 'EC: Aceleracion Brusca > 8 km/h/s') return 1; else return 0 }).reduce((a: number, b: number) => a + b, 0));
+                let EV1Velocidad50OP = (elem[1].map((m: any) => { if (m.Evento == 'EC: Exceso Velocidad > 50 km/h') return 1; else return 0 }).reduce((a: number, b: number) => a + b, 0));
+                let EV2FrenadaOP = (elem[1].map((m: any) => { if (m.Evento == 'EC: Frenada Brusca > 10 km/h/s') return 1; else return 0 }).reduce((a: number, b: number) => a + b, 0));
+                let EV3GiroOP = (elem[1].map((m: any) => { if (m.Evento == 'EC: Giro Brusco > 0,3 G') return 1; else return 0 }).reduce((a: number, b: number) => a + b, 0));
+                let EV1Velocidad30OP = (elem[1].map((m: any) => { if (m.Evento == 'EC: Exceso Velocidad > 30 km/h') return 1; else return 0 }).reduce((a: number, b: number) => a + b, 0));
+                let EV5CinturonOP = (elem[1].map((m: any) => { if (m.Evento == 'EC: Cinturón Desabrochado') return 1; else return 0 }).reduce((a: number, b: number) => a + b, 0));
+
+                // sumamos los indicadores por fecha
+                Ev0.push(EV0Aceleracion0P);
+                Ev1.push(EV1Velocidad50OP);
+                Ev2.push(EV2FrenadaOP);
+                Ev3.push(EV3GiroOP);
+                Ev4.push(EV1Velocidad30OP);
+                Ev5.push(EV5CinturonOP);
+            });
+
+            // setlablesAxisx(labelsdetallado); 
+
+            ApexCharts.exec('detalladoAgrupado', 'updateOptions', {                
+                xaxis: {
+                    categories: labelsdetallado
+                }
+            });
+
+            ApexCharts.exec('detalladoAgrupado', 'updateSeries', [
+                {
+                    name: 'EC: Aceleracion Brusca > 8 km/h/s',
+                    data: Ev0,
+                    type: 'bar'
+                }, {
+                    name: 'EC: Exceso Velocidad > 50 km/h',
+                    data: Ev1,
+                    type: 'bar',
+                    color: '#F44336'
+                }, {
+                    name: 'EC: Frenada Brusca > 10 km/h/s',
+                    data: Ev2,
+                    type: 'bar',
+                    color: '#99C2A2'
+                }, {
+                    name: 'EC: Giro Brusco > 0,3 G',
+                    data: Ev3,
+                    type: 'bar',
+                    color: '#78cb1d'
+                }, {
+                    name: 'EC: Exceso Velocidad > 30 km/h',
+                    data: Ev4,
+                    type: 'bar',
+                    color: '#ddff00'
+                }, {
+                    name: 'EC: Cinturón Desabrochado',
+                    data: Ev5,
+                    type: 'bar',
+                    color: '#ff7b00'
+                }]);
+
+            //AGRUPAMOS VALORES EVENTOS TOTALES POR EVENTO - OPERADOR
+            let agrupadoOperador = datosFiltrados
+                .reduce((p, c) => {
+                    let name = c.Evento;
+                    let isExists = p.filter((f: any) => f.evento == name);
+
+                    if (isExists.length == 0) {
+                        let objetoevento = { evento: name, original: [c], totalPorOperador: [] };
+                        p.push(objetoevento);
+                    }
+                    else {
+                        let objeto = isExists[0];
+                        objeto.original.push(c);
+                    }
+                    return p;
+                }, []);// contenemos la informacion en un array de datos agrupados
+
+        }
     }
 
     // VERIFICA QUE SE DEBA CONSULTAR NUEVAMENTE LA INFORMACION EN LA BASE DE DATOS
@@ -695,8 +831,8 @@ export default function ReporteSafety() {
                 <div className="row">
                     <div className="row col-sm-12 col-md-12 col-xs-12 mx-auto">
 
-                        {
-                            Object.entries(lstIndicadores).map((element: any) => {
+                        {(!TipoReporte[tabSel].EsDetallado) &&
+                            (Object.entries(lstIndicadores).map((element: any) => {
 
                                 return (
                                     <div key={`indicadores_${element[0]}`} className={`row card shadow m-2 col-sm-3 col-md-3 col-xs-3 mx-auto 
@@ -707,7 +843,7 @@ export default function ReporteSafety() {
                                         </div>
                                     </div>
                                 )
-                            })
+                            }))
                         }
                     </div>
                 </div>
@@ -777,14 +913,14 @@ export default function ReporteSafety() {
                 <div className="tab-content flex-grow-1">
                     {/* begin::Tab Pane 1 */}
                     <div className="card" >
-                        {(OpcionesAcumulado != null) && (
+                        {(OpcionesAcumulado != null && TipoReporte[tabSel].EsDetallado) && (
                             <ReactApexChart
                                 options={OpcionesAcumulado.options}
                                 series={OpcionesAcumulado.series}
                                 height={200} />)}
                     </div>
                     <div className="card" >
-                        {(opciones != null) && (
+                        {(opciones != null ) && (
                             <ReactApexChart
                                 options={opciones.options}
                                 series={opciones.series}
