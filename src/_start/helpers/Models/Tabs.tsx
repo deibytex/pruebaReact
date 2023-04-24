@@ -3,6 +3,5 @@ export type TabProperty = {
     iconColored : string;
     titulo : string;
     subtitulo : string;
-    
-   }
-   
+    
+   }

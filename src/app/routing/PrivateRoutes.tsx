@@ -25,7 +25,7 @@ import ReporteAlarmas from "../modules/Ebus/components/Reportes/Alarmas";
 import  {Dashboard}  from "../modules/Tx/Dashboard";
 import ReportesIFrame from "../../_start/helpers/components/RenderIframe";
 import ReporteConductorNoId from "../modules/Ebus/components/Reportes/ConductorNoId";
-import { default as ZPOperadorMovil} from "../modules/Ebus/ZPOperadorMovil";
+import { default as ZPOperadorMovil} from "../modules/Ebus/components/Reportes/ZPOperadorMovil";
 import ReporteNivelCarga from "../modules/Ebus/components/Reportes/NivelCarga";
 import React from "react";
 import ReporteComparacionOdometro from "../modules/Ebus/components/Reportes/ComparacionOdometro";

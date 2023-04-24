@@ -1,7 +1,6 @@
 import {  Post_getDynamicValueProcedureDWHTabla, Post_GetConsultasDinamicas } from "../../../../_start/helpers/Axios/DWHService";
 import { TabProperty } from "../../../../_start/helpers/Models/Tabs";
 
-
 /**/
 export  function GetReporteAlarmas(clientesIds:string,FechaInicio:string,FechaFinal:string) {
     var params: { [id: string]: string | null | undefined;} = {};
@@ -46,9 +45,9 @@ export function GetReporteOperadorMovil(FechaInicial:string, FechaFinal:string, 
     return  Post_GetConsultasDinamicas({ Clase : "EbusQueryHelper",  NombreConsulta: NombreConsulta, Pagina :null, RecordsPorPagina :null}, params);
 }
 
-const tab1 : TabProperty = {  icon: "/media/icons/duotone/files/Selected-file.svg", iconColored : "/media/svg/logo/colored/fox-hub-2.svg", titulo: "Móvil", subtitulo : ""}
-const tab2 : TabProperty = {  icon: "/media/icons/duotone/files/Deleted-file.svg", iconColored : "/media/svg/logo/colored/fox-hub-2.svg", titulo: "Operador", subtitulo : ""}
-const tab3 : TabProperty = {  icon: "/media/icons/duotone/files/DownloadedFile.svg", iconColored : "/media/svg/logo/colored/fox-hub-2.svg", titulo: "Operador", subtitulo : "Zona"}
+const tab1 : TabProperty = {  icon: "/media/icons/duotone/Code/Option.svg", iconColored : "/media/svg/logo/colored/fox-hub-2.svg", titulo: "Móvil", subtitulo : ""}
+const tab2 : TabProperty = {  icon: "/media/icons/duotone/General/User.svg", iconColored : "/media/svg/logo/colored/fox-hub-2.svg", titulo: "Operador", subtitulo : ""}
+const tab3 : TabProperty = {  icon: "/media/icons/duotone/Files/User-folder.svg", iconColored : "/media/svg/logo/colored/fox-hub-2.svg", titulo: "Operador", subtitulo : "Zona"}
 
 export const listTabs : TabProperty[] = [tab1,tab2,tab3]
 
@@ -99,3 +98,5 @@ export function GetDataEficiencia(FechaInicial:string, FechaFinal:string, client
         RecordsPorPagina: null
     }, params);
 }
+
+
