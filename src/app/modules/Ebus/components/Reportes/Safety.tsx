@@ -188,6 +188,7 @@ export default function ReporteSafety() {
     const [isCallData, setisCallData] = useState<boolean>(false);
     const [opciones, setOpciones] = useState<any>(null);
     const [OpcionesAcumulado, setAcumulado] = useState<any>(null);
+    const [showChart, setshowChart] = useState<boolean>(false);
 
     const [columnas, setcolumnas] = useState<any[]>([]);
     const [dataFiltrada, setDataFiltrada] = useState<any[]>([]);
@@ -370,6 +371,7 @@ export default function ReporteSafety() {
         if (ClienteSeleccionado.clienteIdS != 0)
             ConsultarData();
 
+        (tabSel != 2) ? setshowChart(false) : setshowChart(true);
     }, [tabSel, TipoReporte])
 
 
@@ -427,7 +429,6 @@ export default function ReporteSafety() {
     // FILTRA LOS DATOS QUE SE CONSULTAN DE LA BASE DE DATOS
     // SI EXISTE SE PASA LOS DATOS ALMACENADOS EN EL SISTEMA
     let datosfiltrados = (datos: any[]) => {
-
         let filtros = TipoReporte[tabSel].filtros;
         let EsDiario = (TipoReporte[tabSel].tipo == 2);
         let EsDetallado = (TipoReporte[tabSel].EsDetallado);
@@ -445,7 +446,7 @@ export default function ReporteSafety() {
             }
             FechaInicial = moment(fecha, FormatoColombiaDDMMYYY).toDate();
             FechaFinal = EsDetallado ? moment(fecha, FormatoColombiaDDMMYYY).add(1, 'days').toDate() :
-                            moment(fecha, FormatoColombiaDDMMYYY).toDate();
+                moment(fecha, FormatoColombiaDDMMYYY).toDate();
         }
 
         // filtramos por las fechas
@@ -647,6 +648,8 @@ export default function ReporteSafety() {
                 type: 'bar'
             }
         ]);
+
+        // setshowChart(false);
 
         //Validamos si son las graficas de detallado
         if (EsDetallado) {
@@ -933,20 +936,22 @@ export default function ReporteSafety() {
                 {/* end::Nav */}
                 {/* begin::Tab Content */}
                 <div className="tab-content flex-grow-1">
-                    {/* begin::Tab Pane 1 */}                    
+                    {/* begin::Tab Pane 1 */}
                     <div className="card" >
-                                {(OpcionesAcumulado != null && TipoReporte[tabSel].EsDetallado) && (
-                                    <ReactApexChart
-                                        options={OpcionesAcumulado.options}
-                                        series={OpcionesAcumulado.series}
-                                        height={200} />)}
-                    </div>
-                    <div className="card" >
-                        {(opciones != null) && (
+                        {(OpcionesAcumulado != null && TipoReporte[tabSel].EsDetallado) && (
                             <ReactApexChart
-                                options={opciones.options}
-                                series={opciones.series}
-                                height={300} />)}
+                                options={OpcionesAcumulado.options}
+                                series={OpcionesAcumulado.series}
+                                height={200} />)}
+                    </div>
+                    <div hidden={showChart}>
+                        <div className="card">
+                            {(opciones != null) && (
+                                <ReactApexChart
+                                    options={opciones.options}
+                                    series={opciones.series}
+                                    height={300} />)}
+                        </div>
                     </div>
                     <MaterialReactTable
                         enableFilters={false}
