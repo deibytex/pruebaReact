@@ -22,7 +22,6 @@ import { InicioCliente } from "../../../../../_start/helpers/Models/ClienteDTO";
 import { locateFormatNumberNDijitos, formatNumberChart } from "../../../../../_start/helpers/Helper";
 import { Box } from "@mui/material";
 import { DrawDynamicIconMuiMaterial } from "../../../../../_start/helpers/components/IconsMuiDynamic";
-
 export default function ReporteSafety() {
 
     let filtrosBase: FiltrosReportes = {
@@ -67,41 +66,50 @@ export default function ReporteSafety() {
                     header: 'Score',
                     Cell({ cell, column, row, table, }) {
                         return (locateFormatNumberNDijitos(row.original.Score ?? 0, 2))
-                    }
+                    },
+                    muiTableBodyCellProps: ({
+                        cell
+                      }) => ({
+                        sx: {
+                          backgroundColor: cell.getValue<number>() <= 2 ? 'rgba(104, 176, 120, 0.5)' : 
+                          cell.getValue<number>() > 2 && cell.getValue<number>() <5 ? 'rgba(215, 148, 46, 0.5)' :
+                          'rgba(242, 107, 91, 0.5)'
+                        }
+                      })
                 },
                 {
                     accessorKey: 'scoreVel50',
                     header: 'ScoreVel > 50',
                     Cell({ cell, column, row, table, }) {
-                        return (locateFormatNumberNDijitos(row.original.scoreVel50 ?? 0, 2))
+                        return (getIcon(row.original.scoreVel50))
                     }
                 },
                 {
                     accessorKey: 'scoreVel30',
                     header: 'ScoreVel > 30',
                     Cell({ cell, column, row, table, }) {
-                        return (locateFormatNumberNDijitos(row.original.scoreVel30 ?? 0, 2))
+                        return (getIcon(row.original.scoreVel30))
                     }
                 },
                 {
                     accessorKey: 'scoreFB',
                     header: 'ScoreFB > 10',
                     Cell({ cell, column, row, table, }) {
-                        return (locateFormatNumberNDijitos(row.original.scoreFB ?? 0, 2))
+                        return (getIcon(row.original.scoreFB))
                     }
                 },
                 {
                     accessorKey: 'scoreAB',
                     header: 'ScoreAB > 8',
                     Cell({ cell, column, row, table, }) {
-                        return (locateFormatNumberNDijitos(row.original.scoreAB ?? 0, 2))
+                        return (getIcon(row.original.scoreAB))
                     }
                 },
                 {
                     accessorKey: 'scoreGB',
                     header: 'ScoreGB > 0,3',
                     Cell({ cell, column, row, table, }) {
-                        return (locateFormatNumberNDijitos(row.original.scoreGB ?? 0, 2))
+                        return (getIcon(row.original.scoreGB))
                     }
                 }
 
@@ -188,7 +196,6 @@ export default function ReporteSafety() {
     const [isCallData, setisCallData] = useState<boolean>(false);
     const [opciones, setOpciones] = useState<any>(null);
     const [OpcionesAcumulado, setAcumulado] = useState<any>(null);
-    const [showChart, setshowChart] = useState<boolean>(false);
 
     const [columnas, setcolumnas] = useState<any[]>([]);
     const [dataFiltrada, setDataFiltrada] = useState<any[]>([]);
@@ -212,6 +219,35 @@ export default function ReporteSafety() {
     const [isLoading, setIsLoading] = useState(false);
     const [isRefetching, setIsRefetching] = useState(false);
     const [isError, setIsError] = useState(false);
+
+    // let ColumnasGraficaZonaOperador: MRT_ColumnDef<any>[] = [{
+    //     accessorKey: 'Operador',
+    //     header: 'Operador',
+    //     Cell:({ cell, column, row, table }) =>{
+    //         return <span className="fw-bolder" style={{fontSize:'10px'}}>{row.original.Operador}</span>
+    //     }
+    // }, {
+    //     accessorKey: 'Total',
+    //     header: 'Total',
+    //     size: 200,
+    //     maxSize: 200,
+    //     minSize: 200,
+    //     Cell: ({ cell, column, row, table }) => {
+    //         let Total = (row.original.Total == null ? 0 : row.original.Total)
+    //         return <span title={`${row.original.Completo?.toString()} : ${Total}`}>
+    //             <ProgressBar
+    //                 className='text-center fw-bolder'
+    //                 baseBgColor='transparent'
+    //                 bgColor={`${(row.original.Id == "EV: 4. Potencia 150<P<175" ? '#ebba09' : '#F44336')}`}
+    //                 labelSize={`10px`}
+    //                 width='200px'
+    //                 customLabel={`${Total}`}
+    //                 completed={`${(Number(Total) * 100 + 50)}`}
+    //                 maxCompleted={500}>
+    //             </ProgressBar>
+    //         </span>
+    //     }
+    // }];
 
     ///////////// FIN TABLE STATE
 
@@ -325,8 +361,7 @@ export default function ReporteSafety() {
                     title: {
                         text: "Score"
                     }
-                }
-                ],
+                }],
                 dataLabels: {
                     enabled: true,
                     enabledOnSeries: true,
@@ -334,12 +369,24 @@ export default function ReporteSafety() {
                         return locateFormatNumberNDijitos(value, 1)
                     },
 
-                },
+                },                
                 plotOptions: {
-                    line: {
-                        dataLabels: {
-                            position: 'top'
-                        }
+                    bar: {
+                      colors: {
+                        ranges: [{
+                          from: 0,
+                          to: 2,
+                          color: '#64B178'
+                        }, {
+                          from: 2,
+                          to: 5,
+                          color: '#D7962E'
+                        }, {
+                            from: 5,
+                            to: 100,
+                            color: '#F26E5F'
+                        }]
+                      }
                     }
                 }
             },
@@ -370,10 +417,15 @@ export default function ReporteSafety() {
     useEffect(() => {
         if (ClienteSeleccionado.clienteIdS != 0)
             ConsultarData();
-
-        (tabSel != 2) ? setshowChart(false) : setshowChart(true);
     }, [tabSel, TipoReporte])
 
+    //retorna el color del icono de las tablas
+    const getIcon = (Data: any) => {
+        return <span>
+        <i className="bi bi-circle-fill" style={{ color: `${Data <= 2 ? '#64B178' : Data > 2 && Data <= 5 ? '#D7962E' : '#F26E5F' }` }}> </i> 
+            { ( locateFormatNumberNDijitos(Data ?? 0, 2))}
+        </span> ;
+    };
 
     // metodo qeu consulta los datos de las alarmasg
     let ConsultarData = () => {
@@ -569,8 +621,6 @@ export default function ReporteSafety() {
                     }
 
                     p1.push(objetoOperadorScore);
-
-
                 } else {
                     let rowOperador = isExistsOperador[0];
                     rowOperador.mes = 1;
@@ -588,9 +638,7 @@ export default function ReporteSafety() {
                     rowOperador.Score = rowOperador.scoreFB + rowOperador.scoreAB + rowOperador.scoreGB + rowOperador.scoreVel30 + rowOperador.scoreVel50
 
                 }
-
                 return p1;
-
             }, []);
         });
 
@@ -599,6 +647,7 @@ export default function ReporteSafety() {
         let rojo = 0;
 
         let agrupadoMensualTabla = new Array();
+
         Object.entries(agrupadoOperadormensual).map((elem: any) => {
             let objetofinal = (elem[1].totalPorOperador.map((m: any) => { return m }));
             let score = (elem[1].totalPorOperador.map((m: any) => { return m.Score }));
@@ -614,6 +663,9 @@ export default function ReporteSafety() {
             "Calificación Total": locateFormatNumberNDijitos(scoretotal, 2),
         });
 
+        !EsDiario ? setDataFiltrada(agrupadoMensualTabla) : setDataFiltrada(datosFiltrados);
+        // console.log(agrupadoMensualTabla);
+
         setlabelsAxisx(labels);
 
         // se debe volver actualizar los eventos pues 'estos no
@@ -623,7 +675,7 @@ export default function ReporteSafety() {
         ApexCharts.exec('totalScore', 'updateOptions', {
             chart: {
                 events: {
-                    markerClick: (event: any, chartContext: any, config: any) => {
+                    dataPointSelection: (event: any, chartContext: any, config: any) => {
                         // seleccionamos el index de la grafica para posteriormente filtrar
                         let labelSeleccionado = labels[config.dataPointIndex];
                         // si la informacion del label seleccionado es igual al label que se encuentra en los filtros
@@ -635,7 +687,26 @@ export default function ReporteSafety() {
             },
             xaxis: {
                 categories: labels
-            }
+            },
+            // plotOptions: {
+            //     bar: {
+            //       colors: {
+            //         ranges: [{
+            //           from: 0,
+            //           to: 2,
+            //           color: '#64B178'
+            //         }, {
+            //           from: 2,
+            //           to: 5,
+            //           color: '#D7962E'
+            //         }, {
+            //             from: 5,
+            //             to: 100,
+            //             color: '#F26E5F'
+            //         }]
+            //       }
+            //     }
+            // }
         });
         // funcion que actualiza los datos de las series
         // se debe pasar el id configurado al momento de su creaci'on para poder
@@ -649,10 +720,10 @@ export default function ReporteSafety() {
             }
         ]);
 
-        // setshowChart(false);
 
         //Validamos si son las graficas de detallado
         if (EsDetallado) {
+
             // agrupamos los datos para la grafica
             let agrupadofechadetalle = datosFiltrados
                 .reduce((p, c) => {
@@ -697,7 +768,7 @@ export default function ReporteSafety() {
             ApexCharts.exec('detalladoAgrupado', 'updateOptions', {
                 chart: {
                     events: {
-                        markerClick: (event: any, chartContext: any, config: any) => {
+                        dataPointSelection: (event: any, chartContext: any, config: any) => {
                             // seleccionamos el index de la grafica para posteriormente filtrar
                             let labelSeleccionado = labelsdetallado[config.dataPointIndex];
                             // si la informacion del label seleccionado es igual al label que se encuentra en los filtros
@@ -720,27 +791,27 @@ export default function ReporteSafety() {
                     name: 'EC: Exceso Velocidad > 50 km/h',
                     data: Ev1,
                     type: 'bar',
-                    color: '#F44336'
+                    color: '#bf88b9'
                 }, {
                     name: 'EC: Frenada Brusca > 10 km/h/s',
                     data: Ev2,
                     type: 'bar',
-                    color: '#99C2A2'
+                    color: '#F26E5F'
                 }, {
                     name: 'EC: Giro Brusco > 0,3 G',
                     data: Ev3,
                     type: 'bar',
-                    color: '#78cb1d'
+                    color: '#D7962E'
                 }, {
                     name: 'EC: Exceso Velocidad > 30 km/h',
                     data: Ev4,
                     type: 'bar',
-                    color: '#ddff00'
+                    color: '#64B178'
                 }, {
                     name: 'EC: Cinturón Desabrochado',
                     data: Ev5,
                     type: 'bar',
-                    color: '#ff7b00'
+                    color: '#e448d7'
                 }]);
 
             //AGRUPAMOS VALORES EVENTOS TOTALES POR EVENTO - OPERADOR
@@ -760,6 +831,30 @@ export default function ReporteSafety() {
                     return p;
                 }, []);// contenemos la informacion en un array de datos agrupados
 
+                agrupadoOperador.forEach((e: any) => {
+                    e.totalPorOperador = e.original.reduce((p1: any, c1: any) => {
+                        let operador = c1.operador;
+        
+                        let isExistsOperador = p1.filter((f: any) => f.operador == operador);
+                        if (isExistsOperador.length == 0) {
+                            let objetoOperador = { operador: operador, contador: 1 };
+                            p1.push(objetoOperador);
+                        } else {
+                            let rowOperador = isExistsOperador[0];
+                            rowOperador.contador++;
+                        }
+        
+                        return p1;
+        
+                    }, []);
+        
+                    e.totalPorOperador = e.totalPorOperador.sort((a: any, b: any) => {
+                        return b.contador - a.contador;
+                    });
+        
+                });
+
+                console.log(agrupadoOperador);
         }
     }
 
@@ -860,8 +955,8 @@ export default function ReporteSafety() {
                             (Object.entries(lstIndicadores).map((element: any) => {
 
                                 return (
-                                    <div key={`indicadores_${element[0]}`} className={`row card shadow m-2 col-sm-3 col-md-3 col-xs-3 mx-auto 
-                                            ${(element[0] == "Cond Rojo") ? "bg-danger" : (element[0] == "Cond Ambar") ? "bg-warning" : (element[0] == "Cond Verde") ? "bg-success" : ""}`}>
+                                    <div key={`indicadores_${element[0]}`} className="row card shadow m-2 col-sm-3 col-md-3 col-xs-3 mx-auto" 
+                                            style={{ backgroundColor: `${(element[0] == "Cond Rojo") ? "#F26E5F" : (element[0] == "Cond Ambar") ? "#64B178" : (element[0] == "Cond Verde") ? "#D7962E" : ""}` }} >
                                         <div className="ms-3 text-center m-4">
                                             <h2 className={`mb-0 ${(element[0] != "Calificación Total") ? "text-white" : ""}`}><span id={element[0]}>{element[1]}</span></h2>
                                             <span className={`${(element[0] != "Calificación Total") ? "text-white" : "text-muted"}`}>{element[0]}</span>
@@ -885,7 +980,7 @@ export default function ReporteSafety() {
                                     (TipoReporte[tabSel].tipo == 1) ? moment().add(-6, 'months').startOf('month').toDate() : moment().add(-6, 'months').toDate(),
                                     (TipoReporte[tabSel].tipo == 1) ? moment().endOf('month').toDate() : moment().toDate()
                                 ),
-                                    allowedMaxDays(31)
+                                    allowedMaxDays(180)
                                 )}
                                 onChange={(value, e) => {
                                     if (value !== null) {
@@ -944,18 +1039,18 @@ export default function ReporteSafety() {
                                 series={OpcionesAcumulado.series}
                                 height={200} />)}
                     </div>
-                    <div hidden={showChart}>
+                    <div style={{ display: (tabSel != 2) ? "block" : "none" }} >
                         <div className="card">
                             {(opciones != null) && (
                                 <ReactApexChart
                                     options={opciones.options}
                                     series={opciones.series}
-                                    height={300} />)}
+                                    height={300}/>)}
                         </div>
-                    </div>
+                    </div>                    
                     <MaterialReactTable
                         enableFilters={false}
-                        initialState={{ density: 'compact' }}
+                        initialState={{ density: 'compact',  columnVisibility: { mes: false }}}
                         enableColumnOrdering
                         enableColumnDragging={false}
                         enablePagination={false}
