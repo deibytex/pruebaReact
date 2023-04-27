@@ -11,7 +11,7 @@ import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/rea
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import DualListBox from "react-dual-listbox";
 import { dualList } from "../../../CorreosTx/models/dataModels";
-import { Button, Form, Modal } from "react-bootstrap-v5";
+import { Button, Form, Modal, ProgressBar } from "react-bootstrap-v5";
 import ReactApexChart from "react-apexcharts";
 import { FiltrosReportes } from "../../models/eBus";
 import { ClienteDTO } from "../../models/NivelcargaModels";
@@ -19,7 +19,7 @@ import { AxiosResponse } from "axios";
 import { GetClientesEsomos } from "../../data/NivelCarga";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 import { InicioCliente } from "../../../../../_start/helpers/Models/ClienteDTO";
-import { locateFormatNumberNDijitos, formatNumberChart } from "../../../../../_start/helpers/Helper";
+import { locateFormatNumberNDijitos } from "../../../../../_start/helpers/Helper";
 import { Box } from "@mui/material";
 import { DrawDynamicIconMuiMaterial } from "../../../../../_start/helpers/components/IconsMuiDynamic";
 export default function ReporteSafety() {
@@ -69,13 +69,13 @@ export default function ReporteSafety() {
                     },
                     muiTableBodyCellProps: ({
                         cell
-                      }) => ({
+                    }) => ({
                         sx: {
-                          backgroundColor: cell.getValue<number>() <= 2 ? 'rgba(104, 176, 120, 0.5)' : 
-                          cell.getValue<number>() > 2 && cell.getValue<number>() <5 ? 'rgba(215, 148, 46, 0.5)' :
-                          'rgba(242, 107, 91, 0.5)'
+                            backgroundColor: cell.getValue<number>() <= 2 ? 'rgba(104, 176, 120, 0.5)' :
+                                cell.getValue<number>() > 2 && cell.getValue<number>() < 5 ? 'rgba(215, 148, 46, 0.5)' :
+                                    'rgba(242, 107, 91, 0.5)'
                         }
-                      })
+                    })
                 },
                 {
                     accessorKey: 'scoreVel50',
@@ -204,6 +204,15 @@ export default function ReporteSafety() {
     const [lstOperadores, setlstOperadores] = useState<dualList[]>([]);
     const [lstSeleccionados, setSeleccionados] = useState<string[]>([]);
     //////////////// TABLE STATE
+
+
+    const [TotalesAC, setTotalesAC] = useState<any[]>([]);
+    const [TotalesFB, setTotalesFB] = useState<any[]>([]);
+    const [TotalesGB, setTotalesGB] = useState<any[]>([]);
+    const [TotalesCD, setTotalesCD] = useState<any[]>([]);
+    const [TotalesVel30, setTotalesVel30] = useState<any[]>([]);
+    const [TotalesVel50, setTotalesVel50] = useState<any[]>([]);
+
     //table state
     const tableContainerRef = useRef<HTMLDivElement>(null);
 
@@ -220,34 +229,23 @@ export default function ReporteSafety() {
     const [isRefetching, setIsRefetching] = useState(false);
     const [isError, setIsError] = useState(false);
 
-    // let ColumnasGraficaZonaOperador: MRT_ColumnDef<any>[] = [{
-    //     accessorKey: 'Operador',
-    //     header: 'Operador',
-    //     Cell:({ cell, column, row, table }) =>{
-    //         return <span className="fw-bolder" style={{fontSize:'10px'}}>{row.original.Operador}</span>
-    //     }
-    // }, {
-    //     accessorKey: 'Total',
-    //     header: 'Total',
-    //     size: 200,
-    //     maxSize: 200,
-    //     minSize: 200,
-    //     Cell: ({ cell, column, row, table }) => {
-    //         let Total = (row.original.Total == null ? 0 : row.original.Total)
-    //         return <span title={`${row.original.Completo?.toString()} : ${Total}`}>
-    //             <ProgressBar
-    //                 className='text-center fw-bolder'
-    //                 baseBgColor='transparent'
-    //                 bgColor={`${(row.original.Id == "EV: 4. Potencia 150<P<175" ? '#ebba09' : '#F44336')}`}
-    //                 labelSize={`10px`}
-    //                 width='200px'
-    //                 customLabel={`${Total}`}
-    //                 completed={`${(Number(Total) * 100 + 50)}`}
-    //                 maxCompleted={500}>
-    //             </ProgressBar>
-    //         </span>
-    //     }
-    // }];
+    let ColumnasTablasVerticales: MRT_ColumnDef<any>[] = [{
+        accessorKey: 'Operador',
+        header: 'Operador',
+        Cell: ({ cell, column, row, table }) => {
+            return <span className="fw-bolder" style={{ fontSize: '10px' }}>{row.original.Operador}</span>
+        }
+    }, {
+        accessorKey: 'Total',
+        header: 'Total',
+        size: 200,
+        maxSize: 200,
+        minSize: 200,
+        Cell: ({ cell, column, row, table }) => {
+            const now = 60;
+            return <ProgressBar variant="success" now={now} label={`${row.original.Total}%`} />;
+        }
+    }];
 
     ///////////// FIN TABLE STATE
 
@@ -369,24 +367,24 @@ export default function ReporteSafety() {
                         return locateFormatNumberNDijitos(value, 1)
                     },
 
-                },                
+                },
                 plotOptions: {
                     bar: {
-                      colors: {
-                        ranges: [{
-                          from: 0,
-                          to: 2,
-                          color: '#64B178'
-                        }, {
-                          from: 2,
-                          to: 5,
-                          color: '#D7962E'
-                        }, {
-                            from: 5,
-                            to: 100,
-                            color: '#F26E5F'
-                        }]
-                      }
+                        colors: {
+                            ranges: [{
+                                from: 0,
+                                to: 2,
+                                color: '#64B178'
+                            }, {
+                                from: 2,
+                                to: 5,
+                                color: '#D7962E'
+                            }, {
+                                from: 5,
+                                to: 100,
+                                color: '#F26E5F'
+                            }]
+                        }
                     }
                 }
             },
@@ -422,9 +420,9 @@ export default function ReporteSafety() {
     //retorna el color del icono de las tablas
     const getIcon = (Data: any) => {
         return <span>
-        <i className="bi bi-circle-fill" style={{ color: `${Data <= 2 ? '#64B178' : Data > 2 && Data <= 5 ? '#D7962E' : '#F26E5F' }` }}> </i> 
-            { ( locateFormatNumberNDijitos(Data ?? 0, 2))}
-        </span> ;
+            <i className="bi bi-circle-fill" style={{ color: `${Data <= 2 ? '#64B178' : Data > 2 && Data <= 5 ? '#D7962E' : '#F26E5F'}` }}> </i>
+            {(locateFormatNumberNDijitos(Data ?? 0, 2))}
+        </span>;
     };
 
     // metodo qeu consulta los datos de las alarmasg
@@ -831,30 +829,124 @@ export default function ReporteSafety() {
                     return p;
                 }, []);// contenemos la informacion en un array de datos agrupados
 
-                agrupadoOperador.forEach((e: any) => {
-                    e.totalPorOperador = e.original.reduce((p1: any, c1: any) => {
-                        let operador = c1.operador;
-        
-                        let isExistsOperador = p1.filter((f: any) => f.operador == operador);
-                        if (isExistsOperador.length == 0) {
-                            let objetoOperador = { operador: operador, contador: 1 };
-                            p1.push(objetoOperador);
-                        } else {
-                            let rowOperador = isExistsOperador[0];
-                            rowOperador.contador++;
-                        }
-        
-                        return p1;
-        
-                    }, []);
-        
-                    e.totalPorOperador = e.totalPorOperador.sort((a: any, b: any) => {
-                        return b.contador - a.contador;
-                    });
-        
+            agrupadoOperador.forEach((e: any) => {
+                e.totalPorOperador = e.original.reduce((p1: any, c1: any) => {
+                    let operador = c1.operador;
+
+                    let isExistsOperador = p1.filter((f: any) => f.operador == operador);
+                    if (isExistsOperador.length == 0) {
+                        let objetoOperador = { operador: operador, contador: 1 };
+                        p1.push(objetoOperador);
+                    } else {
+                        let rowOperador = isExistsOperador[0];
+                        rowOperador.contador++;
+                    }
+
+                    return p1;
+
+                }, []);
+
+                e.totalPorOperador = e.totalPorOperador.sort((a: any, b: any) => {
+                    return b.contador - a.contador;
                 });
 
-                console.log(agrupadoOperador);
+            });
+
+            // agrupa los elementos para ser mostrado por la grafica
+            let TotalAC = new Array();
+            let TotalVEL50 = new Array();
+            let TotalFB = new Array();
+            let TotalGB = new Array();
+            let TotalVEL30 = new Array();
+            let TotalCD = new Array();
+
+            Object.entries(agrupadoOperador).map((elem: any) => {
+
+                // totalizamos por propiedad que se necesite
+                //aginamos labels y cantidad por tipo de evento
+
+                if (elem[1].evento == 'EC: Exceso Velocidad > 50 km/h') {
+                    let Id = elem[1].evento;
+                    let Operadores = elem[1].totalPorOperador.map((m: any) => { return m.operador });
+                    let Totales = elem[1].totalPorOperador.map((m: any) => { return m.contador });
+
+
+                    Totales.forEach((element: any) => {
+                        TotalVEL50.push({
+                            Id,
+                            Operador: 'prueba',
+                            Total: element
+                        });
+                    });
+         
+                }
+                else if (elem[1].evento == 'EC: Aceleracion Brusca > 8 km/h/s') {
+                    let Id = elem[1].evento;
+                    let Operador = elem[1].totalPorOperador.map((m: any) => { return m.operador });
+                    let Total = elem[1].totalPorOperador.map((m: any) => { return m.contador });
+
+                    TotalAC.push({
+                        Id,
+                        Operador,
+                        Total
+                    });
+                }
+                else if (elem[1].evento == 'EC: Frenada Brusca > 10 km/h/s') {
+                    let Id = elem[1].evento;
+                    let Operador = elem[1].totalPorOperador.map((m: any) => { return m.operador });
+                    let Total = elem[1].totalPorOperador.map((m: any) => { return m.contador });
+
+                    TotalFB.push({
+                        Id,
+                        Operador,
+                        Total
+                    });
+                }
+                else if (elem[1].evento == 'EC: Giro Brusco > 0,3 G') {
+                    let Id = elem[1].evento;
+                    let Operador = elem[1].totalPorOperador.map((m: any) => { return m.operador });
+                    let Total = elem[1].totalPorOperador.map((m: any) => { return m.contador });                    
+
+                    TotalGB.push({
+                        Id,
+                        Operador,
+                        Total
+                    });
+                }
+                else if (elem[1].evento == 'EC: Exceso Velocidad > 30 km/h') {
+                    let Id = elem[1].evento;
+                    let Operador = elem[1].totalPorOperador.map((m: any) => { return m.operador });
+                    let Total = elem[1].totalPorOperador.map((m: any) => { return m.contador });
+
+                    TotalVEL30.push({
+                        Id,
+                        Operador,
+                        Total
+                    });
+                }
+                else {
+                    let Id = elem[1].evento;
+                    let Operador = elem[1].totalPorOperador.map((m: any) => { return m.operador });
+                    let Total = elem[1].totalPorOperador.map((m: any) => { return m.contador });
+
+                    TotalCD.push({
+                        Id,
+                        Operador,
+                        Total
+                    });
+                };
+            });
+
+            setTotalesAC(TotalAC);
+            setTotalesCD(TotalCD);
+            setTotalesFB(TotalFB);
+            setTotalesGB(TotalGB);
+            setTotalesVel50(TotalVEL50);
+            setTotalesVel30(TotalVEL30);
+
+            console.log(TotalVEL50);
+
+            
         }
     }
 
@@ -955,8 +1047,8 @@ export default function ReporteSafety() {
                             (Object.entries(lstIndicadores).map((element: any) => {
 
                                 return (
-                                    <div key={`indicadores_${element[0]}`} className="row card shadow m-2 col-sm-3 col-md-3 col-xs-3 mx-auto" 
-                                            style={{ backgroundColor: `${(element[0] == "Cond Rojo") ? "#F26E5F" : (element[0] == "Cond Ambar") ? "#64B178" : (element[0] == "Cond Verde") ? "#D7962E" : ""}` }} >
+                                    <div key={`indicadores_${element[0]}`} className="row card shadow m-2 col-sm-3 col-md-3 col-xs-3 mx-auto"
+                                        style={{ backgroundColor: `${(element[0] == "Cond Rojo") ? "#F26E5F" : (element[0] == "Cond Ambar") ? "#D7962E" : (element[0] == "Cond Verde") ? "#64B178" : ""}` }} >
                                         <div className="ms-3 text-center m-4">
                                             <h2 className={`mb-0 ${(element[0] != "Calificación Total") ? "text-white" : ""}`}><span id={element[0]}>{element[1]}</span></h2>
                                             <span className={`${(element[0] != "Calificación Total") ? "text-white" : "text-muted"}`}>{element[0]}</span>
@@ -1045,12 +1137,64 @@ export default function ReporteSafety() {
                                 <ReactApexChart
                                     options={opciones.options}
                                     series={opciones.series}
-                                    height={300}/>)}
+                                    height={300} />)}
                         </div>
-                    </div>                    
+                    </div>
+                    <div className="col-xs-6 col-sm-6 col-md-6">
+                        <div className="text-center"><label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px' }}>Exceso Velocidad &gt; 50 km/h</label></div>
+                        {(TotalesVel50.length != 0) && (<MaterialReactTable
+                            // tableInstanceRef={ColumnasTablas['movil']}
+                            muiTableBodyCellProps={{
+                                sx: {
+                                    border: '0px solid #000',
+                                }
+                            }}
+                            displayColumnDefOptions={{
+                                'mrt-row-actions': {
+                                    muiTableHeadCellProps: {
+                                        align: 'center'
+                                    },
+                                    size: 0,
+                                },
+                            }}
+
+                            localization={MRT_Localization_ES}
+                            columns={ColumnasTablasVerticales}
+                            data={TotalesVel50}
+                            enableColumnOrdering={false}
+                            enableColumnActions={false}
+                            enableSorting={true}
+                            enableFilters={false}
+                            manualSorting={false}
+                            enableGlobalFilterRankedResults={false}
+                            enableDensityToggle={false}
+                            enableColumnDragging={false}
+                            enablePagination={false}
+                            enableHiding={false}
+                            enableFullScreenToggle={false}
+                            enableSortingRemoval={false}
+                            enableStickyHeader
+                            enableRowVirtualization
+                            defaultColumn={{
+                                minSize: 150, //allow columns to get smaller than default
+                                maxSize: 400, //allow columns to get larger than default
+                                size: 150, //make columns wider by default
+                            }}
+                            initialState={{ density: 'compact' }}
+                            state={{
+                                columnFilters,
+                                globalFilter,
+                                isLoading,
+                                pagination,
+                                showAlertBanner: isError,
+                                showProgressBars: isRefetching,
+                                sorting,
+                            }}
+                        />)}
+                    </div>
                     <MaterialReactTable
                         enableFilters={false}
-                        initialState={{ density: 'compact',  columnVisibility: { mes: false }}}
+                        initialState={{ density: 'compact', columnVisibility: { mes: false } }}
                         enableColumnOrdering
                         enableColumnDragging={false}
                         enablePagination={false}
