@@ -28,11 +28,10 @@ export function DescargarExcel(datos: any[], columnas: MRT_ColumnDef<any>[], Nom
                 else {
                     let nombreCampo: string = columna.accessorKey as string;
                     let valuen = item[nombreCampo];
-                    Objeto[columna.header] =
-                        (columna.header.includes('%') ? locateFormatPercentNDijitos(valuen, 2) :
+                    Objeto[columna.header] = (nombreCampo == "Placa" || nombreCampo == "registrationNumber" ? valuen : columna.header.includes('%') ? locateFormatPercentNDijitos(valuen, 2) :
                             (!isNaN(valuen)) ? valuen : ((moment(valuen).isValid()) ? moment(valuen).format(FormatoColombiaDDMMYYYHHmmss) : valuen));
                 }
-
+                console.log(Objeto[columna.header]);
             });
 
             return Objeto;
