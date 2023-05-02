@@ -122,6 +122,7 @@ export default function ZPOperadorMovil() {
                         }
                     },
                     stacked: true,
+                    
                 },
                 xaxis: {
                     categories: [],
@@ -585,10 +586,24 @@ export default function ZPOperadorMovil() {
             setlablesAxisx(labels)
         }
 
-
+        let totalesV5 = 0;
+        let totales = 0;
+        let EV;
+        let EV5;
         if (tabla == "tbloperadorgrafica") {
             let TotalTemp: any[] = [];
             let TotalesV5Temp: any[] = [];
+            Object.entries(agrupadoOperador).map((elem) => {
+                EV5 = (elem[1].map((m:any) => {
+                    return (m.Descripcion == "EV: 5. Potencia >175" ? m.Total: 0)
+                }).reduce((a:any, b:any) => a + b, 0));
+                EV = (elem[1].map((m:any) => {
+                    return (m.Descripcion == "EV: 4. Potencia 150<P<175" ? m.Total : 0)
+                }).reduce((a:any, b:any) => a + b, 0));
+                totalesV5 = totalesV5 +  EV5;
+                totales = totales + EV;
+            });
+
             Object.entries(agrupadoOperador).map((elem: any) => {
                 let TotalesConductor = 0;
                 let TotalesConductorV5 = 0;
@@ -604,12 +619,12 @@ export default function ZPOperadorMovil() {
                 TotalTemp.push({
                     Id: "EV: 4. Potencia 150<P<175",
                     Completo: elem[0],
-                    Operador: (elem[0] != undefined ? `${(elem[0].split("&")[1] != undefined) ? elem[0].split("&")[1].substring(0, 18) : elem[0].substring(0, 18)}..` : ""), Total: Number(TotalesConductor.toFixed(2))
+                    Operador: (elem[0] != undefined ? `${(elem[0].split("&")[1] != undefined) ? elem[0].split("&")[1].substring(0, 18) : elem[0].substring(0, 18)}..` : ""), Total: Number((TotalesConductor/totales*100).toFixed(2))
                 });
                 TotalesV5Temp.push({
                     Id: "EV: 5. Potencia >175",
                     Completo: elem[0],
-                    Operador: (elem[0] != undefined ? `${(elem[0].split("&")[1] != undefined) ? elem[0].split("&")[1].substring(0, 18) : elem[0].substring(0, 18)}..` : ""), Total: Number(TotalesConductorV5.toFixed(2))
+                    Operador: (elem[0] != undefined ? `${(elem[0].split("&")[1] != undefined) ? elem[0].split("&")[1].substring(0, 18) : elem[0].substring(0, 18)}..` : ""), Total: Number((TotalesConductorV5/totalesV5*100).toFixed(2))
                 });
             });
 
@@ -620,10 +635,37 @@ export default function ZPOperadorMovil() {
                 return b.Total - a.Total
             }));
             //fin vertical grafica
+            let TotalesConductor = 0;
+            let TotalesConductorV5 = 0;
+            datosfiltrados.map((item:any) => {
+         
+                PorEV4Agrupado = PorEV4Agrupado + item.Total;
+                PorEV5Agrupado = PorEV5Agrupado + item.Total;
+             
+                if (item.Descripcion == "EV: 4. Potencia 150<P<175") {
+                    TotalesConductor = TotalesConductor + item.Total;
+                } else if (item.Descripcion == "EV: 5. Potencia >175") {
+                    TotalesConductorV5 = TotalesConductorV5 + item.Total;
+                }
+          
+    
+            });
+            //para sacar el total de los valores del agrupado.
+            let TotalAgrupado = TotalesConductor + TotalesConductorV5;
+            //Agrego lo valores agrupados a los array
+            Ev0Agrupado.push("0");
+            Ev1Agrupado.push("0");
+            Ev2Agrupado.push("0");
+            Ev3Agrupado.push("0");
+            Ev4Agrupado.push((TotalesConductor / TotalAgrupado * 100).toFixed(2));
+            Ev5Agrupado.push((TotalesConductorV5 / TotalAgrupado * 100).toFixed(2));
         }
 
         ApexCharts.exec('apexchart-example', 'updateOptions', {
             chart: {
+                fill: {
+                    colors:  ['#118DFF', '#00B050', '#92D050', '#CCED63', '#FFC000', '#FF0000']
+                  },
                 toolbar: {
                     show: false
                 },
@@ -639,17 +681,21 @@ export default function ZPOperadorMovil() {
             },
             xaxis: {
                 categories: labels
-            }
+            },
+            colors:  ['#118DFF', '#00B050', '#92D050', '#CCED63', '#FFC000', '#FF0000']
         });
         ApexCharts.exec('apexchart-acumulado', 'updateOptions', {
             chart: {
+              
                 toolbar: {
                     show: false
                 },
             },
             xaxis: {
                 categories: LabelPeriodo
-            }
+            },
+            colors:  ['#118DFF', '#00B050', '#92D050', '#CCED63', '#FFC000', '#FF0000']
+             
         });
 
         // funcion que actualiza los datos de las series
@@ -868,8 +914,8 @@ export default function ZPOperadorMovil() {
                                 {/* begin::Tab Content */}
                                 <div className="tab-content flex-grow-1">
                                     {/* begin::Tab Pane 1 */}
-                                    <div style={{ display: (tabSel != 2) ? "block" : "none" }} >
-                                        <div className="card-body d-lg-flex align-items-lg-center justify-content-lg-between flex-lg-wrap border mt-2 mb-2">
+                                    <div>
+                                        <div  style={{ display: "block" }} className="card-body d-lg-flex align-items-lg-center justify-content-lg-between flex-lg-wrap border mt-2 mb-2">
                                             <div className="row w-100" id="efi-chartzpMovilAgrupado">
                                                 {(OpcionesAcumulado != null) && (
                                                     <ReactApexChart
@@ -879,7 +925,7 @@ export default function ZPOperadorMovil() {
                                                     />)}
                                             </div>
                                         </div>
-                                        <div className="card" id="efi-chartzpMovil" style={{ border: '1px solid #5ab55e', borderRadius: '5px' }}>
+                                        <div style={{ display: (tabSel != 2) ? "block" : "none", border: '1px solid #5ab55e', borderRadius: '5px' }} className="card" id="efi-chartzpMovil">
                                             <div className="card-body">
                                                 <div className="row">
                                                     {(opciones != null) && (
