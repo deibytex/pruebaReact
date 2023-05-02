@@ -421,7 +421,7 @@ setRowCount(ArrayMovil.length); // actualizamos la informacion de las filas
               <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8"> <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fecha inicial: </label>
                 {(combine && allowedMaxDays && allowedRange) && (
                   <DateRangePicker className="mt-2" format="dd/MM/yyyy" value={[filtros.FechaInicial, filtros.FechaFinal]}
-                    disabledDate={combine(allowedMaxDays(7), allowedRange(
+                    disabledDate={combine(allowedMaxDays(15), allowedRange(
                       moment().add(-200, 'days').startOf('day').toDate(), moment().startOf('day').toDate()
                     ))}
                     onChange={(value, e) => {

@@ -1,4 +1,6 @@
 import moment from "moment";
+import "moment/locale/es"
+import "moment-timezone"
 export const formatSimple = "YYYY/MM/DD";
 export const  formatable = "YYYY/MM/DD HH:mm";
 export const  formatableJson = "YYYY-MM-DDTHH:mm";
@@ -7,8 +9,9 @@ export const  formatSimpleJsonColombia = "DD-MM-YYYY";
 export const  formatFechasView = "DD/MM/YYYY";
 export const  formatViewHoraMinuto = "DD/MM/YYYY HH:mm";
 
-var utcMoment = moment.utc().add(-5 , 'hours');
+var utcMoment = moment.tz('America/Bogota').locale('es');
 export const FechaServidor =new Date( utcMoment.format() );
+export const FechaMomentUtc =utcMoment;
 
 // milisegundos a time
 export  function msToTime(s : number) {

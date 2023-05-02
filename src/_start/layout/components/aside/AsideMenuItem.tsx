@@ -48,7 +48,7 @@ const AsideMenuItem: React.FC<Props> = ({
           {hasBullet && (
               <i className= {`fs-3  ${iconClass} m-1`}></i>
           )}
-          <span className="menu-title text-white fs-7">{title}</span>
+          <span className="menu-title text-white text-muted fs-7">{title}</span>
           {exclusive && (
             <span className="badge badge-exclusive badge-light-success fw-bold fs-9 px-2 py-1 ms-1">
               Exclusive

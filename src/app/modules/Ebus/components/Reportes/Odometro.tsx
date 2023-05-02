@@ -9,7 +9,7 @@ import { Button, Form, Modal } from "react-bootstrap-v5";
 import DualListBox from "react-dual-listbox";
 import { DatePicker, DateRangePicker } from "rsuite";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
-import { PageTitle } from "../../../../../_start/layout/core";
+import { ModuleName, PageTitle } from "../../../../../_start/layout/core";
 import { dualList } from "../../../CorreosTx/models/dataModels";
 import { GetReporteOdometro } from "../../data/ReportesData";
 import { DescargarExcel } from "../../../../../_start/helpers/components/DescargarExcel"
@@ -165,6 +165,7 @@ export default function ReporteOdometro() {
     }
 
     return (<>
+     <ModuleName >eBus</ModuleName>
         <PageTitle >Reporte Odometro</PageTitle>
 
 

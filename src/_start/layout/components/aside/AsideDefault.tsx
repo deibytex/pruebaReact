@@ -10,6 +10,7 @@ import { Dropdown1 } from "../../../partials";
 
 export function AsideDefault() {
   const { config, classes } = useTheme();
+
   return (
     <>
       {config.aside.display && (

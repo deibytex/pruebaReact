@@ -26,11 +26,13 @@ export function DescargarExcel(datos: any[], columnas: MRT_ColumnDef<any>[], Nom
                     });
                 }
                 else {
-                    let nombreCampo: string = columna.accessorKey as string;
-                    let valuen = item[nombreCampo];
-                    Objeto[columna.header] =
-                        (columna.header.includes('%') ? locateFormatPercentNDijitos(valuen, 2) :
-                            (!isNaN(valuen)) ? valuen : ((moment(valuen).isValid()) ? moment(valuen).format(FormatoColombiaDDMMYYYHHmmss) : valuen));
+                    if (columna.accessorKey) {
+                        let nombreCampo: string = columna.accessorKey as string;
+                        let valuen = item[nombreCampo];
+                        Objeto[columna.header] =
+                            (columna.header.includes('%') ? locateFormatPercentNDijitos(valuen, 2) :
+                                (!isNaN(valuen)) ? valuen : ((moment(valuen).isValid()) ? moment(valuen).format(FormatoColombiaDDMMYYYHHmmss) : valuen));
+                    }
                 }
 
             });

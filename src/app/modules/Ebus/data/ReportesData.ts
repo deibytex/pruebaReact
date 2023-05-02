@@ -98,5 +98,17 @@ export function GetDataEficiencia(FechaInicial:string, FechaFinal:string, client
         RecordsPorPagina: null
     }, params);
 }
-
+export function GetReporteViajes(FechaInicial:string, FechaFinal:string, 
+    clientesIds :number, Movil : string | null) {
+    var params: { [id: string]: string | null | undefined;} = {};
+    params['FechaInicial'] = FechaInicial;
+    params['FechaFinal'] = FechaFinal; 
+    params['Movil'] = `${Movil}`; 
+       
+    return  Post_GetConsultasDinamicas({
+        NombreConsulta: "GetReporteViajes", Clase: "EBUSQueryHelper",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, params);
+}
 

@@ -1,46 +1,42 @@
-import {  Home } from "@mui/icons-material";
-import  { useState } from "react";
 
-import { MenuModal } from "../../../partials";
-import { usePageData } from "../../core";
-import { MenuInner } from "./MenuInner";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../setup";
 import { Topbar } from "./Topbar";
+import { UserModelSyscaf } from "../../../../app/modules/auth/models/UserModel";
+import { FechaServidor } from "../../../helpers/Helper";
 
 export function Header() {
-  const [showMegaMenuModal, setShowMegaMenuModal] = useState(false);
+ // const [showMegaMenuModal, setShowMegaMenuModal] = useState(false);
  // const { config, classes, attributes } = useTheme();
-  const { pageTitle/*, moduleName */} = usePageData();
-
+ const user  = useSelector<RootState>(
+  ({ auth }) => auth.user
+);  
+ const vUser = user as UserModelSyscaf;
  
   return (
     <>
       <div
-        className=' content bg-primary  shadow-sm d-flex align-items-stretch justify-content-between  px-10'
+        className='bg-white shadow-sm d-flex align-items-stretch justify-content-between'
        style={ { width: '100%'}}
       
       >
-        {/* begin::Left */}
-        <div className="d-flex align-items-center mt-7 ">
-         
-            <a href="/bienvenido" className="btn btn-lg text-white"> <Home/> </a>
-            <span className="text-white">/</span>
-            <span className="btn btn-sm text-syscaf-amarillo fw-bolder my-1 fs-3">  {pageTitle}</span>
-       
-        </div>
-        {/* end::Left */}
-
+         <div className="d-flex align-items-center mt-2 ">
+          <span className=" mx-4 fs-3 text-muted">  </span>
+         </div>
+        
         {/* begin::Right */}
-        <div className="d-flex align-items-cente mt-7">
+        <div className="d-flex align-items-cente m-2">
           <Topbar />
         </div>
         {/* end::Right */}
       </div>
-      <MenuModal
+     
+    {/*   <MenuModal
         show={showMegaMenuModal}
         handleClose={() => setShowMegaMenuModal(false)}
       >
         <MenuInner />
-      </MenuModal>
+      </MenuModal> */}
     </>
   );
 }

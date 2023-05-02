@@ -64,7 +64,7 @@ export function AsideMenuMain() {
               
             >
               {((menuSelected === element.opcionId)) ? (<ArrowDropDown className="ms-auto" />) : (<ArrowRight />)}
-                  <span className="menu-title text-syscaf-amarillo fs-5">
+                  <span className="menu-title text-muted text-syscaf-amarillo fs-5">
                     {element.nombreOpcion}
                   </span>     
             </Button>
