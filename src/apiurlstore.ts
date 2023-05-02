@@ -12,6 +12,8 @@ export const Auth_RefreshToken = `${apiURL}/account/refresh-token`
 
 
 export const DWH_getconsultadinamicasprocedure = `${apiURLDWH}/portal/getconsultasdinamicasproced`
+export const DWH_getconsultadinamicasprocedureparamNulleables = `${apiURLDWH}/portal/GetConsultasDinamicasProcedParamNulleables`
+
 export const DWH_GetConsultasDinamicas = `${apiURLDWH}/portal/GetConsultasDinamicas`
 export const DWH_getDynamicValueProcedureDWHTabla = `${apiURLDWH}/portal/GetConsultasDinamicasTablaDinamica`
 export const CORE_GetConsultasDinamicas = `${apiURLDWH}/Adm/GetConsultasDinamicas`

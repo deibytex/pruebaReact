@@ -31,7 +31,7 @@ import React from "react";
 import ReporteComparacionOdometro from "../modules/Ebus/components/Reportes/ComparacionOdometro";
 import ReporteEficiencia from "../modules/Ebus/components/Reportes/Eficiencia";
 import Reporte from "../modules/Senial/components/Reporte";
-
+import Condicones from "../modules/Senial/components/Condiciones";
 
 export function PrivateRoutes() {
    // informacion del usuario almacenado en el sistema
@@ -159,7 +159,11 @@ export function PrivateRoutes() {
     path: '/senial/reporte', 
     component: Reporte
   }
-
+  , {
+    path: '/senial/Condiciones', 
+    component: Condicones
+  }
+  
 ];
 const url ="https://app.powerbi.com/view?r=eyJrIjoiMjkzODk0YmItZDQwZC00NTg3LThiMjYtMmY2NmRhNjZlOGY5IiwidCI6ImU0ZWZjMTcxLTRjM2EtNDFhYS04NGUzLTViZTYyMzEyNTdjYiJ9"
   return (
