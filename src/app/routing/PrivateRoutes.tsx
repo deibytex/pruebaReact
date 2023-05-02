@@ -27,10 +27,11 @@ import ReportesIFrame from "../../_start/helpers/components/RenderIframe";
 import ReporteConductorNoId from "../modules/Ebus/components/Reportes/ConductorNoId";
 import { default as ZPOperadorMovil} from "../modules/Ebus/components/Reportes/ZPOperadorMovil";
 import ReporteNivelCarga from "../modules/Ebus/components/Reportes/NivelCarga";
-import React from "react";
+import ReporteSafety from "../modules/Ebus/components/Reportes/Safety";
 import ReporteComparacionOdometro from "../modules/Ebus/components/Reportes/ComparacionOdometro";
 import ReporteEficiencia from "../modules/Ebus/components/Reportes/Eficiencia";
 import ReporteViaje from "../modules/Ebus/components/Reportes/GraficaViajes";
+
 
 export function PrivateRoutes() {
    // informacion del usuario almacenado en el sistema
@@ -43,8 +44,11 @@ export function PrivateRoutes() {
 
    useEffect(() => {
     const lstOpciones = (menu as Opciones[]);
+
     if (lstOpciones != undefined) {
-   /*     try {
+      let opcionesHijo = lstOpciones.filter((element) => element.opcionPadreId != null);
+      console.log(opcionesHijo);
+  /*     try {
       // opciones que son padres para poder restructurar el meniu    
      
       let modulos : any[]= [];
@@ -62,17 +66,17 @@ export function PrivateRoutes() {
        
       } catch (err) {
         console.error(err);
-      }
+      }*/
     
-    }*/
-    let opcionesHijo = lstOpciones.filter((element) => element.opcionPadreId != null);
+    
+
 
     let lstrpoutes = modules.filter( f=> lstOpciones.filter( ff=> ff.controlador=== f.path)  )
     setimportedModules(lstrpoutes)
 
   }
 
-}, [menu]);
+}, []);
 
                
 
@@ -158,6 +162,10 @@ export function PrivateRoutes() {
   {
     path: '/ebus/reportes/viajes', 
     component: ReporteViaje
+  },
+  {
+    path: '/ebus/reportes/safety', 
+    component: ReporteSafety
   }
 
 ];

@@ -112,3 +112,22 @@ export function GetReporteViajes(FechaInicial:string, FechaFinal:string,
     }, params);
 }
 
+
+const tabSaf1 = {  icon: 'Person', titulo: "Operador", subtitulo : "Mensual"}
+const tabSaf2  = {  icon: 'Person',  titulo: "Operador", subtitulo : "Diario"}
+const tabSaf3  = {  icon: 'Person',  titulo: "Operador", subtitulo : "Detallado"}
+export const listTabsSafety : any[] = [tabSaf1,tabSaf2,tabSaf3]
+
+export function GetDataSafety(FechaInicial:string, FechaFinal:string, clientesIds :number, tipo : number) {
+    var params: { [id: string]: string | null | undefined;} = {};
+    params['FechaInicio'] = FechaInicial;
+    params['FechaFin'] = FechaFinal; 
+    params['tipo'] = `${tipo}`; 
+    params['ClienteIds'] = `${clientesIds}`; 
+       
+    return  Post_GetConsultasDinamicas({
+        NombreConsulta: "getReporteSafety", Clase: "RagQueryHelper",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, params);
+}

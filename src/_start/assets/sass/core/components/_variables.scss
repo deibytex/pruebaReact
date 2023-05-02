@@ -44,6 +44,9 @@ $syscaf-verde: #45C0BE !default;
 $syscaf-amarillo: #F09E1F !default;
 $syscaf-azul: #1B425E !default;
 $syscaf-gris: #424749 !default;
+$reportes-verde: #64B178 !default;
+$reportes-ambar: #D7962E !default;
+$reportes-rojo: #F26E5F !default;
 // Bootstrap colors map
 $colors: (
     "blue": $blue,
@@ -61,7 +64,10 @@ $colors: (
     "syscaf-verde": $syscaf-verde,
     "syscaf-amarillo": $syscaf-amarillo,
     "syscaf-azul": $syscaf-azul, 
-    "syscaf-gris":$syscaf-gris ) !default;
+    "syscaf-gris":$syscaf-gris,
+    "reportes-verde":$reportes-verde,
+    "reportes-rojo":$reportes-rojo,
+    "reportes-ambar":$reportes-ambar) !default;
 
 
 // Bootstrap contextual colors
@@ -147,9 +153,23 @@ $theme-colors: (
     "warning": $warning,
     "danger": $danger,
     "dark": $dark,
+    "blue": $blue,
+    "indigo": $indigo,
+    "purple": $purple,
+    "pink": $pink,
+    "red": $red,
+    "orange": $orange,
+    "yellow": $yellow,
+    "green": $green,
+    "teal": $teal,
+    "cyan": $cyan,
     "syscaf-verde": $syscaf-verde,
     "syscaf-amarillo": $syscaf-amarillo,
-    "syscaf-azul": $syscaf-azul, "syscaf-gris":$syscaf-gris ) !default;
+    "syscaf-azul": $syscaf-azul, 
+    "syscaf-gris":$syscaf-gris,
+    "reportes-rojo": $reportes-rojo,
+    "reportes-verde": $reportes-verde,
+    "reportes-ambar": $reportes-ambar,  ) !default;
 
 // Hover colors
 $theme-active-colors: (
@@ -212,9 +232,22 @@ $theme-text-colors: (
     "gray-700": $gray-700,
     "gray-800": $gray-800,
     "gray-900": $gray-900,
+    "blue": $blue,
+    "indigo": $indigo,
+    "purple": $purple,
+    "pink": $pink,
+    "red": $red,
+    "orange": $orange,
+    "yellow": $yellow,
+    "green": $green,
+    "teal": $teal,
+    "cyan": $cyan,
     "syscaf-verde": $syscaf-verde,
     "syscaf-amarillo": $syscaf-amarillo,
-    "syscaf-azul": $syscaf-azul) !default; // Custom variable
+    "syscaf-azul": $syscaf-azul,    
+    "reportes-verde": $reportes-verde,
+    "reportes-rojo": $reportes-rojo,
+    "reportes-ambar": $reportes-ambar) !default; // Custom variable
 
 // Options
 //
