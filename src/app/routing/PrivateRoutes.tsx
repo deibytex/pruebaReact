@@ -30,6 +30,7 @@ import ReporteNivelCarga from "../modules/Ebus/components/Reportes/NivelCarga";
 import React from "react";
 import ReporteComparacionOdometro from "../modules/Ebus/components/Reportes/ComparacionOdometro";
 import ReporteEficiencia from "../modules/Ebus/components/Reportes/Eficiencia";
+import ErroresViajesyUso from "../modules/webServices/ErroresViajesyUso";
 
 
 export function PrivateRoutes() {
@@ -154,7 +155,10 @@ export function PrivateRoutes() {
   {
     path: '/ebus/reportes/eficiencia', 
     component: ReporteEficiencia
-  }
+  }, {
+    path: '/webServices/ErroresViajesyUso',
+    component: ErroresViajesyUso
+  },
 
 ];
 const url ="https://app.powerbi.com/view?r=eyJrIjoiMjkzODk0YmItZDQwZC00NTg3LThiMjYtMmY2NmRhNjZlOGY5IiwidCI6ImU0ZWZjMTcxLTRjM2EtNDFhYS04NGUzLTViZTYyMzEyNTdjYiJ9"
