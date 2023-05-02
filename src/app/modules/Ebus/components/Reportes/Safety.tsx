@@ -203,8 +203,11 @@ export default function ReporteSafety() {
     const [dataFiltrada, setDataFiltrada] = useState<any[]>([]);
 
     const [showModal, setShowModal] = useState<boolean>(false);
+    const [showModalEventos, setShowModalEventos] = useState<boolean>(false);
     const [lstOperadores, setlstOperadores] = useState<dualList[]>([]);
+    const [lstEventos, setlstEventos] = useState<dualList[]>([]);
     const [lstSeleccionados, setSeleccionados] = useState<string[]>([]);
+    const [lstEventosSeleccionados, setEventosSeleccionados] = useState<string[]>([]);
     //////////////// TABLE STATE
 
 
@@ -253,7 +256,12 @@ export default function ReporteSafety() {
         Cell: ({ cell, column, row, table }) => {
             return <span title={`${row.original.operador.toString()} : ${row.original.total}`}>
                 <ProgressBar 
-                    variant="reportes-verde" 
+                    variant={row.original.Id == 'EC: Aceleracion Brusca > 8 km/h/s' ? 'indigo' : 
+                    row.original.Id == 'EC: Exceso Velocidad > 50 km/h' ? 'yellow' : 
+                    row.original.Id == 'EC: Frenada Brusca > 10 km/h/s' ? 'pink' : 
+                    row.original.Id == 'EC: Giro Brusco > 0,3 G' ? 'orange' : 
+                    row.original.Id == 'EC: Exceso Velocidad > 30 km/h' ? 'cyan' : 
+                    'teal'}
                     now={row.original.total} 
                     label={`${row.original.total}`} 
                     min={0} 
@@ -347,10 +355,7 @@ export default function ReporteSafety() {
                 ],
                 dataLabels: {
                     enabled: true,
-                    enabledOnSeries: true,
-                    formatter: function (value: any, { seriesIndex, dataPointIndex, w }: any) {
-                        return value
-                    },
+                    enabledOnSeries: true
                 }
             },
             series: []
@@ -475,8 +480,23 @@ export default function ReporteSafety() {
                     return p;
                 }, []);
 
-                // listados de operadores de los datos que traemos
-                setlstOperadores(lstOperadores);
+                 // listados de operadores de los datos que traemos
+                 setlstOperadores(lstOperadores);
+
+                if (tabSel == 2) {
+                     // vamos a llenar la informacion de los Eventos
+                    let lstEventos = (response.data as any[]).reduce((p, c) => {
+                    let evento = c["Evento"];
+                    let isExists = p.filter((f: any) => f["value"] === evento);
+                    if (isExists.length == 0)
+                        p.push({ "value": evento, "label": evento })
+                    return p;
+                }, []);
+
+                // listados de eventos de los datos que traemos
+                setlstEventos(lstEventos);
+                };      
+
                 // datos filtrados que al principio son los mismos extraidos
                 datosfiltrados(response.data)
                 setidxSeleccionado(-1)
@@ -532,6 +552,11 @@ export default function ReporteSafety() {
         // filtramos por los Operadores
         if ((filtros.Operadores as string[]).length > 0) {
             datosFiltrados = datosFiltrados.filter(f => (filtros.Operadores as string[]).indexOf(f["operador"]) > -1);
+        }
+
+        // filtramos por los Operadores
+        if ((filtros.Vehiculos as string[]).length > 0) {
+            datosFiltrados = datosFiltrados.filter(f => (filtros.Vehiculos as string[]).indexOf(f["Evento"]) > -1);
         }
 
         setcolumnas(TipoReporte[tabSel].columnas);
@@ -807,32 +832,33 @@ export default function ReporteSafety() {
                 {
                     name: 'EC: Aceleracion Brusca > 8 km/h/s',
                     data: Ev0,
-                    type: 'bar'
+                    type: 'bar',
+                    color: '#6610f2'
                 }, {
                     name: 'EC: Exceso Velocidad > 50 km/h',
                     data: Ev1,
                     type: 'bar',
-                    color: '#bf88b9'
+                    color: '#ffc107'
                 }, {
                     name: 'EC: Frenada Brusca > 10 km/h/s',
                     data: Ev2,
                     type: 'bar',
-                    color: '#F26E5F'
+                    color: '#d63384'
                 }, {
                     name: 'EC: Giro Brusco > 0,3 G',
                     data: Ev3,
                     type: 'bar',
-                    color: '#D7962E'
+                    color: '#fd7e14'
                 }, {
                     name: 'EC: Exceso Velocidad > 30 km/h',
                     data: Ev4,
                     type: 'bar',
-                    color: '#64B178'
+                    color: '#0dcaf0'
                 }, {
                     name: 'EC: Cinturón Desabrochado',
                     data: Ev5,
                     type: 'bar',
-                    color: '#e448d7'
+                    color: '#20c997'
                 }]);
 
             //AGRUPAMOS VALORES EVENTOS TOTALES POR EVENTO - OPERADOR
@@ -896,12 +922,14 @@ export default function ReporteSafety() {
                                     TotalCD.push(elem[1].totalPorOperador)
             });
 
-            setTotalesAC(TotalAC[0]);
-            setTotalesCD(TotalCD[0]);
-            setTotalesFB(TotalFB[0]);
-            setTotalesGB(TotalGB[0]);
-            setTotalesVel50(TotalVEL50[0]);
-            setTotalesVel30(TotalVEL30[0]);
+            console.log(TotalAC[0]);
+
+            setTotalesAC(TotalAC[0] == undefined ? [] : TotalAC[0]);
+            setTotalesCD(TotalCD[0] == undefined ? [] : TotalCD[0]);
+            setTotalesFB(TotalFB[0] == undefined ? [] : TotalFB[0]);
+            setTotalesGB(TotalGB[0] == undefined ? [] : TotalGB[0]);
+            setTotalesVel50(TotalVEL50[0] == undefined ? [] : TotalVEL50[0]);
+            setTotalesVel30(TotalVEL30[0] == undefined ? [] : TotalVEL30[0]);
         };        
     };
 
@@ -961,6 +989,24 @@ export default function ReporteSafety() {
                     // modificacion de filtros
                     let tiporeporte = [...TipoReporte];
                     tiporeporte[tabSel].filtros = { ...TipoReporte[0].filtros, Operadores: selected };
+                    setTipoReporte(tiporeporte)
+                }}
+            />
+        );
+    }
+
+    // seleccion de Eventos
+    function SelectEventos() {
+        return (
+            <DualListBox className=" mb-3 " canFilter
+                options={lstEventos}
+                selected={lstEventosSeleccionados}
+                onChange={(selected: any) => {
+                    // dejamos los seleccionados
+                    setEventosSeleccionados(selected)
+                    // modificacion de filtros
+                    let tiporeporte = [...TipoReporte];
+                    tiporeporte[tabSel].filtros = { ...TipoReporte[0].filtros, Vehiculos: selected };
                     setTipoReporte(tiporeporte)
                 }}
             />
@@ -1048,6 +1094,8 @@ export default function ReporteSafety() {
                         )}
                         <Button className="m-2  btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}>
                             <i className="bi-person"></i></Button>
+                        {(tabSel == 2) && (<Button className="m-2  btn btn-sm btn-primary" onClick={() => { setShowModalEventos(true) }}>
+                        <i className="bi-card-list"></i></Button>)}
                         <Button className="m-2  btn btn-sm btn-primary" onClick={() => { ConsultarData() }}><i className="bi-search"></i></Button>
                     </div>
                 </div>
@@ -1555,6 +1603,32 @@ export default function ReporteSafety() {
                     Limpiar
                 </Button>
                 <Button type="button" variant="primary" onClick={() => { setShowModal(false); }}>
+                    Cerrar
+                </Button>
+            </Modal.Footer>
+        </Modal>
+        <Modal show={showModalEventos} onHide={setShowModalEventos} size="lg">
+            <Modal.Header closeButton>
+                <Modal.Title> {"Filtro Eventos"}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <div className="row">
+                    <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                        <SelectEventos />
+                    </div>
+                </div>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button type="button" variant="secondary" onClick={() => {
+                    setEventosSeleccionados([]);  /*actualizamos los filtros*/
+
+                    let tiporeporte = [...TipoReporte];
+                    tiporeporte[tabSel].filtros = { ...TipoReporte[0].filtros, Vehiculos: [] };
+                    setTipoReporte(tiporeporte)
+                }}>
+                    Limpiar
+                </Button>
+                <Button type="button" variant="primary" onClick={() => { setShowModalEventos(false); }}>
                     Cerrar
                 </Button>
             </Modal.Footer>
