@@ -1139,6 +1139,7 @@ export default function ReporteSafety() {
                             <ReactApexChart
                                 options={OpcionesAcumulado.options}
                                 series={OpcionesAcumulado.series}
+                                type="bar"
                                 height={200} />)}
                     </div>
                     <div style={{ display: (tabSel != 2) ? "block" : "none" }} >
@@ -1147,6 +1148,7 @@ export default function ReporteSafety() {
                                 <ReactApexChart
                                     options={opciones.options}
                                     series={opciones.series}
+                                    type="bar"
                                     height={300} />)}
                         </div>
                     </div>
