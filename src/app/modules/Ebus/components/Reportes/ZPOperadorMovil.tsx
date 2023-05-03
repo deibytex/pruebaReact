@@ -5,7 +5,7 @@ import moment from 'moment-timezone';
 import { useEffect, useState } from "react";
 import { Form, Modal, Button, Card } from "react-bootstrap-v5";
 import { DateRangePicker, useToaster } from "rsuite";
-import { formatFechasView, formatSimple } from "../../../../../_start/helpers/Helper"
+import { formatFechasView } from "../../../../../_start/helpers/Helper"
 import { AxiosResponse } from 'axios';
 import { GetReporteOperadorMovil, listTabs } from '../../data/ReportesData';
 import { MRT_Localization_ES } from 'material-react-table/locales/es';
@@ -13,7 +13,7 @@ import { ColumnFiltersState, PaginationState, SortingState } from '@tanstack/rea
 import { GetClientesEsomos } from "../../data/NivelCarga";
 import { ClienteDTO, InicioCliente } from '../../../../../_start/helpers/Models/ClienteDTO';
 import { errorDialog } from '../../../../../_start/helpers/components/ConfirmDialog';
-import {  FiltrosReportesZp } from "../../models/eBus";
+import { FiltrosReportesZp } from "../../models/eBus";
 import { FormatoColombiaDDMMYYY, FormatoSerializacionYYYY_MM_DD_HHmmss } from '../../../../../_start/helpers/Constants';
 import DualListBox from 'react-dual-listbox';
 import { dualList } from '../../../../../_start/helpers/Models/DualListDTO';
@@ -40,9 +40,9 @@ export default function ZPOperadorMovil() {
     moment.tz.setDefault("America/Bogota");
     // variable que contiene los filtros del sistema
     const TipoReporteBase = [
-        { reporte: "tblmovildia", tabla: "tblmovildia", filtros: { ...filtrosBase, MaxDay:5 }, Data: [], tipo: 1 },
-        { reporte: "tbloperadordia", tabla: "tbloperadordia", filtros: { ...filtrosBase, MaxDay:5 }, Data: [], tipo: 2 },
-        { reporte: "tbloperadorgrafica", tabla: "tbloperadorgrafica", filtros: { ...filtrosBase, MaxDay:5 }, Data: [], tipo: 3 },
+        { reporte: "tblmovildia", tabla: "tblmovildia", filtros: { ...filtrosBase, MaxDay: 5 }, Data: [], tipo: 1 },
+        { reporte: "tbloperadordia", tabla: "tbloperadordia", filtros: { ...filtrosBase, MaxDay: 5 }, Data: [], tipo: 2 },
+        { reporte: "tbloperadorgrafica", tabla: "tbloperadorgrafica", filtros: { ...filtrosBase, MaxDay: 5 }, Data: [], tipo: 3 },
     ]
     // filtros para los que son diarios, maximo 30 dias
     TipoReporteBase[1].filtros.FechaInicial = moment().startOf('day').startOf('day').add(-5, 'days').toDate();
@@ -189,8 +189,8 @@ export default function ZPOperadorMovil() {
         Header: ({ column, header, table }) => {
             return "";
         },
-        Cell:({ cell, column, row, table }) =>{
-            return <span className="fw-bolder" style={{fontSize:'10px'}}>{row.original.Operador}</span>
+        Cell: ({ cell, column, row, table }) => {
+            return <span className="fw-bolder" style={{ fontSize: '10px' }}>{row.original.Operador}</span>
         }
     }, {
         accessorKey: 'Total',
@@ -368,12 +368,12 @@ export default function ZPOperadorMovil() {
                 let Tiporeporte = [...TipoReporte];
                 Tiporeporte[Tab].Data = response.data;
                 setTipoReporte(Tiporeporte);
-                switch(Number(key)) {
+                switch (Number(key)) {
                     case 1:
                     case 2:
-                         //Vamos a llenar la informacion de conductores 
+                        //Vamos a llenar la informacion de conductores 
                         let lstoperadores = (response.data as any[]).reduce((p, c) => {
-                            let operador =c["Operador"];
+                            let operador = c["Operador"];
                             let isExists = p.filter((f: any) => f["value"] === operador);
                             if (isExists.length == 0)
                                 p.push({ "value": operador, "label": operador })
@@ -381,9 +381,9 @@ export default function ZPOperadorMovil() {
                         }, []);
                         //listado de operadores que trajimos
                         setlstOperadores(lstoperadores)
-                    break;
+                        break;
                     default:
-                          // vamos a llenar la informacion de los movils
+                        // vamos a llenar la informacion de los movils
                         let lstVehiculos = (response.data as any[]).reduce((p, c) => {
                             let movil = c["Movil"];
                             let isExists = p.filter((f: any) => f["value"] === movil);
@@ -391,10 +391,10 @@ export default function ZPOperadorMovil() {
                                 p.push({ "value": movil, "label": movil })
                             return p;
                         }, []);
-                           // listados de vehiculos de los datos que traemos
+                        // listados de vehiculos de los datos que traemos
                         setlstVehiculos(lstVehiculos);
-                    break;
-                  }
+                        break;
+                }
                 // setModales();
                 filtarDatosSistema(Tab);
                 setIsLoading(false)
@@ -792,39 +792,47 @@ export default function ZPOperadorMovil() {
                                 </div>
                             </div>
                         </div>
-                        <Card className="bg-secondary  text-primary m-0">
-                            <Card.Body className="card-body shadow-md">
-                                <div className="row">
-                                    <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8"> <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fecha inicial: </label>
-                                        {(combine && allowedMaxDays && allowedRange) && (
-                                                <DateRangePicker className="mt-2" format="dd/MM/yyyy" value={
-                                                    [TipoReporte[tabSel].filtros.FechaInicial, TipoReporte[tabSel].filtros.FechaFinal]}
-                                                    disabledDate={combine(allowedMaxDays(TipoReporte[tabSel].filtros.MaxDay), allowedRange(
-                                                        moment().add(-200, 'days').startOf('day').toDate(), moment().startOf('day').toDate()
-                                                    ))}
-                                                    onChange={(value, e) => {
-                                                        if (value !== null) {
-                                                            ValidarFechas(
-                                                                [value[0],
-                                                                value[1]]
-                                                            );
-                                                        }
-                                                    }} />
-                                        )}
-                                        
-                                        <Button  style={{ display: (tabSel == 0) ? "inline-block" : "none" }} className="m-2 mt-5  btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}><i className="bi-car-front-fill"></i></Button>
-                                        <Button style={{ display: (tabSel != 0) ? "inline-block" : "none" }} className="m-2 mt-5 btn btn-sm btn-primary" onClick={() => { setShowModalOperadores(true) }}><i className="bi-person"></i></Button>
-                                        <Button className="m-2 mt-5 btn btn-sm btn-primary" onClick={() => { Consultar(tabSel) }}><i className="bi-search"></i></Button>
-                                    </div>
-                                    <div className="col-sm-4 col-md-4 col-xs-4 col-lg-4 d-flex justify-content-end">
-                                        <button style={{ display: (tabSel <= 1) ? "inline-block" : "none" }} className="m-2 mt-5 ms-0 btn btn-sm btn-primary" type="button" onClick={() => {
-                                            DescargarExcel(DateTableMovil, (tabSel == 0 ? ColumnasTablas[0]['movil'] : ColumnasTablas[1]['operador']), "Reporte")
-                                        }}>
-                                            <i className="bi-file-earmark-excel"></i></button>
-                                    </div>
+                        <div className="d-flex justify-content-between mb-2">
+                            <div className="mx-auto">
+                                <div className="ms-3 text-center">
+                                    <h3 className="mb-0">Reporte Zonas Operación</h3>
+                                    <span className="text-muted m-3">Consolidado y Detallado</span>
                                 </div>
-                            </Card.Body>
-                        </Card>
+                            </div>
+                        </div>
+
+                        <div className="rounded bg-secondary d-flex justify-content-between m-1">
+                            <div className="d-flex justify-content-start m-1">
+                                <label className="control-label label  label-sm mt-2 " style={{ fontWeight: 'bold' }}>Rango Fechas: </label>
+                                {(combine && allowedMaxDays && allowedRange) && (
+                                    <DateRangePicker className="ms-2" format="dd/MM/yyyy" value={
+                                        [TipoReporte[tabSel].filtros.FechaInicial, TipoReporte[tabSel].filtros.FechaFinal]}
+                                        disabledDate={combine(allowedMaxDays(TipoReporte[tabSel].filtros.MaxDay), allowedRange(
+                                            moment().add(-200, 'days').startOf('day').toDate(), moment().startOf('day').toDate()
+                                        ))}
+                                        onChange={(value, e) => {
+                                            if (value !== null) {
+                                                ValidarFechas(
+                                                    [value[0],
+                                                    value[1]]
+                                                );
+                                            }
+                                        }} />
+                                )}
+
+                                <Button style={{ display: (tabSel == 0) ? "inline-block" : "none" }} className="ms-2 btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}><i className="bi-car-front-fill"></i></Button>
+                                <Button style={{ display: (tabSel != 0) ? "inline-block" : "none" }} className=" ms-2 btn btn-sm btn-primary" onClick={() => { setShowModalOperadores(true) }}><i className="bi-person"></i></Button>
+                                <Button className="ms-2 btn btn-sm btn-primary" onClick={() => { Consultar(tabSel) }}><i className="bi-search"></i></Button>
+                            </div>
+                            <div className=" d-flex justify-content-end m-1">
+                                <button style={{ display: (tabSel <= 1) ? "inline-block" : "none" }} className="  btn btn-sm btn-primary" type="button" onClick={() => {
+                                    DescargarExcel(DateTableMovil, (tabSel == 0 ? ColumnasTablas[0]['movil'] : ColumnasTablas[1]['operador']), "Reporte")
+                                }}>
+                                    <i className="bi-file-earmark-excel"></i></button>
+                            </div>
+
+                        </div>
+
                         <div className="card-body">
                             <div className=" flex-wrap flex-xxl-nowrap justify-content-center justify-content-md-start pt-4">
                                 {/* begin::Nav */}
@@ -1045,8 +1053,8 @@ export default function ZPOperadorMovil() {
                                                             <div className="row">
                                                                 <div className="col-xs-6 col-sm-6 col-md-6" >
                                                                     <div className="text-center"><label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px' }}>
-                                                                            Zonas:EV: 4. Potencia [150&lt;P&lt;175]
-                                                                        </label></div>
+                                                                        Zonas:EV: 4. Potencia [150&lt;P&lt;175]
+                                                                    </label></div>
                                                                     {(Totales.length != 0) && (<MaterialReactTable
                                                                         // tableInstanceRef={ColumnasTablas['movil']}
                                                                         displayColumnDefOptions={{
@@ -1060,8 +1068,8 @@ export default function ZPOperadorMovil() {
                                                                         muiTableBodyCellProps={{
                                                                             sx: {
                                                                                 border: '0px solid #000',
-                                                                              },
-                                                                          }}
+                                                                            },
+                                                                        }}
                                                                         localization={MRT_Localization_ES}
                                                                         columns={ColumnasGraficaZonaOperador}
                                                                         data={Totales}
@@ -1101,11 +1109,11 @@ export default function ZPOperadorMovil() {
                                                                     <div className="text-center"><label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px' }}>Zonas:EV: 5. Potencia [&gt;175]</label></div>
                                                                     {(TotalesV5.length != 0) && (<MaterialReactTable
                                                                         // tableInstanceRef={ColumnasTablas['movil']}
-                                                                          muiTableBodyCellProps={{
+                                                                        muiTableBodyCellProps={{
                                                                             sx: {
                                                                                 border: '0px solid #000',
-                                                                              }
-                                                                          }}
+                                                                            }
+                                                                        }}
                                                                         displayColumnDefOptions={{
                                                                             'mrt-row-actions': {
                                                                                 muiTableHeadCellProps: {
@@ -1202,7 +1210,7 @@ export default function ZPOperadorMovil() {
                     <Modal.Body>
                         <div className="row">
                             <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
-                               {(tabSel > 1 ? <SelectOperadoresTab3/>:<SelectOperadores/>)}
+                                {(tabSel > 1 ? <SelectOperadoresTab3 /> : <SelectOperadores />)}
                             </div>
                         </div>
                     </Modal.Body>
@@ -1211,7 +1219,7 @@ export default function ZPOperadorMovil() {
                             (tabSel > 1) ? setSeleccionadosOperadoresTab3([]) : setSeleccionadosOperadores([]);
                             /*/actualizamos los filtros/ */
                             let tiporeporte = [...TipoReporte];
-                            (tabSel > 1) ? tiporeporte[tabSel].filtros = { ...TipoReporte[tabSel].filtros, Vehiculos: [], Operadores: [] } :tiporeporte[tabSel].filtros = { ...TipoReporte[tabSel].filtros, Vehiculos: [], Operadores: [] };
+                            (tabSel > 1) ? tiporeporte[tabSel].filtros = { ...TipoReporte[tabSel].filtros, Vehiculos: [], Operadores: [] } : tiporeporte[tabSel].filtros = { ...TipoReporte[tabSel].filtros, Vehiculos: [], Operadores: [] };
                             setTipoReporte(tiporeporte)
                         }}>
                             Limpiar

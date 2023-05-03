@@ -1,6 +1,6 @@
 import moment from "moment";
-import { useEffect, useRef, useState, UIEvent, useCallback } from "react";
-import { GetReporteAlarmas, GetReporteNivelCarga } from "../../data/ReportesData";
+import { useEffect, useRef, useState } from "react";
+import { GetReporteNivelCarga } from "../../data/ReportesData";
 import { PageTitle } from "../../../../../_start/layout/core";
 import { DateRangePicker, Notification, Placeholder, useToaster } from "rsuite";
 import BlockUi from "@availity/block-ui";
@@ -11,7 +11,7 @@ import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/rea
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import DualListBox from "react-dual-listbox";
 import { dualList } from "../../../CorreosTx/models/dataModels";
-import { Button, Card, Form, Modal } from "react-bootstrap-v5";
+import { Button, Form, Modal } from "react-bootstrap-v5";
 import ReactApexChart from "react-apexcharts";
 import { FiltrosReportes } from "../../models/eBus";
 import { ClienteDTO } from "../../models/NivelcargaModels";
@@ -545,10 +545,10 @@ export default function ReporteNivelCarga() {
             </div>
          
         </div>
-          <div className="card bg-secondary d-flex justify-content-between">
-            <h3 className="fs-4 m-2 ms-2 d-flex "> Filtros</h3>
+          <div className="card bg-secondary d-flex justify-content-between m-1">
+         
             <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8"> 
-            <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fecha inicial: </label>
+            <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Rango Fechas: </label>
               {(combine && allowedMaxDays && allowedRange) && (
                 <DateRangePicker className="mt-2" format="dd/MM/yyyy" value={[filtros.FechaInicial, filtros.FechaFinal]}
                   disabledDate={combine(allowedMaxDays(30), allowedRange(

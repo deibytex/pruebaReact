@@ -191,10 +191,10 @@ export default function ReporteOdometro() {
                         </div>
                     </div>
 
-                    <div className="card bg-secondary d-flex justify-content-between">
-                        <h3 className="fs-4 m-2 ms-2 d-flex "> Filtros</h3>
+                    <div className="card bg-secondary d-flex justify-content-between m-1">
+                       
                         <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8">
-                            <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fecha inicial: </label>
+                            <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fecha Hora: </label>
 
 
                             <DatePicker className="mt-2" format="dd/MM/yyyy HH:mm" value={fechaSeleccionada.toDate()}

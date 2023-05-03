@@ -3,8 +3,9 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../../setup";
 import { Topbar } from "./Topbar";
 import { UserModelSyscaf } from "../../../../app/modules/auth/models/UserModel";
-import { FechaServidor } from "../../../helpers/Helper";
-
+import { Link } from "react-router-dom";
+import { usePageData } from "../../core";
+import { Home, KeyboardDoubleArrowRight } from "@mui/icons-material";
 export function Header() {
  // const [showMegaMenuModal, setShowMegaMenuModal] = useState(false);
  // const { config, classes, attributes } = useTheme();
@@ -12,7 +13,7 @@ export function Header() {
   ({ auth }) => auth.user
 );  
  const vUser = user as UserModelSyscaf;
- 
+ const {pageTitle,moduleName} = usePageData();
   return (
     <>
       <div
@@ -21,7 +22,31 @@ export function Header() {
       
       >
          <div className="d-flex align-items-center mt-2 ">
-          <span className=" mx-4 fs-3 text-muted">  </span>
+         { 
+      (moduleName || pageTitle) && (
+     
+
+        <div className="d-flex align-items-center">
+          <Link className="btn btn-md text-primary" to="/bienvenido">  <Home/></Link>
+            { (moduleName) && (
+              <>
+              <KeyboardDoubleArrowRight/>
+
+            <Link className="btn btn-sm text-primary fw-bolder  fs-6" to="">  {moduleName}</Link>
+              </>
+            ) }
+            { (pageTitle) && (
+              <>
+              <KeyboardDoubleArrowRight/>
+
+            <Link className="btn btn-sm text-primary fw-bolder  fs-6" to="">  {pageTitle}</Link>
+              </>
+            ) }
+       
+        </div>
+     
+      )
+      }
          </div>
         
         {/* begin::Right */}

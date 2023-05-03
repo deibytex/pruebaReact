@@ -587,7 +587,7 @@ export default function ReporteViaje() {
     <PageTitle> Gráfica Viajes</PageTitle>
     <BlockUi tag="div" keepInView blocking={loader ?? false}  >
 
-      <div className="card card-rounded shadow mt-2" style={{ width: '100%' }}  >
+      <div className="card card-rounded shadow-sm mt-2" style={{ width: '100%' }}  >
 
         <div className="d-flex justify-content-end mt-2">
           <div style={{ float: 'right' }}>
@@ -595,11 +595,23 @@ export default function ReporteViaje() {
           </div>
         </div>
       </div>
+      <div className="container mb-2 mt-2"
+         style={{width : "100%"}}>
+          <Stack>
+          <div className="d-flex mx-auto justify-content-between">
+            <div className="ms-3 text-center">
+              <h3 className="mb-0">Reporte Gráfica Viajes</h3>
+              <span className="text-muted m-3 fs-1">{lstSeleccionados[0]}</span>
 
-        <div className="card bg-secondary d-flex justify-content-between">
-        <h3 className="fs-4 m-0 d-flex ">Filtros</h3>
-        
-          <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8"> <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fechas: </label>
+            </div>
+          </div>
+         
+          </Stack>
+         
+       
+        </div>
+        <div className="card bg-secondary d-flex justify-content-between m-1">
+            <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8"> <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fechas: </label>
             {(combine && allowedMaxDays && allowedRange) && (
               <DateRangePicker className="mt-2" format="dd/MM/yyyy" value={[filtros.FechaInicial, filtros.FechaFinal]}
                 disabledDate={combine(allowedMaxDays(7), allowedRange(
@@ -621,19 +633,6 @@ export default function ReporteViaje() {
             <Button className="m-2  btn btn-sm btn-primary" onClick={() => () => { ConsultarData(); }}><i className="bi-search"></i></Button>
 
           </div>
-
-        </div>
-
-        <div className="container mb-2 mt-2"
-         style={{width : "100%"}}>
-          <Stack>
-          <div className="d-flex mx-auto justify-content-between">
-            <div className="ms-3 text-center">
-              <h3 className="mb-0">Reporte Gráfica Viajes</h3>
-              <span className="text-muted m-3 fs-1">{lstSeleccionados[0]}</span>
-
-            </div>
-          </div>
           <div className="d-flex justify-content-start  ">
             <Checkbox
               indeterminate={value.length > 0 && value.length < data.length}
@@ -651,10 +650,9 @@ export default function ReporteViaje() {
               ))}
             </CheckboxGroup>
           </div>
-          </Stack>
-         
-       
         </div>
+
+     
         {/* begin::Chart */}
         <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
           {(opciones != null) && (
