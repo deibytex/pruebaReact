@@ -1,12 +1,12 @@
 import FileSaver from "file-saver";
 import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
 import XLSX from 'sheetjs-style';
-import { useDataWebServices } from "../core/provider";
+import { useDataImg } from "../core/provider";
 import React, { useEffect, useState } from "react";
 import { Button } from "react-bootstrap-v5";
 import moment from "moment";
 import { AxiosResponse } from "axios";
-import { getErroresViajesyUso, setPreferenciasClientes } from "../data/dataWebServices";
+import { getErroresViajesyUso, setPreferenciasClientes } from "../data/dataImg";
 import { FormatoColombiaDD_MM_YYY, FormatoSerializacionYYYY_MM_DD_HHmmss } from "../../../../_start/helpers/Constants";
 import { ErroresViajesyUso } from "../models/dataModels";
 type Props = {
@@ -14,7 +14,7 @@ type Props = {
 
 export const ExportarExcel: React.FC<Props> = () => {
 
-    const { clientesSelected, fechaInicial, fechaFinal, usuarioId, setloader, setclientesSelected } = useDataWebServices();
+    const { clientesSelected, fechaInicial, fechaFinal, usuarioId, setloader, setclientesSelected } = useDataImg();
 
     const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;carset=UTF-8';
     const fileExtension = '.XLSX';

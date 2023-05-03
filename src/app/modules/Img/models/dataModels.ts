@@ -1,5 +1,3 @@
-import { string } from "yup";
-
 export interface clientes{
     clienteIdS:number;
     clienteNombre:string;

@@ -1,21 +1,20 @@
-import { useDataWebServices } from "../core/provider";
+import { useDataImg } from "../core/provider";
 import React, { useEffect, useState } from "react";
 import { dualList, clientes } from "../models/dataModels";
-import { Button, Form } from "react-bootstrap-v5";
+import { Form } from "react-bootstrap-v5";
 import BlockUi from "@availity/block-ui";
 import DualListBox from "react-dual-listbox";
 import { DateRangePicker } from "rsuite";
-import moment from "moment";
 import { ExportarExcel } from "./exportarExcel";
 type Props = {
 
 }
 
-export const ReportesWebService: React.FC<Props> = () => {
+export const ReportesImg: React.FC<Props> = () => {
 
     //Data desde el provider
     const { clientes, clientesSelected, loader, fechaInicial, fechaFinal, tipoReporte
-            , settipoReporte, setclientesSelected, setfechaInicial, setfechaFinal } = useDataWebServices();
+            , settipoReporte, setclientesSelected, setfechaInicial, setfechaFinal } = useDataImg();
 
     //Carga Inicial filtros
     const [lstClientes, setlstClientes] = useState<dualList[]>([]);

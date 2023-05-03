@@ -1,12 +1,12 @@
 
 import React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
-import { getClientesSeleccionado, getListadoClientes, } from "../data/dataWebServices";
+import { getClientesSeleccionado, getListadoClientes, } from "../data/dataImg";
 import moment from "moment";
 
 
 // clase con los funciones  y datos a utiilizar
-export interface WebServicesContextModel {
+export interface ImgContextModel {
     clientes?: any;
     setclientes: (lstclientes: any[]) => void;
     clientesSelected?: any;
@@ -28,7 +28,7 @@ export interface WebServicesContextModel {
 
 }
 
-const WebServicesContext = createContext<WebServicesContextModel>({
+const ImgContext = createContext<ImgContextModel>({
     setclientes: (lstclientes: any[]) => { },
     setclientesSelected: (lstclientesSelected: any[]) => { },
     setfechaInicial: (fechainicial: Date) => (new Date()),
@@ -41,7 +41,7 @@ const WebServicesContext = createContext<WebServicesContextModel>({
 });
 
 
-const WebServicesProvider: React.FC = ({ children }) => {
+const ImgProvider: React.FC = ({ children }) => {
 
     const [clientes, setclientes] = useState<any[]>([]);
     const [clientesSelected, setclientesSelected] = useState<any[]>([]);
@@ -53,7 +53,7 @@ const WebServicesProvider: React.FC = ({ children }) => {
     const [iserror, setError] = useState<any>({});
     const [loader, setloader] = useState<boolean>(true);
 
-    const value: WebServicesContextModel = {
+    const value: ImgContextModel = {
         clientes,
         setclientes,
         clientesSelected,
@@ -76,23 +76,23 @@ const WebServicesProvider: React.FC = ({ children }) => {
 
     return (
 
-        <WebServicesContext.Provider value={value}>
+        <ImgContext.Provider value={value}>
             {children}
-        </WebServicesContext.Provider>
+        </ImgContext.Provider>
 
     );
 };
 
-function useDataWebServices() {
-    return useContext(WebServicesContext);
+function useDataImg() {
+    return useContext(ImgContext);
 }
 
 // se encarga de consultar la información 
 // de los vehiculos operando y en una frecuencia de 5 min 
 // segun parametrización que debe realizarse
 
-const DataReportesWebServices: React.FC = ({ children }) => {
-    const { setError, setloader, setclientes, setclientesSelected, setusuarioId, setfechaFinal, setfechaInicial } = useDataWebServices();
+const DataReportesImg: React.FC = ({ children }) => {
+    const { setError, setloader, setclientes, setclientesSelected, setusuarioId, setfechaFinal, setfechaInicial } = useDataImg();
 
     //Cosulta clientes activos
     let consultaClientes = () => {
@@ -150,4 +150,4 @@ const DataReportesWebServices: React.FC = ({ children }) => {
 };
 
 
-export { WebServicesProvider, useDataWebServices, DataReportesWebServices }
+export { ImgProvider, useDataImg, DataReportesImg }
