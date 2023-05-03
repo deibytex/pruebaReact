@@ -5,7 +5,7 @@ import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/rea
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import MaterialReactTable from "material-react-table";
 import { Box, IconButton, Tooltip } from "@mui/material";
-import { Person } from "@mui/icons-material";
+import { Download, Person } from "@mui/icons-material";
 import { GetClientesAdministradores } from "../data/Clientes";
 import { AxiosResponse } from "axios";
 
@@ -83,7 +83,6 @@ useEffect(() =>{
     <>
         <PageTitle>Clientes</PageTitle>
         <BlockUi tag="div" keepInView blocking={loader ?? false}  >
-            <span className="badge bg-primary">No hay datos</span>
             {(DatosClientes.length != 0) && (<MaterialReactTable
                 // tableInstanceRef={ColumnasTablas['movil']}
                 localization={MRT_Localization_ES}
@@ -135,12 +134,19 @@ useEffect(() =>{
                 }}
                 initialState={{ density: 'compact' }}
                 renderRowActions={({ row, table }) => (
-                    <Box sx={{ display: 'flex', gap: '1rem' }}>
-                      <Tooltip arrow placement="left" title="Gestionar">
+                    <Box sx={{ display: 'block', gap: '1rem', marginLeft: 'auto', marginRight: 'auto' }}>
+                      <Tooltip arrow placement="top" title="Gestionar cliente">
                         <IconButton onClick={() => 
                             {alert("Funciona")}
                           }>
                           <Person />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip arrow placement="top" title="Descargar detallado del cliente">
+                        <IconButton onClick={() => 
+                            {alert("Funciona descarga")}
+                          }>
+                          <Download />
                         </IconButton>
                       </Tooltip>
                     </Box>
