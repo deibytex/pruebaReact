@@ -6,6 +6,7 @@ import BlockUi from "@availity/block-ui";
 import DualListBox from "react-dual-listbox";
 import { DateRangePicker } from "rsuite";
 import { ExportarExcel } from "./exportarExcel";
+import { ranges } from "../../../../_start/helpers/Constants";
 type Props = {
 
 }
@@ -18,6 +19,7 @@ export const ReportesImg: React.FC<Props> = () => {
 
     //Carga Inicial filtros
     const [lstClientes, setlstClientes] = useState<dualList[]>([]);
+
 
     useEffect(() => {
 
@@ -58,7 +60,7 @@ export const ReportesImg: React.FC<Props> = () => {
 
     function DatePicker() {
         return (
-            <DateRangePicker className="m-3" format="dd/MM/yyyy" value={[fechaInicial as Date, fechaFinal as Date]}
+            <DateRangePicker className="m-3" format="dd/MM/yyyy" ranges={ranges} value={[fechaInicial as Date, fechaFinal as Date]}
                 onChange={(value, e) => {
                     if (value !== null) {
                         setfechaInicial(value[0]);
