@@ -6,6 +6,7 @@ import BlockUi from "@availity/block-ui";
 import DualListBox from "react-dual-listbox";
 import { DateRangePicker } from "rsuite";
 import moment from "moment";
+import { ExportarExcel } from "./exportarExcel";
 type Props = {
 
 }
@@ -13,12 +14,11 @@ type Props = {
 export const ReportesWebService: React.FC<Props> = () => {
 
     //Data desde el provider
-    const { clientes, clientesSelected, loader, fechaInicial, fechaFinal, setfechaInicial, setfechaFinal } = useDataWebServices();
+    const { clientes, clientesSelected, loader, fechaInicial, fechaFinal, tipoReporte
+            , settipoReporte, setclientesSelected, setfechaInicial, setfechaFinal } = useDataWebServices();
 
     //Carga Inicial filtros
     const [lstClientes, setlstClientes] = useState<dualList[]>([]);
-    const [selectedClientes, setselectedClientes] = useState([]);
-    const [TipoReporte, setTipoReporte] = useState(1);
 
     useEffect(() => {
 
@@ -28,37 +28,26 @@ export const ReportesWebService: React.FC<Props> = () => {
 
         setlstClientes(dual);
 
-        setselectedClientes(clientesSelected);
-
-        setfechaInicial(moment().add(-1, 'months').startOf('month').toDate());
-
-        setfechaFinal(moment().add(-1, 'months').endOf('month').toDate());
-
-    }, [clientes, clientesSelected]);
+    }, [clientes]);
 
 
-    useEffect(() => {
-
-        console.log(fechaInicial);
-        console.log(fechaFinal);
-
-    }, [fechaInicial, fechaFinal, selectedClientes]);
+    
 
     function SelectClientes() {
         return (
             <DualListBox className=" mb-3 " canFilter
                 options={lstClientes}
-                selected={selectedClientes}
-                onChange={(selected: any) => setselectedClientes(selected)}
+                selected={clientesSelected}
+                onChange={(selected: any) => setclientesSelected(selected)}
             />
         );
     }
 
     function SelectReporte() {
         return (
-            <Form.Select className=" mb-3 " name="TipoReporte" value={TipoReporte} disabled onChange={(e) => {
+            <Form.Select className=" mb-3 " name="TipoReporte" value={tipoReporte} disabled onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
-                setTipoReporte(e.currentTarget.value as any);
+                settipoReporte(e.currentTarget.value);
             }}>
                 <option value={1}>Errores Viajes y Uso</option>
                 <option value={2}>Configuración</option>
@@ -70,51 +59,15 @@ export const ReportesWebService: React.FC<Props> = () => {
 
     function DatePicker() {
         return (
-            <DateRangePicker className="m-3" format="dd/MM/yyyy" value={[fechaInicial, fechaFinal]}
+            <DateRangePicker className="m-3" format="dd/MM/yyyy" value={[fechaInicial as Date, fechaFinal as Date]}
                 onChange={(value, e) => {
                     if (value !== null) {
-
                         setfechaInicial(value[0]);
                         setfechaFinal(value[1])
-
                     }
                 }}
             />
         )
-    }
-
-    const exportarReporte = () => {
-        // let NombreReporte : string =(reporte === "EOAPC")? "Informe Conductor" : ((reporte === "EOAPV") ? "Informe Vehiculos" : "Informe Conductor Vehiculos");
-        // setloader(true);
-        // getReporteExcelSotramac(
-        //     {
-        //         FechaInicial :fechaInicial,
-        //         FechaFinal :`${fechaFinal} 23:59:59`, 
-        //         DriversIdS:driverSelected,
-        //         assetsIds: assetSelected, 
-        //         assetTypeId: (assetTypeId as string) , 
-        //         SiteId: null
-        //     } ,
-        //     reporte)
-        // .then((respuesta) => {
-        //     const a = document.createElement("a");
-        // a.style.display = "none";
-        // document.body.appendChild(a);
-        // var sampleArr = base64ToArrayBuffer(respuesta?.data);
-        // const url = window.URL.createObjectURL(new Blob([sampleArr], {type: "application/excel"}));
-        // a.href = url;
-        // a.download = `${NombreReporte} ${fechaInicial}.xls`; 
-        // a.click();
-        // window.URL.revokeObjectURL(url);
-
-        // setloader(false);
-        // }).catch( () => {
-        //     errorDialog("Descargar Informe", "Error al recibir datos del servidor.")
-        //     setloader(false);
-        // }
-
-
-        // );
     }
 
     //Retornamos los controles de filtro
@@ -136,11 +89,7 @@ export const ReportesWebService: React.FC<Props> = () => {
                         <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Seleccione Fechas: </label>
                         <DatePicker />
                     </div>
-                    <div className="col-sm-4 col-md-4 col-xs-4 col-lg-4" style={{ textAlign: 'right' }}>
-                        <Button type="button" variant="secondary" onClick={() => { exportarReporte(); }}>
-                            Generar Reporte
-                        </Button>
-                    </div>
+                    <ExportarExcel />
                 </div>
 
             </BlockUi>

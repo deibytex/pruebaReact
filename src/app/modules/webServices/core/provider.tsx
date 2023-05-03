@@ -2,6 +2,7 @@
 import React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
 import { getClientesSeleccionado, getListadoClientes, } from "../data/dataWebServices";
+import moment from "moment";
 
 
 // clase con los funciones  y datos a utiilizar
@@ -10,10 +11,16 @@ export interface WebServicesContextModel {
     setclientes: (lstclientes: any[]) => void;
     clientesSelected?: any;
     setclientesSelected: (lstclientesSelected: any[]) => void;
-    fechaInicial?: any;
-    setfechaInicial: (fechainicial: any) => void;
-    fechaFinal?: any;
-    setfechaFinal: (fechafinal: any) => void;
+    fechaInicial?: Date;
+    setfechaInicial: (fechainicial: Date) => void;
+    fechaFinal?: Date;
+    setfechaFinal: (fechafinal: Date) => void;
+    usuarioId?: any;
+    setusuarioId: (usuarioId: any) => void;
+    nombreReporte?: any;
+    setnombreReporte: (nombreReporte: any) => void;
+    tipoReporte?: any;
+    settipoReporte: (nombreReporte: any) => void;
     iserror?: any;
     setError: (error: any) => void;
     loader? : boolean ;
@@ -24,8 +31,11 @@ export interface WebServicesContextModel {
 const WebServicesContext = createContext<WebServicesContextModel>({
     setclientes: (lstclientes: any[]) => { },
     setclientesSelected: (lstclientesSelected: any[]) => { },
-    setfechaInicial: (fechainicial: any) => (""),
-    setfechaFinal: (fechafinal: any) => (""),
+    setfechaInicial: (fechainicial: Date) => (new Date()),
+    setfechaFinal: (fechafinal: Date) => (new Date()),
+    setusuarioId: (usuarioId: any) => (""),
+    setnombreReporte: (nombreReporte: any) => (""),
+    settipoReporte: (tipoReporte: any) => (1),
     setError: (error: any) => { },
     setloader: (loader: boolean) => { }
 });
@@ -35,8 +45,11 @@ const WebServicesProvider: React.FC = ({ children }) => {
 
     const [clientes, setclientes] = useState<any[]>([]);
     const [clientesSelected, setclientesSelected] = useState<any[]>([]);
-    const [fechaInicial, setfechaInicial] = useState("");
-    const [fechaFinal, setfechaFinal] = useState("");
+    const [fechaInicial, setfechaInicial] = useState(new Date());
+    const [fechaFinal, setfechaFinal] = useState(new Date());
+    const [usuarioId, setusuarioId] = useState("");
+    const [nombreReporte, setnombreReporte] = useState("");
+    const [tipoReporte, settipoReporte] = useState(1);
     const [iserror, setError] = useState<any>({});
     const [loader, setloader] = useState<boolean>(true);
 
@@ -49,6 +62,12 @@ const WebServicesProvider: React.FC = ({ children }) => {
         setfechaInicial,
         fechaFinal,
         setfechaFinal,
+        usuarioId,
+        setusuarioId,
+        nombreReporte,
+        setnombreReporte,
+        tipoReporte,
+        settipoReporte,
         iserror,
         setError,
         loader, 
@@ -73,7 +92,7 @@ function useDataWebServices() {
 // segun parametrización que debe realizarse
 
 const DataReportesWebServices: React.FC = ({ children }) => {
-    const { setError, setloader, setclientes, setclientesSelected } = useDataWebServices();
+    const { setError, setloader, setclientes, setclientesSelected, setusuarioId, setfechaFinal, setfechaInicial } = useDataWebServices();
 
     //Cosulta clientes activos
     let consultaClientes = () => {
@@ -112,6 +131,9 @@ const DataReportesWebServices: React.FC = ({ children }) => {
 
         if (children) {
             setloader(true);
+            setusuarioId(children);
+            setfechaInicial(moment().add(-1, 'months').startOf('month').toDate());
+            setfechaFinal(moment().add(-1, 'months').endOf('month').endOf('day').toDate());
             consultaClientes();
             consultaClientesSeleccionados(children.toString());
             // si no tiene error hace el interval
