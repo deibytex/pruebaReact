@@ -139,11 +139,8 @@ export default function ReporteSafety() {
                     }
                 },
                 {
-                    accessorKey: 'DuracionHora',
-                    header: 'Duracion',
-                    Cell({ cell, column, row, table, }) {
-                        return (locateFormatNumberNDijitos(row.original.DuracionHora ?? 0, 2))
-                    }
+                    accessorKey: 'Duracion',
+                    header: 'Duracion'
                 },
                 {
                     accessorKey: 'ValorMax',
@@ -710,7 +707,6 @@ export default function ReporteSafety() {
         });
 
         !EsDiario ? setDataFiltrada(agrupadoMensualTabla) : setDataFiltrada(datosFiltrados);
-        // console.log(agrupadoMensualTabla);
 
         setlabelsAxisx(labels);
 
@@ -921,8 +917,6 @@ export default function ReporteSafety() {
                                 elem[1].evento == 'EC: Exceso Velocidad > 30 km/h' ? TotalVEL30.push(elem[1].totalPorOperador) :
                                     TotalCD.push(elem[1].totalPorOperador)
             });
-
-            console.log(TotalAC[0]);
 
             setTotalesAC(TotalAC[0] == undefined ? [] : TotalAC[0]);
             setTotalesCD(TotalCD[0] == undefined ? [] : TotalCD[0]);
