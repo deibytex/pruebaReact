@@ -588,26 +588,10 @@ export default function ZPOperadorMovil() {
         let totales = 0;
         let EV;
         let EV5;
-        let EV0;
-        let EV1;
-        let EV2;
-        let EV3;
         if (tabla == "tbloperadorgrafica") {
             let TotalTemp: any[] = [];
             let TotalesV5Temp: any[] = [];
             Object.entries(agrupadoOperador).map((elem) => {
-                EV0 = (elem[1].map((m:any) => {
-                    return (m.Descripcion == "EV: 0. Regeneración 0< P" ? m.Total: 0)
-                }).reduce((a:any, b:any) => a + b, 0));
-                EV1 = (elem[1].map((m:any) => {
-                    return (m.Descripcion == "EV: 1. Potencia 0<P<50" ? m.Total: 0)
-                }).reduce((a:any, b:any) => a + b, 0));
-                EV2 = (elem[1].map((m:any) => {
-                    return (m.Descripcion == "EV: 2. Potencia 50<P<100" ? m.Total: 0)
-                }).reduce((a:any, b:any) => a + b, 0));
-                EV3 = (elem[1].map((m:any) => {
-                    return (m.Descripcion == "EV: 3. Potencia 100<P<150" ? m.Total: 0)
-                }).reduce((a:any, b:any) => a + b, 0));
                 EV5 = (elem[1].map((m:any) => {
                     return (m.Descripcion == "EV: 5. Potencia >175" ? m.Total: 0)
                 }).reduce((a:any, b:any) => a + b, 0));
@@ -621,7 +605,6 @@ export default function ZPOperadorMovil() {
             Object.entries(agrupadoOperador).map((elem: any) => {
                 let TotalesConductor = 0;
                 let TotalesConductorV5 = 0;
-                // labelsConductores.push((elem[0] != undefined ? `${(elem[0].split("&")[1] != undefined) ? elem[0].split("&")[1].substring(0, 18) : elem[0].substring(0, 18)}...` : null));
                 elem[1].map((m: any) => {
                     if (m.Descripcion == "EV: 4. Potencia 150<P<175") {
                         TotalesConductor = TotalesConductor + m.Total;
