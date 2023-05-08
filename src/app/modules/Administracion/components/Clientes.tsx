@@ -482,6 +482,7 @@ export default function Clientes() {
                 String(Position),
                 String(ActiveEvent)
             ).then((response:AxiosResponse<any>) =>{
+                setShowModal(false);
                 Consultar();
                 successDialog("Datos actualizado correctamente","");
             }).catch(
