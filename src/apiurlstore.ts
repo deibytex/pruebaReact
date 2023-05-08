@@ -44,6 +44,7 @@ export const EBUS_SetColumnasDatatable = `${apiURLDWH}/Ebus/SetColumnasDatatable
 export const EBUS_GetColumnasDatatable = `${apiURLDWH}/Ebus/GetColumnasDatatable` 
 export const EBUS_GetTiempoActualizacion = `${apiURLDWH}/Ebus/GetTiempoActualizacion` 
 export const EBUS_GetUltimaPosicionVehiculos = `${apiURLDWH}/Ebus/GetUltimaPosicionVehiculos` 
+export const ASSET_getAssets = `${apiURLDWH}/Asset/getAssets`
 
 /* MOVIL */
 export const MOVIL_getReportesPorTipo = `${apiURLDWH}/Movil/GetReportePorTipo`

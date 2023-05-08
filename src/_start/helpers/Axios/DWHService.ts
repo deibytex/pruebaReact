@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ASSET_GetAssetsClienteId, ASSET_GetAssetsEstados, ASSET_GetClientesClienteIds, BASES_getDetalleListas, CLIENTE_GetClientes, CORE_getconsultadinamicasUser,
+import { ASSET_getAssets, ASSET_GetAssetsClienteId, ASSET_GetAssetsEstados, ASSET_GetClientesClienteIds, BASES_getDetalleListas, CLIENTE_GetClientes, CORE_getconsultadinamicasUser,
    CORE_getconsultadinamicasUserDWH, DRIVER_GetDriversClienteId, DWH_GetConsultasDinamicas, DWH_getDynamicValueProcedureDWHTabla, EBUS_GetClientesUsuarios, 
    EBUS_GetColumnasDatatable, EBUS_getEventActiveRecargaByDayAndClient, 
    EBUS_getEventActiveViajesByDayAndClient, EBUS_GetListaClientesActiveEvent, 
@@ -245,4 +245,11 @@ export function Post_GetConsultasDinamicas(props: ParamsEndPointDynamic, body: a
       params : { Sigla }
     });
   }
- 
+  export  function GetVehiculos( ClienteId: string|null) {
+    return  axios({
+      method: 'get',
+      url: ASSET_getAssets,     
+      headers: { 'Content-Type': 'application/json' },
+      params : { ClienteId }
+    });
+  }
