@@ -100,7 +100,7 @@ export default function ReporteNivelCarga() {
         accessorKey: 'FechaCorte',
         header: 'Fecha',
         Cell({ cell, column, row, table, }) {
-          return (moment(row.original.Fecha).format(FormatoColombiaDDMMYYY))
+          return (moment(row.original.FechaCorte).format(FormatoColombiaDDMMYYY))
         }
       },
       {

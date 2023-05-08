@@ -8,8 +8,6 @@ import { Opciones } from "../modules/auth/models/UserModel";
 import PoliticaPrivacidad from "../pages/Politica/politicaprivacidad";
 import ReportesIFrame from "../../_start/helpers/components/RenderIframe";
 
-
-
 export function PrivateRoutes() {
   // informacion del usuario almacenado en el sistema
 
@@ -20,24 +18,32 @@ export function PrivateRoutes() {
   const [importedModules, setimportedModules] = useState<any[]>([]);
   useEffect(() => {
     const lstOpciones = (menu as Opciones[]);
-    if(lstOpciones !== undefined) {
-    let opcionesHijo = lstOpciones.filter((element) => element.opcionPadreId != null);
-   
+    if (lstOpciones !== undefined) {
+      let opcionesHijo = lstOpciones.filter((element) => element.opcionPadreId != null);
+
       const componentPromises =
-      opcionesHijo.map( f => {
-        let modulo = f.accion.slice(3);
-         // importamos los compontes que el usuario necesita
-         // los demas componentes quedan dormidos
-         return import(`../${modulo}`).then(module => {
+        opcionesHijo.map(f => {
+          let modulo = f.accion.slice(3);
+          // importamos los compontes que el usuario necesita
+          // los demas componentes quedan dormidos
+          return import(`../${modulo}`).then(module => {
             return <Route exact key={`${f.controlador}`} path={`${f.controlador}`} component={module.default} />
           }).catch(() =>
             console.log(modulo) // importar pagina por defecto
-          )      
+          )
         });
 
-      Promise.all(componentPromises).then(setimportedModules);
+      Promise.all(componentPromises).then(
+        (values) => {
+          setimportedModules(values)
+          
+        }
+      ).catch(
+        (error) => console.log(error)
+      );
+    }
 
-      }
+
     return () => {
       setimportedModules([])
     }
@@ -55,7 +61,7 @@ export function PrivateRoutes() {
         {(importedModules.length > 0) && (
           <>     {importedModules}</>
         )
-}
+        }
         <Route path="/reportes/bat/viajes" render={() => ReportesIFrame("Viajes", url)} />
       </Switch>
     </Suspense>

@@ -1,6 +1,6 @@
 import moment from "moment";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { GetReporteAlarmas, GetReporteEficiencia } from "../../data/ReportesData";
+import {  GetReporteEficiencia } from "../../data/ReportesData";
 import { PageTitle } from "../../../../../_start/layout/core";
 import { DateRangePicker, Notification, Placeholder, Stack, useToaster } from "rsuite";
 import BlockUi from "@availity/block-ui";
