@@ -1,8 +1,8 @@
 import { TituloReporteTx } from "../../../_start/helpers/Texts/textosPorDefecto"
 import { PageTitle } from "../../../_start/layout/core"
-import { ReportesPrincipal } from "./components/Reporte/ReportesPrincipal"
+import  ReportesPrincipal  from "./components/Reporte/ReportesPrincipal"
 import { ReporteProvider } from "./core/ReporteProvider"
-const Reportes: React.FC = () =>{
+export default function  Reportes(){
 return (
     <>
     <ReporteProvider>
@@ -13,4 +13,3 @@ return (
     </>
 )
 }
-export {Reportes}

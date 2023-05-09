@@ -1,11 +1,8 @@
 import BlockUi from "@availity/block-ui"
-import MaterialReactTable from "material-react-table"
-import { TituloReporteTx } from "../../../../../_start/helpers/Texts/textosPorDefecto"
-import { PageTitle } from "../../../../../_start/layout/core"
 import { CargaClientes, ExportarExcelBoton, useDataReporte } from "../../core/ReporteProvider"
 import { TableReporte } from "./TableReporte"
 
-const ReportesPrincipal : React.FC = () =>{
+export default function ReportesPrincipal(){
     const {Cargando} = useDataReporte()
     return(
         <>
@@ -31,4 +28,3 @@ const ReportesPrincipal : React.FC = () =>{
        
     )
 }
-export {ReportesPrincipal}

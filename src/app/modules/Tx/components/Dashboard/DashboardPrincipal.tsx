@@ -2,16 +2,14 @@ import { AxiosError, AxiosResponse } from "axios"
 import moment from "moment"
 import { useEffect, useState } from "react"
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog"
-import { TituloDashboardTx } from "../../../../../_start/helpers/Texts/textosPorDefecto"
-import { PageTitle } from "../../../../../_start/layout/core"
-import { CargaClientes, DashboardProvider, useDataDashboard } from "../../core/DashboardProvider"
-import { GetSnapShotTickets, GetSnapShotTransmision, GetUnidadesActivas } from "../../data/Dashboard"
+import {  useDataDashboard } from "../../core/DashboardProvider"
+import {  GetSnapShotTransmision, GetUnidadesActivas } from "../../data/Dashboard"
 import { Tickets } from "./Tickets"
 import { Transmision } from "./Transmision"
 import { UnidadesActivas } from "./UnidadesActivas"
 
-const DashboardPrincipal: React.FC = () =>{
-    const {Data, Clientes, ClienteSeleccionado, setData, setDataTx, setDataTk, setTabActive, SemanaSeleccionada} = useDataDashboard()
+export default function  DashboardPrincipal (){
+    const {ClienteSeleccionado, setData, setDataTx, setDataTk, setTabActive, SemanaSeleccionada} = useDataDashboard()
     const [montarTx, setmontarTx] = useState<boolean>(false);
     const [montarTicket, setMontarTicket] = useState<boolean>(false);
     const [montarUnidades, setmontarUnidades] = useState<boolean>(true);
@@ -98,4 +96,3 @@ const DashboardPrincipal: React.FC = () =>{
         </>
     )
 }
-export {DashboardPrincipal}

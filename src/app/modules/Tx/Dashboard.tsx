@@ -1,12 +1,10 @@
 import { TituloDashboardTx } from "../../../_start/helpers/Texts/textosPorDefecto"
 import { PageTitle } from "../../../_start/layout/core"
-import { DashboardPrincipal } from "./components/Dashboard/DashboardPrincipal"
+import  DashboardPrincipal  from "./components/Dashboard/DashboardPrincipal"
 import { CargaClientes, DashboardProvider, CargarSemanas, useDataDashboard, ExportarExcel, ActualizarUnidades } from "./core/DashboardProvider"
-import FileSaver from "file-saver";
-import XLSX from 'sheetjs-style';
-import { errorDialog } from "../../../_start/helpers/components/ConfirmDialog";
 
-const Dashboard:React.FC= () =>{
+
+export default function Dashboard(){
     const { Data } = useDataDashboard()
    
    
@@ -43,4 +41,3 @@ return(
         </>
     )
 }
-export {Dashboard}
