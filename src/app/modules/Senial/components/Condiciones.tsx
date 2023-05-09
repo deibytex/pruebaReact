@@ -11,12 +11,26 @@ import { AxiosResponse } from "axios";
 import { PageTitle } from "../../../../_start/layout/core/PageData";
 import BlockUi from "@availity/block-ui";
 import { FormatoColombiaDDMMYYYHHmmss } from "../../../../_start/helpers/Constants";
-import { Box, IconButton, Tooltip } from "@mui/material";
+import { Box, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, TextField, Tooltip } from "@mui/material";
 import { Edit, Search } from "@mui/icons-material";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
 import { Check } from "react-feather";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../setup";
+import { EsPermitido, Operaciones, PermisosOpcion } from "../../../../_start/helpers/Axios/CoreService";
+import { UserModelSyscaf } from "../../auth/models/UserModel";
 
 export default function Condiciones() {
+      // informacion del usuario almacenado en el sistema
+    const isAuthorized = useSelector<RootState>(
+        ({ auth }) => auth.user
+    );
+    const permisosopcion = PermisosOpcion("Condiciones senial");
+    const operacionesPermisos = Operaciones;
+    
+    // convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
+    const model = (isAuthorized as UserModelSyscaf);
+
     const [loader, setloader] = useState<boolean>(false);
     const [Clientes, setClientes] = useState<ClienteDTO[]>([InicioCliente]);
     const [LstClientes, setlstClientes] = useState<string[]>([]);
@@ -37,10 +51,18 @@ export default function Condiciones() {
         pageIndex: 0,
         pageSize: 10,
     });
+    const [showModal, setShowModal] = useState<boolean>(false);
     //Fin tablas
     const [validationErrors, setValidationErrors] = useState<{
         [cellId: string]: string;
       }>({});
+
+      interface CreateModalProps {
+        columns: MRT_ColumnDef<any>[];
+        onClose: () => void;
+        onSubmit: (values: any) => void;
+        open: boolean;
+      }
     //consulta los clientes
     useEffect(
         () => {
@@ -208,6 +230,59 @@ export default function Condiciones() {
     );
  }
 
+ const CreateNewAccountModal = ({
+    open,
+    columns,
+    onClose,
+    onSubmit,
+  }: CreateModalProps) => {
+    const [values, setValues] = useState<any>(() =>
+      columns.reduce((acc, column) => {
+        acc[column.accessorKey ?? ''] = '';
+        return acc;
+      }, {} as any),
+    );
+  
+    const handleSubmit = () => {
+      //put your validation logic here
+      onSubmit(values);
+      onClose();
+    };
+    return (
+        <Dialog open={open}>
+          <DialogTitle textAlign="center">Create New Account</DialogTitle>
+          <DialogContent>
+            <form onSubmit={(e) => e.preventDefault()}>
+              <Stack
+                sx={{
+                  width: '100%',
+                  minWidth: { xs: '300px', sm: '360px', md: '400px' },
+                  gap: '1.5rem',
+                }}
+              >
+                {CamposTabla.map((column) => (
+                  <TextField
+                    // key={column.accessorKey}
+                    label={column.header}
+                    // name={column.accessorKey}
+                    onChange={(e) =>
+                      setValues({ ...values, [e.target.name]: e.target.value })
+                    }
+                  />
+                ))}
+              </Stack>
+            </form>
+          </DialogContent>
+          <DialogActions sx={{ p: '1.25rem' }}>
+            <Button onClick={onClose}>Cancel</Button>
+            <Button color="secondary" onClick={handleSubmit} variant="contained">
+              Create New Account
+            </Button>
+          </DialogActions>
+        </Dialog>
+      );
+    };
+
     //retorna la pagina
     return (
         <>
@@ -231,7 +306,11 @@ export default function Condiciones() {
                                     <div className="form-group float-end" >
                                         <div className="panel-body">
                                             <div style={{ display: 'inline-table !important' }}>
-                                                <button hidden className="btn  btn-sm bg-primary rounded-round btn_editarParametro" data-target='#modal_form_horizontal' data-toggle='modal'>
+                                                <button className="btn  btn-sm bg-primary rounded-round btn_editarParametro" data-target='#modal_form_horizontal' data-toggle='modal' onClick={
+                                                        () =>{
+                                                            setShowModal(true);
+                                                        }
+                                                    }>
                                                     <i className="bi-database-add" ></i>
                                                     Adicionar
                                                 </button>
@@ -289,20 +368,18 @@ export default function Condiciones() {
                                         enableRowActions={true}
                                         renderRowActions={({ row, table }) => (
                                             <Box sx={{ display: 'block', marginLeft: 'auto', marginRight: 'auto', gap: '1rem'}}>
-                                                <Tooltip arrow placement="top" title="Editar condición">
+                                                  {(EsPermitido(permisosopcion, operacionesPermisos.Modificar)) && ( <Tooltip arrow placement="top" title="Editar condición">
                                                     <IconButton    onClick={() =>{ table.setEditingRow(row)} } >
                                                         <Edit className="text-center" />
                                                     </IconButton>
-                                                </Tooltip>
-                                                <Tooltip arrow placement="top"  title="Cambiar de estado">
+                                                </Tooltip>)}
+                                                {(EsPermitido(permisosopcion, operacionesPermisos.Modificar)) && (<Tooltip arrow placement="top"  title="Cambiar de estado">
                                                     <IconButton>
                                                         <Check className="text-center" />
                                                     </IconButton>
-                                                </Tooltip>
+                                                </Tooltip>)}
                                             </Box>
-                                            )
-                                            }
-                                      
+                                        )}
                                         initialState={{ density: 'compact' }}
                                         state={{
                                             columnFilters,
@@ -320,16 +397,15 @@ export default function Condiciones() {
                     </div>
                 </div>
             </BlockUi>
-            <Modal>
-                <ModalBody>
-
-                </ModalBody>
-                <ModalFooter>
-
-                </ModalFooter>
-            </Modal>
+            <CreateNewAccountModal
+        columns={CamposTabla}
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        onSubmit={Guardar}
+      />
 
         </>
     )
 }
+
 
