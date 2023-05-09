@@ -534,16 +534,18 @@ export default function ZPOperadorMovil() {
         let PorEV4Agrupado = 0;
         let PorEV5Agrupado = 0;
 
-        datosfiltrados.map((item: any) => {
-            PorEV0Agrupado = PorEV0Agrupado + item.EV0Regeneracion0P;
-            PorEV1Agrupado = PorEV1Agrupado + item.EV1Potencia0P50;
-            PorEV2Agrupado = PorEV2Agrupado + item.EV2Potencia50P100;
-            PorEV3Agrupado = PorEV3Agrupado + item.EV3Potencia100P150;
-            PorEV4Agrupado = PorEV4Agrupado + item.EV4Potencia150P175;
-            PorEV5Agrupado = PorEV5Agrupado + item.EV5Potencia175;
-        });
+       
         let LabelPeriodo = ["Periodo"];
         if (Tab < 2) {
+            datosfiltrados.map((item: any) => {
+                PorEV0Agrupado = PorEV0Agrupado + item.EV0Regeneracion0P;
+                PorEV1Agrupado = PorEV1Agrupado + item.EV1Potencia0P50;
+                PorEV2Agrupado = PorEV2Agrupado + item.EV2Potencia50P100;
+                PorEV3Agrupado = PorEV3Agrupado + item.EV3Potencia100P150;
+                PorEV4Agrupado = PorEV4Agrupado + item.EV4Potencia150P175;
+                PorEV5Agrupado = PorEV5Agrupado + item.EV5Potencia175;
+            });
+
             Object.entries(agrupadofecha).map((elem: any) => {
                 labels.push(moment(elem[0]).format(formatFechasView));
                 // totalizamos por propiedad que se necesite
@@ -631,52 +633,32 @@ export default function ZPOperadorMovil() {
             setTotalesV5(TotalesV5Temp.sort((a: any, b: any) => {
                 return b.Total - a.Total
             }));
-            //fin vertical grafica
-            let TotalesConductorV0 = 0;
-            let TotalesConductorV1 = 0;
-            let TotalesConductorV2 = 0;
-            let TotalesConductorV3 = 0;
-            let TotalesConductorV4 = 0;
-            let TotalesConductorV5 = 0;
-            datosfiltrados.map((item:any) => {
-         
-                PorEV0Agrupado = PorEV0Agrupado + item.Total;
-                PorEV1Agrupado = PorEV1Agrupado + item.Total;
-                PorEV2Agrupado = PorEV2Agrupado + item.Total;
-                PorEV3Agrupado = PorEV3Agrupado + item.Total;
-                PorEV4Agrupado = PorEV4Agrupado + item.Total;
-                PorEV5Agrupado = PorEV5Agrupado + item.Total;
-                switch (item.Descripcion) {
-                    case "EV: 0. Regeneración 0< P":
-                        TotalesConductorV0 = TotalesConductorV0 +item.Total;
-                        break;
-                    case "EV: 1. Potencia 0<P<50":
-                        TotalesConductorV1 = TotalesConductorV1 +item.Total;
-                        break;
-                    case "EV: 2. Potencia 50<P<100":
-                        TotalesConductorV2 = TotalesConductorV2 +item.Total;
-                        break;
-                    case "EV: 3. Potencia 100<P<150":
-                        TotalesConductorV3 = TotalesConductorV3 +item.Total;
-                        break;
-                    case "EV: 4. Potencia 150<P<175":
-                        TotalesConductorV4 = TotalesConductorV4 + item.Total;
-                        break;
-                    case "EV: 5. Potencia >175":
-                    default:
-                        TotalesConductorV5 = TotalesConductorV5 + item.Total;
-                        break;
-                }
+            //Esto es para la grafica uso datos ya previamente consultados
+            //aplico filtros y hago los calculos
+
+            let datos = (TipoReporte[1].Data.length == 0 ? TipoReporte[0].Data : TipoReporte[1].Data)
+             // filtra por operadores a los reportes que se necesiten
+            if (filtros.Operadores != null && filtros.Operadores.length > 0) {
+                datos = datos.filter(function (o) {
+                    return (filtros.Operadores != null) ? filtros.Operadores.indexOf(o['Operador']) > -1 : [];
+                });
+            };
+            datos.map((item: any) => {
+                PorEV0Agrupado = PorEV0Agrupado + item.EV0Regeneracion0P;
+                PorEV1Agrupado = PorEV1Agrupado + item.EV1Potencia0P50;
+                PorEV2Agrupado = PorEV2Agrupado + item.EV2Potencia50P100;
+                PorEV3Agrupado = PorEV3Agrupado + item.EV3Potencia100P150;
+                PorEV4Agrupado = PorEV4Agrupado + item.EV4Potencia150P175;
+                PorEV5Agrupado = PorEV5Agrupado + item.EV5Potencia175;
             });
-            //para sacar el total de los valores del agrupado.
-            let TotalAgrupado =  TotalesConductorV5 + TotalesConductorV4 + TotalesConductorV3 + TotalesConductorV2 +  TotalesConductorV1 + TotalesConductorV0;
+            let TotalAgrupado = PorEV0Agrupado + PorEV1Agrupado + PorEV2Agrupado + PorEV3Agrupado + PorEV4Agrupado + PorEV5Agrupado;
             //Agrego lo valores agrupados a los array
-            Ev0Agrupado.push((TotalesConductorV0 / TotalAgrupado * 100).toFixed(2));
-            Ev1Agrupado.push((TotalesConductorV1 / TotalAgrupado * 100).toFixed(2));
-            Ev2Agrupado.push((TotalesConductorV2 / TotalAgrupado * 100).toFixed(2));
-            Ev3Agrupado.push((TotalesConductorV3 / TotalAgrupado * 100).toFixed(2));
-            Ev4Agrupado.push((TotalesConductorV4 / TotalAgrupado * 100).toFixed(2));
-            Ev5Agrupado.push((TotalesConductorV5 / TotalAgrupado * 100).toFixed(2));
+            Ev0Agrupado.push((PorEV0Agrupado / TotalAgrupado * 100).toFixed(1));
+            Ev1Agrupado.push((PorEV1Agrupado / TotalAgrupado * 100).toFixed(1));
+            Ev2Agrupado.push((PorEV2Agrupado / TotalAgrupado * 100).toFixed(1));
+            Ev3Agrupado.push((PorEV3Agrupado / TotalAgrupado * 100).toFixed(1));
+            Ev4Agrupado.push((PorEV4Agrupado / TotalAgrupado * 100).toFixed(1));
+            Ev5Agrupado.push((PorEV5Agrupado / TotalAgrupado * 100).toFixed(1));
         }
 
         ApexCharts.exec('apexchart-example', 'updateOptions', {
@@ -704,6 +686,14 @@ export default function ZPOperadorMovil() {
                 toolbar: {
                     show: false
                 },
+            },
+            legend: {
+                onItemClick: {
+                    toggleDataSeries: false
+                },
+                onItemHover: {
+                    highlightDataSeries: false
+                }
             },
             xaxis: {
                 categories: LabelPeriodo
