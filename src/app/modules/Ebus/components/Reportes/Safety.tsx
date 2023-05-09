@@ -139,11 +139,8 @@ export default function ReporteSafety() {
                     }
                 },
                 {
-                    accessorKey: 'DuracionHora',
-                    header: 'Duracion',
-                    Cell({ cell, column, row, table, }) {
-                        return (locateFormatNumberNDijitos(row.original.DuracionHora ?? 0, 2))
-                    }
+                    accessorKey: 'Duracion',
+                    header: 'Duracion'
                 },
                 {
                     accessorKey: 'ValorMax',
@@ -325,6 +322,10 @@ export default function ReporteSafety() {
                         }
                     }
                 },
+                tooltip: {
+                    shared: true,
+                    intersect: false
+                },
                 xaxis: {
                     categories: []
                 },
@@ -340,22 +341,26 @@ export default function ReporteSafety() {
                     title: {
                         text: "Eventos"
                     }
-                },
-                    // {
-                    //     min: 0,
-                    //     max: 1,
-                    //     opposite: true,
-                    //     show: false, 
-                    //     labels: {
-                    //         formatter: function (val: number, index: any) {
-                    //             return formatNumberChart(val)
-                    //         }
-                    //     }
-                    // }
+                }
+                // ,
+                // {
+                //     min: 0,
+                //     max: 1,
+                //     opposite: true,
+                //     show: false, 
+                //     labels: {
+                //         formatter: function (val: number, index: any) {
+                //             return val.toFixed(0);
+                //         }
+                //     }
+                // }
                 ],
                 dataLabels: {
                     enabled: true,
-                    enabledOnSeries: true
+                    enabledOnSeries: true,
+                    style: {
+                        colors: ['#7E8299']
+                      }
                 }
             },
             series: []
@@ -710,7 +715,6 @@ export default function ReporteSafety() {
         });
 
         !EsDiario ? setDataFiltrada(agrupadoMensualTabla) : setDataFiltrada(datosFiltrados);
-        // console.log(agrupadoMensualTabla);
 
         setlabelsAxisx(labels);
 
@@ -832,32 +836,32 @@ export default function ReporteSafety() {
                 {
                     name: 'EC: Aceleracion Brusca > 8 km/h/s',
                     data: Ev0,
-                    type: 'bar',
+                    // type: 'bar',
                     color: '#6610f2'
                 }, {
                     name: 'EC: Exceso Velocidad > 50 km/h',
                     data: Ev1,
-                    type: 'bar',
+                    // type: 'bar',
                     color: '#ffc107'
                 }, {
                     name: 'EC: Frenada Brusca > 10 km/h/s',
                     data: Ev2,
-                    type: 'bar',
+                    // type: 'bar',
                     color: '#d63384'
                 }, {
                     name: 'EC: Giro Brusco > 0,3 G',
                     data: Ev3,
-                    type: 'bar',
+                    // type: 'bar',
                     color: '#fd7e14'
                 }, {
                     name: 'EC: Exceso Velocidad > 30 km/h',
                     data: Ev4,
-                    type: 'bar',
+                    // type: 'bar',
                     color: '#0dcaf0'
                 }, {
                     name: 'EC: Cinturón Desabrochado',
                     data: Ev5,
-                    type: 'bar',
+                    // type: 'bar',
                     color: '#20c997'
                 }]);
 
@@ -921,8 +925,6 @@ export default function ReporteSafety() {
                                 elem[1].evento == 'EC: Exceso Velocidad > 30 km/h' ? TotalVEL30.push(elem[1].totalPorOperador) :
                                     TotalCD.push(elem[1].totalPorOperador)
             });
-
-            console.log(TotalAC[0]);
 
             setTotalesAC(TotalAC[0] == undefined ? [] : TotalAC[0]);
             setTotalesCD(TotalCD[0] == undefined ? [] : TotalCD[0]);
