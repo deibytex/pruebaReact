@@ -9,7 +9,6 @@ import PoliticaPrivacidad from "../pages/Politica/politicaprivacidad";
 import ReportesIFrame from "../../_start/helpers/components/RenderIframe";
 
 
-
 export function PrivateRoutes() {
   // informacion del usuario almacenado en el sistema
 
