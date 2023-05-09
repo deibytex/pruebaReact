@@ -122,6 +122,7 @@ export default function ZPOperadorMovil() {
                         }
                     },
                     stacked: true,
+                    
                 },
                 xaxis: {
                     categories: [],
@@ -616,12 +617,12 @@ export default function ZPOperadorMovil() {
                 TotalTemp.push({
                     Id: "EV: 4. Potencia 150<P<175",
                     Completo: elem[0],
-                    Operador: (elem[0] != undefined ? `${elem[0].substring(0, 20)}..` : ""), Total: Number(TotalesConductor.toFixed(2))
+                    Operador: (elem[0] != undefined ? `${(elem[0].split("&")[1] != undefined) ? elem[0].split("&")[1].substring(0, 18) : elem[0].substring(0, 18)}..` : ""), Total: Number((TotalesConductor/totales*100).toFixed(2))
                 });
                 TotalesV5Temp.push({
                     Id: "EV: 5. Potencia >175",
                     Completo: elem[0],
-                    Operador: (elem[0] != undefined ? `${elem[0].substring(0, 20)}..` : ""), Total: Number(TotalesConductorV5.toFixed(2))
+                    Operador: (elem[0] != undefined ? `${(elem[0].split("&")[1] != undefined) ? elem[0].split("&")[1].substring(0, 18) : elem[0].substring(0, 18)}..` : ""), Total: Number((TotalesConductorV5/totalesV5*100).toFixed(2))
                 });
             });
 
@@ -632,55 +633,37 @@ export default function ZPOperadorMovil() {
                 return b.Total - a.Total
             }));
             //fin vertical grafica
-            let TotalesConductorV0 = 0;
-            let TotalesConductorV1 = 0;
-            let TotalesConductorV2 = 0;
-            let TotalesConductorV3 = 0;
-            let TotalesConductorV4 = 0;
+            let TotalesConductor = 0;
             let TotalesConductorV5 = 0;
             datosfiltrados.map((item:any) => {
          
-                PorEV0Agrupado = PorEV0Agrupado + item.Total;
-                PorEV1Agrupado = PorEV1Agrupado + item.Total;
-                PorEV2Agrupado = PorEV2Agrupado + item.Total;
-                PorEV3Agrupado = PorEV3Agrupado + item.Total;
                 PorEV4Agrupado = PorEV4Agrupado + item.Total;
                 PorEV5Agrupado = PorEV5Agrupado + item.Total;
-                switch (item.Descripcion) {
-                    case "EV: 0. Regeneración 0< P":
-                        TotalesConductorV0 = TotalesConductorV0 +item.Total;
-                        break;
-                    case "EV: 1. Potencia 0<P<50":
-                        TotalesConductorV1 = TotalesConductorV1 +item.Total;
-                        break;
-                    case "EV: 2. Potencia 50<P<100":
-                        TotalesConductorV2 = TotalesConductorV2 +item.Total;
-                        break;
-                    case "EV: 3. Potencia 100<P<150":
-                        TotalesConductorV3 = TotalesConductorV3 +item.Total;
-                        break;
-                    case "EV: 4. Potencia 150<P<175":
-                        TotalesConductorV4 = TotalesConductorV4 + item.Total;
-                        break;
-                    case "EV: 5. Potencia >175":
-                    default:
-                        TotalesConductorV5 = TotalesConductorV5 + item.Total;
-                        break;
+             
+                if (item.Descripcion == "EV: 4. Potencia 150<P<175") {
+                    TotalesConductor = TotalesConductor + item.Total;
+                } else if (item.Descripcion == "EV: 5. Potencia >175") {
+                    TotalesConductorV5 = TotalesConductorV5 + item.Total;
                 }
+          
+    
             });
             //para sacar el total de los valores del agrupado.
-            let TotalAgrupado =  TotalesConductorV5 + TotalesConductorV4 + TotalesConductorV3 + TotalesConductorV2 +  TotalesConductorV1 + TotalesConductorV0;
+            let TotalAgrupado = TotalesConductor + TotalesConductorV5;
             //Agrego lo valores agrupados a los array
-            Ev0Agrupado.push((TotalesConductorV0 / TotalAgrupado * 100).toFixed(2));
-            Ev1Agrupado.push((TotalesConductorV1 / TotalAgrupado * 100).toFixed(2));
-            Ev2Agrupado.push((TotalesConductorV2 / TotalAgrupado * 100).toFixed(2));
-            Ev3Agrupado.push((TotalesConductorV3 / TotalAgrupado * 100).toFixed(2));
-            Ev4Agrupado.push((TotalesConductorV4 / TotalAgrupado * 100).toFixed(2));
+            Ev0Agrupado.push("0");
+            Ev1Agrupado.push("0");
+            Ev2Agrupado.push("0");
+            Ev3Agrupado.push("0");
+            Ev4Agrupado.push((TotalesConductor / TotalAgrupado * 100).toFixed(2));
             Ev5Agrupado.push((TotalesConductorV5 / TotalAgrupado * 100).toFixed(2));
         }
 
         ApexCharts.exec('apexchart-example', 'updateOptions', {
             chart: {
+                fill: {
+                    colors:  ['#118DFF', '#00B050', '#92D050', '#CCED63', '#FFC000', '#FF0000']
+                  },
                 toolbar: {
                     show: false
                 },
@@ -701,6 +684,7 @@ export default function ZPOperadorMovil() {
         });
         ApexCharts.exec('apexchart-acumulado', 'updateOptions', {
             chart: {
+              
                 toolbar: {
                     show: false
                 },
@@ -709,6 +693,7 @@ export default function ZPOperadorMovil() {
                 categories: LabelPeriodo
             },
             colors:  ['#118DFF', '#00B050', '#92D050', '#CCED63', '#FFC000', '#FF0000']
+             
         });
 
         // funcion que actualiza los datos de las series
@@ -936,7 +921,7 @@ export default function ZPOperadorMovil() {
                                 <div className="tab-content flex-grow-1">
                                     {/* begin::Tab Pane 1 */}
                                     <div>
-                                        <div style={{ display: "block" }} className="card-body d-lg-flex align-items-lg-center justify-content-lg-between flex-lg-wrap border mt-2 mb-2">
+                                        <div  style={{ display: "block" }} className="card-body d-lg-flex align-items-lg-center justify-content-lg-between flex-lg-wrap border mt-2 mb-2">
                                             <div className="row w-100" id="efi-chartzpMovilAgrupado">
                                                 {(OpcionesAcumulado != null) && (
                                                     <ReactApexChart
