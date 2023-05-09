@@ -547,7 +547,7 @@ export default function Clientes() {
                     initialState={{ density: 'compact' }}
                     renderRowActions={({ row, table }) => (
                         <Box sx={{ display: 'block', gap: '1rem', marginLeft: 'auto', marginRight: 'auto' }}>
-                            <Tooltip arrow placement="top" title="Gestionar cliente">
+                            <Tooltip arrow placement="top" title="Vehiculos del cliente">
                                 <IconButton onClick={() => {
                                     // PanelConsultas(row.original.ClienteId)
                                     consultarVehiculos(row.original.ClienteId);
@@ -555,7 +555,7 @@ export default function Clientes() {
                                     <FireTruckTwoTone />
                                 </IconButton>
                             </Tooltip>
-                            <Tooltip arrow placement="top" title="Gestionar cliente">
+                            <Tooltip arrow placement="top" title="Conductores del cliente">
                                 <IconButton onClick={() => {
                                     // PanelConsultas(row.original.ClienteId)
                                     consultarDrivers(row.original.ClienteId);
