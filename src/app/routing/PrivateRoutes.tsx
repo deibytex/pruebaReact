@@ -21,7 +21,7 @@ export function PrivateRoutes() {
   useEffect(() => {
     const lstOpciones = (menu as Opciones[]);
     if (lstOpciones !== undefined) {
-      let opcionesHijo = lstOpciones.filter((element) => element.opcionPadreId != null);
+      let opcionesHijo = lstOpciones.filter((element) => element.controlador != null);
 
       const componentPromises =
         opcionesHijo.map(f => {
