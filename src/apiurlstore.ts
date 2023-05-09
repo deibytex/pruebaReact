@@ -34,7 +34,7 @@ export const NEP_DownloadFile = `${apiURL}/archivos/DownloadFileFromBlob`
 /* CLIENTES */
 
 export const CLIENTE_GetClientes = `${apiURLDWH}/Cliente/GetClientes`//[Required] int Estado, long? ClienteId, int? ClienteIds
-
+export const ASSET_GetAssetsEstados = `${apiURLDWH}/Asset/GetAssets/getEstadosAssets` //long? ClienteId,string UsertState
 export const ASSET_GetAssetsClienteId = `${apiURLDWH}/Asset/GetAssets/ClienteId` //long? ClienteId,string UsertState
 export const ASSET_GetClientesClienteIds = `${apiURLDWH}/Asset/GetAssets/ClienteIds` //int? ClienteIds, string UsertState
 export const EBUS_GetClientesUsuarios = `${apiURLDWH}/Ebus/GetClientesUsuarios` //int? ClienteIds, string UsertState
@@ -44,6 +44,7 @@ export const EBUS_SetColumnasDatatable = `${apiURLDWH}/Ebus/SetColumnasDatatable
 export const EBUS_GetColumnasDatatable = `${apiURLDWH}/Ebus/GetColumnasDatatable` 
 export const EBUS_GetTiempoActualizacion = `${apiURLDWH}/Ebus/GetTiempoActualizacion` 
 export const EBUS_GetUltimaPosicionVehiculos = `${apiURLDWH}/Ebus/GetUltimaPosicionVehiculos` 
+export const ASSET_getAssets = `${apiURLDWH}/Asset/getAssets`
 
 /* MOVIL */
 export const MOVIL_getReportesPorTipo = `${apiURLDWH}/Movil/GetReportePorTipo`
@@ -69,4 +70,5 @@ export const TX_GetUnidadesActivas = `${apiURLDWH}/Tx/GetReporteUnidadesActivas`
 export const TX_GetSnapShotTickets = `${apiURLDWH}/Tx/GetSnapShotTickets`
 export const TX_GetSnapShotTransmision = `${apiURLDWH}/Tx/GetSnapShotTransmision`
 
-
+/* BASES */
+export const BASES_getDetalleListas = `${apiURLDWH}/Bases/getDetalleListas`
