@@ -55,3 +55,9 @@ export  function msToTime(s : number) {
   
       return `${number.toFixed(2)}`
   }
+
+
+// cuando se usa un filtro permite traer el unico valor de todas los valores del array
+function UnicoArrayValores(value:any, index:any, self:any) {
+  return self.indexOf(value) === index;
+}

@@ -15,10 +15,10 @@ import { FiltrosReportes } from "../models/Senial";
 import DualListBox from "react-dual-listbox";
 import { dualList } from "../../../../_start/helpers/Models/DualListDTO";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
-import { formatSimple } from "../../../../_start/helpers/Helper";
 import { Box, IconButton, Tooltip, Typography } from "@mui/material";
 import { Download, Edit, Search } from "@mui/icons-material";
 import { Home } from "react-feather";
+import { formatSimple } from "../../../../_start/helpers/Helper";
 export default function Reporte (){
     let filtrosBase: FiltrosReportes = {
         FechaInicial: moment().startOf('month').toDate(),
@@ -40,10 +40,20 @@ export default function Reporte (){
  const [isError, setIsError] = useState(false);
  const [showModal, setShowModal] = useState<boolean>(false);
  const [showModalFallas, setShowModalFallas] = useState<boolean>(false);
- 
  const [Datos, setDatos] = useState<any[]>([])
-  
+ const [DatosFiltrados, setDatosFiltrados] = useState<any[]>([]);
  const [DatosDetallado, setDatosDetallado] = useState<any[]>([])
+ const [loader, setloader] = useState<boolean>(false);
+const [Clientes, setClientes] = useState<dualList[]>([]);
+const [ClienteSeleccionado, setClienteSeleccionado] = useState<string[]>([]);
+const [isCallData, setisCallData] = useState<boolean>(false); // permite validar 
+const [ConsultarF, setConsultarF] = useState<boolean>(true); 
+const [esFiltrado, setesFiltrado] = useState<boolean>(false); // permite validar 
+const [Tiporeporte, setTipoReporte] = useState(filtrosBase);
+const { allowedMaxDays, allowedRange, combine } = DateRangePicker;
+
+const TipoReporte =   { reporte: "", tabla: "", filtros: { ...filtrosBase, MaxDay:30 }, Data: []};
+
  //para las columnas de la tabla   
  let listadoCampos: MRT_ColumnDef<any>[] =
  [
@@ -89,14 +99,7 @@ let listadoFallas: MRT_ColumnDef<any>[] =
 ]
 
 
-const [loader, setloader] = useState<boolean>(false);
-const [Clientes, setClientes] = useState<dualList[]>([]);
-const [ClienteSeleccionado, setClienteSeleccionado] = useState<string[]>([]);
-const [isCallData, setisCallData] = useState<boolean>(false); // permite validar 
-const [Tiporeporte, setTipoReporte] = useState(filtrosBase);
-const { allowedMaxDays, allowedRange, combine } = DateRangePicker;
 
-const TipoReporte =   { reporte: "", tabla: "", filtros: { ...filtrosBase, MaxDay:30 }, Data: []};
 useEffect(
     () => {
         GetListaClientes().then((response: AxiosResponse<any>) => {
@@ -112,23 +115,31 @@ useEffect(
         }).catch((error) => {
             errorDialog("<i>Eror al consultar los clientes</i>", "")
         })
-
         return () => {};
     }, []
 )
 
   // VALIDA LAS FECHAS QUE SEAN LAS CORRECTAS Y ACTUALIZA LOS FILTROS
-  let ValidarFechas = (Range: Date[]) => {
-    let FechaInicial: Date = moment(Range[0]).toDate() ;
+let ValidarFechas = (Range: Date[]) => {
+    let FechaInicial: Date = moment(Range[0]).toDate();
     let FechaFinal: Date =  moment(Range[1]).toDate();
+
+    setisCallData(
+        (Tiporeporte.FechaInicial > FechaInicial || Tiporeporte.FechaFinal < FechaFinal
+            || (TipoReporte.filtros.FechaInicial > FechaInicial &&
+                TipoReporte.filtros.FechaFinal > FechaFinal)
+        )
+    )
     TipoReporte.filtros.FechaInicial = FechaInicial;
     TipoReporte.filtros.FechaFinal = FechaFinal;
-    TipoReporte.filtros = {...TipoReporte.filtros, FechaInicial, FechaFinal, limitdate:30 , MaxDay:30} ;
+    TipoReporte.filtros = {...TipoReporte.filtros, FechaInicial, FechaFinal, limitdate:30, MaxDay:30} ;
     setTipoReporte(TipoReporte.filtros);
 }
 
 const Consultar = () =>{
-    ObtenerDatos();
+    if (ConsultarF == true || isCallData) {
+        ObtenerDatos();
+    }
 }
 function SelectClientes() {
     return (
@@ -136,6 +147,23 @@ function SelectClientes() {
             options={Clientes}
             selected={ClienteSeleccionado}
             onChange={(selected: any) => {
+                if(selected.length != 0){
+                    let filtrado:any = [];
+                    selected.forEach((element:any) =>{
+                       Datos.map((val:any, index:any)=>{
+                            if(val.ClienteIds == Number.parseInt(element))
+                                filtrado.push(val)  
+                        });
+                    })
+                    setesFiltrado(true);
+                    setRowCount(filtrado.length);
+                    setDatosFiltrados(filtrado);
+                }
+                else{
+                    setRowCount(Datos.length);
+                    setesFiltrado(false);
+                }
+                
                 // dejamos los seleccionados
                 setClienteSeleccionado(selected)
                
@@ -148,7 +176,7 @@ const ObtenerDatos = () =>{
     setIsError(false)
     setIsLoading(true)
     setIsRefetching(true)
-    GetReporte(moment(TipoReporte.filtros.FechaInicial).format(formatSimple), moment(TipoReporte.filtros.FechaFinal).format(formatSimple), (ClienteSeleccionado.length != 0 ? ClienteSeleccionado.join() : "-1" ) ).then((response:AxiosResponse<any>) =>{
+    GetReporte(moment(Tiporeporte.FechaInicial).format(formatSimple), moment(Tiporeporte.FechaFinal).format(formatSimple), (ClienteSeleccionado.length != 0 ? ClienteSeleccionado.join() : "-1" ) ).then((response:AxiosResponse<any>) =>{
         setDatos(response.data);
         setRowCount(response.data.length);
         setisCallData(false);
@@ -156,6 +184,7 @@ const ObtenerDatos = () =>{
         setIsLoading(false)
         setIsRefetching(false)
         setloader(false)
+        setConsultarF(false);
     }).catch(() =>{
         setloader(false)
         setIsError(true);
@@ -228,7 +257,7 @@ useEffect(() =>{
 },[])
 return (
         <>
-            <PageTitle>Reporte Eficiencia</PageTitle>
+            <PageTitle>Reporte señales</PageTitle>
             <BlockUi tag="div" keepInView blocking={loader ?? false}  >
                 <div className="card">
                     <div className='card-header'>
@@ -240,6 +269,16 @@ return (
                         </div> */}
                     </div>
                     <div className="card-body">
+                        <Card.Header>
+                            <div className="d-flex justify-content-between mb-2">
+                                <div className="d-flex justify-content-between mx-auto">
+                                    <div className="ms-9 text-center">
+                                        <h3 className="mb-0">Reporte señales</h3>
+                                        <span className="text-muted m-3">{"clientes"}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </Card.Header>
                         <Card className="bg-secondary  text-primary m-0">
                                 <Card.Body className="card-body shadow-md">
                                     <div className="row">
@@ -290,7 +329,7 @@ return (
                                                     },
                                                 }}
                                                 columns={listadoCampos}
-                                                data={Datos}
+                                                data={(esFiltrado == true  ? DatosFiltrados : Datos)}
                                                 // editingMode="modal" //default         
                                                 // enableTopToolbar={false}
                                                 enableColumnOrdering
@@ -323,7 +362,7 @@ return (
                                                     <Box sx={{ display: 'block', marginLeft: 'auto', marginRight: 'auto', gap: '1rem'}}>
                                                         <Tooltip arrow placement="top" title="Ver fallas">
                                                             <IconButton    onClick={() =>   ConsultarFallas(row)} >
-                                                                <Search className="bg-success text-center" />
+                                                                <Search/>
                                                             </IconButton>
                                                         </Tooltip>
                                                     </Box>
@@ -359,6 +398,7 @@ return (
                 </Modal.Body>
                 <Modal.Footer>
                     <Button type="button" variant="secondary" onClick={() => {
+                        setesFiltrado(false);
                         setClienteSeleccionado([]);
                     }}>
                         Limpiar
@@ -415,8 +455,8 @@ return (
                                 renderRowActions={({ row, table }) => (
                                     <Box sx={{ display: 'block', marginLeft: 'auto', marginRight: 'auto', gap: '1rem' }}>
                                         <Tooltip arrow placement="top" title="Descargar detallado">
-                                            <IconButton   onClick={() =>   ConsultarInformeExportar(row)} >
-                                                <Download className="bg-success" />
+                                            <IconButton  onClick={() =>   ConsultarInformeExportar(row)} >
+                                                <Download/>
                                             </IconButton>
                                         </Tooltip>
                                     </Box>
