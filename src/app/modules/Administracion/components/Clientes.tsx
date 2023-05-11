@@ -259,8 +259,11 @@ export default function Clientes() {
                 console.log("error");
                 setloader(false);
             });
-        } else
+        } else{
             setDatosAdmins(Consultas[0].Data);
+            setShowModalactivos(true);
+        }
+           
     }
     const consultarVehiculos = (row: any) => {
         if (row != Consultas[1].Cliente) {
