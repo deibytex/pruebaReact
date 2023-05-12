@@ -1,9 +1,7 @@
 import MaterialReactTable, { MRT_Cell, MRT_ColumnDef, MaterialReactTableProps } from "material-react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
-import { Button, Card, Modal, ModalBody, ModalFooter } from "react-bootstrap-v5";
-import { AutoComplete, InputGroup } from "rsuite";
+import { Button, Card } from "react-bootstrap-v5";
 import { Typeahead } from "react-bootstrap-typeahead";
-import MemberIcon from '@rsuite/icons/Member';
 import { GetCondiciones, GetListaClientes, GuardarCondiciones } from "../data/ReportesData";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ClienteDTO, InicioCliente } from "../../../../_start/helpers/Models/ClienteDTO";
@@ -11,9 +9,8 @@ import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/
 import { AxiosResponse } from "axios";
 import { PageTitle } from "../../../../_start/layout/core/PageData";
 import BlockUi from "@availity/block-ui";
-import { FormatoColombiaDDMMYYYHHmmss } from "../../../../_start/helpers/Constants";
-import { Box, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, TextField, Tooltip } from "@mui/material";
-import { Edit, Search } from "@mui/icons-material";
+import { Box, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, Tooltip } from "@mui/material";
+import { Edit } from "@mui/icons-material";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
 import { Check } from "react-feather";
 import { useSelector } from "react-redux";
@@ -57,7 +54,18 @@ export default function Condiciones() {
     const [validationErrors, setValidationErrors] = useState<{
         [cellId: string]: string;
     }>({});
-
+    const [campos, setCampos] = useState<{}>({
+        Distancia: null,
+        Ocurrencias: null,
+        Tiempo:null,
+        Valor:null,
+        CondicionId:"",
+        ClienteIds:null,
+        Descripcion:"",
+        Nombre:""
+    });
+    //Se valida los valores nullos ya que en el guardado me daba error.
+    const  valores = (val:any) => (val == null ? "0":String(val));
     interface CreateModalProps {
         columns: MRT_ColumnDef<any>[];
         onClose: () => void;
@@ -143,7 +151,13 @@ export default function Condiciones() {
                 ...getCommonEditTextFieldProps(cell),
             }),
             Edit: ({ cell, column, row, table, }) => {
-                return true;
+                return <EditarCampos valor={row.original.Ocurrencias} id={"Ocurrencias"} row={row} cambio={(row.original.Ocurrencias == null || row.original.Ocurrencias==0  ? true:false)}/>
+            },
+            Cell({ cell, column, row, table, }) {
+                let label = (row.original.Ocurrencias == null ? "-" : `${row.original.Ocurrencias}`)
+                return <>{
+                    label
+                }</>
             },
             size: 100
         },
@@ -153,6 +167,15 @@ export default function Condiciones() {
             muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
                 ...getCommonEditTextFieldProps(cell),
             }),
+            Edit: ({ cell, column, row, table, }) => {
+                return <EditarCampos valor={row.original.Distancia} id={"Distancia"} row={row} cambio={(row.original.Distancia == null || row.original.Distancia ==0  ? true:false)}/>
+            },
+            Cell({ cell, column, row, table, }) {
+                let label = (row.original.Distancia == null ? "-" : `${row.original.Distancia} km`)
+                return <>{
+                    label
+                }</>
+            },
             size: 100
         },
         {
@@ -161,6 +184,15 @@ export default function Condiciones() {
             muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
                 ...getCommonEditTextFieldProps(cell),
             }),
+            Edit: ({ cell, column, row, table, }) => {
+                return <EditarCampos valor={row.original.Tiempo} id={"Tiempo"} row={row} cambio={(row.original.Tiempo == null  || row.original.Tiempo ==0 ? true:false)}/>
+            },
+            Cell({ cell, column, row, table, }) {
+                let label = (row.original.Tiempo == null ? "-" : `${row.original.Tiempo/60} min`)
+                return <>{
+                    label
+                }</>
+            },
             size: 100
         },
         {
@@ -170,6 +202,16 @@ export default function Condiciones() {
             muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
                 ...getCommonEditTextFieldProps(cell),
             }),
+            Edit: ({ cell, column, row, table, }) => {
+                return <EditarCampos valor={row.original.Valor} id={"Valor"} row={row} cambio={(row.original.Valor == null ||row.original.Valor == 0  ? true:false)}/>
+            },
+            Cell({ cell, column, row, table, }) {
+                const value = (row.original != undefined) ? row.original.Valor : row;
+                let label = (row.original.Valor == null ? "-" : `${row.original.Valor}${row.original.Descripcion.indexOf("RPM") != -1 ? " rpm":" km/h"}`)
+                return <>{
+                    label
+                }</>
+            },
             size: 100
         },
         {
@@ -178,7 +220,7 @@ export default function Condiciones() {
             size: 100,
             enableEditing: false,
             Edit: ({ cell, column, row, table, }) => {
-                return true;
+                return false
             },
             Cell({ cell, column, row, table, }) {
                 const value = (row.original != undefined) ? row.original.EsActivo : row;
@@ -189,7 +231,7 @@ export default function Condiciones() {
             }
         }
     ]
-
+    //Funcion validado de la tabla
     const getCommonEditTextFieldProps = useCallback(
         (
             cell: MRT_Cell<any>,
@@ -201,21 +243,23 @@ export default function Condiciones() {
         },
         [validationErrors],
     )
+    //Para Enviar el registro para  el guardado
     const handleSaveRowEdits: MaterialReactTableProps<any>['onEditingRowSave'] =
         async ({ exitEditingMode, row, values }) => {
-
+         
             if (!Object.keys(validationErrors).length) {
                 confirmarDialog(() => {
                     //se envia al server
                     let data = { ...values }
+                    data.Distancia = valores(campos['Distancia']);
+                    data.Ocurrencias = valores(campos['Ocurrencias']);
+                    data.Tiempo = valores(campos['Tiempo']);
+                    data.Valor = valores(campos['Valor']);
                     data.CondicionId = String(row.original.CondicionId);
-                    data.ClienteIds = String(row.original.ClienteIds == undefined || row.original.ClienteIds == null ? "" : row.original.ClienteIds);
+                    data.ClienteIds =row.original.ClienteIds;
                     Guardar(data);
                 }, `¿Esta seguro que desea editar el registro?`, 'Guardar');
                 exitEditingMode();
-
-
-
             }
         };
 
@@ -229,12 +273,13 @@ export default function Condiciones() {
         //Insertar un objeto a guardar
         GuardarCondiciones(row).then(() => {
             successDialog("Cambios guardados éxitosamente", "");
+            ObtenerDatos();
         }).catch(() => {
             errorDialog("Ha ocurrido un error al guardar", "");
         }
         );
     }
-
+    //para crear el modal de nuevo pero esta deshabilitado por ahora
     const NuevaCondicion = ({
         open,
         columns,
@@ -267,10 +312,10 @@ export default function Condiciones() {
                         >
                             <div className="container">
                                 <div className="row">
-                                    {CamposTabla.map((column) => (
-                                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                                            <label className="control-label label fw-bolder label-sm">{(column.accessorKey == "EsActivo" ? "Estado" : column.header)}</label>
-                                            <br/>
+                                    {CamposTabla.map((column, index) => (
+                                        <div  key={`${column}-${index}`} className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                                            <label id={`${column}-${index}`} key={`${column}-${index}`} className="control-label label fw-bolder label-sm">{(column.accessorKey == "EsActivo" ? "Estado" : column.header)}</label>
+                                            <br />
                                             <input
                                                 onChange={(e) =>
                                                     setValues({ ...values, [e.target.name]: e.target.value })
@@ -296,9 +341,48 @@ export default function Condiciones() {
             </Dialog>
         );
     };
-
-
-
+//para editar los campos se crea un componenete con sus eventos para poder editarlos o no editarlos segun se requiera
+ const EditarCampos = (id:any) =>{
+    let val = (id.valor  == null || id.valor == "" ? null : id.valor );
+    let row = id.row.original;
+    return (
+        <div className="">
+            <label className="control-label label-sm">{id.id}</label>
+            <input defaultValue={(campos[id.id] == null  || campos[id.id] == 0 ? val: campos[id.id])} disabled={id.cambio} onBlur= {(e:any) =>{
+            setCampos({
+                Distancia: (id.id == "Distancia"  ? e.target.value: row.Distancia),
+                Ocurrencias:  (id.id == "Ocurrencias"  ? e.target.value: row.Ocurrencias),
+                Tiempo:(id.id == "Tiempo"  ? e.target.value: row.Tiempo),
+                Valor:(id.id == "Valor"  ? e.target.value: row.Valor),
+                CondicionId:(id.id == "CondicionId"  ? e.target.value: row.CondicionId),
+                ClienteIds:(id.id == "ClienteIds"  ? e.target.value: row.ClienteIds),
+                Descripcion:(id.id == "Descripcion"  ? e.target.value: row.Descripcion),
+                Nombre:(id.id == "Nombre"  ? e.target.value: row.Nombre)
+            })
+            val = e.target.value;
+            e.preventDefault();
+            console.log(e);
+        }} id={id.id} className="form-control input input-sm" type="number"></input>
+        </div>
+        
+    )
+ }
+//Modifica el estado
+ const cambiarEstado = (row:any) =>{
+    row.Clave = (row.Clave == null || row.Clave == undefined || row.Clave == "" ? "3" : row.Clave);
+    row.EsActivo = (row.original.EsActivo  == true ? false: true);
+    row.CondicionId =String(row.original.CondicionId);
+    confirmarDialog(() => {
+        GuardarCondiciones(row).then(() => {
+            successDialog("Cambios guardados éxitosamente", "");
+            ObtenerDatos();
+        }).catch(() => {
+            errorDialog("Ha ocurrido un error al guardar", "");
+        }
+        );
+    }, `¿Esta seguro que desea cambiar el estado del registro?`, 'Guardar');
+        //Insertar un objeto a guardar
+ }
     //retorna la pagina
     return (
         <>
@@ -323,41 +407,26 @@ export default function Condiciones() {
                             <div className="row">
                                 <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                                      <label className="control-label label-sm fw-bolder">Clientes</label>
-                                   {/* <InputGroup inside style={stylesAuto}>
-                                        <InputGroup.Addon>
-                                            <MemberIcon />
-                                        </InputGroup.Addon> */}
-
                                     <div className="input-group mb-3">
-                                        <span className="input-group-text label-sm" id="basic-addon1">@</span>
+                                        <span className="input-group-text label-sm" style={{height:'42px'}}  id="basic-addon1">
+                                            <i className="bi-file-earmark-person"></i>
+                                        </span>
                                         <Typeahead className="mb-3 "
-                                            id="autocomplete-vehiculos-viajes"
+                                            id="autocomplete-clientes-condiciones"
                                             options={LstClientes}
                                             ref={typeaheadRef}
                                             onChange={
                                                 SeleccionCliente
-                                                // (selected: any) => {
-                                                // // dejamos los seleccionados
-                                                // setisCallData(true);
-                                                // setSeleccionados(selected)
-                                                // setShowModal(false)
-                                                // // Keep the menu open when making multiple selections.
-                                                // typeaheadRef.current?.toggleMenu();
-                                                // }
                                             }
-                                            placeholder="Escoja un Vehículo...."
+                                            placeholder="Seleccione un cliente...."
                                         />
                                     </div>
-                                        
-                                        {/* <AutoComplete placeholder="Seleccione un cliente" onSelect={SeleccionCliente} data={}> */}
-                                        {/* </AutoComplete>
-                                    </InputGroup> */}
                                 </div>
                                 <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                                     <div className="form-group float-end" >
                                         <div className="panel-body">
                                             <div style={{ display: 'inline-table !important' }}>
-                                                <button className="btn  btn-sm bg-primary rounded-round btn_editarParametro" data-target='#modal_form_horizontal' data-toggle='modal' onClick={
+                                                <button hidden className="btn  btn-sm bg-primary rounded-round btn_editarParametro" data-target='#modal_form_horizontal' data-toggle='modal' onClick={
                                                     () => {
                                                         setShowModal(true);
                                                     }
@@ -420,12 +489,25 @@ export default function Condiciones() {
                                         renderRowActions={({ row, table }) => (
                                             <Box sx={{ display: 'block', marginLeft: 'auto', marginRight: 'auto', gap: '1rem' }}>
                                                 {(EsPermitido(permisosopcion, operacionesPermisos.Modificar)) && (<Tooltip arrow placement="top" title="Editar condición">
-                                                    <IconButton onClick={() => { table.setEditingRow(row) }} >
+                                                    <IconButton onClick={() => { table.setEditingRow(row)
+                                                    setCampos({
+                                                        Distancia: row.original.Distancia,
+                                                        Ocurrencias: row.original.Ocurrencias,
+                                                        Tiempo:row.original.Tiempo,
+                                                        Valor:row.original.Valor,
+                                                        CondicionId:row.original.CondicionId,
+                                                        ClienteIds:row.original.ClienteIds,
+                                                        Descripcion:row.original.Descripcion,
+                                                        Nombre:row.original.Nombre
+                                                    })
+                                                    }} >
                                                         <Edit className="text-center" />
                                                     </IconButton>
                                                 </Tooltip>)}
                                                 {(EsPermitido(permisosopcion, operacionesPermisos.Modificar)) && (<Tooltip arrow placement="top" title="Cambiar de estado">
-                                                    <IconButton>
+                                                    <IconButton onClick={() =>{
+                                                        cambiarEstado(row);
+                                                    }}>
                                                         <Check className="text-center" />
                                                     </IconButton>
                                                 </Tooltip>)}
@@ -448,12 +530,13 @@ export default function Condiciones() {
                     </div>
                 </div>
             </BlockUi>
-            <NuevaCondicion
+            {(Datos.length != 0) &&(<NuevaCondicion
                 columns={CamposTabla}
                 open={showModal}
                 onClose={() => setShowModal(false)}
                 onSubmit={Guardar}
-            />
+            />)}
+            
         </>
     )
 }

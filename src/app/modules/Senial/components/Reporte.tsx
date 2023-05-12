@@ -3,8 +3,7 @@ import MaterialReactTable, { MRT_ColumnDef } from "material-react-table"
 import { useEffect, useState } from "react";
 import { PageTitle } from "../../../../_start/layout/core/PageData";
 import BlockUi from "@availity/block-ui";
-import { Button, Card, Form, Modal } from "react-bootstrap-v5";
-import { ClienteDTO, InicioCliente } from "../../../../_start/helpers/Models/ClienteDTO";
+import { Button, Card, Modal } from "react-bootstrap-v5";
 import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
 import { GetListaClientes, GetReporte, GetReporteDetallado, GetReporteExportar } from "../data/ReportesData";
 import { AxiosResponse } from "axios";
@@ -15,9 +14,8 @@ import { FiltrosReportes } from "../models/Senial";
 import DualListBox from "react-dual-listbox";
 import { dualList } from "../../../../_start/helpers/Models/DualListDTO";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
-import { Box, IconButton, Tooltip, Typography } from "@mui/material";
-import { Download, Edit, Search } from "@mui/icons-material";
-import { Home } from "react-feather";
+import { Box, IconButton, Tooltip } from "@mui/material";
+import { Download, Search } from "@mui/icons-material";
 import { formatSimple } from "../../../../_start/helpers/Helper";
 export default function Reporte (){
     let filtrosBase: FiltrosReportes = {
