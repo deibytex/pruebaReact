@@ -93,9 +93,9 @@ const retornarLabels= (data:any[]) =>{
     myDoughnut = new Chart(ctx, options);
     }
     return function cleanUp() {
-    if (myDoughnut) {
-        myDoughnut.destroy();
-    }
+        if (myDoughnut) {
+            myDoughnut.destroy();
+        }
     };
 },[Data, Filtrado, DataFiltrada])
     return (
