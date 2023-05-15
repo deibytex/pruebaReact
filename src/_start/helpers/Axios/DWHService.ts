@@ -1,6 +1,6 @@
 import axios from "axios";
 import { ASSET_getAssets, ASSET_GetAssetsClienteId, ASSET_GetAssetsEstados, ASSET_GetClientesClienteIds, BASES_getDetalleListas, CLIENTE_GetClientes, CORE_getconsultadinamicasUser,
-   CORE_getconsultadinamicasUserDWH, DRIVER_GetDriversClienteId, DWH_GetConsultasDinamicas, DWH_getDynamicValueProcedureDWHTabla, EBUS_GetClientesUsuarios, 
+   CORE_getconsultadinamicasUserDWH, DRIVER_GetDriversClienteId, DWH_getconsultadinamicasprocedure, DWH_GetConsultasDinamicas, DWH_getDynamicValueProcedureDWHTabla, EBUS_GetClientesUsuarios, 
    EBUS_GetColumnasDatatable, EBUS_getEventActiveRecargaByDayAndClient, 
    EBUS_getEventActiveViajesByDayAndClient, EBUS_GetListaClientesActiveEvent, 
    EBUS_GetListadoClientesUsuario, EBUS_GetLocations, EBUS_GetTiempoActualizacion,
@@ -253,3 +253,14 @@ export function Post_GetConsultasDinamicas(props: ParamsEndPointDynamic, body: a
       params : { ClienteId }
     });
   }
+
+  export function Post_getDynamicProcedureDWH(props: any, body: any) {
+    return axios({
+      method: 'post',
+      url: DWH_getconsultadinamicasprocedure,
+      data: JSON.stringify(body),
+      headers: { 'Content-Type': 'application/json' },
+      params: props
+    });
+  }
+  

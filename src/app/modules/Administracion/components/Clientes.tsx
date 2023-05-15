@@ -5,12 +5,12 @@ import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/rea
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { Box, IconButton, Tooltip, Typography } from "@mui/material";
-import { Download, Edit,  FireTruckTwoTone, Person } from "@mui/icons-material";
+import { Download, Edit, FireTruckTwoTone, Person } from "@mui/icons-material";
 import { GetAdministradores, GetAssets, GetClientesAdministradores, GetConfiguracionAssets, GetDrivers, GetSites, updateAssets } from "../data/Clientes";
 import { AxiosResponse } from "axios";
 
 import { useHistory } from "react-router-dom"
-import { Button, Modal, Tab, Tabs } from "react-bootstrap-v5";
+import { Button, Card, Modal, Tab, Tabs } from "react-bootstrap-v5";
 import moment from "moment";
 import { formatSimple } from "../../../../_start/helpers/Helper";
 import { DescargarExcel } from "../../../../_start/helpers/components/DescargarExcel";
@@ -59,7 +59,8 @@ export default function Clientes() {
     const [showModal, setShowModal] = useState<boolean>(false);
     const [showModalactivos, setShowModalactivos] = useState<boolean>(false);
     const [showModaldriver, setShowModaldriver] = useState<boolean>(false);
-
+    const [showModaladicional, setshowModaladicional] = useState<boolean>(false);
+    const [Titulo, setTitulo] = useState<string>("Sitios");
     let Campos: MRT_ColumnDef<any>[] =
         [{
             accessorKey: 'clienteNombre',
@@ -79,7 +80,7 @@ export default function Clientes() {
             },
             size: 90
         },
-        
+
         {
             accessorKey: 'FechaIngreso',
             header: 'Fecha ingreso',
@@ -140,37 +141,6 @@ export default function Clientes() {
             size: 100
         }
         ],
-        // "AssetShort": [{
-        //     accessorKey: 'assetId',
-        //     header: 'ID',
-        //     enableHiding: true,
-        //     size: 100
-        // }, {
-        //     accessorKey: 'description',
-        //     header: 'Asset',
-        //     size: 100
-        // },
-        // {
-        //     accessorKey: 'registrationNumber',
-        //     header: 'Placa',
-        //     size: 100
-        // },
-        // {
-        //     accessorKey: 'estado',
-        //     header: 'Estado TX',
-        //     Cell(row: any) {
-        //         let state = (
-        //             row.row.original.userState == "Unverified" ?
-        //                 <span className='badge bg-warning'>{row.row.original.userState} </span> :
-        //                 row.row.original.userState == "New installation" ?
-        //                     <span className='badge  bg-info'>{row.row.original.userState}</span> :
-        //                     <span className='badge  bg-success'>{row.row.original.userState}</span>
-        //         )
-        //         return (state)
-        //     },
-        //     size: 100
-        // }
-        // ],
         "Asset": [
             {
                 accessorKey: 'assetId',
@@ -196,11 +166,11 @@ export default function Clientes() {
                     let state = (
                         row.row.original.userState == "Unverified" ?
                             <span className='badge bg-warning'>{row.row.original.userState} </span> :
-                        row.row.original.userState == "New installation" ?
-                                <span className='badge bg-info'>{row.row.original.userState}</span> : 
-                        row.row.original.userState == "Decommissioned" ?  
-                            <span className='badge bg-danger'>{row.row.original.userState}</span> :
-                            <span className='badge bg-success'>{row.row.original.userState}</span>
+                            row.row.original.userState == "New installation" ?
+                                <span className='badge bg-info'>{row.row.original.userState}</span> :
+                                row.row.original.userState == "Decommissioned" ?
+                                    <span className='badge bg-danger'>{row.row.original.userState}</span> :
+                                    <span className='badge bg-success'>{row.row.original.userState}</span>
                     )
                     return (state)
                 },
@@ -250,7 +220,7 @@ export default function Clientes() {
                 },
                 enableHiding: true,
                 size: 100
-           }
+            }
         ], "Sites": [{
             accessorKey: 'sitename',
             header: 'Sitio',
@@ -283,12 +253,17 @@ export default function Clientes() {
                 Consult[0].Data = response.data;
                 setConsultas(Consult);
                 setloader(false);
+                setTitulo("Administradores")
+                setShowModalactivos(true);
             }).catch(() => {
                 console.log("error");
                 setloader(false);
             });
-        } else
+        } else{
             setDatosAdmins(Consultas[0].Data);
+            setShowModalactivos(true);
+        }
+           
     }
     const consultarVehiculos = (row: any) => {
         if (row != Consultas[1].Cliente) {
@@ -314,7 +289,7 @@ export default function Clientes() {
                 setloader(false);
             });
         }
-        else{
+        else {
             setDatosAssets(Consultas[1].Data);
             setShowModalactivos(true)
         }
@@ -329,13 +304,13 @@ export default function Clientes() {
                 Consult[2].Data = response.data;
                 setConsultas(Consult);
                 setloader(false);
-                setShowModaldriver(true);
+                setShowModalactivos(true);
                 setDriver(response.data.length);
             }).catch(() => {
                 console.log("error");
                 setloader(false);
             });
-        } else{
+        } else {
             setShowModaldriver(true);
             setDatosDrivers(Consultas[2].Data);
         }
@@ -350,6 +325,8 @@ export default function Clientes() {
                 Consult[3].Data = response.data;
                 setConsultas(Consult);
                 setloader(false);
+                setTitulo("Sitios")
+                setShowModalactivos(true);
             }).catch(() => {
                 console.log("error");
                 setloader(false);
@@ -358,9 +335,9 @@ export default function Clientes() {
             setDatosSites(Consultas[3].Data);
 
     }
-    const PanelConsultas = (key: any) => {
-        let ClienteId = key.target.id.split("-tab")[0];
-        switch (key.target.dataset.rbEventKey) {
+    const PanelConsultas = (ClienteId: any, Key:any) => {
+
+        switch (Key) {
             case 'admins':
             default:
                 consultarAdmins(ClienteId);
@@ -378,79 +355,79 @@ export default function Clientes() {
     };
     const GetReporteConfiguracionAssets = (row: any) => {
         setloader(true);
-        GetConfiguracionAssets(row).then((response:AxiosResponse<any>) =>{
-           let  Columnas = [
-            {
-                accessorKey: 'BD_Cliente',
-                header: 'BD_Cliente'
-            }, {
-                accessorKey: 'AssetId',
-                header: 'AssetId',
-            },
-            {
-                accessorKey: 'SiteName',
-                header: 'SiteName',
-            },
-            {
-                accessorKey: 'VehicleID',
-                header: 'VehicleID',
-            },
-            {
-                accessorKey: 'VehicleDescription',
-                header: 'VehicleDescription',
-            },
-            {
-                accessorKey: 'RegistrationNumber',
-                header: 'RegistrationNumber',
-            },
-            {
-                accessorKey: 'DriverOBC',
-                header: 'DriverOBC',
-            },
-            {
-                accessorKey: 'DriverCAN',
-                header: 'DriverCAN',
-            },
-            {
-                accessorKey: 'DriverOBCLoadDate',
-                header: 'DriverOBCLoadDate',
-            },
-            {
-                accessorKey: 'LastConfiguration',
-                header: 'LastConfiguration',
-            },
-            {
-                accessorKey: 'CreatedDate',
-                header: 'CreatedDate',
-            },
-            {
-                accessorKey: 'DeviceType',
-                header: 'DeviceType',
-            },
-            {
-                accessorKey: 'ConfigurationGroup',
-                header: 'ConfigurationGroup',
-            },
-            {
-                accessorKey: 'GPRSContext',
-                header: 'GPRSContext',
-            },
-            {
-                accessorKey: 'UnitIMEI',
-                header: 'UnitIMEI',
-            },
-            {
-                accessorKey: 'UnitSCID',
-                header: 'UnitSCID',
-            },
-            {
-                accessorKey: 'LastTrip',
-                header: 'LastTrip',
-            },
-           ];
-            DescargarExcel(response.data, Columnas,"ReporteConfiguration");
+        GetConfiguracionAssets(row).then((response: AxiosResponse<any>) => {
+            let Columnas = [
+                {
+                    accessorKey: 'BD_Cliente',
+                    header: 'BD_Cliente'
+                }, {
+                    accessorKey: 'AssetId',
+                    header: 'AssetId',
+                },
+                {
+                    accessorKey: 'SiteName',
+                    header: 'SiteName',
+                },
+                {
+                    accessorKey: 'VehicleID',
+                    header: 'VehicleID',
+                },
+                {
+                    accessorKey: 'VehicleDescription',
+                    header: 'VehicleDescription',
+                },
+                {
+                    accessorKey: 'RegistrationNumber',
+                    header: 'RegistrationNumber',
+                },
+                {
+                    accessorKey: 'DriverOBC',
+                    header: 'DriverOBC',
+                },
+                {
+                    accessorKey: 'DriverCAN',
+                    header: 'DriverCAN',
+                },
+                {
+                    accessorKey: 'DriverOBCLoadDate',
+                    header: 'DriverOBCLoadDate',
+                },
+                {
+                    accessorKey: 'LastConfiguration',
+                    header: 'LastConfiguration',
+                },
+                {
+                    accessorKey: 'CreatedDate',
+                    header: 'CreatedDate',
+                },
+                {
+                    accessorKey: 'DeviceType',
+                    header: 'DeviceType',
+                },
+                {
+                    accessorKey: 'ConfigurationGroup',
+                    header: 'ConfigurationGroup',
+                },
+                {
+                    accessorKey: 'GPRSContext',
+                    header: 'GPRSContext',
+                },
+                {
+                    accessorKey: 'UnitIMEI',
+                    header: 'UnitIMEI',
+                },
+                {
+                    accessorKey: 'UnitSCID',
+                    header: 'UnitSCID',
+                },
+                {
+                    accessorKey: 'LastTrip',
+                    header: 'LastTrip',
+                },
+            ];
+            DescargarExcel(response.data, Columnas, "ReporteConfiguration");
             setloader(false);
-        }).catch(() =>{
+        }).catch(() => {
             setloader(false);
             console.log("Error");
         })
@@ -468,7 +445,7 @@ export default function Clientes() {
         setClienteId(row.original.ClienteId)
         setShowModal(true)
     }
-    const GuardarCamposCliente = () =>{
+    const GuardarCamposCliente = () => {
         confirmarDialog(() => {
             setloader(true);
             updateAssets(
@@ -481,14 +458,14 @@ export default function Clientes() {
                 String(Event),
                 String(Position),
                 String(ActiveEvent)
-            ).then((response:AxiosResponse<any>) =>{
+            ).then((response: AxiosResponse<any>) => {
                 setShowModal(false);
                 Consultar();
-                successDialog("Datos actualizado correctamente","");
+                successDialog("Datos actualizado correctamente", "");
             }).catch(
-                ({error}) =>{
+                ({ error }) => {
                     setloader(false);
-                    errorDialog("Ha ocurrido un error al actualizar","")
+                    errorDialog("Ha ocurrido un error al actualizar", "")
                 }
             );
         }, `¿Esta seguro que desea guardar los cambios?`, 'Guardar');
@@ -497,127 +474,103 @@ export default function Clientes() {
         <>
             <PageTitle>Clientes</PageTitle>
             <BlockUi tag="div" keepInView blocking={loader ?? false}  >
-                {(DatosClientes.length != 0) && (<MaterialReactTable
-                    // tableInstanceRef={ColumnasTablas['movil']}
-                    localization={MRT_Localization_ES}
-                    displayColumnDefOptions={{
-                        'mrt-row-actions': {
-                            muiTableHeadCellProps: {
-                                align: 'center',
-                            },
-                            size: 120,
-                        },
-                    }}
-                    muiTableHeadCellProps={{
-                        sx: (theme) => ({
-                            fontSize: 14,
-                            fontStyle: 'bold',
-                            color: 'rgb(27, 66, 94)'
-                        }),
-                    }}
-                    columns={Campos}
-                    data={DatosClientes}
-                    enableEditing
-                    editingMode="modal" //default         
-                    enableColumnOrdering
-                    muiToolbarAlertBannerProps={
-                        isError
-                            ? {
-                                color: 'error',
-                                children: 'Error al cargar información',
+                <div className="card">
+                    <div className="card-body">
+                        {/* <Card.Header> */}
+                        <div className="d-flex justify-content-between mb-2">
+                            <div className="d-flex justify-content-between mx-auto">
+                                <div className="ms-9 text-center">
+                                    <h3 className="mb-0">Clientes</h3>
+                                    <span className="text-muted m-3">Gestión</span>
+                                </div>
+                            </div>
+                        </div>
+                        {(DatosClientes.length != 0) && (<MaterialReactTable
+                            // tableInstanceRef={ColumnasTablas['movil']}
+                            localization={MRT_Localization_ES}
+                            displayColumnDefOptions={{
+                                'mrt-row-actions': {
+                                    muiTableHeadCellProps: {
+                                        align: 'center',
+                                    },
+                                    size: 120,
+                                },
+                            }}
+                            muiTableHeadCellProps={{
+                                sx: (theme) => ({
+                                    fontSize: 14,
+                                    fontStyle: 'bold',
+                                    color: 'rgb(27, 66, 94)'
+                                }),
+                            }}
+                            columns={Campos}
+                            data={DatosClientes}
+                            enableEditing
+                            editingMode="modal" //default         
+                            enableColumnOrdering
+                            muiToolbarAlertBannerProps={
+                                isError
+                                    ? {
+                                        color: 'error',
+                                        children: 'Error al cargar información',
+                                    }
+                                    : undefined
                             }
-                            : undefined
-                    }
-                    onColumnFiltersChange={setColumnFilters}
-                    onGlobalFilterChange={setGlobalFilter}
-                    onPaginationChange={setPagination}
-                    onSortingChange={setSorting}
-                    rowCount={rowCount}
-                    enableStickyHeader
-                    enableDensityToggle={false}
-                    enableRowVirtualization
-                    defaultColumn={{
-                        minSize: 150, //allow columns to get smaller than default
-                        maxSize: 400, //allow columns to get larger than default
-                        size: 150, //make columns wider by default
-                    }}
-                    muiTableContainerProps={{
-                        sx: { maxHeight: '400px' }, //give the table a max height
-                    }}
-                    initialState={{ density: 'compact' }}
-                    renderRowActions={({ row, table }) => (
-                        <Box sx={{ display: 'block', gap: '1rem', marginLeft: 'auto', marginRight: 'auto' }}>
-                            <Tooltip arrow placement="top" title="Vehiculos del cliente">
-                                <IconButton onClick={() => {
-                                    // PanelConsultas(row.original.ClienteId)
-                                    consultarVehiculos(row.original.ClienteId);
-                                }}>
-                                    <FireTruckTwoTone />
-                                </IconButton>
-                            </Tooltip>
-                            <Tooltip arrow placement="top" title="Conductores del cliente">
-                                <IconButton onClick={() => {
-                                    // PanelConsultas(row.original.ClienteId)
-                                    consultarDrivers(row.original.ClienteId);
-                                }}>
-                                    <Person />
-                                </IconButton>
-                            </Tooltip>
-                            <Tooltip arrow placement="top" title="Gestionar campos de cliente">
-                                <IconButton onClick={() => {
-                                    EditarCampos(row)
-                                }}>
-                                    <Edit />
-                                </IconButton>
-                            </Tooltip>
-                            <Tooltip arrow placement="top" title="Descargar detallado del cliente">
-                                <IconButton onClick={() => { GetReporteConfiguracionAssets(row.original.ClienteId) }
-                                }>
-                                    <Download />
-                                </IconButton>
-                            </Tooltip>
-                        </Box>
-                    )}
-                    muiExpandButtonProps={({ row }) => ({
-                        onClick: () => {
-                            //al expandir consulta el admin antes no
-                            consultarAdmins(row.original.ClienteId);
-                        }
-                    })
-                    }
-                    enableExpandAll={false}
-                    renderDetailPanel={({ row }) => (
-                            <Tabs  defaultActiveKey="admins" id={`${row.original.ClienteId}`} className="mb-3 border w-100" justify onClick={PanelConsultas} >
-                                    <Tab eventKey="admins" title={`Administradores`} >
-                                        <MaterialReactTable
-                                            localization={MRT_Localization_ES}
-                                            columns={CamposRender.Administrador}
-                                            data={DatosAdmins}
-                                            initialState={{ density: 'compact' }}
-                                        />
-                                    </Tab>
-                                    <Tab eventKey="sitios" title="Sitios">
-                                        <MaterialReactTable
-                                            localization={MRT_Localization_ES}
-                                            columns={CamposRender.Sites}
-                                            data={DatosSites}
-                                            initialState={{ density: 'compact' }}
-                                        />
-                                    </Tab>
-                                </Tabs>
-                            
-                       
-                    )}
-                    state={{
-                        columnFilters,
-                        globalFilter,
-                        isLoading,
-                        pagination,
-                        showAlertBanner: isError,
-                        showProgressBars: isRefetching,
-                        sorting,
-                    }}
-                />)}
+                            onColumnFiltersChange={setColumnFilters}
+                            onGlobalFilterChange={setGlobalFilter}
+                            onPaginationChange={setPagination}
+                            onSortingChange={setSorting}
+                            rowCount={rowCount}
+                            enableStickyHeader
+                            enableDensityToggle={false}
+                            enableRowVirtualization
+                            defaultColumn={{
+                                minSize: 150, //allow columns to get smaller than default
+                                maxSize: 400, //allow columns to get larger than default
+                                size: 150, //make columns wider by default
+                            }}
+                            muiTableContainerProps={{
+                                sx: { maxHeight: '400px' }, //give the table a max height
+                            }}
+                            initialState={{ density: 'compact' }}
+                            renderRowActions={({ row, table }) => (
+                                <Box sx={{ display: 'block', gap: '1rem', marginLeft: 'auto', marginRight: 'auto' }}>
+                                    <Tooltip arrow placement="top" title="Asignaciones del cliente">
+                                        <IconButton onClick={() => {
+                                            setClienteId(row.original.ClienteId);
+                                            PanelConsultas(row.original.ClienteId, "admins");
+                                        }}>
+                                            <FireTruckTwoTone />
+                                        </IconButton>
+                                    </Tooltip>
+                                    
+                                    <Tooltip arrow placement="top" title="Gestionar campos de cliente">
+                                        <IconButton onClick={() => {
+                                            EditarCampos(row)
+                                        }}>
+                                            <Edit />
+                                        </IconButton>
+                                    </Tooltip>
+                                    <Tooltip arrow placement="top" title="Descargar detallado del cliente">
+                                        <IconButton onClick={() => { GetReporteConfiguracionAssets(row.original.ClienteId) }
+                                        }>
+                                            <Download />
+                                        </IconButton>
+                                    </Tooltip>
+                                </Box>
+                            )}
+                            state={{
+                                columnFilters,
+                                globalFilter,
+                                isLoading,
+                                pagination,
+                                showAlertBanner: isError,
+                                showProgressBars: isRefetching,
+                                sorting,
+                            }}
+                        />)}
+                    </div>
+                </div>
             </BlockUi>
             <Modal show={showModal} onHide={setShowModal} size="lg">
                 <Modal.Header closeButton>
@@ -742,7 +695,7 @@ export default function Clientes() {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button type="button" variant="primary" onClick={() => {
-                            GuardarCamposCliente();
+                        GuardarCamposCliente();
                     }}>
                         Guardar
                     </Button>
@@ -756,129 +709,154 @@ export default function Clientes() {
                     <Modal.Title> {"Vehiculos del cliente"}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <div className="container">
-                        <div className="row">
-                            <div className="d-flex w-100" >
-                                <div className="container">
-                                    <div className="row">
-                                        <div className="col-sm-6">
-                                            <div className="d-flex align-items-center justify-content-center mb-2" data-placement="top" title="Activos">
-                                                <a href="#" className="btn bg-transparent border border-primary text-primary rounded-pill border-2 btn-icon mr-3">
-                                                    <i className="bi-truck-front"></i>
-                                                </a>
-                                                <div>
-                                                    <div className="fw-bolder text-primary">Activos</div>
-                                                    <span className="text-muted fw-bolder text-primary" data-placement="top" title="Cantidad de vehiculos activos">{Activo}</span>&nbsp;&nbsp;<span></span>
-                                                </div>
-                                            </div>
-                                            <div className="w-75 mx-auto mb-3" id="new-visitors"></div>
-                                        </div>
-                                        <div className="col-sm-6">
-                                            <div className="d-flex align-items-center justify-content-center mb-2" data-placement="top" title="Decomisionados">
-                                                <a href="#" className="btn bg-transparent border border-danger text-danger rounded-pill border-2 btn-icon mr-3">
-                                                    <i className="bi-truck-front"></i>
-                                                </a>
-                                                <div>
-                                                    <div className="fw-bolder text-danger">Decomisionados</div>
-                                                    <span className="text-muted fw-bolder text-danger" data-placement="top" title="Cantidad de vehiculos decomisionados">{Decomisionado}</span>&nbsp;&nbsp;<span></span>
-                                                </div>
-                                            </div>
-                                            <div className="w-75 mx-auto mb-3" id="new-visitors"></div>
-                                        </div>
+                    <Tabs  defaultActiveKey="admins" className="mb-3 border w-100" justify onClick={(e:any) => {
+                            PanelConsultas(ClienteId,e.target.dataset.rbEventKey);
+                        }}>
+                        <Tab eventKey="admins" title={`Administradores`} >
+                            <div className="row">
+                                <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                                    <div className="mt-5">
+                                        <MaterialReactTable
+                                            localization={MRT_Localization_ES}
+                                            columns={CamposRender.Administrador}
+                                            data={DatosAdmins }
+                                            initialState={{ density: 'compact' }}
+                                        />
                                     </div>
                                 </div>
                             </div>
-                            <div className="mt-5">
-                                <MaterialReactTable
-                                    localization={MRT_Localization_ES}
-                                    columns={CamposRender.Asset}
-                                    data={DatosAssets}
-                                    initialState={{ density: 'compact' }}
-                                    enableStickyHeader
-                                    enableDensityToggle={false}
-                                    enableRowVirtualization
-                                    // enableEditing
-                                    // editingMode="modal" //default  
-                                    renderDetailPanel={({ row }) => (
-                                        <Box
-                                            sx={{
-                                                display: 'grid',
-                                                margin: 'auto',
-                                                gridTemplateColumns: '1fr 1fr',
-                                                width: '100%',
-                                            }}
-                                        >
-                                            <div className="container">
-                                                <div className="row">
-                                                    <div  className="col-sm-6" >
-                                                        <Typography><b>unitIMEI</b>: {row.original.unitIMEI == "" ? "-":row.original.unitIMEI}</Typography>
-                                                        <Typography><b>unitSCID</b>: {row.original.unitSCID == "" ? "-":row.original.unitSCID }</Typography>
+                        </Tab>
+                        <Tab eventKey="activos" title="Vehiculos">
+                            <div className="container">
+                                <div className="row">
+                                    <div className="d-flex w-100" >
+                                        <div className="container">
+                                            <div className="row">
+                                                <div className="col-sm-6">
+                                                    <div className="d-flex align-items-center justify-content-center mb-2" data-placement="top" title="Activos">
+                                                        <a href="#" className="btn bg-transparent border border-primary text-primary rounded-pill border-2 btn-icon mr-3">
+                                                            <i className="bi-truck-front"></i>
+                                                        </a>
+                                                        <div>
+                                                            <div className="fw-bolder text-primary">Activos</div>
+                                                            <span className="text-muted fw-bolder text-primary" data-placement="top" title="Cantidad de vehiculos activos">&nbsp;&nbsp;{Activo}</span><span></span>
+                                                        </div>
                                                     </div>
-                                                    <div  className="col-sm-6" >
-                                                        <Typography><b>ingresoSalida</b>: {row.original.ingresoSalida == "" ? "-":row.original.ingresoSalida}</Typography>
-                                                        <Typography><b>esManual</b>: {(row.original.esManual == null ? "-":row.original.esManual)}</Typography>
-                                                    </div>
+                                                    <div className="w-75 mx-auto mb-3" id="new-visitors"></div>
                                                 </div>
-
+                                                <div className="col-sm-6">
+                                                    <div className="d-flex align-items-center justify-content-center mb-2" data-placement="top" title="Decomisionados">
+                                                        <a href="#" className="btn bg-transparent border border-danger text-danger rounded-pill border-2 btn-icon mr-3">
+                                                            <i className="bi-truck-front"></i>
+                                                        </a>
+                                                        <div>
+                                                            <div className="fw-bolder text-danger">Decomisionados</div>
+                                                            <span className="text-muted fw-bolder text-danger text-center" data-placement="top" title="Cantidad de vehiculos decomisionados">&nbsp;&nbsp;{Decomisionado}</span><span></span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="w-75 mx-auto mb-3" id="new-visitors"></div>
+                                                </div>
                                             </div>
-                                         
-                                            
-                                        </Box>
-                                    )}
-                                />
+                                        </div>
+                                    </div>
+                                    <div className="mt-5">
+                                        <MaterialReactTable
+                                            localization={MRT_Localization_ES}
+                                            columns={CamposRender.Asset}
+                                            data={DatosAssets}
+                                            initialState={{ density: 'compact' }}
+                                            enableStickyHeader
+                                            enableDensityToggle={false}
+                                            enableRowVirtualization
+                                            // enableEditing
+                                            // editingMode="modal" //default  
+                                            renderDetailPanel={({ row }) => (
+                                                <Box
+                                                    sx={{
+                                                        display: 'grid',
+                                                        margin: 'auto',
+                                                        gridTemplateColumns: '1fr 1fr',
+                                                        width: '100%',
+                                                    }}
+                                                >
+                                                    <div className="container">
+                                                        <div className="row">
+                                                            <div className="col-sm-6" >
+                                                                <Typography><b>unitIMEI</b>: {row.original.unitIMEI == "" ? "-" : row.original.unitIMEI}</Typography>
+                                                                <Typography><b>unitSCID</b>: {row.original.unitSCID == "" ? "-" : row.original.unitSCID}</Typography>
+                                                            </div>
+                                                            <div className="col-sm-6" >
+                                                                <Typography><b>ingresoSalida</b>: {row.original.ingresoSalida == "" ? "-" : row.original.ingresoSalida}</Typography>
+                                                                <Typography><b>esManual</b>: {(row.original.esManual == null ? "-" : row.original.esManual)}</Typography>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+
+
+                                                </Box>
+                                            )}
+                                        />
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
+                        </Tab>
+                        <Tab eventKey="sitios" title="Sitios">
+                            <div className="row">
+                                <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                                    <div className="mt-5">
+                                        <MaterialReactTable
+                                            localization={MRT_Localization_ES}
+                                            columns={CamposRender.Sites}
+                                            data={DatosSites}
+                                            initialState={{ density: 'compact' }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                        </Tab>
+                        <Tab eventKey="drivers" title="Conductores">
+                            <div className="row">
+                                <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                                    <div className="d-flex w-100" >
+                                        <div className="container">
+                                            <div className="row">
+                                                <div className="col-sm-4">
+                                                </div>
+                                                <div className="col-sm-4">
+                                                    <div className="d-flex align-items-center justify-content-center mb-2" data-placement="top" title="Conductores">
+                                                        <a href="#" className="btn bg-transparent border border-info text-primary rounded-pill border-2 btn-icon mr-3">
+                                                            <i className="bi-person"></i>
+                                                        </a>
+                                                        <div>
+                                                            <div className="fw-bolder text-info">Conductores</div>
+                                                            <span className="text-muted fw-bolder" data-placement="top" title="Cantidad de conductores del cliente">&nbsp;&nbsp;{Driver}</span><span></span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="w-75 mx-auto mb-3" id="new-visitors"></div>
+                                                </div>
+                                                <div className="col-sm-4">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="mt-5">
+                                        <MaterialReactTable
+                                            localization={MRT_Localization_ES}
+                                            columns={CamposRender.Driver}
+                                            data={DatosDriver}
+                                            initialState={{ density: 'compact' }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </Tab>
+                    </Tabs>                        
 
                 </Modal.Body>
                 <Modal.Footer>
                     <Button type="button" variant="primary" onClick={() => { setShowModalactivos(false); }}>
-                        Cerrar
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-            <Modal show={showModaldriver} onHide={setShowModaldriver} size="lg">
-                <Modal.Header closeButton>
-                    <Modal.Title> {"Conductores del cliente"}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <div className="row">
-                        <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
-                        <div className="d-flex w-100" >
-                                <div className="container">
-                                    <div className="row">
-                                        <div className="col-sm-4">
-                                        </div>
-                                        <div className="col-sm-4">
-                                            <div className="d-flex align-items-center justify-content-center mb-2" data-placement="top" title="Conductores">
-                                                <a href="#" className="btn bg-transparent border border-info text-primary rounded-pill border-2 btn-icon mr-3">
-                                                    <i className="bi-person"></i>
-                                                </a>
-                                                <div>
-                                                    <div className="fw-bolder text-info">Conductores</div>
-                                                    <span className="text-muted fw-bolder" data-placement="top" title="Cantidad de conductores del cliente">{Driver}</span>&nbsp;&nbsp;<span></span>
-                                                </div>
-                                            </div>
-                                            <div className="w-75 mx-auto mb-3" id="new-visitors"></div>
-                                        </div>
-                                        <div className="col-sm-4">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="mt-5">
-                                <MaterialReactTable
-                                    localization={MRT_Localization_ES}
-                                    columns={CamposRender.Driver}
-                                    data={DatosDriver}
-                                    initialState={{ density: 'compact' }}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button type="button" variant="primary" onClick={() => { setShowModaldriver(false); }}>
                         Cerrar
                     </Button>
                 </Modal.Footer>
