@@ -4,7 +4,7 @@ import moment from "moment";
 import XLSX from 'sheetjs-style';
 import { FormatoColombiaDDMMYYYHHmmss } from "../Constants";
 import { errorDialog } from "./ConfirmDialog";
-import { locateFormatNumberNDijitos, locateFormatPercentNDijitos } from "../Helper";
+import { locateFormatPercentNDijitos } from "../Helper";
 export function DescargarExcel(datos: any[], columnas: MRT_ColumnDef<any>[], NombreArchivo: string) {
     const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;carset=UTF-8';
     const fileExtension = '.xlsx';
@@ -16,7 +16,7 @@ export function DescargarExcel(datos: any[], columnas: MRT_ColumnDef<any>[], Nom
             let Objeto = {};
             // iteramos las columnas que debemos usar
             columnas.forEach((columna) => {
-                if (columna.columns != undefined) {
+                if (columna.columns !== undefined) {
                     columna.columns.forEach((columna2) => {
                         let nombreCampo: string = columna2.accessorKey as string;
                         let valuen = item[nombreCampo];
@@ -28,7 +28,7 @@ export function DescargarExcel(datos: any[], columnas: MRT_ColumnDef<any>[], Nom
                 else {
                     let nombreCampo: string = columna.accessorKey as string;
                     let valuen = item[nombreCampo];
-                    Objeto[columna.header] = (nombreCampo == "Placa" || nombreCampo == "registrationNumber" ? valuen : columna.header.includes('%') ? locateFormatPercentNDijitos(valuen, 2) :
+                    Objeto[columna.header] = (nombreCampo === "Placa" || nombreCampo === "registrationNumber" ? valuen : columna.header.includes('%') ? locateFormatPercentNDijitos(valuen, 2) :
                             (!isNaN(valuen)) ? valuen : ((moment(valuen).isValid()) ? moment(valuen).format(FormatoColombiaDDMMYYYHHmmss) : valuen));
                 }
                 console.log(Objeto[columna.header]);

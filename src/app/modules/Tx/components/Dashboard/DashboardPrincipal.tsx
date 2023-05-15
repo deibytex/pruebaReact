@@ -30,15 +30,6 @@ export default function  DashboardPrincipal (){
                 //errorDialog("Ha ocurrido un error al consular transmision","");
             });
     };
-    // async function ConsultarTickets() {
-    //     let Fecha = (SemanaSeleccionada != undefined ? SemanaSeleccionada['fecha'] : moment().format("DD/MM/YYYY").toString())
-    //     await GetSnapShotTickets(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
-    //         setDataTk({"Ticket":response.data});
-           
-    //     }).catch((error:AxiosError<any>) =>{
-
-    //     });
-    // };
     useEffect(() =>{
         ConsultarUnidades();
         ConsultarTransmision();
