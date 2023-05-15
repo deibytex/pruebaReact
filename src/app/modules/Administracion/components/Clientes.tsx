@@ -9,7 +9,6 @@ import { Download, Edit,  FireTruckTwoTone, Person } from "@mui/icons-material";
 import { GetAdministradores, GetAssets, GetClientesAdministradores, GetConfiguracionAssets, GetDrivers, GetSites, updateAssets } from "../data/Clientes";
 import { AxiosResponse } from "axios";
 
-import { useHistory } from "react-router-dom"
 import { Button, Modal, Tab, Tabs } from "react-bootstrap-v5";
 import moment from "moment";
 import { formatSimple } from "../../../../_start/helpers/Helper";
@@ -194,11 +193,11 @@ export default function Clientes() {
                 header: 'Estado',
                 Cell(row: any) {
                     let state = (
-                        row.row.original.userState == "Unverified" ?
+                        row.row.original.userState === "Unverified" ?
                             <span className='badge bg-warning'>{row.row.original.userState} </span> :
-                        row.row.original.userState == "New installation" ?
+                        row.row.original.userState === "New installation" ?
                                 <span className='badge bg-info'>{row.row.original.userState}</span> : 
-                        row.row.original.userState == "Decommissioned" ?  
+                        row.row.original.userState === "Decommissioned" ?  
                             <span className='badge bg-danger'>{row.row.original.userState}</span> :
                             <span className='badge bg-success'>{row.row.original.userState}</span>
                     )
@@ -212,11 +211,11 @@ export default function Clientes() {
                 header: 'Estado TX',
                 Cell(row: any) {
                     let state = (
-                        row.row.original.estado == "Sin Respuesta del Cliente" ?
+                        row.row.original.estado === "Sin Respuesta del Cliente" ?
                             <span className='badge bg-warning'>{row.row.original.estado} </span> :
-                            row.row.original.estado == "En Mantenimiento" ?
+                            row.row.original.estado === "En Mantenimiento" ?
                                 <span className='badge bg-info'>{row.row.original.estado}</span> :
-                                row.row.original.estado == "Detenido" ?
+                                row.row.original.estado === "Detenido" ?
                                     <span className='badge bg-danger'>{row.row.original.estado}</span> :
                                     <span className='badge bg-success'>{row.row.original.estado}</span>
                     )
@@ -274,7 +273,7 @@ export default function Clientes() {
         ]
     };
     const consultarAdmins = (row: any) => {
-        if (row != Consultas[0].Cliente) {
+        if (row !== Consultas[0].Cliente) {
             setloader(true);
             GetAdministradores(row).then((response: AxiosResponse<any>) => {
                 setDatosAdmins(response.data);
@@ -291,15 +290,15 @@ export default function Clientes() {
             setDatosAdmins(Consultas[0].Data);
     }
     const consultarVehiculos = (row: any) => {
-        if (row != Consultas[1].Cliente) {
+        if (row !== Consultas[1].Cliente) {
             setloader(true);
             GetAssets(row).then((response: AxiosResponse<any>) => {
                 let Decomisionados = response.data.data.filter((item: any) => {
-                    return item.userState == 'Decommissioned'
+                    return item.userState === 'Decommissioned'
                 });
                 setDecomisionado(Decomisionados.length);
                 let Activos = response.data.data.filter((item: any) => {
-                    return item.userState != 'Decommissioned'
+                    return item.userState !== 'Decommissioned'
                 });
                 setActivo(Activos.length)
                 setDatosAssets(response.data.data);
@@ -320,7 +319,7 @@ export default function Clientes() {
         }
     }
     const consultarDrivers = (row: any) => {
-        if (row != Consultas[2].Cliente) {
+        if (row !== Consultas[2].Cliente) {
             setloader(true);
             GetDrivers(row).then((response: AxiosResponse<any>) => {
                 setDatosDrivers(response.data);
@@ -341,7 +340,7 @@ export default function Clientes() {
         }
     }
     const consultarSitios = (row: any) => {
-        if (row != Consultas[3].Cliente) {
+        if (row !== Consultas[3].Cliente) {
             setloader(true);
             GetSites(row).then((response: AxiosResponse<any>) => {
                 setDatosSites(response.data)
@@ -473,7 +472,7 @@ export default function Clientes() {
             setloader(true);
             updateAssets(
                 ClienteId,
-                String((estadoClienteId == true ? "1" : "0")),
+                String((estadoClienteId === true ? "1" : "0")),
                 String(notificacion),
                 String(GeneraIMG),
                 String(Trips),
@@ -497,7 +496,7 @@ export default function Clientes() {
         <>
             <PageTitle>Clientes</PageTitle>
             <BlockUi tag="div" keepInView blocking={loader ?? false}  >
-                {(DatosClientes.length != 0) && (<MaterialReactTable
+                {(DatosClientes.length !== 0) && (<MaterialReactTable
                     // tableInstanceRef={ColumnasTablas['movil']}
                     localization={MRT_Localization_ES}
                     displayColumnDefOptions={{
