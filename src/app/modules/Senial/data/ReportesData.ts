@@ -1,4 +1,4 @@
-import { GetClientes, Post_GetConsultasDinamicas, Post_getDynamicProcedureDWH } from "../../../../_start/helpers/Axios/DWHService";
+import { GetClientes, Post_GetConsultasDinamicas, Post_GetConsultasDinamicasProcedure } from "../../../../_start/helpers/Axios/DWHService";
 
 export function GetListaClientes() {
     var params: { [id: string]: string | null | undefined;} = {};
@@ -44,7 +44,6 @@ export function GetReporteExportar(FechaInicial:string, FechaFinal:string, Param
         RecordsPorPagina: null
     }, params);
 }
-
 export function GetCondiciones(ClienteIds:string ) {
     var params: { [id: string]: string | null | undefined;} = {};
     params['ClienteIds'] = ClienteIds;
@@ -68,7 +67,7 @@ export function GuardarCondiciones(Parametro:any ) {
             params['EsActivo'] = String(Parametro.EsActivo);
         break;
         case '2':
-            params['Clave'] = (Parametro.Clave == null || Parametro.Clave == undefined || Parametro.Clave == "" ? "1":Parametro.Clave);
+            params['Clave'] = Parametro.Clave;
             params['CondicionId'] = Parametro.CondicionId;
             params['ClienteIds'] = Parametro.ClienteIds;
             params['Valor'] = Parametro.Valor;
@@ -78,12 +77,12 @@ export function GuardarCondiciones(Parametro:any ) {
             params['EsActivo'] = String(Parametro.EsActivo);
         break;
         case '3':
-            params['Clave'] = (Parametro.Clave == null || Parametro.Clave == undefined || Parametro.Clave == "" ? "1":Parametro.Clave);
+            params['Clave'] = Parametro.Clave;
             params['CondicionId'] = Parametro.CondicionId;
             params['EsActivo'] = String(Parametro.EsActivo);
         break;
       }
-    return  Post_getDynamicProcedureDWH({
+    return  Post_GetConsultasDinamicas({
         NombreConsulta: "GuardarEditarCondicion", Clase: "SIGQueryHelper",
         Pagina: null,
         RecordsPorPagina: null
