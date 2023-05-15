@@ -19,6 +19,7 @@ export const CORE_getconsultadinamicas = `${apiURL}/Adm/auth/GetConsultasDinamic
 export const CORE_ExecProcedureByTipoConsulta = `${apiURL}/Adm/auth/ExecProcedureByTipoConsulta`
 export const CORE_getconsultadinamicasUser = `${apiURL}/Adm/auth/GetConsultasDinamicasConAutorizacionUser`
 export const CORE_getconsultadinamicasUserDWH = `${apiURL}/Adm/auth/GetConsultasDinamicasConAutorizacionUserDWH`
+export const CORE_getGruposSeguridad = `${apiURL}/Adm/ConsultarGrupoSeguridadClientes`
 
 
 

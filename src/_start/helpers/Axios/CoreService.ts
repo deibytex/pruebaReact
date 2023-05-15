@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useSelector } from "react-redux";
-import { CORE_ExecProcedureByTipoConsulta,  CORE_getconsultadinamicas, CORE_getconsultadinamicasUser, CORE_GetConsultasDinamicas } from "../../../apiurlstore";
+import { CORE_ExecProcedureByTipoConsulta,  CORE_getconsultadinamicas, CORE_getconsultadinamicasUser, CORE_GetConsultasDinamicas, CORE_getGruposSeguridad } from "../../../apiurlstore";
 import { RootState } from "../../../setup";
 import { ParamsEndPointDynamic } from "../Models/paramsConsultasDinamicas";
 import jwt_decode from "jwt-decode"
@@ -141,3 +141,12 @@ export const  isExpire = (accessToken : string) => {
   return (diffTime < 0) ;  // si esta dentro de los 10  minutos refrescamos el token de lo contrario se debera loguear nuevamente 
 }
 
+
+export  function  Post_getGruposSeguridad(clientesIdS: number | null) {
+  return  axios({
+    method: 'get',
+    url:  CORE_getGruposSeguridad,     
+    headers: { 'Content-Type': 'application/json' },
+    params : { clientesIdS }
+  });
+}
