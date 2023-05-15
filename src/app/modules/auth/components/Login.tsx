@@ -47,7 +47,7 @@ export function Login() {
        // llamdo al servidor de cor para validar el login
         login(values.email, values.password)
           .then(( data) => {   
-            console.log(jwt_decode<any>(data.data.token)) ;
+            
             var decoded = jwt_decode<UserModelSyscaf>(data.data.token);   
             // fecha de expiracion  
             decoded.exp = data.data.Expiracion;       

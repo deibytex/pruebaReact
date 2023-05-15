@@ -145,7 +145,7 @@ export default function ReporteOdometro() {
     }
     function CargaListadoClientes() {
         return (
-            <Form.Select className=" mb-3 " onChange={(e) => {
+            <Form.Select className="m-2" onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
                 let lstClientes = Clientes?.filter((value: any, index: any) => {
                     return value.clienteIdS === Number.parseInt(e.currentTarget.value)
@@ -165,7 +165,7 @@ export default function ReporteOdometro() {
     }
 
     return (<>
-     <ModuleName >eBus</ModuleName>
+        <ModuleName >eBus</ModuleName>
         <PageTitle >Reporte Odometro</PageTitle>
 
 
@@ -176,34 +176,34 @@ export default function ReporteOdometro() {
             <div className="row mt-2 col-sm-8 col-md-8 col-xs-8 rounded shadow-sm mx-auto">
                 <div className="card card-rounded shadow mt-2" style={{ width: '100%' }}  >
 
-                    <div className="d-flex justify-content-end mt-2">
-                        <div style={{ float: 'right' }}>
-                            <CargaListadoClientes />
-                        </div>
-                    </div>
+
                     <div className="d-flex justify-content-between mb-2">
                         <div className="mx-auto">
                             <div className="ms-3 text-center">
                                 <h3 className="mb-0">Último Odómetro</h3>
-                                <span className="text-muted m-3">a una hora específica</span>
-
                             </div>
                         </div>
                     </div>
 
-                    <div className="card bg-secondary d-flex justify-content-between m-1">
-                       
-                        <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8">
-                            <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fecha Hora: </label>
+                    <div className="card bg-secondary d-flex flex-row  justify-content-between m-1">
+
+                        <div className="d-flex justify-content-start ">
 
 
-                            <DatePicker className="mt-2" format="dd/MM/yyyy HH:mm" value={fechaSeleccionada.toDate()}
+                            <label className="control-label label  label-sm ms-2 mt-4 " style={{ fontWeight: 'bold' }}>Fecha Hora: </label>
+
+
+                            <DatePicker format="dd/MM/yyyy HH:mm" className="m-2 mt-3" value={fechaSeleccionada.toDate()}
 
                                 disabledDate={date => (isAfter(date ?? moment().toDate(), new Date()) || isBefore(date ?? moment().toDate(), moment().add(-6, 'months').toDate()))}
                                 onSelect={(e) => { setFechaSeleccionada(moment(e)) }} />
-                            <button className="m-2 btn btn-sm btn-primary" title="Consultar" type="button" onClick={() => { setShowModal(true) }}>
+                            <button className="btn btn-sm btn-primary m-3" title="Consultar" type="button" onClick={() => { setShowModal(true) }}>
                                 <i className="bi-car-front-fill"></i></button>
-                            <button className="m-2  btn btn-sm btn-primary" title="Consultar" type="button" onClick={() => { ConsultarDataOdometro() }}><i className="bi-search"></i></button>
+                            <button className=" btn btn-sm btn-primary m-3" title="Consultar" type="button" onClick={() => { ConsultarDataOdometro() }}><i className="bi-search"></i></button>
+
+                        </div>
+                        <div className="d-flex justify-content-end  ">
+                            <CargaListadoClientes />
                         </div>
 
                     </div>

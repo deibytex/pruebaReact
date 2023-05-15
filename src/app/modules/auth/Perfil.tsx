@@ -1,14 +1,11 @@
 import { Modal, Button } from "react-bootstrap-v5";
-
 import React, { useEffect, useState } from 'react';
-import { KTSVG } from "../../../_start/helpers";
-import useEnhancedEffect from "@mui/utils/useEnhancedEffect";
 import { GetDataUser, ModificarPerfil } from "./data/datPerfil";
 import  confirmarDialog, { errorDialog, successDialog } from "../../../_start/helpers/components/ConfirmDialog";
-import { PerfilDTO, PerfilDTOInicial } from "./models/PerfilModel";
+import { PerfilDTO } from "./models/PerfilModel";
 import { RootState } from '../../../setup';
 import { useSelector } from 'react-redux';
-import { UserDTO, UserModel, UserModelSyscaf } from '../auth/models/UserModel';
+import {UserModel, UserModelSyscaf } from '../auth/models/UserModel';
 
 type Props={
     show:boolean;

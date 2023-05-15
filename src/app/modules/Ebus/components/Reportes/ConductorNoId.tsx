@@ -1,12 +1,12 @@
 import moment from "moment";
 import { useEffect, useMemo, useRef, useState } from "react";
-import {  GetReporteEficiencia } from "../../data/ReportesData";
+import { GetReporteEficiencia } from "../../data/ReportesData";
 import { PageTitle } from "../../../../../_start/layout/core";
 import { DateRangePicker, Notification, Placeholder, Stack, useToaster } from "rsuite";
 import BlockUi from "@availity/block-ui";
 import { DescargarExcel } from "../../../../../_start/helpers/components/DescargarExcel";
 import MaterialReactTable, { MRT_ColumnDef, MRT_TableInstance } from "material-react-table";
-import { FormatoColombiaDDMMYYY,  FormatoSerializacionYYYY_MM_DD_HHmmss } from "../../../../../_start/helpers/Constants";
+import { FormatoColombiaDDMMYYY, FormatoSerializacionYYYY_MM_DD_HHmmss } from "../../../../../_start/helpers/Constants";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import DualListBox from "react-dual-listbox";
@@ -94,66 +94,69 @@ export default function ReporteConductorNoId() {
       {
         accessorKey: 'Movil',
         header: 'Móvil',
-        size: 100,
-        Footer: () =>  { 
-        return (          
+
+        Footer: () => {
+          return (
             <Box color="success.main">
-             Total:
-            </Box>          
-        ) }
+              Total:
+            </Box>
+          )
+        }
       },
       {
         accessorKey: 'total',
         header: "Total [km]",
-        size: 60,
-        Cell({  row }) {
 
-          return locateFormatNumberNDijitos(row.original.total,2);
+        Cell({ row }) {
+
+          return locateFormatNumberNDijitos(row.original.total, 2);
         },
-        Footer: () =>  { 
+        Footer: () => {
           const totalKm = dataFiltrada.reduce((acc, curr) => acc + curr.total, 0);
-        
-          return (          
+
+          return (
             <Box color="warning.main">
-              {locateFormatNumberNDijitos(totalKm,2)}
-            </Box>          
-        ) }
+              {locateFormatNumberNDijitos(totalKm, 2)}
+            </Box>
+          )
+        }
       }
       , {
         accessorKey: 'noid',
         header: "No Id [km]",
-        size: 60,
-        
+
+
         Cell({ cell, column, row, table, }) {
-          return locateFormatNumberNDijitos(row.original.noid,2);
+          return locateFormatNumberNDijitos(row.original.noid, 2);
         },
         Footer: () => {
           let totalnoid = dataFiltrada.reduce((acc, curr) => acc + curr.noid, 0);
-          
-          return(          
+
+          return (
             <Box color="warning.main">
-              {locateFormatNumberNDijitos(totalnoid,2)}
-            </Box>          
+              {locateFormatNumberNDijitos(totalnoid, 2)}
+            </Box>
           )
         }
       }
       , {
         accessorKey: 'noidporc',
         header: 'No Id [%]',
-        size: 60,
+
         Cell({ cell, column, row, table, }) {
-          return locateFormatPercentNDijitos(row.original.noidporc,2);
+          return locateFormatPercentNDijitos(row.original.noidporc, 2);
         },
-        Footer: () =>{ 
+        Footer: () => {
           let totalnoid = dataFiltrada.reduce((acc, curr) => acc + curr.noid, 0);
           const totalKm = dataFiltrada.reduce((acc, curr) => acc + curr.total, 0);
           return (
-          
+
             <Box color="warning.main">
-              {locateFormatPercentNDijitos((totalnoid/((totalKm ==0 ) ?1 : totalKm)) ,2)}
+              {locateFormatPercentNDijitos((totalnoid / ((totalKm == 0) ? 1 : totalKm)), 2)}
             </Box>
-          
-        ) }
+
+          )
+        }
       }
 
     ];
@@ -254,7 +257,7 @@ export default function ReporteConductorNoId() {
 
     setOpcionesTotal(defaultDistanciatotal)
 
-   
+
 
   }, [ClienteSeleccionado]);
 
@@ -363,7 +366,7 @@ export default function ReporteConductorNoId() {
           if (c.Operador.includes('Desconocido'))
             distanciaportipo.noid = c.Distancia;
 
-          distanciaportipo.noidporc = (distanciaportipo.noid / (distanciaportipo.total == 0 ? 1 : distanciaportipo.total)) 
+          distanciaportipo.noidporc = (distanciaportipo.noid / (distanciaportipo.total == 0 ? 1 : distanciaportipo.total))
           distanciaportipo.original.push(c);
           p.push(distanciaportipo);
         }
@@ -373,7 +376,7 @@ export default function ReporteConductorNoId() {
           if (c.Operador.includes('Desconocido'))
             objeto.noid += c.Distancia;
 
-          objeto.noidporc = (objeto.noid / (objeto.total == 0 ? 1 : objeto.total)) 
+          objeto.noidporc = (objeto.noid / (objeto.total == 0 ? 1 : objeto.total))
           objeto.original.push(c);
         }
         return p;
@@ -531,7 +534,7 @@ export default function ReporteConductorNoId() {
   }
   function CargaListadoClientes() {
     return (
-      <Form.Select className=" mb-3 " onChange={(e) => {
+      <Form.Select className=" m-2 " onChange={(e) => {
         // buscamos el objeto completo para tenerlo en el sistema
         let lstClientes = Clientes?.filter((value: any, index: any) => {
           return value.clienteIdS === Number.parseInt(e.currentTarget.value)
@@ -556,56 +559,57 @@ export default function ReporteConductorNoId() {
     <BlockUi tag="div" keepInView blocking={loader ?? false}  >
 
       <div className="card card-rounded bg-transparent " style={{ width: '100%' }}  >
-      <div className="card card-rounded shadow mt-2" style={{ width: '100%' }}  >
-       
-       <div className="d-flex justify-content-end mt-2">
-           <div style={{ float: 'right' }}>
-             <CargaListadoClientes />
-           </div>
-         </div>
-         <div className="d-flex justify-content-between mb-2">
-         <div className="mx-auto">
-             <div className="ms-3 text-center">
-               <h3 className="mb-0">Conductor No Identificado</h3>              
-
-             </div>
-           </div>
-           </div>
-         
-           <div className="card bg-secondary d-flex justify-content-between m-1">
-         
-             <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8"> <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fecha inicial: </label>
-               {(combine && allowedMaxDays && allowedRange) && (
-                 <DateRangePicker className="mt-2" format="dd/MM/yyyy" value={[filtros.FechaInicial, filtros.FechaFinal]}
-                   disabledDate={combine(allowedMaxDays(7), allowedRange(
-                     moment().add(-200, 'days').startOf('day').toDate(), moment().startOf('day').toDate()
-                   ))}
-                   onChange={(value, e) => {
-                     if (value !== null) {
-                       ValidarFechas(
-                         [value[0],
-                         value[1]]
-                       );
-                     }
-                   }}
-
-                 />
-               )}
-
-               <Button className="m-2  btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}><i className="bi-car-front-fill"></i></Button>
-               <Button className="m-2  btn btn-sm btn-primary" onClick={() => { ConsultarDataReporte() }}><i className="bi-search"></i></Button>
-             </div>
-           
-           </div>
+        <div className="card card-rounded shadow mt-2" style={{ width: '100%' }}  >
 
 
-     </div>
+          <div className="d-flex justify-content-between mb-2">
+            <div className="mx-auto">
+              <div className="ms-3 text-center">
+                <h3 className="mb-0">Conductor No Identificado</h3>
+
+              </div>
+            </div>
+          </div>
+
+          <div className="card bg-secondary d-flex flex-row  justify-content-between m-1">
+
+            <div className="d-flex justify-content-start ">
+              <label className="control-label label  label-sm m-2 mt-6" style={{ fontWeight: 'bold' }}>Fecha inicial: </label>
+              {(combine && allowedMaxDays && allowedRange) && (
+                <DateRangePicker className="m-4" format="dd/MM/yyyy" value={[filtros.FechaInicial, filtros.FechaFinal]}
+                  disabledDate={combine(allowedMaxDays(7), allowedRange(
+                    moment().add(-200, 'days').startOf('day').toDate(), moment().startOf('day').toDate()
+                  ))}
+                  onChange={(value, e) => {
+                    if (value !== null) {
+                      ValidarFechas(
+                        [value[0],
+                        value[1]]
+                      );
+                    }
+                  }}
+
+                />
+              )}
+
+              <Button className="m-4  btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}><i className="bi-car-front-fill"></i></Button>
+              <Button className="m-4 mx-0  btn btn-sm btn-primary" onClick={() => { ConsultarDataReporte() }}><i className="bi-search"></i></Button>
+            </div>
+            <div className="d-flex justify-content-end ">
+
+              <CargaListadoClientes />
+
+            </div>
+          </div>
+
+
+        </div>
 
       </div>
 
       <div className="row">
 
-       
+
         <div className="mt-2 col-sm-6 col-md-6 col-xs-6 rounded shadow-sm">
 
           <MaterialReactTable
@@ -630,21 +634,21 @@ export default function ReporteConductorNoId() {
             columns={listadoCampos}
             data={dataFiltrada}
             enableFilters={false}
-          initialState={{ density: 'compact' }}
-          enableColumnOrdering
-          enableColumnDragging={false}
-          enablePagination={false}
-          enableStickyHeader
-          enableDensityToggle={false}
-          enableRowVirtualization
-          enableRowNumbers
-          enableStickyFooter
-          
-          muiTableContainerProps={{
-            
-            sx: { maxHeight: '600px' }, //give the table a max height
+            initialState={{ density: 'compact' }}
+            enableColumnOrdering
+            enableColumnDragging={false}
+            enablePagination={false}
+            enableStickyHeader
+            enableDensityToggle={false}
+            enableRowVirtualization
+            enableRowNumbers
+            enableStickyFooter
 
-          }}
+            muiTableContainerProps={{
+
+              sx: { maxHeight: '600px' }, //give the table a max height
+
+            }}
             muiToolbarAlertBannerProps={
               isError
                 ? {
@@ -671,11 +675,11 @@ export default function ReporteConductorNoId() {
               <Box
                 sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
               >
-  
-                <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataFiltrada, listadoCampos, "Eventos Carga") }}>
+
+                <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataFiltrada, listadoCampos, "ConductorNoId") }}>
                   <i className="bi-file-earmark-excel"></i></button>
-  
-  
+
+
               </Box>
             )}
           />

@@ -30,9 +30,9 @@ export function HeaderUserMenu() {
     GetDataUser().then((response) =>{
         setPath((response.data[0].pic === "")?"/media/svg/avatars/001-boy.svg": response.data[0].pic);
     }).catch((error) =>{
-        //errorDialog("<i>Error comuniquese con el adminisrador<i/>","");
+        console.log("<i>Error comuniquese con el adminisrador<i/>",error);
     })
-},[model]);
+},[]);
   return (
     <>
       {(model.Nombres !== "") &&

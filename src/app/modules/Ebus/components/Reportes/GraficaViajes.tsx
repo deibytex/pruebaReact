@@ -530,15 +530,16 @@ export default function ReporteViaje() {
     return (
       <Typeahead className=" mb-3 "
         id="autocomplete-vehiculos-viajes"
+        multiple
         options={lstVehiculos}
         ref={typeaheadRef}
         onChange={(selected: any) => {
           // dejamos los seleccionados
-          setisCallData(true);
+         setisCallData(true);
           setSeleccionados(selected)
           setShowModal(false)
           // Keep the menu open when making multiple selections.
-          typeaheadRef.current?.toggleMenu();
+         // typeaheadRef.current?.toggleMenu();
         }}
         placeholder="Escoja un Vehículo...."
       />

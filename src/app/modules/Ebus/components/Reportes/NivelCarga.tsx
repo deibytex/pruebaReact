@@ -19,7 +19,7 @@ import { AxiosResponse } from "axios";
 import { GetClientesEsomos } from "../../data/NivelCarga";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 import { InicioCliente } from "../../../../../_start/helpers/Models/ClienteDTO";
-import { locateFormatNumberNDijitos } from "../../../../../_start/helpers/Helper";
+import { locateFormatNumberNDijitos, msToTimeSeconds } from "../../../../../_start/helpers/Helper";
 import { Box } from "@mui/material";
 
 
@@ -122,7 +122,7 @@ export default function ReporteNivelCarga() {
         accessorKey: 'DuracionHora',
         header: 'Dur[h]',
         Cell({ cell, column, row, table, }) {
-          return (locateFormatNumberNDijitos(row.original.DuracionHora ?? 0, 2))
+          return (msToTimeSeconds ((row.original.Duracion * 3600) ?? 0))
         }
       },
       {
@@ -494,7 +494,7 @@ export default function ReporteNivelCarga() {
   }
   function CargaListadoClientes() {
     return (
-      <Form.Select className=" mb-3 " onChange={(e) => {
+      <Form.Select className=" m-2" onChange={(e) => {
         // buscamos el objeto completo para tenerlo en el sistema
         let lstClientes = Clientes?.filter((value: any, index: any) => {
           return value.clienteIdS === Number.parseInt(e.currentTarget.value)
@@ -519,11 +519,7 @@ export default function ReporteNivelCarga() {
     <BlockUi tag="div" keepInView blocking={loader ?? false}  >
       <div className="card card-rounded shadow mt-2" style={{ width: '100%' }}  >
 
-        <div className="d-flex justify-content-end mt-2">
-          <div style={{ float: 'right' }}>
-            <CargaListadoClientes />
-          </div>
-        </div>
+     
         <div className="d-flex justify-content-between mb-2">          
             <div className="form-horizontal  row col-sm-12 col-md-12 col-xs-12 mx-auto">
               <div className="form-horizontal  row col-sm-4 col-md-4 col-xs-4 mx-auto">
@@ -545,12 +541,12 @@ export default function ReporteNivelCarga() {
             </div>
          
         </div>
-          <div className="card bg-secondary d-flex justify-content-between m-1">
-         
-            <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8"> 
+        <div className="card bg-secondary d-flex flex-row  justify-content-between m-1">
+
+         <div className="d-flex justify-content-start ">
             <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Rango Fechas: </label>
               {(combine && allowedMaxDays && allowedRange) && (
-                <DateRangePicker className="mt-2" format="dd/MM/yyyy" value={[filtros.FechaInicial, filtros.FechaFinal]}
+                <DateRangePicker className="mt-4" format="dd/MM/yyyy" value={[filtros.FechaInicial, filtros.FechaFinal]}
                   disabledDate={combine(allowedMaxDays(30), allowedRange(
                     moment().add(-200, 'days').startOf('day').toDate(), moment().startOf('day').toDate()
                   ))}
@@ -566,11 +562,13 @@ export default function ReporteNivelCarga() {
                 />
               )}
 
-              <Button className="m-2  btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}><i className="bi-car-front-fill"></i></Button>
-              <Button className="m-2  btn btn-sm btn-primary" onClick={() => { ConsultarDataAlarmas() }}><i className="bi-search"></i></Button>
+              <Button className="m-4  btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}><i className="bi-car-front-fill"></i></Button>
+              <Button className="m-4  btn btn-sm btn-primary" onClick={() => { ConsultarDataAlarmas() }}><i className="bi-search"></i></Button>
             </div>
 
-        
+            <div className="d-flex justify-content-end  ">
+                            <CargaListadoClientes />
+                        </div>
 
 
         </div>

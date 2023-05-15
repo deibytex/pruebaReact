@@ -19,7 +19,7 @@ import { AxiosResponse } from "axios";
 import { GetClientesEsomos } from "../../data/NivelCarga";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 import { InicioCliente } from "../../../../../_start/helpers/Models/ClienteDTO";
-import { locateFormatNumberNDijitos } from "../../../../../_start/helpers/Helper";
+import { locateFormatNumberNDijitos, msToTimeSeconds } from "../../../../../_start/helpers/Helper";
 import { Box } from "@mui/material";
 
 
@@ -38,13 +38,13 @@ export default function ReporteAlarmas() {
     limitdate: null
   }
 
-  const { allowedMaxDays, allowedRange,combine } = DateRangePicker;
+  const { allowedMaxDays, allowedRange, combine } = DateRangePicker;
 
 
   const refChart = useRef<ReactApexChart>(null);
   const tablaAlarmas = useRef<MRT_TableInstance<any>>(null);
 
-  const [ ClienteSeleccionado,  setClienteSeleccionado ] =useState<ClienteDTO>(InicioCliente);
+  const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente);
   const [Clientes, setClientes] = useState<ClienteDTO[]>();
   const [filtros, setFiltros] = useState<FiltrosReportes>(Filtros);
   const [loader, setloader] = useState<boolean>(false);
@@ -91,13 +91,14 @@ export default function ReporteAlarmas() {
       {
         accessorKey: 'Movil',
         header: 'Móvil',
-        size: 100,        
-        Footer: () =>  { 
-        return (          
+        size: 100,
+        Footer: () => {
+          return (
             <Box color="success.main">
-             Total:
-            </Box>          
-        ) }
+              Total:
+            </Box>
+          )
+        }
       },
       {
         accessorKey: 'Fecha',
@@ -120,43 +121,50 @@ export default function ReporteAlarmas() {
         accessorKey: 'DuracionHora',
         header: 'Duración [h]',
         Cell({ cell, column, row, table, }) {
-          return  (locateFormatNumberNDijitos(row.original.DuracionHora,2))
+          return msToTimeSeconds((row.original.DuracionHora * 3600 ?? 0))
         },
-        Footer: () =>  { 
+        Footer: () => {
           const totalKm = dataAlarmasFiltrada.reduce((acc, curr) => acc + curr.DuracionHora, 0);
-        
-          return (          
+
+          return (
             <Box color="warning.main">
-              {locateFormatNumberNDijitos(totalKm,2)}
-            </Box>          
-        ) }
+              {locateFormatNumberNDijitos(totalKm, 2)}
+            </Box>
+          )
+        }
+      }, {
+        accessorKey: 'StartOdo',
+        header: 'Odómetro',
+        Cell({ cell, column, row, table, }) {
+          return (locateFormatNumberNDijitos(row.original.StartOdo ?? 0, 1))
+        }
       }
 
     ];
 
-   
-    useEffect(
-        () => {
-            GetClientesEsomos().then((response:AxiosResponse<any>) =>{
-                setClientes(response.data);
-                setClienteSeleccionado(response.data[0])
-             
-            }).catch((error) =>{
-                console.log(error);
-                errorDialog("<i>Eror al consultar los clientes</i>","")
-            })
+  //StartOdo
+  useEffect(
+    () => {
+      GetClientesEsomos().then((response: AxiosResponse<any>) => {
+        setClientes(response.data);
+        setClienteSeleccionado(response.data[0])
 
-         
-        }, []
-    )
+      }).catch((error) => {
+        console.log(error);
+        errorDialog("<i>Eror al consultar los clientes</i>", "")
+      })
+
+
+    }, []
+  )
 
   // useefet que se ejecuta la primera vez, cuando el cliente es seleccionado 
   useEffect(() => {
 
     // consulta la informacion de las alarmas cuando 
     // cambia el ciente seleecionado y las fechas 
-    if (ClienteSeleccionado.clienteIdS != 0 )
-     ConsultarDataAlarmas();
+    if (ClienteSeleccionado.clienteIdS != 0)
+      ConsultarDataAlarmas();
 
     // configuramos el chart
 
@@ -173,7 +181,7 @@ export default function ReporteAlarmas() {
             dataPointSelection: function (event: any, chartContext: any, config: any) {
               // seleccionamos el index de la grafica para posteriormente filtrar
               setidxSeleccionado(config.dataPointIndex);
-             
+
             }
           }
         },
@@ -306,7 +314,7 @@ export default function ReporteAlarmas() {
         return p;
       }, {});
 
-      console.log('agrupadofecha',agrupadofecha)
+    console.log('agrupadofecha', agrupadofecha)
     Object.entries(agrupadofecha).map((elem: any) => {
       labels.push(elem[0]);
       // agrupamos por descripcion para saber el total de alarmas por cada uno 
@@ -318,7 +326,7 @@ export default function ReporteAlarmas() {
         p[name]++;
         return p;
       }, {});
-       
+
       //tomamos la cantidad por descripcion
       let ttPastillas = agrupadoDescripcion["EV: Alarma Cambio Pastillas Disco Frenos"];
       let ttTemperatura = agrupadoDescripcion["EV: Alarma Temperatura Celda Batería > 45°C"]
@@ -326,41 +334,41 @@ export default function ReporteAlarmas() {
       totalPastillas.push(ttPastillas ?? 0);
       totalTemperatura.push(ttTemperatura ?? 0);
     });
-      setlablesAxisx(labels)
-      // se debe volver actualizar los eventos pues 'estos no
-      // se reflejan los usestate y utilizan los datos que tienen las variables
-      // al momento de crearse
-    
-      ApexCharts.exec('apexchart-example', 'updateOptions', {
-        chart: {
-          events: {
-            dataPointSelection: (event: any, chartContext: any, config: any) => {
-              // seleccionamos el index de la grafica para posteriormente filtrar
-              let labelSeleccionado = config.w.config.xaxis.categories[config.dataPointIndex];
-              // si la informacion del label seleccionado es igual al label que se encuentra en los filtros
-              // asginamos  -1 y limpiamos la grafica para que muestre todos los datos
-              setidxSeleccionado((labelSeleccionado === fechaGraficaActual) ? -1 : config.dataPointIndex);
-            }
+    setlablesAxisx(labels)
+    // se debe volver actualizar los eventos pues 'estos no
+    // se reflejan los usestate y utilizan los datos que tienen las variables
+    // al momento de crearse
+
+    ApexCharts.exec('apexchart-example', 'updateOptions', {
+      chart: {
+        events: {
+          dataPointSelection: (event: any, chartContext: any, config: any) => {
+            // seleccionamos el index de la grafica para posteriormente filtrar
+            let labelSeleccionado = config.w.config.xaxis.categories[config.dataPointIndex];
+            // si la informacion del label seleccionado es igual al label que se encuentra en los filtros
+            // asginamos  -1 y limpiamos la grafica para que muestre todos los datos
+            setidxSeleccionado((labelSeleccionado === fechaGraficaActual) ? -1 : config.dataPointIndex);
           }
-        },
-        xaxis: {
-          categories: labels
         }
-      });
-      // funcion que actualiza los datos de las series
-      // se debe pasar el id configurado al momento de su creaci'on para poder
-      // actializar los datos
-      ApexCharts.exec('apexchart-example', 'updateSeries', [{
-        name: 'EV: Alarma Cambio Pastillas Disco Frenos',
-        data: totalPastillas
       },
-      {
-        name: 'EV: Alarma Temperatura Celda Batería > 45°C',
-        data: totalTemperatura
-      }]);
+      xaxis: {
+        categories: labels
+      }
+    });
+    // funcion que actualiza los datos de las series
+    // se debe pasar el id configurado al momento de su creaci'on para poder
+    // actializar los datos
+    ApexCharts.exec('apexchart-example', 'updateSeries', [{
+      name: 'EV: Alarma Cambio Pastillas Disco Frenos',
+      data: totalPastillas
+    },
+    {
+      name: 'EV: Alarma Temperatura Celda Batería > 45°C',
+      data: totalTemperatura
+    }]);
 
 
- 
+
 
 
   }
@@ -391,9 +399,9 @@ export default function ReporteAlarmas() {
       || (filtros.FechaInicialInicial > FechaInicial && filtros.FechaFinalInicial > FechaFinal))
       FechaFinalInicial = FechaFinal;
 
-      // cuando hay una consulta por fechas se debe quitar el filtro por gráfica para que pueda
-      // visualizar correctamente la información
-    setFiltros({ ...filtros, FechaInicial, FechaFinal, FechaInicialInicial, FechaFinalInicial , IndGrafica: -1, FechaGrafica: ""})
+    // cuando hay una consulta por fechas se debe quitar el filtro por gráfica para que pueda
+    // visualizar correctamente la información
+    setFiltros({ ...filtros, FechaInicial, FechaFinal, FechaInicialInicial, FechaFinalInicial, IndGrafica: -1, FechaGrafica: "" })
 
   }
 
@@ -416,164 +424,160 @@ export default function ReporteAlarmas() {
       />
     );
   }
-  function CargaListadoClientes( ) {
-    return (           
-            <Form.Select   className=" mb-3 " onChange={(e) => {
-                // buscamos el objeto completo para tenerlo en el sistema
-                let lstClientes =  Clientes?.filter((value:any, index:any) => {
-                    return value.clienteIdS === Number.parseInt(e.currentTarget.value)
-                })  
-                if(lstClientes !== undefined && lstClientes.length > 0)
-                    setClienteSeleccionado(lstClientes[0]);
-            }} aria-label="Default select example"  defaultValue={ClienteSeleccionado?.clienteIdS}>
-              
-                {                        
-                    Clientes?.map((element:any,i:any) => {
-                          
-                        return (<option key={element.clienteIdS}   value={(element.clienteIdS != null ? element.clienteIdS:0)}>{element.clienteNombre}</option>)
-                    })
-                }
-            </Form.Select>               
+  function CargaListadoClientes() {
+    return (
+      <Form.Select className="m-2 " onChange={(e) => {
+        // buscamos el objeto completo para tenerlo en el sistema
+        let lstClientes = Clientes?.filter((value: any, index: any) => {
+          return value.clienteIdS === Number.parseInt(e.currentTarget.value)
+        })
+        if (lstClientes !== undefined && lstClientes.length > 0)
+          setClienteSeleccionado(lstClientes[0]);
+      }} aria-label="Default select example" defaultValue={ClienteSeleccionado?.clienteIdS}>
+
+        {
+          Clientes?.map((element: any, i: any) => {
+
+            return (<option key={element.clienteIdS} value={(element.clienteIdS != null ? element.clienteIdS : 0)}>{element.clienteNombre}</option>)
+          })
+        }
+      </Form.Select>
     );
   }
 
 
   return (<>
     <PageTitle>Reporte Alarmas</PageTitle>
-    <BlockUi tag="div" keepInView blocking={loader ?? false}  >  
+    <BlockUi tag="div" keepInView blocking={loader ?? false}  >
 
-    <div className="card card-rounded shadow mt-2" style={{ width: '100%' }}  >
-       
-       <div className="d-flex justify-content-end mt-2">
-           <div style={{ float: 'right' }}>
-             <CargaListadoClientes />
-           </div>
-         </div>
-         <div className="d-flex justify-content-between mb-2">
-         <div className="mx-auto">
-             <div className="ms-3 text-center">
-               <h3 className="mb-0">Alarmas</h3>
-               <span className="text-muted m-3">Detallado</span>
+      <div className="card card-rounded shadow mt-2" style={{ width: '100%' }}  >
+        <div className="d-flex justify-content-between mb-2">
+          <div className="mx-auto">
+            <div className="ms-3 text-center">
+              <h3 className="mb-0">Alarmas</h3>
 
-             </div>
-           </div>
-           </div>
-         
-           <div className="card bg-secondary d-flex justify-content-between m-1">
-           
-             <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8"> <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fecha inicial: </label>
-               {(combine && allowedMaxDays && allowedRange) && (
-                 <DateRangePicker className="mt-2" format="dd/MM/yyyy" value={[filtros.FechaInicial, filtros.FechaFinal]}
-                   disabledDate={combine(allowedMaxDays(31), allowedRange(
-                     moment().add(-6, 'months').startOf('day').toDate(), moment().startOf('day').toDate()
-                   ))}
-                   onChange={(value, e) => {
-                     if (value !== null) {
-                       ValidarFechas(
-                         [value[0],
-                         value[1]]
-                       );
-                     }
-                   }}
-
-                 />
-               )}
-
-               <Button className="m-2  btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}><i className="bi-car-front-fill"></i></Button>
-               <Button className="m-2  btn btn-sm btn-primary" onClick={() => { ConsultarDataAlarmas() }}><i className="bi-search"></i></Button>
-             </div>
-           
-           </div>
-
-
-     </div>
-        {/* begin::Chart */}
-        <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
-          {(opciones != null) && (
-            <ReactApexChart ref={refChart}
-              options={opciones.options}
-              series={opciones.series} type="bar"
-              height={320} />)}
-
-
-
+            </div>
+          </div>
         </div>
-        {/* end::Chart      */}
-        <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
 
-          <MaterialReactTable
-           enableFilters={false}
-           initialState={{ density: 'compact' }}
-           enableColumnOrdering
-           enableColumnDragging={false}
-           enablePagination={false}
-           enableStickyHeader
-           enableStickyFooter
-           enableDensityToggle = {false}
-           enableRowVirtualization
-           enableRowNumbers
-           enableTableFooter
-            tableInstanceRef={tablaAlarmas}
-            localization={MRT_Localization_ES}
-            muiTableContainerProps={{
-              sx: { maxHeight: '400px' }, //give the table a max height
+        <div className="card bg-secondary d-flex flex-row  justify-content-between m-1">
+
+          <div className="d-flex justify-content-start ">
+            <label className="control-label label  label-sm ms-2 mt-6" style={{ fontWeight: 'bold' }}>Fecha inicial: </label>
+            {(combine && allowedMaxDays && allowedRange) && (
+              <DateRangePicker className="m-4" format="dd/MM/yyyy" value={[filtros.FechaInicial, filtros.FechaFinal]}
+                disabledDate={combine(allowedMaxDays(31), allowedRange(
+                  moment().add(-6, 'months').startOf('day').toDate(), moment().startOf('day').toDate()
+                ))}
+                onChange={(value, e) => {
+                  if (value !== null) {
+                    ValidarFechas(
+                      [value[0],
+                      value[1]]
+                    );
+                  }
+                }}
+
+              />
+            )}
+
+            <Button className="m-4  btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}><i className="bi-car-front-fill"></i></Button>
+            <Button className="m-4 mx-0  btn btn-sm btn-primary" onClick={() => { ConsultarDataAlarmas() }}><i className="bi-search"></i></Button>
+          </div>
+          <div className="d-flex justify-content-end  ">
+            <CargaListadoClientes />
+          </div>
+        </div>
+
+
+      </div>
+      {/* begin::Chart */}
+      <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
+        {(opciones != null) && (
+          <ReactApexChart ref={refChart}
+            options={opciones.options}
+            series={opciones.series} type="bar"
+            height={320} />)}
+
+
+
+      </div>
+      {/* end::Chart      */}
+      <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
+
+        <MaterialReactTable
+          enableFilters={false}
+          initialState={{ density: 'compact' }}
+          enableColumnOrdering
+          enableColumnDragging={false}
+          enablePagination={false}
+          enableStickyHeader
+          enableStickyFooter
+          enableDensityToggle={false}
+          enableRowVirtualization
+          enableRowNumbers
+          enableTableFooter
+          tableInstanceRef={tablaAlarmas}
+          localization={MRT_Localization_ES}
+          muiTableContainerProps={{
+            sx: { maxHeight: '400px' }, //give the table a max height
 
           }}
-            displayColumnDefOptions={{
-              'mrt-row-actions': {
-                muiTableHeadCellProps: {
-                  align: 'center',
-                }
-                
-              },
-            }}
-            muiTableHeadCellProps={{
-              sx: (theme) => ({
-                fontSize: 14,
-                fontStyle: 'bold',
-                color: 'rgb(27, 66, 94)'
+          displayColumnDefOptions={{
+            'mrt-row-actions': {
+              muiTableHeadCellProps: {
+                align: 'center',
+              }
 
-              }),
-            }}
-            columns={listadoCampos}
-            data={dataAlarmasFiltrada}
-          
-            muiToolbarAlertBannerProps={
-              isError
-                ? {
-                  color: 'error',
-                  children: 'Error al cargar información',
-                }
-                : undefined
-            }
-            onColumnFiltersChange={setColumnFilters}
-            onGlobalFilterChange={setGlobalFilter}
-            onPaginationChange={setPagination}
-            onSortingChange={setSorting}
-            rowCount={rowCount}
-            state={{
-              columnFilters,
-              globalFilter,
-              isLoading,
-              pagination,
-              showAlertBanner: isError,
-              showProgressBars: isRefetching,
-              sorting,
-            }}
-            renderTopToolbarCustomActions={({ table }) => (
-              <Box
-                sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
-              >
-                
-                  <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataAlarmas, listadoCampos, `Alarmas`) }}>
-                    <i className="bi-file-earmark-excel"></i></button>
-               
-                
-              </Box>
-            )}
-          />
-        </div>
-      
+            },
+          }}
+          muiTableHeadCellProps={{
+            sx: (theme) => ({
+              fontSize: 14,
+              fontStyle: 'bold',
+              color: 'rgb(27, 66, 94)'
+
+            }),
+          }}
+          columns={listadoCampos}
+          data={dataAlarmasFiltrada}
+
+          muiToolbarAlertBannerProps={
+            isError
+              ? {
+                color: 'error',
+                children: 'Error al cargar información',
+              }
+              : undefined
+          }
+          onColumnFiltersChange={setColumnFilters}
+          onGlobalFilterChange={setGlobalFilter}
+          onPaginationChange={setPagination}
+          onSortingChange={setSorting}
+          rowCount={rowCount}
+          state={{
+            columnFilters,
+            globalFilter,
+            isLoading,
+            pagination,
+            showAlertBanner: isError,
+            showProgressBars: isRefetching,
+            sorting,
+          }}
+          renderTopToolbarCustomActions={({ table }) => (
+            <Box
+              sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
+            >
+
+              <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataAlarmas, listadoCampos, `Alarmas`) }}>
+                <i className="bi-file-earmark-excel"></i></button>
+
+
+            </Box>
+          )}
+        />
+      </div>
+
     </BlockUi>
 
     <Modal show={showModal} onHide={setShowModal} size="lg">

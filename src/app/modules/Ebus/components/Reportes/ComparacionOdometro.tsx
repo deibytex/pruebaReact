@@ -12,7 +12,6 @@ import { MRT_Localization_ES } from "material-react-table/locales/es";
 import DualListBox from "react-dual-listbox";
 import { dualList } from "../../../CorreosTx/models/dataModels";
 import { Button, Form, Modal } from "react-bootstrap-v5";
-import ReactApexChart from "react-apexcharts";
 import { FiltrosReportes } from "../../models/eBus";
 import { ClienteDTO } from "../../models/NivelcargaModels";
 import { AxiosResponse } from "axios";
@@ -41,7 +40,6 @@ export default function ReporteComparacionOdometro() {
   }
 
   const { allowedMaxDays, allowedRange, combine } = DateRangePicker;
-  const refChart = useRef<ReactApexChart>(null);
   const tablaAlarmas = useRef<MRT_TableInstance<any>>(null);
 
   const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente); 
@@ -234,7 +232,7 @@ setRowCount(ArrayMovil.length); // actualizamos la informacion de las filas
   // FILTRA LOS DATOS QUE SE CONSULTAN DE LA BASE DE DATOS
   // SI EXISTE SE PASA LOS DATOS ALMACENADOS EN EL SISTEMA
   let datosfiltrados = (datos: any[]) => {
-    let fechaGraficaActual = filtros.FechaGrafica;
+   
     let FechaInicial: Date = filtros.FechaInicial;
     let FechaFinal: Date = filtros.FechaFinal;
 
@@ -303,7 +301,7 @@ setRowCount(ArrayMovil.length); // actualizamos la informacion de las filas
                 header: 'Dif(km)',
                 Cell({ cell, column, row, table, }) {
                   let diferencia = row.original[`Diferencia${indexC}`] ?? 0;
-                  let render = (diferencia >=1) ? 
+                  let render = (diferencia <= -5 || diferencia >= 5) ? 
                   <span className="text-danger fs">{locateFormatNumberNDijitos(diferencia, 2)}</span> : 
                   <span >{locateFormatNumberNDijitos(diferencia, 2)}</span>;
                   return (render)
@@ -450,13 +448,15 @@ setRowCount(ArrayMovil.length); // actualizamos la informacion de las filas
     
         <MaterialReactTable
           enableFilters={false}
-          initialState={{ density: 'compact' }}
+          initialState={{ density: 'compact',columnPinning: { left: ['Movil'] }  }}
           enableColumnOrdering
           enableColumnDragging={false}
           enablePagination={false}
           enableStickyHeader
           enableDensityToggle = {false}
-          enableRowVirtualization
+          enableRowVirtualization 
+          enablePinning
+        
          // rowVirtualizerInstanceRef={rowVirtualizerInstanceRef} //get access to the virtualizer instance
          //  rowVirtualizerProps={{ overscan: 4 }}
           tableInstanceRef={tablaAlarmas}

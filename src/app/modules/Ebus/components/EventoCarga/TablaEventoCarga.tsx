@@ -90,17 +90,6 @@ let VisibilidadColumnas = {
             maxSize: 10,
         },
         {
-            accessorKey: 'fecha',
-            header: 'Fecha',
-            enableHiding: false,
-            size: 10,
-            minSize: 10, //min size enforced during resizing
-            maxSize: 10,
-            Cell({ cell, column, row, table, }) {
-            return (moment(row.original.fecha).format("DD/MM/YYYY"));
-            }
-        },
-        {
             accessorKey: 'placa',
             header: 'Móvil',
             enableHiding: false,
@@ -119,7 +108,8 @@ let VisibilidadColumnas = {
             enableHiding: false,
             minSize: 5, //min size enforced during resizing
             maxSize: 5,
-            size: 5
+            size: 5,
+            enablePinning:false
        },
        {
             accessorKey: 'fechaString',
@@ -127,7 +117,8 @@ let VisibilidadColumnas = {
             enableHiding: false,
             minSize: 5, //min size enforced during resizing
             maxSize: 5,
-            size: 5
+            size: 5,
+            enablePinning:false
        },
        {
             accessorKey: 'soc',
@@ -138,14 +129,16 @@ let VisibilidadColumnas = {
             enableHiding: false,
             minSize: 5, //min size enforced during resizing
             maxSize: 5,
-            size: 5
+            size: 5,
+            enablePinning:false
        },
        {
             accessorKey: 'totalTime',
             header: 'Tiempo carga',
             minSize: 5, //min size enforced during resizing
             maxSize: 5,
-            size: 5
+            size: 5,
+            enablePinning:false
       },
         {
             accessorKey: 'energia',
@@ -154,7 +147,8 @@ let VisibilidadColumnas = {
             Cell({ cell, column, row, table, }) {
             return (row.original.energia?.toFixed(2)) ;
             },
-            size: 20
+            size: 20,
+            enablePinning:false
         },
       {
             accessorKey: 'odometer',
@@ -163,7 +157,8 @@ let VisibilidadColumnas = {
             Cell({ cell, column, row, table, }) {
             return (row.original.odometer?.toFixed(2)) ;
             },
-            size: 20
+            size: 20,
+            enablePinning:false
         },
       {
             accessorKey: 'potencia',
@@ -172,7 +167,8 @@ let VisibilidadColumnas = {
             Cell({ cell, column, row, table, }) {
             return (row.original.potencia?.toFixed(2)) ;
             },
-            size: 20
+            size: 20,
+            enablePinning:false
       },
        {
             accessorKey: 'potenciaProm',
@@ -181,7 +177,8 @@ let VisibilidadColumnas = {
             Cell({ cell, column, row, table, }) {
             return (row.original.potenciaProm?.toFixed(2)) ;
             },
-            size: 10
+            size: 10,
+            enablePinning:false
        }
       ];
 
@@ -200,6 +197,7 @@ const getIconSoc = (data:any) => {
     return (
         <><MaterialReactTable
         localization={MRT_Localization_ES}
+        enablePinning
         displayColumnDefOptions={{
         'mrt-row-actions': {
             muiTableHeadCellProps: {
@@ -247,7 +245,7 @@ const getIconSoc = (data:any) => {
         showProgressBars: isRefetching,
         sorting,
         }}
-        initialState={{showColumnFilters: true, density: 'compact', columnVisibility:VisibilidadColumnas,}}
+        initialState={{showColumnFilters: true, density: 'compact', columnVisibility:VisibilidadColumnas, columnPinning:{left:['placa']} }}
     /> </>
     )
 }

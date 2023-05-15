@@ -19,7 +19,7 @@ import { AxiosResponse } from "axios";
 import { GetClientesEsomos } from "../../data/NivelCarga";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 import { InicioCliente } from "../../../../../_start/helpers/Models/ClienteDTO";
-import { formatNumberChart, locateFormatNumberNDijitos, locateFormatPercentNDijitos } from "../../../../../_start/helpers/Helper";
+import { formatNumberChart, locateFormatNumberNDijitos, locateFormatPercentNDijitos, msToTimeSeconds } from "../../../../../_start/helpers/Helper";
 import { Box } from "@mui/material";
 import { DrawDynamicIconMuiMaterial } from "../../../../../_start/helpers/components/IconsMuiDynamic";
 import { subDays, addDays } from "rsuite/esm/utils/dateUtils";
@@ -48,8 +48,7 @@ export default function ReporteEficiencia() {
       [
         {
           accessorKey: `${EsMovil ? 'Movil' : 'Operador'}`,
-          header: `${EsMovil ? 'Movil' : 'Operador'}`,
-          size: 100
+          header: `${EsMovil ? 'Móvil' : 'Operador'}`
         },
         {
           accessorKey: `${EsDiario ? 'Fecha' : 'mes'}`,
@@ -70,7 +69,7 @@ export default function ReporteEficiencia() {
           accessorKey: 'Duracion',
           header: 'Dur[h]',
           Cell({ cell, column, row, table, }) {
-            return (locateFormatNumberNDijitos(row.original.Duracion ?? 0, 2))
+            return  msToTimeSeconds ((row.original.Duracion *3600 ?? 0))
           }
         },
         {
@@ -114,7 +113,7 @@ export default function ReporteEficiencia() {
         accessorKey: 'Descarga',
         header: 'E. Descarga [kWh]',
         Cell({ cell, column, row, table, }) {
-          return (locateFormatPercentNDijitos(row.original.Descarga ?? 0, 2))
+          return (locateFormatNumberNDijitos(row.original.Descarga ?? 0, 2))
         }
       },
       {
@@ -680,7 +679,7 @@ export default function ReporteEficiencia() {
   }
   function CargaListadoClientes() {
     return (
-      <Form.Select className=" mb-3 " onChange={(e) => {
+      <Form.Select className=" m-2 " onChange={(e) => {
         // buscamos el objeto completo para tenerlo en el sistema
         let lstClientes = Clientes?.filter((value: any, index: any) => {
           return value.clienteIdS === Number.parseInt(e.currentTarget.value)
@@ -705,11 +704,7 @@ export default function ReporteEficiencia() {
     <BlockUi tag="div" keepInView blocking={loader ?? false}  >
       <div className="card card-rounded shadow mt-2 text-primary" style={{ width: '100%' }}  >
 
-        <div className="d-flex justify-content-end mt-2">
-          <div style={{ float: 'right' }}>
-            <CargaListadoClientes />
-          </div>
-        </div>
+     
         <div className="d-flex justify-content-between mb-2">
           <div className="d-flex justify-content-between mx-auto">
             <div className="ms-9 text-center">
@@ -720,9 +715,7 @@ export default function ReporteEficiencia() {
         </div>
 
         <div className="row">
-          <div className="row col-sm-12 col-md-12 col-xs-12 mx-auto">
-
-            {
+          <div className="row col-sm-12 col-md-12 col-xs-12 mx-auto">  {
 
               Object.entries(lstIndicadores).map((element: any) => {
 
@@ -740,8 +733,9 @@ export default function ReporteEficiencia() {
 
           </div>
         </div>
-        <div className="card bg-secondary d-flex justify-content-between m-1">
-         <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8">
+        <div className="card bg-secondary d-flex flex-row  justify-content-between m-1">
+
+        <div className="d-flex justify-content-start ">
             <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fechas: </label>
             {(combine && allowedRange && allowedMaxDays) && (
               <DateRangePicker size="lg" className="mt-2" format="dd/MM/yyyy" value={[TipoReporte[tabSel].filtros.FechaInicial, TipoReporte[tabSel].filtros.FechaFinal]}
@@ -769,6 +763,11 @@ export default function ReporteEficiencia() {
               <i className={`${TipoReporte[tabSel].EsMovil ? "bi-car-front-fill" : "bi-person"}`}></i></Button>
             <Button className="m-2  btn btn-sm btn-primary" onClick={() => { ConsultarData() }}><i className="bi-search"></i></Button>
           </div>
+          <div className="d-flex justify-content-end ">
+          
+            <CargaListadoClientes />
+          
+        </div>
         </div>
       </div>
       {/* begin::Chart */}
@@ -845,9 +844,9 @@ export default function ReporteEficiencia() {
               },
             }}
             defaultColumn={{
-              minSize: 20, //allow columns to get smaller than default
-              maxSize: 100, //allow columns to get larger than default
-              size: 80, //make columns wider by default
+              minSize: 80, //allow columns to get smaller than default
+              maxSize: 200, //allow columns to get larger than default
+              
             }}
             muiTableContainerProps={{
               ref: tableContainerRef, //get access to the table container element
