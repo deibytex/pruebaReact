@@ -1,185 +1,130 @@
-import ApexCharts, { ApexOptions } from "apexcharts";
-import Chart, { ChartConfiguration } from "chart.js";
+import ApexCharts from "apexcharts";
 import { useEffect, useState } from "react";
-import { getCSSVariableValue } from "../../../../../_start/assets/ts/_utils";
 import { useDataDashboard } from "../../core/DashboardProvider";
+import ReactApexChart from "react-apexcharts";
 
 type Props = {
-    className: string;
+  className: string;
 }
-const UnidadesActivasChart : React.FC<Props>= ({ className}) =>{
-  let  colorsArray = ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5'];
-         let  colorsArrayLabels = ["danger", "warning", "primary", "success"]; 
-    //Se importan los datos
-     const { Data, DataFiltrada,Filtrado } = useDataDashboard();
-     //se retorna las series
-     const RetornarSerie = (data:any[]) => {
-        if (data == null || data == undefined)
-            return false;
-        //Filtro datos unidadesactivas
-        var dataUnidadesActivas = data;
-    
-        //Para los datos de la dona activos
-        let datosUnidadesActivas : number[]= [];
-        let cantidadUnidadesActivas = 0;
-        //Agrupador por color unidades activas.
-        let agrupadorUnidadesActivas = dataUnidadesActivas.map((item:any) => {
-            if (item.ClasificacionId == 'Activas' || item.ClasificacionId == 'Implementación')
-                return item.ClasificacionId;
-        }).filter((value, index, self) =>{
-            return self.indexOf(value) === index;
-        });
-         // arma los agrupadores por datos unidades activas
-        agrupadorUnidadesActivas.map((item) =>{
-            if (item != undefined) {
-              let prefiterdata = data.filter(function (val:any) {
-                  if (val.ClasificacionId == item)
-                      return val.ClienteId
-              });
-              datosUnidadesActivas.push(Number.parseInt(prefiterdata.length.toString()));
-              cantidadUnidadesActivas = cantidadUnidadesActivas + prefiterdata.length;
-          }
-        })
-        //Retornamos la serie
-       return datosUnidadesActivas;
-    };
-    //se retornan las etiquetas dinamicamente
-    const retornarLabels= (data:any[]) =>{
-            if (data == null || data == undefined)
-                return false;
-            let datosUnidadesActivas : string[]= [];
-            let cantidadUnidadesActivas = 0;
-            //Agrupador por color unidades activas.
-            let agrupadorUnidadesActivas = data.map((item:any) => {
-                if (item.ClasificacionId == 'Activas' || item.ClasificacionId == 'Implementación')
-                    return item.ClasificacionId;
-            }).filter((value, index, self) =>{
-                return self.indexOf(value) === index;
-            });
-            
-            //Dona Unidades Activas
-            return agrupadorUnidadesActivas;
-    }
-    //el use effect
-     useEffect(() => {
-        const element = document.getElementById(
-            `donuts-update`
-          ) as HTMLCanvasElement;
-          if (!element) {
-            return;
-          }
-       
-          let  colorsArray = ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5'];
-        let  colorsArrayLabels = ["bg-danger", "bg-warning", "bg-primary", "bg-success"]; 
-         let labelsArray:string[] = []//['Activas','Implementación'];
-         let _data : number[] = [];
-
-
-
-      if(Filtrado){
-          let dataFiltrada:any[] =[] 
-          if(DataFiltrada)
-              if(DataFiltrada != undefined){
-                      let serie =  RetornarSerie(DataFiltrada.filter(function (item:any) {
-                        if (item.ClasificacionId == 'Activas' || item.ClasificacionId == 'Implementación')
-                        return item.ClasificacionId;
-                  }))
-                  _data = (serie != false  ? serie:[]);
-                  let labels =  retornarLabels(DataFiltrada.filter(function (item:any) {
-                    if (item.ClasificacionId == 'Activas' || item.ClasificacionId == 'Implementación')
-                    return item.ClasificacionId;
-                  }));
-                      labelsArray =(labels != false ? labels:[])
-                  }
-          }
-      else
-      {
-          if(Data)
-            if(Data['Unidades'] != undefined){
-
-              let serie =  RetornarSerie(Data['Unidades'].filter(function (item:any) {
-                    if (item.ClasificacionId == 'Activas' || item.ClasificacionId == 'Implementación')
-                        return item.ClasificacionId;
-                }))
-                _data = (serie != false ? serie:[]);
-                let labels =  retornarLabels(Data['Unidades'].filter(function (item:any) {
-                    if (item.ClasificacionId == 'Activas' || item.ClasificacionId == 'Implementación')
-                        return item.ClasificacionId;
-                }));
-                labelsArray =(labels != false ? labels:[])
-          }
-      }
-
-        const options = getChartOptions(_data, colorsArray, "Unidades Activas", labelsArray);
-        const ctx = element.getContext("2d");
-        let myDoughnut: Chart | null;
-      
-        if (ctx && labelsArray.length > 0) {   
-          myDoughnut = new Chart(ctx, options);
+const UnidadesActivasChart: React.FC<Props> = ({ className }) => {
+  const { Data, DataFiltrada, Filtrado } = useDataDashboard();
+  const [UnidadesActivas, setUnidadesActivas] = useState<any>(null);
+  useEffect(() => {
+    let opciones = {
+      options: {
+        chart: {
+          id: 'apexchart-unidades',
         }
-        return function cleanUp() {
-          if (myDoughnut) {
-            myDoughnut.destroy();
-          }
-        };
-    },[Data, Filtrado, DataFiltrada])
+      },
+      series: [],
+      dataLabels: {
+        enabled: false
+      }
+    }
+    setUnidadesActivas(opciones);
+    return function cleanUp() {
+      //SE DEBE DESTRUIR EL OBJETO CHART
+    };
+  }, [])
 
-    return (
-        <div className={className}>
-            <canvas id="donuts-update"></canvas>
-        </div>
+  const ActualizarGraficas = (Data: any) => {
+    let nombreSeries: any[] = []
+    let cantidadUnidadesActivas = 0;
+    nombreSeries = Data.map((item: any) => {
+      if (item.ClasificacionId == 'Si' || item.ClasificacionId == 'No')
+        return item.ClasificacionId;
+    }).filter((value: any, index: any, self: any) => {
+      return self.indexOf(value) === index;
+    });
+
+    let datosUnidadesActivas: any[] = [];
+    nombreSeries.map((item: any) => {
+      if (item != undefined) {
+        let prefiterdata = Data.filter(function (val: any) {
+          if (val.ClasificacionId == item)
+            return val.ClienteId
+        });
+        datosUnidadesActivas.push(Number.parseInt(prefiterdata.length.toString()));
+        cantidadUnidadesActivas = cantidadUnidadesActivas + prefiterdata.length;
+      }
+    })
+
+    let labels = nombreSeries.map((e) => {
+      if(e != undefined )
+        return (e == "Si"  ? "Activa" :  "No Activa" )
+    }).filter((f) => f );
+    
+    ApexCharts.exec('apexchart-unidades', 'updateOptions', {
+      chart: {
+        fill: {
+          colors: ['#1f77b4', '#aec7e8']
+        },
+        toolbar: {
+          show: false
+        },
+
+      },
+      colors: ['#1f77b4', '#aec7e8'],
+    }
     );
+    ApexCharts.exec('apexchart-unidades', 'updateOptions', {
+      // Para los nombres de la serie
+      labels: labels,
+      //para que la lengenda me salga en la parte de abajo
+      legend: {
+        show: true,
+        position: 'bottom'
+      },
+      //para darle forma a los totales
+      plotOptions: {
+        pie: {
+          donut: {
+            labels: {
+              show: true,
+              total:
+              {
+                show: true,
+                label: 'Total',
+                color: '#373d3f',
+                formatter: function (w: any) {
+                  return w.globals.seriesTotals.reduce((a: any, b: any) => {
+                    return a + b
+                  }, 0)
+                }
+              },
+              value: {
+                offsetY: -8, // -8 worked for me
+                color: '#ff00ff'
+              }
+            }
+          }
+        }
+      }
+    });
+    // actializar los datos
+    ApexCharts.exec('apexchart-unidades', 'updateSeries', datosUnidadesActivas);
+  }
+  useEffect(() => {
+    if (Filtrado) {
+      (DataFiltrada != undefined && DataFiltrada != undefined ? ActualizarGraficas(DataFiltrada) : console.log("Cargando serie..."))
+    }
+    else {
+      (Data != undefined && Data["Unidades"] != undefined ? ActualizarGraficas(Data["Unidades"]) : console.log("Cargando serie..."))
+    }
+  }, [Data, Filtrado, DataFiltrada])
+  return (
+    <>
+      <div className={className}>
+        <div className="text-center pt-5">
+            <label className="label label-sm fw-bolder">UINDADES ACTIVAS</label>
+        </div>
+        {
+          (UnidadesActivas != null) && (UnidadesActivas.options != undefined) && (<ReactApexChart options={UnidadesActivas.options} series={UnidadesActivas.series} type="donut" height={350} />)
+        }
+      </div>
+
+    </>
+  );
 }
 export { UnidadesActivasChart }
-//funcion de configuracion
-function getChartOptions(data: number[], colors: string[], titulo: string, labels:  string[]) {
-    const tooltipBgColor = getCSSVariableValue("--bs-gray-200");
-    const tooltipColor = getCSSVariableValue("--bs-gray-800");
-    const options: ChartConfiguration = {
-      type: "doughnut",
-      data: {
-        datasets: [
-          {
-            data: data,
-            backgroundColor: colors,
-          },
-        ],
-        labels: labels,
-      },
-      options: {
-        cutoutPercentage: 65,
-        responsive: true,
-        maintainAspectRatio: false,
-        legend: {
-          display: true,
-          position: "bottom",
-        },
-        
-        title: {
-          display: true,
-          text: titulo,
-        },
-        animation: {
-          animateScale: true,
-          animateRotate: true,
-        },
-        tooltips: {
-          enabled: true,
-          intersect: false,
-          mode: "nearest",
-          bodySpacing: 5,
-          yPadding: 10,
-          xPadding: 10,
-          caretPadding: 0,
-          displayColors: false,
-          backgroundColor: tooltipBgColor,
-          bodyFontColor: tooltipColor,
-          cornerRadius: 4,
-          footerSpacing: 0,
-          titleSpacing: 0,
-        },
-      },
-    };
-    return options;
-  }
 

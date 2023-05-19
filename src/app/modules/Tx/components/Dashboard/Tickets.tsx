@@ -10,6 +10,12 @@ const Tickets:React.FC = () =>{
     let MenuAdministradores = [];
 
     
+
+
+    /* DESDE AQUI LO HICE PARA PROBAR LAS CONEXIONES CREADAS */
+
+
+    /* FIN DE LAS CONEXIONES */
         let AdminsTransmision:{usuarioIds:string, nombre:string} []= [];
         AdminsTransmision.push({"usuarioIds":"0","nombre":"Todos"})
         if(Data)
