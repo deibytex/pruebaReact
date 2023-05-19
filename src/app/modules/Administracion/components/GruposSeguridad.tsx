@@ -3,19 +3,31 @@ import { PageTitle } from "../../../../_start/layout/core";
 import BlockUi from "@availity/block-ui";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
-import { GetGruposSeguridad, SetGruposSeguridad } from "../data/GruposSeguridad";
+import { GetGruposSeguridad, SetGruposSeguridad, getListadoClientes, getListadoUsuarios } from "../data/GruposSeguridad";
 import { AxiosResponse } from "axios";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import { Box, IconButton, Tooltip } from "@mui/material";
 import { DeleteForever, BorderColor, GroupAdd, PersonAdd, Check } from "@mui/icons-material";
 import { Button, Modal } from "react-bootstrap-v5";
 import confirmarDialog, { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
+import { dualList } from "../models/GruposSeguridadModels";
+import DualListBox from "react-dual-listbox";
 
 export default function GruposSeguridad() {
 
     const [loader, setloader] = useState<boolean>(false);
 
     const [gruposSeguridad, setgruposSeguridad] = useState<any[]>([]);
+
+    //Clientes select
+    const [lstClientes, setlstClientes] = useState<dualList[]>([]);
+    const [selectedClientes, setselectedClientes] = useState([]); 
+    const [ClientesSelected, setClientesSelected] = useState("");
+
+    //User Select
+    const [lstUsuarios, setlstUsuarios] = useState<dualList[]>([]);
+    const [selectedUsuarios, setselectedUsuarios] = useState([]); 
+    const [UsuariosSelected, setUsuariosSelected] = useState("");
 
     const [descripcion, setdescripcion] = useState("");
     const [nombreGrupo, setnombreGrupo] = useState("");
@@ -35,6 +47,9 @@ export default function GruposSeguridad() {
     const [isError, setIsError] = useState(false);
 
     const [showModal, setshowModal] = useState<boolean>(false);
+    const [showModalClientes, setshowModalClientes] = useState<boolean>(false);
+    const [showModalUsuarios, setshowModalUsuarios] = useState<boolean>(false);
+    const [tittleModal, settittleModal] = useState('');
 
     let Campos: MRT_ColumnDef<any>[] =
         [{
@@ -91,6 +106,7 @@ export default function GruposSeguridad() {
         setrow(row);
         setnombreGrupo(row.nombreGrupo)
         setdescripcion(row.descripcion);
+        settittleModal("Edición Grupos Seguridad");
         setshowModal(true);
 
     }
@@ -133,6 +149,77 @@ export default function GruposSeguridad() {
             ,  "Modificar" )
 
     }
+
+    const setDualListClientes = () => {
+
+        getListadoClientes().then((response: AxiosResponse<any>) => {
+            let dual = response.data.map((item: any) => {
+                return { "value": item.clienteIdString, "label": item.clienteNombre };
+            }) as dualList[];
+
+            setlstClientes(dual);
+            setloader(false);
+            setIsLoading(false);
+            setIsRefetching(false);
+            settittleModal("Asignación Clientes");
+            setshowModalClientes(true);
+        }).catch(() => {
+            setIsError(true);
+            setloader(false);
+            setIsLoading(false);
+            setIsRefetching(false)
+        }).finally(() => {
+            setloader(false);
+        });
+
+    }
+
+    function SelectClientes() {
+        return (
+            <DualListBox className=" mb-3 " canFilter 
+                options={lstClientes}
+                selected={selectedClientes}
+                onChange={(selected: any) => setselectedClientes(selected)}
+            />
+        );
+    }
+
+    const setDualListUsuarios = () => {
+
+        getListadoUsuarios().then((response: AxiosResponse<any>) => {
+            let dual = response.data.map((item: any) => {
+                return { "value": item.UserId, "label": item.NombreUsuario };
+            }) as dualList[];
+            setlstUsuarios(dual);
+            setloader(false);
+            setIsLoading(false);
+            setIsRefetching(false);
+            settittleModal("Asignación Usuarios");
+            setshowModalUsuarios(true);
+        }).catch(() => {
+            setIsError(true);
+            setloader(false);
+            setIsLoading(false);
+            setIsRefetching(false)
+        }).finally(() => {
+            setloader(false);
+        });
+    }
+
+    function SelectUsuarios() {
+        return (
+            <DualListBox className=" mb-3 " canFilter 
+                options={lstUsuarios}
+                selected={selectedUsuarios}
+                onChange={(selected: any) => setselectedUsuarios(selected)}
+            />
+        );
+    }
+
+    useEffect(() => {
+        console.log(selectedUsuarios);
+        console.log(selectedClientes);
+    }, [selectedUsuarios, selectedClientes])
 
     return (<>
         <PageTitle>Grupos De Seguridad</PageTitle>
@@ -189,16 +276,14 @@ export default function GruposSeguridad() {
                         </Tooltip>
                         <Tooltip arrow placement="top" title="Asignar Clientes">
                             <IconButton onClick={() => {
-                                // PanelConsultas(row.original.ClienteId)
-                                // consultarVehiculos(row.original.ClienteId);
+                                setDualListClientes();
                             }}>
                                 <GroupAdd />
                             </IconButton>
                         </Tooltip>
                         <Tooltip arrow placement="top" title="Asociar Usuarios">
                             <IconButton onClick={() => {
-                                // PanelConsultas(row.original.ClienteId)
-                                // consultarDrivers(row.original.ClienteId);
+                                setDualListUsuarios();
                             }}>
                                 <PersonAdd />
                             </IconButton>
@@ -230,7 +315,7 @@ export default function GruposSeguridad() {
             onHide={setshowModal}
             size="lg">
             <Modal.Header closeButton>
-                <Modal.Title>{"Edición Grupo de Seguridad"}</Modal.Title>
+                <Modal.Title>{tittleModal}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <div className="row">
@@ -256,6 +341,48 @@ export default function GruposSeguridad() {
                     Guardar
                 </Button>
                 <Button type="button" variant="secondary" onClick={() => { setshowModal(false); }}>
+                    Cancelar
+                </Button>
+            </Modal.Footer>
+        </Modal>
+        <Modal
+            show={showModalClientes}
+            onHide={setshowModalClientes}
+            size="lg">
+            <Modal.Header closeButton>
+                <Modal.Title>{tittleModal}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <SelectClientes />               
+            </Modal.Body>
+            <Modal.Footer>
+                <Button type="button" variant="primary" onClick={() => {
+                    // setGrupoSeguridad('2', true, null);
+                }}>
+                    Guardar
+                </Button>
+                <Button type="button" variant="secondary" onClick={() => { setshowModalClientes(false); }}>
+                    Cancelar
+                </Button>
+            </Modal.Footer>
+        </Modal>
+        <Modal
+            show={showModalUsuarios}
+            onHide={setshowModalUsuarios}
+            size="lg">
+            <Modal.Header closeButton>
+                <Modal.Title>{tittleModal}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <SelectUsuarios />               
+            </Modal.Body>
+            <Modal.Footer>
+                <Button type="button" variant="primary" onClick={() => {
+                    // setGrupoSeguridad('2', true, null);
+                }}>
+                    Guardar
+                </Button>
+                <Button type="button" variant="secondary" onClick={() => { setshowModalUsuarios(false); }}>
                     Cancelar
                 </Button>
             </Modal.Footer>
