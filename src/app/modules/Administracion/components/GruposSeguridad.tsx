@@ -7,7 +7,7 @@ import { GetGruposSeguridad, SetGruposSeguridad } from "../data/GruposSeguridad"
 import { AxiosResponse } from "axios";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import { Box, IconButton, Tooltip } from "@mui/material";
-import { DeleteForever, BorderColor, GroupAdd, PersonAdd } from "@mui/icons-material";
+import { DeleteForever, BorderColor, GroupAdd, PersonAdd, Check } from "@mui/icons-material";
 import { Button, Modal } from "react-bootstrap-v5";
 import confirmarDialog, { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
 
@@ -88,13 +88,15 @@ export default function GruposSeguridad() {
 
     }
 
-    const setGrupoSeguridad = () => {
+    //permite editar nombre, descripción y estado de grupo de seguridad
+    const setGrupoSeguridad = (clave: string, esactivo: boolean, grupoSeguridadId: number | null) => {
         confirmarDialog(() => {
             setloader(true);
-            SetGruposSeguridad(nombreGrupo, descripcion, row.grupoSeguridadId, '2', null, true, null).then((response: AxiosResponse<any>) => {
+            var gruposeguridadid = grupoSeguridadId == null ? row.grupoSeguridadId : grupoSeguridadId;
+            SetGruposSeguridad(nombreGrupo, descripcion, gruposeguridadid, clave, null, esactivo, null).then((response: AxiosResponse<any>) => {
                 console.log(response.data.data);
                 if (response.data.data == 'Grupo de seguridad modificado Éxitosamente') {
-                    var grupoSeguridad = (gruposSeguridad as any[]).map(function (m) {
+                    let grupoSeguridad = (gruposSeguridad as any[]).map(function (m) {
                         if (m.grupoSeguridadId == row.grupoSeguridadId) {
                             m.nombreGrupo = nombreGrupo;
                             m.descripcion = descripcion;
@@ -103,7 +105,17 @@ export default function GruposSeguridad() {
                     });
 
                     setgruposSeguridad(grupoSeguridad);
-                }else errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
+                }
+                else if (response.data.data == 'Grupo de seguridad inactivado Éxitosamente') {
+                    let grupoSeguridad = (gruposSeguridad as any[]).map(function (m) {
+                        if (m.grupoSeguridadId == grupoSeguridadId) {
+                            m.esActivo = esactivo;
+                        }
+                        return m;
+                    });
+                    setgruposSeguridad(grupoSeguridad);
+                }
+                else errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
 
                 setloader(false);
                 setshowModal(false);
@@ -111,8 +123,8 @@ export default function GruposSeguridad() {
                 errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
                 setloader(false);
             });
-        }, `Está seguro que desea modificar el grupo de seguridad`
-            , "Modificar")
+        },  `Está seguro que desea modificar el grupo de seguridad`
+            ,  "Modificar" )
 
     }
 
@@ -185,12 +197,13 @@ export default function GruposSeguridad() {
                                 <PersonAdd />
                             </IconButton>
                         </Tooltip>
-                        <Tooltip arrow placement="top" title="Inactivar">
+                        <Tooltip arrow placement="top" title={row.original.esActivo ? "Inactivar" : "Activar"}>
                             <IconButton onClick={() => {
-                                //  GetReporteConfiguracionAssets(row.original.ClienteId) 
+                                setGrupoSeguridad('3', !row.original.esActivo, row.original.grupoSeguridadId);
                             }
                             }>
-                                <DeleteForever />
+                               {(row.original.esActivo == true) && <DeleteForever />}
+                               {(row.original.esActivo == false) && <Check />}
                             </IconButton>
                         </Tooltip>
                     </Box>
@@ -232,7 +245,7 @@ export default function GruposSeguridad() {
             </Modal.Body>
             <Modal.Footer>
                 <Button type="button" variant="primary" onClick={() => {
-                    setGrupoSeguridad();
+                    setGrupoSeguridad('2', true, null);
                 }}>
                     Guardar
                 </Button>
