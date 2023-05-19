@@ -5,8 +5,8 @@ export function GetGruposSeguridad(clientesIdS: number | null){
 };
 
 export function SetGruposSeguridad(nombre:string, descripcion:string, grupoSeguridadId:string, clave: string, clienteids: string | null,
-                                    esactivo: string, sitios: string | null) {
-    let params : { [id: string]: string | null; } = {};
+                                    esactivo: boolean, sitios: string | null) {
+    let params : { [id: string]: string | null | boolean; } = {};
     params['Clave'] = clave;
     params['clienteIdS'] = clienteids;
     params['Nombre'] = nombre;

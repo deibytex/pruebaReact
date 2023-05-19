@@ -9,6 +9,7 @@ import { MRT_Localization_ES } from "material-react-table/locales/es";
 import { Box, IconButton, Tooltip } from "@mui/material";
 import { DeleteForever, BorderColor, GroupAdd, PersonAdd } from "@mui/icons-material";
 import { Button, Modal } from "react-bootstrap-v5";
+import confirmarDialog, { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
 
 export default function GruposSeguridad() {
 
@@ -54,7 +55,7 @@ export default function GruposSeguridad() {
         return () => { }
     }, [])
 
-   
+
 
     const Consultar = () => {
         setloader(true);
@@ -78,8 +79,8 @@ export default function GruposSeguridad() {
 
 
 
-    const setDataModalEdit = (row: any) => {        
-        
+    const setDataModalEdit = (row: any) => {
+
         setrow(row);
         setnombreGrupo(row.nombreGrupo)
         setdescripcion(row.descripcion);
@@ -87,17 +88,31 @@ export default function GruposSeguridad() {
 
     }
 
-    const setGrupoSeguridad = () => {        
-        
-        setloader(true);
-        SetGruposSeguridad(nombreGrupo, descripcion, row.grupoSeguridadId, '2', null, '1', null).then((response: AxiosResponse<any>) => {
-           console.log(response);
-            setloader(false);
-            setshowModal(false);
-        }).catch(() => {
-            console.log("error");
-            setloader(false);
-        });
+    const setGrupoSeguridad = () => {
+        confirmarDialog(() => {
+            setloader(true);
+            SetGruposSeguridad(nombreGrupo, descripcion, row.grupoSeguridadId, '2', null, true, null).then((response: AxiosResponse<any>) => {
+                console.log(response.data.data);
+                if (response.data.data == 'Grupo de seguridad modificado Éxitosamente') {
+                    var grupoSeguridad = (gruposSeguridad as any[]).map(function (m) {
+                        if (m.grupoSeguridadId == row.grupoSeguridadId) {
+                            m.nombreGrupo = nombreGrupo;
+                            m.descripcion = descripcion;
+                        }
+                        return m;
+                    });
+
+                    setgruposSeguridad(grupoSeguridad);
+                }else errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
+
+                setloader(false);
+                setshowModal(false);
+            }).catch(() => {
+                errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
+                setloader(false);
+            });
+        }, `Está seguro que desea modificar el grupo de seguridad`
+            , "Modificar")
 
     }
 
