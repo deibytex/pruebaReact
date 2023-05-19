@@ -3,7 +3,7 @@ import { PageTitle } from "../../../../_start/layout/core";
 import BlockUi from "@availity/block-ui";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
-import { GetGruposSeguridad } from "../data/GruposSeguridad";
+import { GetGruposSeguridad, SetGruposSeguridad } from "../data/GruposSeguridad";
 import { AxiosResponse } from "axios";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import { Box, IconButton, Tooltip } from "@mui/material";
@@ -18,6 +18,7 @@ export default function GruposSeguridad() {
 
     const [descripcion, setdescripcion] = useState("");
     const [nombreGrupo, setnombreGrupo] = useState("");
+    const [row, setrow] = useState<any>({});
 
     //table state
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -53,6 +54,8 @@ export default function GruposSeguridad() {
         return () => { }
     }, [])
 
+   
+
     const Consultar = () => {
         setloader(true);
         setIsLoading(true);
@@ -73,38 +76,29 @@ export default function GruposSeguridad() {
         });
     }
 
-    const setGrupoSeguridad = (row: any) => {
+
+
+    const setDataModalEdit = (row: any) => {        
+        
+        setrow(row);
         setnombreGrupo(row.nombreGrupo)
         setdescripcion(row.descripcion);
-        console.log(row.grupoSeguridadId);
         setshowModal(true);
-        // if (row != Consultas[1].Cliente) {
-        //     setloader(true);
-        //     GetAssets(row).then((response: AxiosResponse<any>) => {
-        //         let Decomisionados = response.data.data.filter((item: any) => {
-        //             return item.userState == 'Decommissioned'
-        //         });
-        //         setDecomisionado(Decomisionados.length);
-        //         let Activos = response.data.data.filter((item: any) => {
-        //             return item.userState != 'Decommissioned'
-        //         });
-        //         setActivo(Activos.length)
-        //         setDatosAssets(response.data.data);
-        //         let Consult = [...Consultas]
-        //         Consult[1].Cliente = row;
-        //         Consult[1].Data = response.data.data;
-        //         setConsultas(Consult);
-        //         setloader(false);
-        //         setShowModalactivos(true)
-        //     }).catch(() => {
-        //         console.log("error");
-        //         setloader(false);
-        //     });
-        // }
-        // else{
-        //     setDatosAssets(Consultas[1].Data);
-        //     setShowModalactivos(true)
-        // }
+
+    }
+
+    const setGrupoSeguridad = () => {        
+        
+        setloader(true);
+        SetGruposSeguridad(nombreGrupo, descripcion, row.grupoSeguridadId, '2', null, '1', null).then((response: AxiosResponse<any>) => {
+           console.log(response);
+            setloader(false);
+            setshowModal(false);
+        }).catch(() => {
+            console.log("error");
+            setloader(false);
+        });
+
     }
 
     return (<>
@@ -155,7 +149,7 @@ export default function GruposSeguridad() {
                     <Box sx={{ display: 'block', gap: '1rem', marginLeft: 'auto', marginRight: 'auto' }}>
                         <Tooltip arrow placement="top" title="Editar">
                             <IconButton onClick={() => {
-                                setGrupoSeguridad(row.original)
+                                setDataModalEdit(row.original);
                             }}>
                                 <BorderColor />
                             </IconButton>
@@ -215,18 +209,18 @@ export default function GruposSeguridad() {
                     <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
                         <div className="">
                             <label className="control-label label-sm font-weight-bold" htmlFor="descripcion" style={{ fontWeight: 'bold' }}>Descripción:</label>
-                            <textarea className="form-control  input input-sm " id={"descripcion"} onChange={(e) => setdescripcion(e.target.value)} 
+                            <textarea className="form-control  input input-sm " id={"descripcion"} onChange={(e) => setdescripcion(e.target.value)}
                                 rows={3} value={descripcion}></textarea>
                         </div>
                     </div>
-                </div>  
+                </div>
             </Modal.Body>
             <Modal.Footer>
                 <Button type="button" variant="primary" onClick={() => {
-                            // setObservacion(obervacionGestion, 'false');
-                        }}>
-                            Guardar
-                        </Button>
+                    setGrupoSeguridad();
+                }}>
+                    Guardar
+                </Button>
                 <Button type="button" variant="secondary" onClick={() => { setshowModal(false); }}>
                     Cancelar
                 </Button>

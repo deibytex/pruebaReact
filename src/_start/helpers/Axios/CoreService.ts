@@ -150,11 +150,13 @@ export  function  Post_getGruposSeguridad(clientesIdS: number | null) {
   });
 }
 
-export  function Post_SetGrupoSeguridad(props:any) {
-  return  axios({
+
+export function Post_SetGrupoSeguridad(body: any) {
+  return axios({
     method: 'post',
-    url: CORE_setGrupoSeguridad,     
+    url: CORE_setGrupoSeguridad,
+    data: JSON.stringify(body),
     headers: { 'Content-Type': 'application/json' },
-    params : props
+    params: {}
   });
 }

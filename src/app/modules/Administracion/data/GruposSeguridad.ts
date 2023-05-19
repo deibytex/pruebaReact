@@ -4,16 +4,15 @@ export function GetGruposSeguridad(clientesIdS: number | null){
     return Post_getGruposSeguridad(clientesIdS);
 };
 
-export function SetGruposSeguridad(nombre:string, descripcion:string, grupoSeguridadId:string, clave: string) {
+export function SetGruposSeguridad(nombre:string, descripcion:string, grupoSeguridadId:string, clave: string, clienteids: string | null,
+                                    esactivo: string, sitios: string | null) {
     let params : { [id: string]: string | null; } = {};
     params['Clave'] = clave;
-    params['clienteIdS'] = null;
+    params['clienteIdS'] = clienteids;
     params['Nombre'] = nombre;
     params['Descripcion'] = descripcion;
-    params['TipoSeguridadId'] = null;
-    params['EsActivo'] = '1';
-    params['EsAdministrador'] = null;
+    params['EsActivo'] = esactivo;
     params['GrupoSeguridadId'] = grupoSeguridadId;
-    params['Sitios'] = null;
+    params['Sitios'] = sitios;
     return Post_SetGrupoSeguridad(params);
 }
