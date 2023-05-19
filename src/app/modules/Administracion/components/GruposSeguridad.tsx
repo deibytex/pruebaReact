@@ -39,15 +39,22 @@ export default function GruposSeguridad() {
     let Campos: MRT_ColumnDef<any>[] =
         [{
             accessorKey: 'nombreGrupo',
-            header: 'Grupo de Seguridad'
+            header: 'Grupo de Seguridad',
+            maxSize: 100
         },
         {
             accessorKey: 'esActivo',
             header: 'Estado',
             Cell({ cell, column, row, table, }) {
                 return cell.getValue() ? <span className="badge bg-success">Activo</span> : <span className="badge bg-danger">Inactivo</span>
-            }
-        }
+            },
+            maxSize: 60
+        },
+        {
+            accessorKey: 'descripcion',
+            header: 'Descripción',
+            maxSize: 80
+        },
         ];
 
     useEffect(() => {
@@ -94,7 +101,6 @@ export default function GruposSeguridad() {
             setloader(true);
             var gruposeguridadid = grupoSeguridadId == null ? row.grupoSeguridadId : grupoSeguridadId;
             SetGruposSeguridad(nombreGrupo, descripcion, gruposeguridadid, clave, null, esactivo, null).then((response: AxiosResponse<any>) => {
-                console.log(response.data.data);
                 if (response.data.data == 'Grupo de seguridad modificado Éxitosamente') {
                     let grupoSeguridad = (gruposSeguridad as any[]).map(function (m) {
                         if (m.grupoSeguridadId == row.grupoSeguridadId) {
