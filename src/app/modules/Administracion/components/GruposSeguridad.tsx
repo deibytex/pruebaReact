@@ -156,7 +156,7 @@ export default function GruposSeguridad() {
                             }
                             return m;
                         });
-    
+                        successDialog("Operación Éxitosa", "");
                         setgruposSeguridad(grupoSeguridad);
                     }
                     else if (response.data.data[0][""] == 'Grupo de seguridad inactivado Éxitosamente') {
@@ -166,6 +166,7 @@ export default function GruposSeguridad() {
                             }
                             return m;
                         });
+                        successDialog("Operación Éxitosa", "");
                         setgruposSeguridad(grupoSeguridad);
                     }
                     else errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
@@ -176,6 +177,7 @@ export default function GruposSeguridad() {
                             esActivo: m.EsActivo}
                     });
 
+                    successDialog("Operación Éxitosa", "");
                     setgruposSeguridad(gruposseguridad);
                 } 
                
