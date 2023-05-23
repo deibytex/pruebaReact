@@ -3,13 +3,13 @@ import { PageTitle } from "../../../../_start/layout/core";
 import BlockUi from "@availity/block-ui";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
-import { GetGruposSeguridad, SetGruposSeguridad, getListadoClientes, getListadoUsuarios } from "../data/GruposSeguridad";
+import { GetGruposSeguridad, SetGruposSeguridad, getClientesGrupoDeSeguridad, getListadoClientes, getListadoUsuarios, getUsuariosGrupoDeSeguridad, setClientesGrupoDeSeguridad, setUsuariosGrupoDeSeguridad } from "../data/GruposSeguridad";
 import { AxiosResponse } from "axios";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import { Box, IconButton, Tooltip } from "@mui/material";
 import { DeleteForever, BorderColor, GroupAdd, PersonAdd, Check } from "@mui/icons-material";
 import { Button, Modal } from "react-bootstrap-v5";
-import confirmarDialog, { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
+import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/helpers/components/ConfirmDialog";
 import { dualList } from "../models/GruposSeguridadModels";
 import DualListBox from "react-dual-listbox";
 
@@ -20,18 +20,21 @@ export default function GruposSeguridad() {
     const [gruposSeguridad, setgruposSeguridad] = useState<any[]>([]);
 
     //Clientes select
+    const [lstClientesDual, setlstClientesDual] = useState<dualList[]>([]);
     const [lstClientes, setlstClientes] = useState<dualList[]>([]);
-    const [selectedClientes, setselectedClientes] = useState([]); 
+    const [selectedClientes, setselectedClientes] = useState([]);
     const [ClientesSelected, setClientesSelected] = useState("");
 
     //User Select
+    const [lstUsuariosDual, setlstUsuariosDual] = useState<dualList[]>([]);
     const [lstUsuarios, setlstUsuarios] = useState<dualList[]>([]);
-    const [selectedUsuarios, setselectedUsuarios] = useState([]); 
+    const [selectedUsuarios, setselectedUsuarios] = useState([]);
     const [UsuariosSelected, setUsuariosSelected] = useState("");
 
     const [descripcion, setdescripcion] = useState("");
     const [nombreGrupo, setnombreGrupo] = useState("");
     const [row, setrow] = useState<any>({});
+    const [grupoSeguridadId, setgrupoSeguridadId] = useState("");
 
     //table state
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -83,11 +86,10 @@ export default function GruposSeguridad() {
         setloader(true);
         setIsLoading(true);
         setIsRefetching(true)
+
+        //Traemos los grupos de seguridad
         GetGruposSeguridad(null).then((response: AxiosResponse<any>) => {
             setgruposSeguridad(response.data.data);
-            setloader(false);
-            setIsLoading(false);
-            setIsRefetching(false)
             setRowCount(response.data.length);
         }).catch(() => {
             setIsError(true);
@@ -97,6 +99,33 @@ export default function GruposSeguridad() {
         }).finally(() => {
             setloader(false);
         });
+
+        //traemos listado de clientes  
+        getListadoClientes().then((response: AxiosResponse<any>) => {
+            setlstClientes(response.data);
+        }).catch(() => {
+            setIsError(true);
+            setloader(false);
+            setIsLoading(false);
+            setIsRefetching(false)
+        }).finally(() => {
+            setloader(false);
+        });
+
+        getListadoUsuarios().then((response: AxiosResponse<any>) => {            
+            setlstUsuarios(response.data);
+            setloader(false);
+            setIsLoading(false);
+            setIsRefetching(false)
+        }).catch(() => {
+            setIsError(true);
+            setloader(false);
+            setIsLoading(false);
+            setIsRefetching(false)
+        }).finally(() => {
+            setloader(false);
+        });
+
     }
 
 
@@ -115,29 +144,41 @@ export default function GruposSeguridad() {
     const setGrupoSeguridad = (clave: string, esactivo: boolean, grupoSeguridadId: number | null) => {
         confirmarDialog(() => {
             setloader(true);
-            var gruposeguridadid = grupoSeguridadId == null ? row.grupoSeguridadId : grupoSeguridadId;
-            SetGruposSeguridad(nombreGrupo, descripcion, gruposeguridadid, clave, null, esactivo, null).then((response: AxiosResponse<any>) => {
-                if (response.data.data == 'Grupo de seguridad modificado Éxitosamente') {
-                    let grupoSeguridad = (gruposSeguridad as any[]).map(function (m) {
-                        if (m.grupoSeguridadId == row.grupoSeguridadId) {
-                            m.nombreGrupo = nombreGrupo;
-                            m.descripcion = descripcion;
-                        }
-                        return m;
+            var gruposeguridadid = clave == '1' ? null : grupoSeguridadId == null ? row.grupoSeguridadId : grupoSeguridadId;
+            SetGruposSeguridad(nombreGrupo, descripcion, gruposeguridadid, clave, esactivo).then((response: AxiosResponse<any>) => {
+                console.log(response.data.data)
+                if (clave != '1'){
+                    if (response.data.data[0][""] == 'Grupo de seguridad modificado Éxitosamente') {
+                        let grupoSeguridad = (gruposSeguridad as any[]).map(function (m) {
+                            if (m.grupoSeguridadId == row.grupoSeguridadId) {
+                                m.nombreGrupo = nombreGrupo;
+                                m.descripcion = descripcion;
+                            }
+                            return m;
+                        });
+    
+                        setgruposSeguridad(grupoSeguridad);
+                    }
+                    else if (response.data.data[0][""] == 'Grupo de seguridad inactivado Éxitosamente') {
+                        let grupoSeguridad = (gruposSeguridad as any[]).map(function (m) {
+                            if (m.grupoSeguridadId == grupoSeguridadId) {
+                                m.esActivo = esactivo;
+                            }
+                            return m;
+                        });
+                        setgruposSeguridad(grupoSeguridad);
+                    }
+                    else errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
+                }else{
+                    
+                    const gruposseguridad = response.data.data.map((m: any) => {
+                        return {descripcion: m.Descripcion, nombreGrupo: m.NombreGrupo, grupoSeguridadId: m.GrupoSeguridadId,
+                            esActivo: m.EsActivo}
                     });
 
-                    setgruposSeguridad(grupoSeguridad);
-                }
-                else if (response.data.data == 'Grupo de seguridad inactivado Éxitosamente') {
-                    let grupoSeguridad = (gruposSeguridad as any[]).map(function (m) {
-                        if (m.grupoSeguridadId == grupoSeguridadId) {
-                            m.esActivo = esactivo;
-                        }
-                        return m;
-                    });
-                    setgruposSeguridad(grupoSeguridad);
-                }
-                else errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
+                    setgruposSeguridad(gruposseguridad);
+                } 
+               
 
                 setloader(false);
                 setshowModal(false);
@@ -145,19 +186,26 @@ export default function GruposSeguridad() {
                 errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
                 setloader(false);
             });
-        },  `Está seguro que desea modificar el grupo de seguridad`
-            ,  "Modificar" )
+        }, clave != '1' ? `Está seguro que desea modificar el grupo de seguridad` : `Está seguro que crear el grupo de seguridad`
+            , clave != '1' ? "Modificar" : "Crear" )
 
     }
 
-    const setDualListClientes = () => {
+    const setDualListClientes = (grupoSeguridadId: any) => {
 
-        getListadoClientes().then((response: AxiosResponse<any>) => {
-            let dual = response.data.map((item: any) => {
-                return { "value": item.clienteIdString, "label": item.clienteNombre };
-            }) as dualList[];
+        let dual = lstClientes.map((item: any) => {
+            return { "value": item.clienteIdString, "label": item.clienteNombre };
+        }) as dualList[];
 
-            setlstClientes(dual);
+        setlstClientesDual(dual);
+        setgrupoSeguridadId(grupoSeguridadId);
+
+        getClientesGrupoDeSeguridad(grupoSeguridadId).then((response: AxiosResponse<any>) => {
+
+            let clienteIds = response.data.map((item: any) => {
+                return item.clienteId.toString();
+            });
+            setselectedClientes(clienteIds);
             setloader(false);
             setIsLoading(false);
             setIsRefetching(false);
@@ -176,21 +224,30 @@ export default function GruposSeguridad() {
 
     function SelectClientes() {
         return (
-            <DualListBox className=" mb-3 " canFilter 
-                options={lstClientes}
+            <DualListBox className=" mb-3 " canFilter
+                options={lstClientesDual}
                 selected={selectedClientes}
                 onChange={(selected: any) => setselectedClientes(selected)}
             />
         );
     }
 
-    const setDualListUsuarios = () => {
+    const setDualListUsuarios = (grupoSeguridadId: any) => {
 
-        getListadoUsuarios().then((response: AxiosResponse<any>) => {
-            let dual = response.data.map((item: any) => {
-                return { "value": item.UserId, "label": item.NombreUsuario };
-            }) as dualList[];
-            setlstUsuarios(dual);
+        let dual = lstUsuarios.map((item: any) => {
+            return { "value": item.UserId, "label": item.NombreUsuario };
+        }) as dualList[];
+
+        setlstUsuariosDual(dual);
+        setgrupoSeguridadId(grupoSeguridadId);
+
+        getUsuariosGrupoDeSeguridad(grupoSeguridadId).then((response: AxiosResponse<any>) => {
+
+            let usuariosIds = response.data.map((item: any) => {
+                return item.UserId;
+            });
+            
+            setselectedUsuarios(usuariosIds);
             setloader(false);
             setIsLoading(false);
             setIsRefetching(false);
@@ -208,8 +265,8 @@ export default function GruposSeguridad() {
 
     function SelectUsuarios() {
         return (
-            <DualListBox className=" mb-3 " canFilter 
-                options={lstUsuarios}
+            <DualListBox className=" mb-3 " canFilter
+                options={lstUsuariosDual}
                 selected={selectedUsuarios}
                 onChange={(selected: any) => setselectedUsuarios(selected)}
             />
@@ -217,9 +274,73 @@ export default function GruposSeguridad() {
     }
 
     useEffect(() => {
-        console.log(selectedUsuarios);
-        console.log(selectedClientes);
+        setUsuariosSelected(selectedUsuarios.join());
+        setClientesSelected(selectedClientes.join());
     }, [selectedUsuarios, selectedClientes])
+
+    const setClientesGrupoSeguridad = (grupoSeguridadId: any) => {
+        confirmarDialog(() => {
+            setClientesGrupoDeSeguridad(grupoSeguridadId, ClientesSelected).then((response: AxiosResponse<any>) => {
+
+
+                let clienteIds = response.data.map((item: any) => {
+                    return item.clienteId;
+                });
+
+                setselectedClientes(clienteIds);
+
+
+                setloader(false);
+                setIsLoading(false);
+                setIsRefetching(false);
+                successDialog("Operación Éxitosa", "");
+            }).catch(() => {                
+                setIsError(true);
+                errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
+                setloader(false);
+                setIsLoading(false);
+                setIsRefetching(false)
+            }).finally(() => {
+                setloader(false);
+            });
+        }, `Está seguro que desea modificar los clientes del grupo de seguridad`
+            , "Modificar")
+
+        setshowModalClientes(false);
+
+    }
+
+    const setUsuariosGrupoSeguridad = (grupoSeguridadId: any) => {
+        confirmarDialog(() => {
+            setUsuariosGrupoDeSeguridad(grupoSeguridadId, UsuariosSelected).then((response: AxiosResponse<any>) => {
+
+
+                let usuariosIds = response.data.map((item: any) => {
+                    return item.UserId;
+                });
+
+                setselectedUsuarios(usuariosIds);
+
+
+                setloader(false);
+                setIsLoading(false);
+                setIsRefetching(false);
+                successDialog("Operación Éxitosa", "");
+            }).catch(() => {                
+                setIsError(true);
+                errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
+                setloader(false);
+                setIsLoading(false);
+                setIsRefetching(false)
+            }).finally(() => {
+                setloader(false);
+            });
+        }, `Está seguro que desea modificar los usuarios del grupo de seguridad`
+            , "Modificar")
+
+        setshowModalUsuarios(false);
+
+    }
 
     return (<>
         <PageTitle>Grupos De Seguridad</PageTitle>
@@ -276,14 +397,14 @@ export default function GruposSeguridad() {
                         </Tooltip>
                         <Tooltip arrow placement="top" title="Asignar Clientes">
                             <IconButton onClick={() => {
-                                setDualListClientes();
+                                setDualListClientes(row.original.grupoSeguridadId);
                             }}>
                                 <GroupAdd />
                             </IconButton>
                         </Tooltip>
                         <Tooltip arrow placement="top" title="Asociar Usuarios">
                             <IconButton onClick={() => {
-                                setDualListUsuarios();
+                                setDualListUsuarios(row.original.grupoSeguridadId);
                             }}>
                                 <PersonAdd />
                             </IconButton>
@@ -293,8 +414,8 @@ export default function GruposSeguridad() {
                                 setGrupoSeguridad('3', !row.original.esActivo, row.original.grupoSeguridadId);
                             }
                             }>
-                               {(row.original.esActivo == true) && <DeleteForever />}
-                               {(row.original.esActivo == false) && <Check />}
+                                {(row.original.esActivo == true) && <DeleteForever />}
+                                {(row.original.esActivo == false) && <Check />}
                             </IconButton>
                         </Tooltip>
                     </Box>
@@ -308,6 +429,19 @@ export default function GruposSeguridad() {
                     showProgressBars: isRefetching,
                     sorting,
                 }}
+                renderTopToolbarCustomActions={({ table }) => (
+                    <Box
+                        sx={{ justifyContent: 'flex-start', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
+                    >
+                        <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { setshowModal(true); 
+                            settittleModal('Crear grupo de seguridad'); 
+                            setnombreGrupo('');
+                            setdescripcion('');
+                            }}>
+                            {/* <i className="bi-plus-square"></i> */}
+                            Crear Grupo</button>
+                    </Box>
+                )}
             />)}
         </BlockUi>
         <Modal
@@ -336,7 +470,9 @@ export default function GruposSeguridad() {
             </Modal.Body>
             <Modal.Footer>
                 <Button type="button" variant="primary" onClick={() => {
-                    setGrupoSeguridad('2', true, null);
+                    tittleModal != 'Crear grupo de seguridad' ? 
+                    setGrupoSeguridad('2', true, null) : 
+                    setGrupoSeguridad('1', true, null);
                 }}>
                     Guardar
                 </Button>
@@ -353,11 +489,11 @@ export default function GruposSeguridad() {
                 <Modal.Title>{tittleModal}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <SelectClientes />               
+                <SelectClientes />
             </Modal.Body>
             <Modal.Footer>
                 <Button type="button" variant="primary" onClick={() => {
-                    // setGrupoSeguridad('2', true, null);
+                    setClientesGrupoSeguridad(grupoSeguridadId);
                 }}>
                     Guardar
                 </Button>
@@ -374,11 +510,11 @@ export default function GruposSeguridad() {
                 <Modal.Title>{tittleModal}</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <SelectUsuarios />               
+                <SelectUsuarios />
             </Modal.Body>
             <Modal.Footer>
                 <Button type="button" variant="primary" onClick={() => {
-                    // setGrupoSeguridad('2', true, null);
+                    setUsuariosGrupoSeguridad(grupoSeguridadId);
                 }}>
                     Guardar
                 </Button>
