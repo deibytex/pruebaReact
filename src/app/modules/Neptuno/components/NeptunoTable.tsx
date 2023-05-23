@@ -24,7 +24,6 @@ import { UserModelSyscaf } from "../../auth/models/UserModel";
 import { PageTitle } from "../../../../_start/layout/core";
 import { EsPermitido, Operaciones, PermisosOpcion } from "../../../../_start/helpers/Axios/CoreService";
 import { TituloNeptuno } from "../../../../_start/helpers/Texts/textosPorDefecto";
-import { string } from "yup/lib/locale";
 import { NeptunoProvider, useDataNeptuno } from '../../Neptuno/core/NeptunoProvider';
 import axios, { AxiosResponse } from "axios";
 type Params = {

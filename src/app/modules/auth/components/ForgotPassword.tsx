@@ -28,7 +28,9 @@ export function ForgotPassword() {
       setHasErrors(undefined);
       setTimeout(() => {
         requestPassword(values.email)
-          .then(({ data: { result } }) => {
+          .then(({ data }) => {
+            if(data)
+             console.log(data)
             setHasErrors(false);
             setLoading(false);
           })
@@ -36,7 +38,7 @@ export function ForgotPassword() {
             setHasErrors(true);
             setLoading(false);
             setSubmitting(false);
-            setStatus("Los detalles del loguin son incorrectos");
+            setStatus("El correo no se encuentra registrado, favor intente nuevamente.");
           });
       }, 1000);
     },
@@ -127,7 +129,7 @@ export function ForgotPassword() {
               className="spinner-border text-primary ms-3 mt-6"
               role="status"
             >
-              <span className="visually-hidden">Loading...</span>
+              <span className="visually-hidden">enviando...</span>
             </span>
           )}
         </div>

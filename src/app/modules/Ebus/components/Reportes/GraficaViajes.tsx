@@ -102,9 +102,8 @@ export default function ReporteViaje() {
 
   const [value, setValue] = useState<any[]>(preSeleccionados);
 
-  const handleCheckAll = (value: any, checked: any) => 
-  {
-    
+  const handleCheckAll = (value: any, checked: any) => {
+
     let aux = defaultEventsSelected.map((x: any) => {
       x.isSelected = checked;
       return x;
@@ -112,8 +111,7 @@ export default function ReporteViaje() {
     setEventsSelected(aux);
     setValue(checked ? defaultEventsSelected.map(x => x.name) : []);
   }
-  const handleChange = (value: any[]) => 
-  {
+  const handleChange = (value: any[]) => {
     let aux = defaultEventsSelected.map((x: any) => {
       x.isSelected = value.includes(x.name);
       return x;
@@ -123,7 +121,6 @@ export default function ReporteViaje() {
   };
   const [eventsSelected, setEventsSelected] = useState(defaultEventsSelected);
   const { allowedMaxDays, allowedRange, combine } = DateRangePicker;
-
   const typeaheadRef = useRef<any>(null);
   const refChart = useRef<ReactApexChart>(null);
   const tablaAlarmas = useRef<MRT_TableInstance<any>>(null);
@@ -132,11 +129,8 @@ export default function ReporteViaje() {
   const [Clientes, setClientes] = useState<ClienteDTO[]>();
   const [filtros, setFiltros] = useState<FiltrosReportes>(Filtros);
   const [loader, setloader] = useState<boolean>(false);
-  const [lablesAxisx, setlablesAxisx] = useState<string[]>([]);
   const [idxSeleccionado, setidxSeleccionado] = useState<number>(-2);
   const [isCallData, setisCallData] = useState<boolean>(false);
-
-
   const [data, setAlarmas] = useState<any[]>([]);
   const [dataFiltrada, setDataFiltrada] = useState<any[]>([]);
 
@@ -193,9 +187,9 @@ export default function ReporteViaje() {
       {
 
         header: 'Regeneración [%]',
-        Cell({  row }) {
+        Cell({ row }) {
           return (locateFormatPercentNDijitos((
-            (row.original.CargakWh  / row.original.DescargakWh ) 
+            (row.original.CargakWh / row.original.DescargakWh)
           ), 2))
         }
       }, {
@@ -247,7 +241,7 @@ export default function ReporteViaje() {
     setSeleccionados([]);
     if (ClienteSeleccionado.clienteIdS != 0)
       ConsultaVehiculosClienteSeleccionado(ClienteSeleccionado.clienteIdS);
-  
+
 
     // configuramos el chart
 
@@ -260,7 +254,7 @@ export default function ReporteViaje() {
       options: {
 
         chart: {
-         animations: { enabled: false },
+          animations: { enabled: false },
           zoom: {
             enabled: true,
             type: 'x',
@@ -378,7 +372,7 @@ export default function ReporteViaje() {
 
   useEffect(() => {
 
-     // consulta la informacion de las alarmas cuando 
+    // consulta la informacion de las alarmas cuando 
     // cambia el ciente seleecionado y las fechas 
     if (ClienteSeleccionado.clienteIdS != 0 && lstSeleccionados.length > 0)
       ConsultarData();
@@ -478,14 +472,14 @@ export default function ReporteViaje() {
     dataTransformada.forEach(((f, ind) => {
       let fecha = moment(f.fechaHora).toDate().getTime()
       DatosGraficaArea.filter((filter) => filter.isSelected).forEach((each) => {
-        if(ind===  0)
-         each.data = [];// se limpia el array de datos para que se puedan agregar los nuevos datos
-        
+        if (ind === 0)
+          each.data = [];// se limpia el array de datos para que se puedan agregar los nuevos datos
+
         each.data.push(each.getData(fecha, f));
       })
 
     }))
-   
+
     // funcion que actualiza los datos de las series
     // se debe pasar el id configurado al momento de su creaci'on para poder
     // actializar los datos
@@ -535,11 +529,11 @@ export default function ReporteViaje() {
         ref={typeaheadRef}
         onChange={(selected: any) => {
           // dejamos los seleccionados
-         setisCallData(true);
+          setisCallData(true);
           setSeleccionados(selected)
           setShowModal(false)
           // Keep the menu open when making multiple selections.
-         // typeaheadRef.current?.toggleMenu();
+          // typeaheadRef.current?.toggleMenu();
         }}
         placeholder="Escoja un Vehículo...."
       />
@@ -597,8 +591,8 @@ export default function ReporteViaje() {
         </div>
       </div>
       <div className="container mb-2 mt-2"
-         style={{width : "100%"}}>
-          <Stack>
+        style={{ width: "100%" }}>
+        <Stack>
           <div className="d-flex mx-auto justify-content-between">
             <div className="ms-3 text-center">
               <h3 className="mb-0">Reporte Gráfica Viajes</h3>
@@ -606,142 +600,142 @@ export default function ReporteViaje() {
 
             </div>
           </div>
-         
-          </Stack>
-         
-       
-        </div>
-        <div className="card bg-secondary d-flex justify-content-between m-1">
-            <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8"> <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fechas: </label>
-            {(combine && allowedMaxDays && allowedRange) && (
-              <DateRangePicker className="mt-2" format="dd/MM/yyyy" value={[filtros.FechaInicial, filtros.FechaFinal]}
-                disabledDate={combine(allowedMaxDays(7), allowedRange(
-                  moment().add(-6, 'months').startOf('day').toDate(), moment().startOf('day').toDate()
-                ))}
-                onChange={(value, e) => {
-                  if (value !== null) {
-                    ValidarFechas(
-                      [value[0],
-                      value[1]]
-                    );
-                  }
-                }}
 
-              />
-            )}
+        </Stack>
 
-            <Button className="m-2  btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}><i className="bi-car-front-fill"></i></Button>
-            <Button className="m-2  btn btn-sm btn-primary" onClick={() => () => { ConsultarData(); }}><i className="bi-search"></i></Button>
 
-          </div>
-          <div className="d-flex justify-content-start  ">
-            <Checkbox
-              indeterminate={value.length > 0 && value.length < data.length}
-              checked={value.length === data.length}
-              onChange={handleCheckAll}
-            >
-              Todos
-            </Checkbox>
-            
-            <CheckboxGroup inline name="checkboxList" value={value} onChange={handleChange}>
-              {eventsSelected.map(item => (
-                <Checkbox key={item.name} value={item.name}>
-                  {item.name}
-                </Checkbox>
+      </div>
+      <div className="card bg-secondary d-flex justify-content-between m-1">
+        <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8"> <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fechas: </label>
+          {(combine && allowedMaxDays && allowedRange) && (
+            <DateRangePicker className="mt-2" format="dd/MM/yyyy" value={[filtros.FechaInicial, filtros.FechaFinal]}
+              disabledDate={combine(allowedMaxDays(7), allowedRange(
+                moment().add(-6, 'months').startOf('day').toDate(), moment().startOf('day').toDate()
               ))}
-            </CheckboxGroup>
-          </div>
-        </div>
-
-     
-        {/* begin::Chart */}
-        <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
-          {(opciones != null) && (
-            <ReactApexChart ref={refChart}
-              options={opciones.options}
-              series={opciones.series}
-              height={400} type="area" />)}
-        </div>
-        {/* end::Chart      */}
-        <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
-
-          <MaterialReactTable
-            enableFilters={false}
-            initialState={{ density: 'compact' }}
-            enableColumnOrdering
-            enableColumnDragging={false}
-            enablePagination={false}
-            enableStickyHeader
-            enableStickyFooter
-            enableDensityToggle={false}
-            enableRowVirtualization
-            enableRowNumbers
-            enableTableFooter
-            tableInstanceRef={tablaAlarmas}
-            localization={MRT_Localization_ES}
-            muiTableContainerProps={{
-              sx: { maxHeight: '400px' }, //give the table a max height
-
-            }}
-            displayColumnDefOptions={{
-              'mrt-row-actions': {
-                muiTableHeadCellProps: {
-                  align: 'center',
+              onChange={(value, e) => {
+                if (value !== null) {
+                  ValidarFechas(
+                    [value[0],
+                    value[1]]
+                  );
                 }
+              }}
 
-              },
-            }}
-            muiTableHeadCellProps={{
-              sx: (theme) => ({
-                fontSize: 14,
-                fontStyle: 'bold',
-                color: 'rgb(27, 66, 94)'
+            />
+          )}
 
-              }),
-            }}
-            columns={listadoCampos}
-            data={dataFiltrada}
+          <Button className="m-2  btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}><i className="bi-car-front-fill"></i></Button>
+          <Button className="m-2  btn btn-sm btn-primary" onClick={() => () => { ConsultarData(); }}><i className="bi-search"></i></Button>
 
-            muiToolbarAlertBannerProps={
-              isError
-                ? {
-                  color: 'error',
-                  children: 'Error al cargar información',
-                }
-                : undefined
-            }
-            onColumnFiltersChange={setColumnFilters}
-            onGlobalFilterChange={setGlobalFilter}
-            onPaginationChange={setPagination}
-            onSortingChange={setSorting}
-            rowCount={rowCount}
-            state={{
-              columnFilters,
-              globalFilter,
-              isLoading,
-              pagination,
-              showAlertBanner: isError,
-              showProgressBars: isRefetching,
-              sorting,
-            }}
-            defaultColumn={{
-              minSize: 80, //allow columns to get smaller than default
-              maxSize: 200, //allow columns to get larger than default
-              size: 80, //make columns wider by default
-            }}
-            renderTopToolbarCustomActions={({ table }) => (
-              <Box
-                sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
-              >
-
-                <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataFiltrada, listadoCampos, `GraficaViajes1min ${lstSeleccionados[0]}`) }}>
-                  <i className="bi-file-earmark-excel"></i></button>
-
-
-              </Box>
-            )}
-          />
         </div>
+        <div className="d-flex justify-content-start  ">
+          <Checkbox
+            indeterminate={value.length > 0 && value.length < data.length}
+            checked={value.length === data.length}
+            onChange={handleCheckAll}
+          >
+            Todos
+          </Checkbox>
+
+          <CheckboxGroup inline name="checkboxList" value={value} onChange={handleChange}>
+            {eventsSelected.map(item => (
+              <Checkbox key={item.name} value={item.name}>
+                {item.name}
+              </Checkbox>
+            ))}
+          </CheckboxGroup>
+        </div>
+      </div>
+
+
+      {/* begin::Chart */}
+      <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
+        {(opciones != null) && (
+          <ReactApexChart ref={refChart}
+            options={opciones.options}
+            series={opciones.series}
+            height={400} type="area" />)}
+      </div>
+      {/* end::Chart      */}
+      <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
+
+        <MaterialReactTable
+          enableFilters={false}
+          initialState={{ density: 'compact' }}
+          enableColumnOrdering
+          enableColumnDragging={false}
+          enablePagination={false}
+          enableStickyHeader
+          enableStickyFooter
+          enableDensityToggle={false}
+          enableRowVirtualization
+          enableRowNumbers
+          enableTableFooter
+          tableInstanceRef={tablaAlarmas}
+          localization={MRT_Localization_ES}
+          muiTableContainerProps={{
+            sx: { maxHeight: '400px' }, //give the table a max height
+
+          }}
+          displayColumnDefOptions={{
+            'mrt-row-actions': {
+              muiTableHeadCellProps: {
+                align: 'center',
+              }
+
+            },
+          }}
+          muiTableHeadCellProps={{
+            sx: (theme) => ({
+              fontSize: 14,
+              fontStyle: 'bold',
+              color: 'rgb(27, 66, 94)'
+
+            }),
+          }}
+          columns={listadoCampos}
+          data={dataFiltrada}
+
+          muiToolbarAlertBannerProps={
+            isError
+              ? {
+                color: 'error',
+                children: 'Error al cargar información',
+              }
+              : undefined
+          }
+          onColumnFiltersChange={setColumnFilters}
+          onGlobalFilterChange={setGlobalFilter}
+          onPaginationChange={setPagination}
+          onSortingChange={setSorting}
+          rowCount={rowCount}
+          state={{
+            columnFilters,
+            globalFilter,
+            isLoading,
+            pagination,
+            showAlertBanner: isError,
+            showProgressBars: isRefetching,
+            sorting,
+          }}
+          defaultColumn={{
+            minSize: 80, //allow columns to get smaller than default
+            maxSize: 200, //allow columns to get larger than default
+            size: 80, //make columns wider by default
+          }}
+          renderTopToolbarCustomActions={({ table }) => (
+            <Box
+              sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
+            >
+
+              <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataFiltrada, listadoCampos, `GraficaViajes1min ${lstSeleccionados[0]}`) }}>
+                <i className="bi-file-earmark-excel"></i></button>
+
+
+            </Box>
+          )}
+        />
+      </div>
 
     </BlockUi>
 

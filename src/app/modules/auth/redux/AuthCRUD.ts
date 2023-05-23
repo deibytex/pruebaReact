@@ -8,8 +8,9 @@ const API_URL = process.env.REACT_APP_API_URL || "api";
 export const GET_USER_BY_ACCESSTOKEN_URL = `${API_URL}/account/get-user`;
 export const LOGIN_URL = `${API_URL}/account/login`;
 export const REGISTER_URL = `${API_URL}/account/Crear`;
-export const REQUEST_PASSWORD_URL = `${API_URL}/account/GetTokenRecuperarContrasenia`;
+export const REQUEST_PASSWORD_URL = `${API_URL}/account/SendTokenPassword`;
 export const USERLIST_URL = `${API_URL}/account/listadoUsuarios`;
+
 // Server should return AuthModel
 export function login(username: string, password: string) {
 
@@ -41,7 +42,16 @@ export function register(
 
 // Server should return object => { result: boolean } (Is Email in DB)
 export function requestPassword(email: string) {
-  return axios.post<{ result: boolean }>(REQUEST_PASSWORD_URL, { email });
+ 
+  return axios({
+    method: 'post',
+    headers: {
+      'Content-Type': 'application/json',
+      accept: 'text/plain',
+  }, 
+    url: REQUEST_PASSWORD_URL,
+    data: email
+  });
 }
 
 export function getUserByToken() {

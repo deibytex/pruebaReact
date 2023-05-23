@@ -70,19 +70,15 @@ export function Login() {
 
   return (
     <form
-      className="form w-100 "
+      className="rounded shadow form w-100 bg-white px-10 "
       onSubmit={formik.handleSubmit}
       noValidate
       id="kt_login_signin_form" 
     >  <div className="pb-lg-5">
-       <img
-                alt="Logo"
-                src={toAbsoluteUrl("/media/syscaf/logo syscaf 2023 color.png")}
-                className="h-90px bg-white"
-              />
-      {/* begin::Title
       
-        <h2 className="fw-bolder text-primary text-center mt-10 ">Bienvenido a SYSCAF Analytics</h2>     */}    
+      {/* begin::Title */}    
+      
+        <h1 className="fw-bolder text-primary text-center mt-10 ">SYSCAF Analytics</h1>    
      
         <h4 className="fw-bolder text-danger">{errorLogin}</h4>        
       </div>
@@ -156,7 +152,7 @@ export function Login() {
         <button
           type="submit"
           id="kt_login_signin_form_submit_button"
-          className="btn btn-primary fw-bolder fs-6 px-8 py-4 my-3 me-3"
+          className="btn btn-primary fw-bolder fs-6 px-8 py-4 my-3 me-3 mb-10"
           disabled={formik.isSubmitting || !formik.isValid}
         >
           {!loading && <span className="indicator-label">Ingresar</span>}

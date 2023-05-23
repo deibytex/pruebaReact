@@ -19,23 +19,125 @@ export function AuthPage() {
   }, []);
 
   return (
-    <div className="d-flex flex-column flex-root bg-primary"
+    <div className="d-flex flex-column flex-root" >
+     
+    <div   className="d-flex flex-column flex-lg-row flex-column-fluid"  id="kt_login"      >
+     
+      <div className="d-flex flex-column text-center items-aling-center justify-content-center bg-primary w-lg-600px pt-15 pt-lg-0"
+        style={{ 
+          backgroundImage: `url(${toAbsoluteUrl("/media/syscaf/FondoVerde.jpeg")})` 
+          ,backgroundRepeat:"no-repeat" ,
+          backgroundSize:"cover"
+        }}
+      >
+        
+  
+          <Link to="/" className="mb-6">
+            <img
+               alt="Logo"
+               src={toAbsoluteUrl("/media/syscaf/LogoBlanco.png")}
+               className="h-90px  h-75px"
+             
+            />
+          </Link>
+     
+
+     
+      </div>
+
+    
+      <div className=" login-content flex-lg-row-fluid d-flex flex-column justify-content-center position-relative overflow-hidden py-20 px-10 p-lg-7 mx-auto mw-450px w-100"
+      
+      >
+        <div className="d-flex flex-column-fluid flex-center py-10">
+          <Switch>
+            <Route path="/auth/login" component={Login} />
+            <Route path="/auth/registration" component={Registration} />
+            <Route path="/auth/forgot-password" component={ForgotPassword} />
+            <Redirect from="/auth" exact={true} to="/auth/login" />
+            <Redirect to="/auth/login" />
+          </Switch>
+        </div>
+        <div className="d-flex justify-content-lg-start justify-content-center align-items-center py-7 py-lg-0">
+          <span className="text-primary fw-bolder fs-4 cursor-pointer">
+            
+          </span>
+          <span className="text-primary ms-10 fw-bolder fs-4"></span>
+          <span className="text-primary ms-10 fw-bolder fs-4">
+        
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+  );
+}
+
+/**
+ * 
+ *  <div className="d-flex flex-column flex-root bg-primary"
     style={{ 
-      backgroundImage: `url(${toAbsoluteUrl("/media/syscaf/FondoAmarilloSyscaf.jpeg")})` 
+      backgroundImage: `url(${toAbsoluteUrl("/media/syscaf/FondoVerde.jpeg")})` 
       ,backgroundRepeat:"no-repeat" ,
-      backgroundSize:"contain"
+      backgroundSize:"cover"
     }}
     >
+     
       <div
-        className="d-flex flex-column flex-lg-row flex-column-fluid"
+        className="d-flex flex-column flex-column-fluid"
         id="kt_login"
+       
       >
        
+
       
-        {/* Content */}
-        <div className="bg-white rounded login-content flex-lg-row-fluid d-flex flex-column  justify-content-center 
-         position-relative overflow-hidden   py-20 px-10 p-lg-7  mw-450px w-100 mh-450px mt-20 mx-auto" >
-          <div className="bg-white d-flex flex-column-fluid flex-center py-10">
+        <div className=" login-content flex-lg-row-fluid d-flex flex-column justify-content-center position-relative overflow-hidden py-20 px-10 p-lg-7 mx-auto mw-450px w-100">
+          <div className="d-flex flex-column-fluid flex-center py-10">
+            <Switch>
+              <Route path="/auth/login" component={Login} />
+            
+              <Route path="/auth/forgot-password" component={ForgotPassword} />
+              <Redirect from="/auth" exact={true} to="/auth/login" />
+              <Redirect to="/auth/login" />
+            </Switch>
+          </div>
+        
+        </div>
+      </div>
+    </div>
+ */
+/*
+ <div className="d-flex flex-column flex-root" >
+     
+      <div   className="d-flex flex-column flex-lg-row flex-column-fluid"  id="kt_login"      >
+       
+        <div className="d-flex flex-column text-center items-aling-center justify-content-center bg-primary w-lg-600px pt-15 pt-lg-0"
+          style={{ 
+            backgroundImage: `url(${toAbsoluteUrl("/media/syscaf/FondoVerde.jpeg")})` 
+            ,backgroundRepeat:"no-repeat" ,
+            backgroundSize:"cover"
+          }}
+        >
+          
+    
+            <Link to="/" className="mb-6">
+              <img
+                 alt="Logo"
+                 src={toAbsoluteUrl("/media/syscaf/LogoBlanco.png")}
+                 className="h-90px  h-75px"
+               
+              />
+            </Link>
+       
+
+       
+        </div>
+
+      
+        <div className=" login-content flex-lg-row-fluid d-flex flex-column justify-content-center position-relative overflow-hidden py-20 px-10 p-lg-7 mx-auto mw-450px w-100"
+        
+        >
+          <div className="d-flex flex-column-fluid flex-center py-10">
             <Switch>
               <Route path="/auth/login" component={Login} />
               <Route path="/auth/registration" component={Registration} />
@@ -44,17 +146,16 @@ export function AuthPage() {
               <Redirect to="/auth/login" />
             </Switch>
           </div>
-         {/*  <div className="d-flex justify-content-lg-start justify-content-center align-items-center py-7 py-lg-0">
+          <div className="d-flex justify-content-lg-start justify-content-center align-items-center py-7 py-lg-0">
             <span className="text-primary fw-bolder fs-4 cursor-pointer">
-              Terms
+              
             </span>
-           
+            <span className="text-primary ms-10 fw-bolder fs-4"></span>
             <span className="text-primary ms-10 fw-bolder fs-4">
-              Contact Us
+          
             </span>
-          </div>*/}
-        </div> 
+          </div>
+        </div>
       </div>
     </div>
-  );
-}
+*/
