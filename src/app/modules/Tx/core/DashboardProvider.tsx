@@ -265,7 +265,7 @@ function ActualizarUnidades() {
         confirmarDialog(() => {
             let Fecha = (SemanaSeleccionada != undefined  ?  (SemanaSeleccionada?.length != 0 ?moment(SemanaSeleccionada['fecha'] ).format("YYYY/MM/DD").toString(): moment().format("YYYY/MM/DD").toString()): moment().format("YYYY/MM/DD").toString());
             SetActualizaUnidadesActivas(Fecha).then((response:AxiosResponse<any>) =>{
-                successDialog("Unidades actualziadas exitosamente","");
+                successDialog("Unidades actualizadas éxitosamente","");
             }).catch((error: AxiosError<any>) =>{
                 errorDialog("Ha ocurrido un error","");
             });
@@ -273,7 +273,7 @@ function ActualizarUnidades() {
     }
 
     return(
-        <button style={{display: (TabActive == "Tab1" ? 'inline':'none')}} type="button" className="btn btn-sm btn-danger mt-8" onClick={ActualizarUnidadesActivas}> <i className="bi-emoji-angry"></i>Actualizar</button>
+        <button style={{display: (TabActive == "Tab1" ? 'inline':'none')}} type="button" className="btn btn-sm btn-danger mt-8" onClick={ActualizarUnidadesActivas}> <i className="bi-border-width"></i>Actualizar</button>
     )
 }
 export { DashboardProvider, useDataDashboard, CargaClientes, CargarSemanas, ExportarExcel, ActualizarUnidades }

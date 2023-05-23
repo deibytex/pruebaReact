@@ -83,7 +83,7 @@ const [isError, setIsError] = useState(false);
             }
         }
     }else{
-        setRowCount2((DataTx != undefined ? DataTx['Transmision'].length:0 ));
+        setRowCount2((DataTx != undefined && DataTx['Transmision'] != undefined ? DataTx['Transmision'].length:0 ));
             if(DataTx){
                 if (DataTx['Transmision'] != undefined){
                     DataTx['Transmision'].filter(function (item:any,index:any) {
@@ -219,13 +219,15 @@ const [isError, setIsError] = useState(false);
                                     <div className="text-center"><span id="EstadoCantidad" style={{fontSize:'26px'}}></span></div>
                                 </div>
                                 <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                                    <TransmisionScatterChart className={"shadow-lg"}></TransmisionScatterChart>
+                                    {(DataTx !=  undefined) &&(DataTx['Transmision'] !=  undefined) && (<TransmisionScatterChart className={"shadow-lg"}></TransmisionScatterChart>)}
+                                    
                                 </div>
                                 <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                                    <TransmisionBarChart className={"shadow-lg"}></TransmisionBarChart>
+                                    {(DataTx !=  undefined) &&(DataTx['Transmision'] !=  undefined) && (<TransmisionBarChart className={"shadow-lg"}></TransmisionBarChart>)}
+                                    
                                 </div>
                                 <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-5">
-                                <MaterialReactTable
+                                    {(DataTx !=  undefined) &&(DataTx['Transmision'] !=  undefined) && (    <MaterialReactTable
                                     localization={MRT_Localization_ES}
                                     muiTableContainerProps={{
                                         sx: { maxHeight: '400px' }, //give the table a max height
@@ -239,7 +241,8 @@ const [isError, setIsError] = useState(false);
                                     initialState={{density: 'compact'}}
                                     enableStickyHeader
                                     enableStickyFooter
-                                    />
+                                    />)}
+                            
                                      <div className="container">
                                         <div className="row">
                                             <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
@@ -252,7 +255,7 @@ const [isError, setIsError] = useState(false);
                                     </div>
                                 </div>
                                 <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-5">
-                                <MaterialReactTable
+                                    {(DataTx !=  undefined) &&(DataTx['Transmision'] !=  undefined) && (<MaterialReactTable
                                     localization={MRT_Localization_ES}
                                     muiTableContainerProps={{
                                         ref: tableContainerRef, //get access to the table container element
@@ -266,7 +269,8 @@ const [isError, setIsError] = useState(false);
                                     initialState={{density: 'compact'}}
                                     enableStickyHeader
                                     enableStickyFooter
-                                    />
+                                    />)}
+                                
                                     <div className="container">
                                         <div className="row">
                                             <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">

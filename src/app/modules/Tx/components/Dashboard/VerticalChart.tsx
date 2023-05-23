@@ -1,24 +1,46 @@
 import Chart, { ChartConfiguration, ChartDataSets } from "chart.js";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getCSSVariableValue } from "../../../../../_start/assets/ts/_utils";
 import { useDataDashboard } from "../../core/DashboardProvider";
+import ReactApexChart from "react-apexcharts";
 
 type Props = {
     className: string;
 }
-const VerticalChart : React.FC<Props> = ({className}) =>{
-    let  colorsArray = ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5'];
-    let  colorsArrayLabels = ["danger", "warning", "primary", "success"]; 
+const VerticalChart: React.FC<Props> = ({ className }) => {
     const { Data, DataFiltrada, Filtrado } = useDataDashboard();
+    const [Vertical, setVertical] = useState<any>(null);
+    useEffect(() => {
+        let opciones = {
+            options: {
+                chart: {
+                    id: 'apexchart-vertical',
+                }
+            },
+            series: [],
+            dataLabels: {
+                enabled: false
+            },
+            xaxis: {
+                type: 'category'
+            }
+        }
+        setVertical(opciones);
+        return function cleanUp() {
+            //SE DEBE DESTRUIR EL OBJETO CHART
+        };
+    }, [])
+
     //Para los datos
-    const RetornarSerie = (data:any[]) => {
+    const RetornarSerie = (data: any[]) => {
         if (data == null || data == undefined)
             return false;
 
         //agrupador general o fecha.
         let agrupadorGeneral = data.map((item) => {
-            return item.Vertical;
-        }).filter((value, index, self:any) =>{
+            if(item.ClasificacionId == "Si")
+                return item.Vertical;
+        }).filter((value, index, self: any) => {
             return self.indexOf(value) === index;
         });
 
@@ -27,140 +49,106 @@ const VerticalChart : React.FC<Props> = ({className}) =>{
         //Agrupador por color.
         let Semana = data.map((item) => {
             return item.Fecha;
-        }).filter((value, index, self:any) =>{
+        }).filter((value, index, self: any) => {
             return self.indexOf(value) === index;
         });
 
         let arrayEstados = new Array();
         // filtramos por los clientes para obtener la agrupacion por  estado
         agrupadorGeneral.map(function (item) {
-            Semana.map(function (itemSemana) {
-                let filtroEstado = data.filter(function (val, index) {
-                    return (val.Fecha == itemSemana && val.Vertical == item);
+            if(item != undefined){
+                Semana.map(function (itemSemana) {
+                    let filtroEstado = data.filter(function (val, index) {
+                        return (val.Fecha == itemSemana && val.Vertical == item);
+                    });
+                    arrayEstados.push([{
+                        x: item,
+                        y: filtroEstado.length
+                    }]);
                 });
-                arrayEstados.push([itemSemana, filtroEstado.length]);
-            });
-
+            }
         });
 
-        Semana.map(function (itemEstados) {
-            let filtroEstado = arrayEstados.filter(function (data, index) {
-                return data[0] == itemEstados;
-            }).map(function (x) {
-                return x[1];
-            });
+        ApexCharts.exec('apexchart-vertical', 'updateOptions', {
+            chart: {
+                fill: {
+                    colors: ['#1f77b4', '#aec7e8']
+                },
+                toolbar: {
+                    show: false
+                },
 
-            Datos.push({"label":[...Semana],"data":[...filtroEstado], "backgroundColor": colorsArray[Math.floor(Math.random() * colorsArray.length)]});
+            },
+            colors: ['#1f77b4', '#aec7e8'],
+        }
+        );
+        ApexCharts.exec('apexchart-vertical', 'updateOptions', {
+            // Para los nombres de la serie
+            //para que la lengenda me salga en la parte de abajo
+            labels: agrupadorGeneral,
+            legend: {
+                show: true,
+                position: 'bottom'
+            },
+            tooltip: {
+                y: {
+                    formatter: function (value: any, serie: any, index: any) {
+                        return `${serie.w.config.labels[serie.dataPointIndex]} : ${value}`
+                    }
+                }
+            },
+            //para darle forma a los totales
+            plotOptions: {
+                bar: {
+                    horizontal: true
+                }
+            }
         });
-        return Datos;
+        let valores =
+            // actializar los datos
+            ApexCharts.exec('apexchart-vertical', 'updateSeries',
+                [
+                    {
+                        name: [...Semana],
+                        data: arrayEstados.map((val) => {
+                            return val[0].y;
+                        })
+                    }
+                ]
+            );
+
     };
-   //se retornan las etiquetas dinamicamente
-    const retornarLabels = (data:any[]) =>{
-        if (data == null || data == undefined)
-            return false;
-        let agrupadorGeneral = data.map((item) => {
-                return item.Vertical;
-            }).filter((value, index, self:any) =>{
-                return self.indexOf(value) === index;
-            });
-        return agrupadorGeneral;
-    }
     //el use effect
     useEffect(() => {
-        const element = document.getElementById(
-            `barupdate`
-        ) as HTMLCanvasElement;
-        if (!element) {
-            return;
-        }
-
-        let  colorsArray = ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5'];
-        let  colorsArrayLabels = ["bg-danger", "bg-warning", "bg-primary", "bg-success"]; 
-        let labelsArray:string[] = []//['Activas','Implementación'];
-        let _data : any[] = [];
-
-
-        if(Filtrado){
-            if(DataFiltrada)
-                if(DataFiltrada != undefined){
-                        let serie =  RetornarSerie(DataFiltrada.filter(function (item:any) {
-                            return item.Vertical;
+        if (Filtrado) {
+            if (DataFiltrada)
+                if (DataFiltrada != undefined) {
+                   RetornarSerie(DataFiltrada.filter(function (item: any) {
+                        return ( item.ClasificacionId == "Si" ?? item.Vertical );
                     }))
-                    _data = (serie != false  ? serie:[]);
-                    let labels =  retornarLabels(DataFiltrada.filter(function (item:any) {
-                        return item.Vertical;
-                    }));
-                        labelsArray =(labels != false ? labels:[])
-                }
-            }
-        else
-        {
-            if(Data)
-                if(Data['Unidades'] != undefined){
-                    let serie =  RetornarSerie(Data['Unidades'].filter(function (item:any) {
-                            return item.Vertical;
-                    }))
-                    _data = (serie != false ? serie:[])
-                    let labels =  retornarLabels(Data['Unidades'].filter(function (item:any) {
-                        return item.Vertical;
-                    }));
-                    labelsArray =(labels != false ? labels:[])
                 }
         }
-        const options = getChartOptions( _data, colorsArray, "Verticales", labelsArray);
-
-        const ctx = element.getContext("2d");
-        let myDoughnut: Chart | null;
-
-        if (ctx && labelsArray.length > 0) {   
-        myDoughnut = new Chart(ctx, options);
+        else {
+            if (Data)
+                if (Data['Unidades'] != undefined) {
+                     RetornarSerie(Data['Unidades'].filter(function (item: any) {
+                        return ( item.ClasificacionId == "Si" ?? item.Vertical );
+                    }))
+                }
         }
-        return function cleanUp() {
-        if (myDoughnut) {
-            myDoughnut.destroy();
-        }
-        };
-    },[Data, DataFiltrada, Filtrado])
+    }, [Data, DataFiltrada, Filtrado])
     return (
-        <div className={className}>
-            <canvas id="barupdate"></canvas>
-        </div>
+        <>
+            <div className={className}>
+                <div className="text-center pt-5">
+                    <label className="label label-sm fw-bolder">VERTICAL</label>
+                </div>
+                {
+                    (Vertical != null) && (Vertical.options != undefined) && (<ReactApexChart options={Vertical.options} series={Vertical.series} type="bar" height={300} />)
+                }
+            </div>
+
+        </>
     )
 }
-export {VerticalChart}
-
-function getChartOptions(Data:ChartDataSets[], colors: string[], titulo: string, labels:  string[]) {
-    const tooltipBgColor = getCSSVariableValue("--bs-gray-200");
-    const tooltipColor = getCSSVariableValue("--bs-gray-800");
-    const options: ChartConfiguration = {
-        type: "horizontalBar",
-        data:{
-            labels:labels,
-            datasets: Data
-        },
-      options: {
-        responsive: true,
-        tooltips: {
-                intersect: false,
-                mode: "nearest",
-                bodySpacing: 5,
-                yPadding: 10,
-                xPadding: 10,
-                caretPadding: 0,
-                displayColors: false,
-                cornerRadius: 4,
-                footerSpacing: 0,
-                titleSpacing: 0,
-            callbacks:{
-                label:(val:any, cant:any) =>{
-                    return  `${cant.datasets[val.datasetIndex].label[val.datasetIndex]} : ${cant.datasets[val.datasetIndex].data[val.index]}`;
-                }
-            }
-        },
-        legend:{
-            display:false
-        },
-      },
-    };
-    return options;
-  }
+export { VerticalChart }

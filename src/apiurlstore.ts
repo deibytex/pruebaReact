@@ -1,7 +1,7 @@
 const apiURL = process.env.REACT_APP_API_URL;
 const apiURLDWH = process.env.REACT_APP_API_DWH_URL;
 const apiURLPORTAL = process.env.REACT_APP_API_MVC_URL;
-
+const apiFRESHDESK = process.env.REACT_APP_FRESHDESK;
 console.log(apiURL,apiURLDWH, apiURLPORTAL )
 /*URL ACCOUNT PARA EDITAR, CREAR */
 
@@ -22,7 +22,8 @@ export const CORE_ExecProcedureByTipoConsulta = `${apiURL}/Adm/auth/ExecProcedur
 export const CORE_getconsultadinamicasUser = `${apiURL}/Adm/auth/GetConsultasDinamicasConAutorizacionUser`
 export const CORE_getconsultadinamicasUserDWH = `${apiURL}/Adm/auth/GetConsultasDinamicasConAutorizacionUserDWH`
 
-
+export const getTicketsFreshdesk = `${apiFRESHDESK}/tickets`
+export const getCamposTickets = `${apiFRESHDESK}/ticket_fields`
 
 /* URL PARA NEPTUNO */
 export const NEP_InsertaArchivo = `${apiURL}/Archivos/SetArchivo`
