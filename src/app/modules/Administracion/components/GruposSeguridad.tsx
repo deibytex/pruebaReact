@@ -146,7 +146,7 @@ export default function GruposSeguridad() {
             setloader(true);
             var gruposeguridadid = clave == '1' ? null : grupoSeguridadId == null ? row.grupoSeguridadId : grupoSeguridadId;
             SetGruposSeguridad(nombreGrupo, descripcion, gruposeguridadid, clave, esactivo).then((response: AxiosResponse<any>) => {
-                console.log(response.data.data)
+               
                 if (clave != '1'){
                     if (response.data.data[0][""] == 'Grupo de seguridad modificado Éxitosamente') {
                         let grupoSeguridad = (gruposSeguridad as any[]).map(function (m) {
@@ -170,7 +170,7 @@ export default function GruposSeguridad() {
                     }
                     else errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
                 }else{
-                    
+
                     const gruposseguridad = response.data.data.map((m: any) => {
                         return {descripcion: m.Descripcion, nombreGrupo: m.NombreGrupo, grupoSeguridadId: m.GrupoSeguridadId,
                             esActivo: m.EsActivo}
