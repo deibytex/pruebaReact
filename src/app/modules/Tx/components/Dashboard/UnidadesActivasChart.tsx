@@ -14,6 +14,7 @@ const UnidadesActivasChart: React.FC<Props> = ({ className }) => {
       options: {
         chart: {
           id: 'apexchart-unidades',
+          fontFamily: 'Montserrat',
         }
       },
       series: [],
@@ -30,6 +31,7 @@ const UnidadesActivasChart: React.FC<Props> = ({ className }) => {
   const ActualizarGraficas = (Data: any) => {
     let nombreSeries: any[] = []
     let cantidadUnidadesActivas = 0;
+    console.log(Data)
     nombreSeries = Data.map((item: any) => {
       if (item.ClasificacionId == 'Si' || item.ClasificacionId == 'No')
         return item.ClasificacionId;

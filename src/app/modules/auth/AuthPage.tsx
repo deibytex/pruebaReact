@@ -23,24 +23,13 @@ export function AuthPage() {
      
     <div   className="d-flex flex-column flex-lg-row flex-column-fluid"  id="kt_login"      >
      
-      <div className="d-flex flex-column text-center items-aling-center justify-content-center bg-primary w-lg-600px pt-15 pt-lg-0"
+      <div className="d-flex flex-column text-center items-aling-center justify-content-center bg-primary w-lg-600px pt-0"
         style={{ 
-          backgroundImage: `url(${toAbsoluteUrl("/media/syscaf/FondoVerde.jpeg")})` 
+          backgroundImage: `url(${toAbsoluteUrl("/media/syscaf/FondoRecortado.png")})` 
           ,backgroundRepeat:"no-repeat" ,
-          backgroundSize:"cover"
+          backgroundSize:"100% 100%"
         }}
       >
-        
-  
-          <Link to="/" className="mb-6">
-            <img
-               alt="Logo"
-               src={toAbsoluteUrl("/media/syscaf/LogoBlanco.png")}
-               className="h-90px  h-75px"
-             
-            />
-          </Link>
-     
 
      
       </div>

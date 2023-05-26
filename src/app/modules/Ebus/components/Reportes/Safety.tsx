@@ -314,6 +314,7 @@ export default function ReporteSafety() {
             options: {
                 chart: {
                     id: 'detalladoAgrupado',
+                    fontFamily: 'Montserrat',
                     events: {
                         dataPointSelection: function (event: any, chartContext: any, config: any) {
                             // seleccionamos el index de la grafica para posteriormente filtrar

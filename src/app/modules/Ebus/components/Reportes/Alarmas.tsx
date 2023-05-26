@@ -90,15 +90,8 @@ export default function ReporteAlarmas() {
     [
       {
         accessorKey: 'Movil',
-        header: 'Móvil',
-        size: 100,
-        Footer: () => {
-          return (
-            <Box color="success.main">
-              Total:
-            </Box>
-          )
-        }
+        header: 'Móvil'
+       
       },
       {
         accessorKey: 'Fecha',
@@ -115,23 +108,14 @@ export default function ReporteAlarmas() {
         }
       }, {
         accessorKey: 'Descripcion',
-        header: 'Descripción',
-        size: 200
+        header: 'Descripción'
       }, {
         accessorKey: 'DuracionHora',
         header: 'Duración [h]',
         Cell({ cell, column, row, table, }) {
           return msToTimeSeconds((row.original.DuracionHora * 3600 ?? 0))
-        },
-        Footer: () => {
-          const totalKm = dataAlarmasFiltrada.reduce((acc, curr) => acc + curr.DuracionHora, 0);
-
-          return (
-            <Box color="warning.main">
-              {locateFormatNumberNDijitos(totalKm, 2)}
-            </Box>
-          )
         }
+       
       }, {
         accessorKey: 'StartOdo',
         header: 'Odómetro',
@@ -177,6 +161,7 @@ export default function ReporteAlarmas() {
       options: {
         chart: {
           id: 'apexchart-example',
+          fontFamily: 'Montserrat',
           events: {
             dataPointSelection: function (event: any, chartContext: any, config: any) {
               // seleccionamos el index de la grafica para posteriormente filtrar
@@ -535,7 +520,8 @@ export default function ReporteAlarmas() {
             sx: (theme) => ({
               fontSize: 14,
               fontStyle: 'bold',
-              color: 'rgb(27, 66, 94)'
+              color: 'rgb(27, 66, 94)',
+              alignContent : 'center',
 
             }),
           }}
@@ -555,6 +541,11 @@ export default function ReporteAlarmas() {
           onPaginationChange={setPagination}
           onSortingChange={setSorting}
           rowCount={rowCount}
+          defaultColumn={{
+            minSize: 20, //allow columns to get smaller than default
+            maxSize: 200, //allow columns to get larger than default
+            size: 100,
+          }}
           state={{
             columnFilters,
             globalFilter,

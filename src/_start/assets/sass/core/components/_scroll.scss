@@ -15,7 +15,7 @@
 
         // Webkit
         &::-webkit-scrollbar {
-            width: get($scrollbar, width);
+            width:   get($scrollbar, width);
             height: get($scrollbar, height);
         }
 

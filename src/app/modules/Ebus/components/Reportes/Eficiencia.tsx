@@ -246,6 +246,7 @@ export default function ReporteEficiencia() {
       options: {
         chart: {
           id: 'apexchart-example',
+          fontFamily: 'Montserrat',
           events: {
             dataPointSelection: function (event: any, chartContext: any, config: any) {
               // seleccionamos el index de la grafica para posteriormente filtrar
@@ -315,6 +316,7 @@ export default function ReporteEficiencia() {
       options: {
         chart: {
           id: 'totalDistancia',
+          fontFamily: 'Montserrat',
           events: {
             dataPointSelection: function (event: any, chartContext: any, config: any) {
               // seleccionamos el index de la grafica para posteriormente filtrar
@@ -846,7 +848,7 @@ export default function ReporteEficiencia() {
             defaultColumn={{
               minSize: 80, //allow columns to get smaller than default
               maxSize: 200, //allow columns to get larger than default
-              
+              size: 80,
             }}
             muiTableContainerProps={{
               ref: tableContainerRef, //get access to the table container element

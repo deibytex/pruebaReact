@@ -78,7 +78,12 @@ export function Login() {
       
       {/* begin::Title */}    
       
-        <h1 className="fw-bolder text-primary text-center mt-10 ">SYSCAF Analytics</h1>    
+      <img
+               alt="Logo"
+               src={toAbsoluteUrl("/media/syscaf/LogoColor.png")}
+               className="w-300px h-150px"
+             
+            />
      
         <h4 className="fw-bolder text-danger">{errorLogin}</h4>        
       </div>

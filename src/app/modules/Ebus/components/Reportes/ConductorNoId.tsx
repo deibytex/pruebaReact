@@ -94,7 +94,6 @@ export default function ReporteConductorNoId() {
       {
         accessorKey: 'Movil',
         header: 'Móvil',
-
         Footer: () => {
           return (
             <Box color="success.main">
@@ -124,8 +123,6 @@ export default function ReporteConductorNoId() {
       , {
         accessorKey: 'noid',
         header: "No Id [km]",
-
-
         Cell({ cell, column, row, table, }) {
           return locateFormatNumberNDijitos(row.original.noid, 2);
         },
@@ -202,6 +199,7 @@ export default function ReporteConductorNoId() {
       options: {
         chart: {
           id: 'ReporteDistancia',
+          fontFamily: 'Montserrat',
           events: {
             dataPointSelection: function (event: any, chartContext: any, config: any) {
               // seleccionamos el index de la grafica para posteriormente filtrar
@@ -231,7 +229,7 @@ export default function ReporteConductorNoId() {
       options: {
         chart: {
           id: 'ReporteDistanciaTotal',
-
+          fontFamily: 'Montserrat',
           events: {
             dataPointSelection: function (event: any, chartContext: any, config: any) {
               // seleccionamos el index de la grafica para posteriormente filtrar
@@ -643,7 +641,11 @@ export default function ReporteConductorNoId() {
             enableRowVirtualization
             enableRowNumbers
             enableStickyFooter
-
+            defaultColumn={{
+              minSize: 40, //allow columns to get smaller than default
+              maxSize: 200, //allow columns to get larger than default
+              size: 80,
+            }}
             muiTableContainerProps={{
 
               sx: { maxHeight: '600px' }, //give the table a max height

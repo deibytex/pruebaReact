@@ -20,6 +20,7 @@ const OtrasUnidadesChart: React.FC<Props> = ({ className }) => {
       options: {
         chart: {
           id: 'apexchart-otrasunidades',
+          fontFamily: 'Montserrat',
         }
       },
       series: [],

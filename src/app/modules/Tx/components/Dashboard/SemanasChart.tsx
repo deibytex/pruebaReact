@@ -17,6 +17,7 @@ useEffect(() => {
       options: {
         chart: {
           id: 'apexchart-semanas',
+          fontFamily: 'Montserrat',
         }
       },
       series: [],

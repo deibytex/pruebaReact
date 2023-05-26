@@ -116,6 +116,7 @@ export default function ZPOperadorMovil() {
             options: {
                 chart: {
                     id: 'apexchart-example',
+                    fontFamily: 'Montserrat',
                     events: {
                         dataPointSelection: function (event: any, chartContext: any, config: any) {
                             // seleccionamos el index de la grafica para posteriormente filtrar
@@ -138,6 +139,7 @@ export default function ZPOperadorMovil() {
             options: {
                 chart: {
                     id: 'apexchart-acumulado',
+                    fontFamily: 'Montserrat',
                 },
                 xaxis: {
                     categories: [],

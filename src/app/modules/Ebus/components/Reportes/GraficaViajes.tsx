@@ -254,6 +254,7 @@ export default function ReporteViaje() {
       options: {
 
         chart: {
+          fontFamily: 'Montserrat',
           animations: { enabled: false },
           zoom: {
             enabled: true,
@@ -719,7 +720,7 @@ export default function ReporteViaje() {
             sorting,
           }}
           defaultColumn={{
-            minSize: 80, //allow columns to get smaller than default
+            minSize: 20, //allow columns to get smaller than default
             maxSize: 200, //allow columns to get larger than default
             size: 80, //make columns wider by default
           }}

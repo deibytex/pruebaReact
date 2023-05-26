@@ -205,6 +205,7 @@ export default function ReporteNivelCarga() {
       options: {
         chart: {
           id: 'apexchart-example',
+          fontFamily: 'Montserrat',
           events: {
             dataPointSelection: function (event: any, chartContext: any, config: any) {
               // seleccionamos el index de la grafica para posteriormente filtrar

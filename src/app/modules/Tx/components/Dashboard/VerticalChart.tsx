@@ -15,6 +15,7 @@ const VerticalChart: React.FC<Props> = ({ className }) => {
             options: {
                 chart: {
                     id: 'apexchart-vertical',
+                    fontFamily: 'Montserrat',
                 }
             },
             series: [],

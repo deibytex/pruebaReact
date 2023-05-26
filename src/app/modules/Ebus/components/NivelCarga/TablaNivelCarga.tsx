@@ -267,6 +267,7 @@ const getIconSoc = (data:any) => {
         
           
            <MaterialReactTable
+           
                     localization={MRT_Localization_ES}
                     displayColumnDefOptions={{
                     'mrt-row-actions': {
@@ -285,6 +286,11 @@ const getIconSoc = (data:any) => {
                     color: 'rgb(27, 66, 94)'
                     
                   }),
+                }}
+                muiTableContainerProps={{
+                 
+                  sx: { scrollbarColor: 'primary'}, 
+      
                 }}
                     columns={listadoCampos}
                     data={Datos}

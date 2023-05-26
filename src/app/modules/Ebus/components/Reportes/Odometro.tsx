@@ -69,7 +69,7 @@ export default function ReporteOdometro() {
                 }
             }, {
                 accessorKey: 'Odometro',
-                header: 'Odometro',
+                header: 'Odómetro',
                 size: 80,
                 Cell({ cell, column, row, table, }) {
                     const value = (row.original != undefined) ? row.original.Odometro : row;

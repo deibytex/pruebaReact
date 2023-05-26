@@ -489,9 +489,9 @@ $container-padding-x: $grid-gutter-width !default;
 // Font, line-height, and color for body text, headings, and more.
 
 // Font family
-$font-family-sans-serif: Poppins,
+$font-family-sans-serif: Montserrat,
     Helvetica,
-    "sans-serif" !default;
+    "sans-serif" !important;
 
 $font-size-base: 1rem !default; // Assumes the browser default, typically `13px`
 $font-size-lg: $font-size-base * 1.075 !default; // 14.04px
@@ -1256,9 +1256,9 @@ $feedback: (
 // Custom scrollbar
 $scrollbar: (
     space: 0.25rem,
-    width: 0.4rem,
-    height: 0.4rem,
-    color: $gray-200,
+    width: 0.9rem,
+    height: 0.9rem,
+    color: $gray-300,
     hover-color: darken($gray-200, 2%)) !default;
 
 

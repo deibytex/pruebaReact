@@ -40,10 +40,13 @@ const UnidadesActivas: React.FC = () => {
         if (Data)
         if (Data['Unidades'] != undefined) {
             Data['Unidades'].filter(function (item: any, index: any) {
-                var i = AdminsUnidadesActivas.findIndex(x => (x.usuarioIds == item.usuarioIds && x.nombre == item.Administrador));
+                if(item.usuarioIds != null)
+                {
+                var i = AdminsUnidadesActivas.findIndex(x => (x.usuarioIds.trim()== item.usuarioIds.trim()));
                 if (i <= -1) {
-                    AdminsUnidadesActivas.push({ "nombre": item.Administrador, "usuarioIds": item.usuarioIds });
+                    AdminsUnidadesActivas.push({ "nombre": item.Administrador, "usuarioIds": item.usuarioIds.trim() });
                 }
+            }
                 return null;
             });
         }
