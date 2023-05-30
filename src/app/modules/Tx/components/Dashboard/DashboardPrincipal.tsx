@@ -22,7 +22,7 @@ export default function  DashboardPrincipal (){
             setData({"Unidades":response.data});
             setCargando(false);
         }).catch((error:AxiosError<any>) =>{
-            errorDialog("Ha ocurrido un error al consular las unidades","");
+            errorDialog("Ha ocurrido un error al consultar las unidades","");
             setCargando(false);
         });
     };

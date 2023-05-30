@@ -40,9 +40,9 @@ const UnidadesActivas: React.FC = () => {
         if (Data)
         if (Data['Unidades'] != undefined) {
             Data['Unidades'].filter(function (item: any, index: any) {
-                var i = AdminsUnidadesActivas.findIndex(x => (x.usuarioIds == item.usuarioIds && x.nombre == item.Administrador));
+                var i = AdminsUnidadesActivas.findIndex(x => (x.usuarioIds.trim() == item.usuarioIds.trim()));
                 if (i <= -1) {
-                    AdminsUnidadesActivas.push({ "nombre": item.Administrador, "usuarioIds": item.usuarioIds });
+                    AdminsUnidadesActivas.push({ "nombre": item.Administrador, "usuarioIds": item.usuarioIds.trim() });
                 }
                 return null;
             });
@@ -92,7 +92,7 @@ const UnidadesActivas: React.FC = () => {
         FiltrarDatos();
     },[eventsSelected])
     const FiltrarDatos = () =>{
-        if(value.length == 2 || value.length == 0){
+        if(value.length == 2){
             setFiltrado(false);
             setCargando(false);
         }else
