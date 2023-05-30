@@ -1549,7 +1549,7 @@ export default function ReporteSafety() {
                                 <Box
                                     sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
                                 >
-                                    <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataFiltrada, TipoReporteBase[tabSel].columnas, TipoReporteBase[tabSel].reporte) }}>
+                                    <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataFiltrada, TipoReporteBase[tabSel].columnas, `Safety ${TipoReporteBase[tabSel].reporte}`) }}>
                                         <i className="bi-file-earmark-excel"></i></button>
                                 </Box>
                             )}

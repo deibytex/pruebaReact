@@ -4,7 +4,7 @@ import moment from "moment";
 import XLSX from 'sheetjs-style';
 import { FormatoColombiaDDMMYYYHHmmss } from "../Constants";
 import { errorDialog } from "./ConfirmDialog";
-import { locateFormatPercentNDijitos } from "../Helper";
+import { locateFormatNumberNDijitos, locateFormatPercentNDijitos } from "../Helper";
 export function DescargarExcel(datos: any[], columnas: MRT_ColumnDef<any>[], NombreArchivo: string) {
     const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;carset=UTF-8';
     const fileExtension = '.xlsx';
@@ -29,7 +29,8 @@ export function DescargarExcel(datos: any[], columnas: MRT_ColumnDef<any>[], Nom
                     let nombreCampo: string = columna.accessorKey as string;
                     let valuen = item[nombreCampo];
                     Objeto[columna.header] = (nombreCampo === "Placa" || nombreCampo === "registrationNumber" ? valuen : columna.header.includes('%') ? locateFormatPercentNDijitos(valuen, 2) :
-                            (!isNaN(valuen)) ? valuen : ((moment(valuen).isValid()) ? moment(valuen).format(FormatoColombiaDDMMYYYHHmmss) : valuen));
+                    (nombreCampo === "Score" || nombreCampo === "scoreVel50" || nombreCampo === "scoreVel30" || nombreCampo === "scoreFB" 
+                        || nombreCampo === "scoreAB" || nombreCampo === "scoreGB" ) ?  locateFormatNumberNDijitos(valuen ?? 0, 2) : (!isNaN(valuen)) ? valuen : ((moment(valuen).isValid()) ? moment(valuen).format(FormatoColombiaDDMMYYYHHmmss) : valuen));
                 }
                 console.log(Objeto[columna.header]);
             });
