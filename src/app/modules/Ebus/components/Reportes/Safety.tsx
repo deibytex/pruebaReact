@@ -67,7 +67,7 @@ export default function ReporteSafety() {
                     accessorKey: 'Score',
                     header: 'Score',
                     Cell({ cell, column, row, table, }) {
-                        return (locateFormatNumberNDijitos(row.original.Score ?? 0, 2))
+                        return (locateFormatNumberNDijitos(isNaN(row.original.Score) ? 0 : row.original.distancia ?? 0, 2))
                     },
                     muiTableBodyCellProps: ({
                         cell
@@ -83,35 +83,35 @@ export default function ReporteSafety() {
                     accessorKey: 'scoreVel50',
                     header: 'ScoreVel > 50',
                     Cell({ cell, column, row, table, }) {
-                        return (getIcon(row.original.scoreVel50))
+                        return (getIcon(isNaN(row.original.scoreVel50) ? 0 : row.original.scoreVel50))
                     }
                 },
                 {
                     accessorKey: 'scoreVel30',
                     header: 'ScoreVel > 30',
                     Cell({ cell, column, row, table, }) {
-                        return (getIcon(row.original.scoreVel30))
+                        return (getIcon(isNaN(row.original.scoreVel30) ? 0 : row.original.scoreVel30))
                     }
                 },
                 {
                     accessorKey: 'scoreFB',
                     header: 'ScoreFB > 10',
                     Cell({ cell, column, row, table, }) {
-                        return (getIcon(row.original.scoreFB))
+                        return (getIcon(isNaN(row.original.scoreFB) ? 0 : row.original.scoreFB))
                     }
                 },
                 {
                     accessorKey: 'scoreAB',
                     header: 'ScoreAB > 8',
                     Cell({ cell, column, row, table, }) {
-                        return (getIcon(row.original.scoreAB))
+                        return (getIcon(isNaN(row.original.scoreAB) ? 0 : row.original.scoreAB))
                     }
                 },
                 {
                     accessorKey: 'scoreGB',
                     header: 'ScoreGB > 0,3',
                     Cell({ cell, column, row, table, }) {
-                        return (getIcon(row.original.scoreGB))
+                        return (getIcon(isNaN(row.original.scoreGB) ? 0 : row.original.scoreGB))
                     }
                 }
 
@@ -1549,7 +1549,7 @@ export default function ReporteSafety() {
                                 <Box
                                     sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
                                 >
-                                    <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataFiltrada, TipoReporteBase[tabSel].columnas, TipoReporteBase[tabSel].reporte) }}>
+                                    <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataFiltrada, TipoReporteBase[tabSel].columnas, `Safety ${TipoReporteBase[tabSel].reporte}`) }}>
                                         <i className="bi-file-earmark-excel"></i></button>
                                 </Box>
                             )}
