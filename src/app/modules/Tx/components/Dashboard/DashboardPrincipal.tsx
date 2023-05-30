@@ -3,47 +3,75 @@ import moment from "moment"
 import { useEffect, useState } from "react"
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog"
 import {  useDataDashboard } from "../../core/DashboardProvider"
-import {  GetSnapShotTransmision, GetUnidadesActivas } from "../../data/Dashboard"
+import {  GetSnapShotTickets2, GetSnapShotTransmision, GetUnidadesActivas } from "../../data/Dashboard"
 import { Tickets } from "./Tickets"
 import { Transmision } from "./Transmision"
 import { UnidadesActivas } from "./UnidadesActivas"
+import BlockUi from "@availity/block-ui"
 
 export default function  DashboardPrincipal (){
-    const {ClienteSeleccionado, setData, setDataTx, setDataTk, setTabActive, SemanaSeleccionada} = useDataDashboard()
+    const {ClienteSeleccionado, setData, setDataTx, setDataTk,TabActive, setTabActive, SemanaSeleccionada, Cargando, setCargando} = useDataDashboard()
     const [montarTx, setmontarTx] = useState<boolean>(false);
     const [montarTicket, setMontarTicket] = useState<boolean>(false);
     const [montarUnidades, setmontarUnidades] = useState<boolean>(true);
 
      function ConsultarUnidades() {
+        setCargando(true);
         let Fecha = (SemanaSeleccionada != undefined ? SemanaSeleccionada['fecha'] : moment().format("DD/MM/YYYY").toString())
          GetUnidadesActivas(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
             setData({"Unidades":response.data});
+            setCargando(false);
         }).catch((error:AxiosError<any>) =>{
             errorDialog("Ha ocurrido un error al consular las unidades","");
+            setCargando(false);
         });
     };
     function ConsultarTransmision() {
+        setCargando(true);
         let Fecha = (SemanaSeleccionada != undefined  ?  (SemanaSeleccionada?.length != 0 ?SemanaSeleccionada['fecha'] : moment().format("DD/MM/YYYY").toString()): moment().format("DD/MM/YYYY").toString());
             GetSnapShotTransmision(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
                 setDataTx({"Transmision":response.data});
+                setCargando(false);
             }).catch((error:AxiosError<any>) =>{
+                setCargando(false);
                 //errorDialog("Ha ocurrido un error al consular transmision","");
             });
     };
+    function ConsultarTickets() {
+        setCargando(true);
+        let Fecha = (SemanaSeleccionada != undefined ? SemanaSeleccionada['fecha'] : moment().format("DD/MM/YYYY").toString())
+        GetSnapShotTickets2(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
+            setDataTk({"Ticket":response.data.data});
+            setCargando(false);
+        }).catch((error:AxiosError<any>) =>{
+            setCargando(false);
+        });
+    };
+
     useEffect(() =>{
-        ConsultarUnidades();
-        ConsultarTransmision();
+        if(TabActive == "Tab1")
+            ConsultarUnidades();
         //ConsultarTickets();
         return () =>{
            setData([]);
            setDataTx([]);
         }
-    }, [SemanaSeleccionada])
+    }, [SemanaSeleccionada, TabActive])
 
     useEffect(() =>{
+        if(TabActive == "Tab2")
+            ConsultarTransmision();
+    },[SemanaSeleccionada, TabActive])
 
-    },[])
-
+    useEffect(() =>{
+        if(TabActive == "Tab3")
+            ConsultarTickets()
+        return () =>{
+            setDataTk([]);
+           setDataTx([]);
+        }
+    }, [SemanaSeleccionada, TabActive])
+  
     const MontarTransmision = (event:any) =>{
         setmontarTx(true);
         setTabActive("Tab2");
@@ -58,6 +86,7 @@ export default function  DashboardPrincipal (){
     }
     return(
         <> 
+         <BlockUi tag="div" keepInView blocking={Cargando ?? true}  >
             <div className="card">
                 <div className="card-body">
                         <ul className="nav nav-pills mb-3 w-100" id="pills-tab" role="tablist">
@@ -84,6 +113,7 @@ export default function  DashboardPrincipal (){
                         </div>
                 </div>
             </div>
+            </BlockUi>
         </>
     )
 }

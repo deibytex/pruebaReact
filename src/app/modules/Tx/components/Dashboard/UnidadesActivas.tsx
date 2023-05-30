@@ -9,7 +9,7 @@ import { Checkbox, CheckboxGroup } from "rsuite";
 const UnidadesActivas: React.FC = () => {
     const defaultEventsSelected: any[] = [
         {
-            name: 'Equipo Syscaf',
+            name: 'Es Equipo Syscaf',
             data: [],
             isSelected: true,
             getData: (EsEquipoSyscaf: any, f: any) => {
@@ -19,7 +19,7 @@ const UnidadesActivas: React.FC = () => {
             }
         },
         {
-            name: 'No Equipo Syscaf',
+            name: 'Cliente',
             data: [],
             isSelected: true,
             getData: (EsEquipoSyscaf: any, f: any) => {
@@ -29,7 +29,7 @@ const UnidadesActivas: React.FC = () => {
             }
         }
     ]
-    const { Data, DataFiltrada,  setDataFiltrada, Filtrado, setFiltrado, } = useDataDashboard();
+    const { Data, DataFiltrada,  setDataFiltrada, Filtrado, setFiltrado,Cargando, setCargando } = useDataDashboard();
     let preSeleccionados = defaultEventsSelected.filter(x => x.isSelected).map(x => x.name);
     const [eventsSelected, setEventsSelected] = useState(defaultEventsSelected);
     const [value, setValue] = useState<any[]>(preSeleccionados);
@@ -40,13 +40,10 @@ const UnidadesActivas: React.FC = () => {
         if (Data)
         if (Data['Unidades'] != undefined) {
             Data['Unidades'].filter(function (item: any, index: any) {
-                if(item.usuarioIds != null)
-                {
-                var i = AdminsUnidadesActivas.findIndex(x => (x.usuarioIds.trim()== item.usuarioIds.trim()));
+                var i = AdminsUnidadesActivas.findIndex(x => (x.usuarioIds == item.usuarioIds && x.nombre == item.Administrador));
                 if (i <= -1) {
-                    AdminsUnidadesActivas.push({ "nombre": item.Administrador, "usuarioIds": item.usuarioIds.trim() });
+                    AdminsUnidadesActivas.push({ "nombre": item.Administrador, "usuarioIds": item.usuarioIds });
                 }
-            }
                 return null;
             });
         }
@@ -81,17 +78,6 @@ const UnidadesActivas: React.FC = () => {
         )
 
     });
-
-    const handleCheckAll = (value: any, checked: any) => 
-    {
-      
-      let aux = defaultEventsSelected.map((x: any) => {
-        x.isSelected = checked;
-        return x;
-      });
-      setEventsSelected(aux);
-      setValue(checked ? defaultEventsSelected.map(x => x.name) : []);
-    }
     const handleChange = (value: any[]) => 
     {
       let aux = defaultEventsSelected.map((x: any) => {
@@ -108,28 +94,31 @@ const UnidadesActivas: React.FC = () => {
     const FiltrarDatos = () =>{
         if(value.length == 2 || value.length == 0){
             setFiltrado(false);
+            setCargando(false);
         }else
         value.map((item) =>{
             let Seleccionado="";
             switch (Filtrado) {
                 case true:
                     if(DataFiltrada != undefined ){
-                         Seleccionado = (item == "No Equipo Syscaf" ? "No": "Si");
+                         Seleccionado = (item == "Cliente" ? "No": "Si");
                         let _dataFiltrada =  DataFiltrada.filter(function (val: any, index: any) {
-                            return (val.EsEquipoSyscaf == Seleccionado);
+                            return (val.EsEquipoSyscaf == Seleccionado ||  val.EsEquipoSyscaf == null);
                         });
                         setFiltrado(true);
                         setDataFiltrada(_dataFiltrada);
+                        setCargando(false);
                     }
                     break;
                 case false:
                     if(Data != undefined &&  Data['Unidades'] != undefined ){
-                        Seleccionado = (item == "No Equipo Syscaf" ? "No": "Si");
+                        Seleccionado = (item == "Cliente"  ? "No": "Si");
                         let DataFiltrada =  Data['Unidades'].filter(function (val: any, index: any) {
-                            return (val.EsEquipoSyscaf == Seleccionado);
+                            return (val.EsEquipoSyscaf == Seleccionado ||  val.EsEquipoSyscaf == null);
                         });
                         setFiltrado(true);
                         setDataFiltrada(DataFiltrada);
+                        setCargando(false);
                     }
                     break;
                 default:
@@ -140,6 +129,7 @@ const UnidadesActivas: React.FC = () => {
                         });
                         setFiltrado(true);
                         setDataFiltrada(DataFiltrada);
+                        setCargando(false);
                     }
                     break;
             }
@@ -159,13 +149,7 @@ const UnidadesActivas: React.FC = () => {
                         <div className="row">
                             <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 pt-12">
                                 <div className="d-flex justify-content-start  ">
-                                    {(Data !== undefined) && (Data['Unidades'] != undefined) && (<><Checkbox
-                                        indeterminate={value.length > 0 && value.length < Data['Unidades'].length}
-                                        checked={value.length === Data['Unidades'].length}
-                                        onChange={handleCheckAll}
-                                    >
-                                        Todos
-                                    </Checkbox>
+                                    {(Data !== undefined) && (Data['Unidades'] != undefined) && (<>
                                     <CheckboxGroup inline name="checkboxList" value={value} onChange={handleChange}>
                                         {eventsSelected.map(item => (
                                             <Checkbox key={item.name} value={item.name}>
