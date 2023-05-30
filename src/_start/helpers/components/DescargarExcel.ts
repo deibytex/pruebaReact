@@ -28,7 +28,7 @@ export function DescargarExcel(datos: any[], columnas: MRT_ColumnDef<any>[], Nom
                 else {
                     let nombreCampo: string = columna.accessorKey as string;
                     let valuen = item[nombreCampo];
-                    Objeto[columna.header] = (nombreCampo === "Placa" || nombreCampo === "registrationNumber" ? valuen : columna.header.includes('%') ? locateFormatPercentNDijitos(valuen, 2) :
+                    Objeto[columna.header] = (nombreCampo === "Placa" || nombreCampo === "registrationNumber" ? valuen : columna.header.includes('%') ? locateFormatPercentNDijitos(valuen ??0, 2) :
                         (!isNaN(valuen)) ? valuen : ((moment(valuen).isValid()) ? moment(valuen).format(FormatoColombiaDDMMYYYHHmmss) : valuen));
                 }
             
@@ -65,6 +65,7 @@ export function DescargarExcelPersonalizado(datos: any[], columnas: MRT_ColumnDe
             columnas.forEach((columna) => {
                 // verificamos que exista una funcion para cada columna
                 const fncColumna = lstFunciones.filter((fnc) => fnc.name === columna.accessorKey );
+                
                 // verifica si la columna tiene subcolumnas para pintar
                 if (columna.columns !== undefined) {
                     columna.columns.forEach((columna2) => {
@@ -78,8 +79,9 @@ export function DescargarExcelPersonalizado(datos: any[], columnas: MRT_ColumnDe
                 else {
                     let nombreCampo: string = columna.accessorKey as string;
                     let value = item[nombreCampo];
+                
                     Objeto[columna.header] = 
-                        (fncColumna.length > 0 ? fncColumna[0].getData(value) : columna.header.includes('%') ? locateFormatPercentNDijitos(value, 2) :
+                        (fncColumna.length > 0 ? fncColumna[0].getData(value) : columna.header.includes('%') ? locateFormatPercentNDijitos(value ?? 0, 2) :
                         (!isNaN(value)) ? value : ((moment(value).isValid()) ? moment(value).format(FormatoColombiaDDMMYYYHHmmss) : value));
                 }
               

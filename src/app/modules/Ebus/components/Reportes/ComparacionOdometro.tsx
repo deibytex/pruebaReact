@@ -298,7 +298,7 @@ setRowCount(ArrayMovil.length); // actualizamos la informacion de las filas
               },
               {
                 accessorKey: `Diferencia${indexC}`,
-                header: 'Dif(km)',
+                header: 'Dif[km]',
                 Cell({ cell, column, row, table, }) {
                   let diferencia = row.original[`Diferencia${indexC}`] ?? 0;
                   let render = (diferencia <= -5 || diferencia >= 5) ? 
@@ -523,7 +523,7 @@ setRowCount(ArrayMovil.length); // actualizamos la informacion de las filas
               sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
             >
               
-                <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataFiltrada, columnas, "Reporte compare odometro") }}>
+                <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataFiltrada, columnas, "Reporte Comp Odómetro") }}>
                   <i className="bi-file-earmark-excel"></i></button>
              
               
