@@ -447,7 +447,7 @@ setRowCount(ArrayMovil.length); // actualizamos la informacion de las filas
       <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
     
         <MaterialReactTable
-          enableFilters={false}
+          enableColumnFilters={false}
           initialState={{ density: 'compact',columnPinning: { left: ['Movil'] }  }}
           enableColumnOrdering
           enableColumnDragging={false}

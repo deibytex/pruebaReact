@@ -661,7 +661,7 @@ export default function ReporteViaje() {
       <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
 
         <MaterialReactTable
-          enableFilters={false}
+          enableColumnFilters={false}
           initialState={{ density: 'compact' }}
           enableColumnOrdering
           enableColumnDragging={false}

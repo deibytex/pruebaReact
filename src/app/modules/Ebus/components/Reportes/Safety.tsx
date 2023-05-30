@@ -1482,7 +1482,7 @@ export default function ReporteSafety() {
                     <div className="col-xs-12 col-sm-12 col-md-12">
                     <div className="text-center"><label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px' }}> </label></div>
                     <MaterialReactTable
-                            enableFilters={false}
+                            enableColumnFilters={false}
                             initialState={{ density: 'compact', columnVisibility: { mes: false } }}
                             enableColumnOrdering
                             enableColumnDragging={false}

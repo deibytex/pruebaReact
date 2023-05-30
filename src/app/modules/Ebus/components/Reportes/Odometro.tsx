@@ -211,6 +211,7 @@ export default function ReporteOdometro() {
 
                 </div>
                 <MaterialReactTable
+                    enableColumnFilters ={false}
                     tableInstanceRef={refTabla}
                     localization={MRT_Localization_ES}
                     enableColumnDragging={false}

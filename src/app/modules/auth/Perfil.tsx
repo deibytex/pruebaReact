@@ -21,7 +21,7 @@ const isAuthorized = useSelector<RootState>(
 const model = (isAuthorized as UserModelSyscaf);
  const [Imgaen, setImagen] = useState<string|undefined>("")
  const [data, setData] = useState<UserModel>()
- const [path, setPath] = useState<string|undefined>("/media/svg/avatars/001-boy.svg")
+ const [path, setPath] = useState<string|undefined>("/media/icons/duotone/General/User.svg")
  const [valueNombre, setvalueNombre] = useState<string|undefined>(model.Nombres)
  const [valueTelefono, setvalueTelefono] = useState<string|undefined>("")
 
@@ -31,9 +31,9 @@ const model = (isAuthorized as UserModelSyscaf);
         setvalueNombre(response.data[0].fullname);
         setvalueTelefono(response.data[0].phone);
         setImagen((response.data[0].pic == "")?null: response.data[0].pic)
-        setPath((response.data[0].pic == "")?"/media/svg/avatars/001-boy.svg": response.data[0].pic);
+        setPath((response.data[0].pic == "")?"/media/icons/duotone/General/User.svg": response.data[0].pic);
     }).catch((error) =>{
-        errorDialog("<i>Error comuniquese con el adminisrador<i/>","");
+        console.log("perfil usuario",error);
     })
 },[]);
  const  DataGuardado = () =>{

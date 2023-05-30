@@ -25,18 +25,11 @@ export function HeaderUserMenu() {
   // convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
   const model = (isAuthorized as UserModelSyscaf);
 
-  const [path, setPath] = useState<string|undefined>("/media/svg/avatars/001-boy.svg")
-  useEffect(() =>{
-    GetDataUser().then((response) =>{
-        setPath((response.data[0].pic === "")?"/media/svg/avatars/001-boy.svg": response.data[0].pic);
-    }).catch((error) =>{
-        console.log("<i>Error comuniquese con el adminisrador<i/>",error);
-    })
-},[]);
+  const [path, setPath] = useState<string|undefined>("/media/icons/duotone/General/User.svg")
+
   return (
     <>
-      {(model.Nombres !== "") &&
-        <div
+      <div
           className="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg-light-primary fw-bold w-300px"
           data-kt-menu="true"
         >
@@ -55,7 +48,7 @@ export function HeaderUserMenu() {
                   src={toAbsoluteUrl((path !== undefined ? path: "/media/svg/avatars/001-boy.svg"))}
                   className="mh-35px"
                   style={{cursor:'pointer'}}
-                  onClick={showModal}
+                  onClick={()=> alert("click en boton")}
                 />
               </span>
             </div>
@@ -114,13 +107,13 @@ export function HeaderUserMenu() {
                 className="svg-icon-3x me-n1"
                 path="/media/icons/duotone/Navigation/Sign-out.svg"
               />
-              <span className="fw-bolder fs-6 d-block pt-3">Desconectar</span>
+              <span className="fw-bolder fs-6 d-block pt-3">Salir</span>
             </Link>
           </div>
           {/* end::Row */}
         </div>
-      }
-      <Perfil show={show}  handleClose={handleClose} title={"Edicion de perfil"}/>
+      
+    
     </>
   );
 }

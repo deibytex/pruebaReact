@@ -13,15 +13,13 @@ const MasterLayout: React.FC = ({ children }) => {
     <PageDataProvider>
       <div className="d-flex flex-column flex-root">
         <div className="page d-flex flex-row flex-column-fluid">
-          <AsideDefault />
+         <AsideDefault />
           <div
             className="bg-light-dark wrapper d-flex flex-column flex-row-fluid "
             id="kt_wrapper"
           >
              <Header/>
-            <div className="d-flex flex-column flex-column-fluid ">
-                {/* <Toolbar />*/ } 
-           
+            <div className="d-flex flex-column flex-column-fluid "> 
               <div
                 className="content fs-6 d-flex flex-column-fluid px-2 "
                 id="kt_content"

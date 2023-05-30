@@ -1,5 +1,8 @@
+import moment from "moment";
 import {  Post_getDynamicValueProcedureDWHTabla, Post_GetConsultasDinamicas } from "../../../../_start/helpers/Axios/DWHService";
+import { msToTimeSeconds } from "../../../../_start/helpers/Helper";
 import { TabProperty } from "../../../../_start/helpers/Models/Tabs";
+import { FormatoColombiaDDMMYYY } from "../../../../_start/helpers/Constants";
 
 /**/
 export  function GetReporteAlarmas(clientesIds:string,FechaInicio:string,FechaFinal:string) {
@@ -131,3 +134,32 @@ export function GetDataSafety(FechaInicial:string, FechaFinal:string, clientesId
         RecordsPorPagina: null
     }, params);
 }
+
+
+// listado de funciones personalizado para los reportes 
+export const fncReporteAlarma = [ 
+  {
+    name: "DuracionHora",
+    getData : (data: number) => {
+        return msToTimeSeconds(data)
+    }
+  }
+]
+
+// formato para la descarga excel del reporte de nivel de carga
+
+export const fncReporteNivelCarga = [ 
+    {
+      name: "FechaCorte",
+      getData : (data: any) => {
+          return moment(data).format(FormatoColombiaDDMMYYY)
+      }
+    },
+    {
+        name: "Duracion",
+        getData : (data: number) => {
+            
+            return msToTimeSeconds(data)
+        }
+      }
+  ]

@@ -829,7 +829,7 @@ export default function ReporteEficiencia() {
                
           </div>
           <MaterialReactTable
-            enableFilters={false}
+            enableColumnFilters={false}
             initialState={{ density: 'compact' }}
             enableColumnOrdering
             enableColumnDragging={false}

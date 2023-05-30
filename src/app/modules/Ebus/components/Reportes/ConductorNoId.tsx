@@ -631,7 +631,7 @@ export default function ReporteConductorNoId() {
             }}
             columns={listadoCampos}
             data={dataFiltrada}
-            enableFilters={false}
+            enableColumnFilters={false}
             initialState={{ density: 'compact' }}
             enableColumnOrdering
             enableColumnDragging={false}

@@ -1,10 +1,10 @@
 import moment from "moment";
 import { useEffect, useRef, useState } from "react";
-import { GetReporteAlarmas } from "../../data/ReportesData";
+import { GetReporteAlarmas, fncReporteAlarma } from "../../data/ReportesData";
 import { PageTitle } from "../../../../../_start/layout/core";
 import { DateRangePicker, Notification, Placeholder, useToaster } from "rsuite";
 import BlockUi from "@availity/block-ui";
-import { DescargarExcel } from "../../../../../_start/helpers/components/DescargarExcel";
+import { DescargarExcel, DescargarExcelPersonalizado } from "../../../../../_start/helpers/components/DescargarExcel";
 import MaterialReactTable, { MRT_ColumnDef, MRT_TableInstance } from "material-react-table";
 import { FormatoColombiaDDMMYYY, FormatoColombiaDDMMYYYHHmmss, FormatoSerializacionYYYY_MM_DD_HHmmss } from "../../../../../_start/helpers/Constants";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
@@ -111,7 +111,7 @@ export default function ReporteAlarmas() {
         header: 'Descripción'
       }, {
         accessorKey: 'DuracionHora',
-        header: 'Duración [h]',
+        header: 'Duración',
         Cell({ cell, column, row, table, }) {
           return msToTimeSeconds((row.original.DuracionHora * 3600 ?? 0))
         }
@@ -491,7 +491,7 @@ export default function ReporteAlarmas() {
       <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
 
         <MaterialReactTable
-          enableFilters={false}
+      enableColumnFilters={false}
           initialState={{ density: 'compact' }}
           enableColumnOrdering
           enableColumnDragging={false}
@@ -560,7 +560,7 @@ export default function ReporteAlarmas() {
               sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
             >
 
-              <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataAlarmas, listadoCampos, `Alarmas`) }}>
+              <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcelPersonalizado(dataAlarmas, listadoCampos, `Alarmas`,fncReporteAlarma) }}>
                 <i className="bi-file-earmark-excel"></i></button>
 
 

@@ -38,9 +38,9 @@ export function Topbar() {
       
      
       {/* begin::Aside Toggler */}
-      {config.aside.display && (
+    
         <button
-          className="btn btn-icon btn-sm btn-active-bg-accent d-lg-none ms-1 ms-lg-6"
+          className="btn btn-icon btn-sm btn-active-bg-accent  ms-1 ms-lg-6"
           id="kt_aside_toggler"
         
         >
@@ -49,7 +49,7 @@ export function Topbar() {
             className="svg-icon-1 svg-icon-dark"
           />
         </button>
-      )}
+     
       {/* end::Aside Toggler */}
 
       {/* begin::Sidebar Toggler */}

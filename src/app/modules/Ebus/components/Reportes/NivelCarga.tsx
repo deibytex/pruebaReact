@@ -1,10 +1,10 @@
 import moment from "moment";
 import { useEffect, useRef, useState } from "react";
-import { GetReporteNivelCarga } from "../../data/ReportesData";
+import { GetReporteNivelCarga, fncReporteNivelCarga } from "../../data/ReportesData";
 import { PageTitle } from "../../../../../_start/layout/core";
 import { DateRangePicker, Notification, Placeholder, useToaster } from "rsuite";
 import BlockUi from "@availity/block-ui";
-import { DescargarExcel } from "../../../../../_start/helpers/components/DescargarExcel";
+import { DescargarExcel, DescargarExcelPersonalizado } from "../../../../../_start/helpers/components/DescargarExcel";
 import MaterialReactTable, { MRT_ColumnDef, MRT_TableInstance } from "material-react-table";
 import { FormatoColombiaDDMMYYY, FormatoColombiaDDMMYYYHHmmss, FormatoSerializacionYYYY_MM_DD_HHmmss } from "../../../../../_start/helpers/Constants";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
@@ -119,8 +119,8 @@ export default function ReporteNivelCarga() {
         }
       },
       {
-        accessorKey: 'DuracionHora',
-        header: 'Dur[h]',
+        accessorKey: 'Duracion',
+        header: 'Duración',
         Cell({ cell, column, row, table, }) {
           return (msToTimeSeconds ((row.original.Duracion * 3600) ?? 0))
         }
@@ -594,7 +594,7 @@ export default function ReporteNivelCarga() {
       <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
 
         <MaterialReactTable
-          enableFilters={false}
+          enableColumnFilters={false}
           initialState={{ density: 'compact' }}
           enableColumnOrdering
           enableColumnDragging={false}
@@ -667,7 +667,7 @@ export default function ReporteNivelCarga() {
               sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
             >
 
-              <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataFiltrada, listadoCampos, "Eventos Carga") }}>
+              <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcelPersonalizado(dataFiltrada, listadoCampos, "Eventos Carga", fncReporteNivelCarga) }}>
                 <i className="bi-file-earmark-excel"></i></button>
 
 
