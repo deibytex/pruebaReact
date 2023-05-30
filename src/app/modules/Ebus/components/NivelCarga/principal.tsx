@@ -20,7 +20,8 @@ const  Principal: React.FC<Props> = ({ExpandirContraerTabla, tamaTabla, tamaMapa
          
                 <div  className={`row  col-sm-${tamaTabla} col-md-${tamaTabla} col-xs-${tamaTabla} `} ><TablaNivelCarga tamanio={tamaTabla}  /></div>
                 {<>&nbsp;</>}   {<>&nbsp;</>}   
-                <div style={{display : (tamaMapa) ?  'block' : 'none'  }}  className={`row  col-sm-6 col-md-6 col-xs-6`}> <Mapa /></div>
+                <div style={{display : (tamaMapa) ?  'block' : 'none'  , height: 600}}  className={`row  col-sm-6 col-md-6 col-xs-6`}> 
+                <Mapa /></div>
 
                 <SocFiltro />
                 <VehiculosFiltros >{}</VehiculosFiltros>

@@ -188,6 +188,7 @@ const Mapa: React.FC = () => {
             id="mapcontainter"
             center={[centerLatitud, centerLongitud]} zoom={zoom}
             className=" ml-4"
+            style={{ height: 700}}
         >
             <TileLayer
                 url={CapaBasicNight}

@@ -197,7 +197,7 @@ export default function ReporteViaje() {
         header: 'TEnergía [kWh]',
         Cell({ cell, column, row, table, }) {
           return (locateFormatNumberNDijitos(
-            (row.original.DescargakWh ?? 0 + row.original.CargakWh ?? 0), 2))
+            (row.original.DescargakWh  - row.original.CargakWh ), 2))
         }
       }, {
         accessorKey: 'CargakWh',
@@ -306,7 +306,6 @@ export default function ReporteViaje() {
           showAlways: true,
           tickAmount: 5,
           min: 0,
-          max: 100,
           labels: {
             formatter: function (val: number, index: any) {
               return val.toFixed(0);
@@ -318,8 +317,7 @@ export default function ReporteViaje() {
         },
         {
           show: false,
-          min: 0,
-          max: 100
+          min: 0
         },
         {
           show: false,
