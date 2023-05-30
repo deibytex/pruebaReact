@@ -17,7 +17,6 @@ useEffect(() => {
       options: {
         chart: {
           id: 'apexchart-semanas',
-          fontFamily: 'Montserrat',
         }
       },
       series: [],
@@ -42,12 +41,15 @@ const RetornarSerie = (data:any[]) => {
     }).filter((value, index, self:any) =>{
         return self.indexOf(value) === index;
     });
+
     agrupadorData.map((item) =>{
-        let totalAdmon = data.filter(function (data, index) {
-            if (data.Administrador == item)
-                return data.Descripcion
-        }).length;
-        Datos.push(totalAdmon);
+        if(item != null){
+            let totalAdmon = data.filter(function (data, index) {
+                if (data.Administrador == item)
+                    return data.Descripcion
+            }).length;
+            Datos.push(totalAdmon);
+        }
     })
 
     ApexCharts.exec('apexchart-semanas', 'updateOptions', {
@@ -66,7 +68,7 @@ const RetornarSerie = (data:any[]) => {
     ApexCharts.exec('apexchart-semanas', 'updateOptions', {
         // Para los nombres de la serie
         //para que la lengenda me salga en la parte de abajo
-        labels: agrupadorData,
+        labels: agrupadorData.filter((e) => e),
         legend: {
             show: true,
             position: 'bottom'
@@ -80,21 +82,6 @@ const RetornarSerie = (data:any[]) => {
 
  //el use effect
  useEffect(() => {
-    // if(Filtrado){
-    //     let dataFiltrada:any[] =[] 
-    //     if(DataFiltrada)
-    //         if(DataFiltrada != undefined){
-    //             RetornarSerie(DataFiltrada.filter(function (item:any) {
-    //                     return item.Vertical;
-    //             }))
-    //             // _data = (serie.length != 0 ? serie:[]);
-    //             // let labels =  retornarLabels(DataFiltrada.filter(function (item:any) {
-    //             //         return item.Vertical;
-    //             // }));
-    //             //     labelsArray =(labels != false ? labels:[])
-    //             }
-    //     }
-    // else{
     if(Data)
         if(Data['Unidades'] != undefined){
             RetornarSerie(Data['Unidades'].filter(function (item:any) {

@@ -20,7 +20,6 @@ const OtrasUnidadesChart: React.FC<Props> = ({ className }) => {
       options: {
         chart: {
           id: 'apexchart-otrasunidades',
-          fontFamily: 'Montserrat',
         }
       },
       series: [],
@@ -105,58 +104,6 @@ const OtrasUnidadesChart: React.FC<Props> = ({ className }) => {
     // actializar los datos
     ApexCharts.exec('apexchart-otrasunidades', 'updateSeries', datos);
   }
-
-
-
-  //  //se retorna las series
-  //  const RetornarSerie = (data:any[]) => {
-  //     if (data == null || data == undefined)
-  //         return false;
-  //     //Filtro datos unidadesactivas
-  //     var OtrasUnidades = data;
-
-  //     //Para los datos de la dona activos
-  //     let datosNoUnidadesActivas : number[]= [];
-  //     let cantidadNOUnidadesActivas = 0;
-  //     //Agrupador por color unidades activas.
-  //     let agrupadorUnidadesActivas = OtrasUnidades.map((item:any) => {
-  //         if (item.ClasificacionId != 'Activas' || item.ClasificacionId != 'Implementación')
-  //             return item.ClasificacionId;
-  //     }).filter((value, index, self:any) =>{
-  //              return self.indexOf(value) === index;
-  //     });
-  //     agrupadorUnidadesActivas.map((item) =>{
-  //         if (item != undefined && item != 'Activas' && item != 'Implementación') {
-  //             let prefiterdata = data.filter(function (val:any) {
-  //                 if (val.ClasificacionId == item)
-  //                     return val.Descripcion
-  //             });
-  //             datosNoUnidadesActivas.push(Number.parseInt(prefiterdata.length.toString()));
-  //             cantidadNOUnidadesActivas = cantidadNOUnidadesActivas + prefiterdata.length;
-  //         }
-  //     })
-  //     //Retornamos la serie
-  //    return datosNoUnidadesActivas;
-  // };
-
-  // //se retornan las etiquetas dinamicamente
-  // const retornarLabels= (data:any[]) =>{
-  //     if (data == null || data == undefined)
-  //         return false;
-  //     let datosUnidadesActivas : string[]= [];
-  //     let cantidadUnidadesActivas = 0;
-  //     //Agrupador por color unidades activas.
-  //     let agrupadorUnidadesActivas = data.map((item:any) => {
-  //             return item.ClasificacionId;
-  //     }).filter((value, index, self) =>{
-  //         return self.indexOf(value) === index;
-  //     });
-  //     //Dona Unidades Activas
-  //     return agrupadorUnidadesActivas.filter( (vale) =>{
-  //         return (vale != 'Implementación' && vale != 'Activas')
-  //     });
-  // }
-
   //el use effect
   useEffect(() => {
     if (Filtrado) {
@@ -176,63 +123,6 @@ const OtrasUnidadesChart: React.FC<Props> = ({ className }) => {
       
       (Data != undefined && Data["Unidades"] != undefined ? ActualizarGraficas(data) : console.log("Cargando serie..."))
     }
-    // const element = document.getElementById(
-    //     `donaOtrasUnidades`
-    // ) as HTMLCanvasElement;
-    // if (!element) {
-    //     return;
-    // }
-
-    // let  colorsArray = ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5'];
-    // let  colorsArrayLabels = ["danger", "warning", "primary", "success"]; 
-    // let labelsArray:string[] = []//['Activas','Implementación'];
-    // let _data : number[] = [];
-
-    //   if(Filtrado){
-    //     let dataFiltrada:any[] =[] 
-    //     if(DataFiltrada)
-    //         if(DataFiltrada != undefined){
-    //                 let serie =  RetornarSerie(DataFiltrada.filter(function (item:any) {
-    //                   if (item.ClasificacionId != 'Activas' || item.ClasificacionId != 'Implementación')
-    //                   return item.ClasificacionId;
-    //             }))
-    //             _data = (serie != false  ? serie:[]);
-    //             let labels =  retornarLabels(DataFiltrada.filter(function (item:any) {
-    //               if (item.ClasificacionId != 'Activas' || item.ClasificacionId != 'Implementación')
-    //               return item.ClasificacionId;
-    //             }));
-    //                 labelsArray =(labels != false ? labels:[])
-    //             }
-    //     }
-    // else
-    // {
-    //   if(Data)
-    //   if(Data['Unidades'] != undefined){
-    //   let serie =  RetornarSerie(Data['Unidades'].filter(function (item:any) {
-    //           if (item.ClasificacionId != 'Activas' || item.ClasificacionId != 'Implementación')
-    //               return item.ClasificacionId;
-    //       }))
-    //       _data = (serie != false ? serie:[]);
-    //       let labels =  retornarLabels(Data['Unidades'].filter(function (item:any) {
-    //           if (item.ClasificacionId != 'Activas' || item.ClasificacionId != 'Implementación')
-    //               return item.ClasificacionId;
-    //       }));
-    //       labelsArray =(labels != false ? labels:[])
-    //   }
-
-    // }
-    //   const options = getChartOptions(_data, colorsArray, "Otras Unidades", labelsArray);
-    //   const ctx = element.getContext("2d");
-    //   let myDoughnut: Chart | null;
-
-    //   if (ctx && labelsArray.length > 0) {   
-    //   myDoughnut = new Chart(ctx, options);
-    //   }
-    //   return function cleanUp() {
-    //   if (myDoughnut) {
-    //       myDoughnut.destroy();
-    //   }
-    //   };
   }, [Data, Filtrado, DataFiltrada])
 
   return (
@@ -247,9 +137,6 @@ const OtrasUnidadesChart: React.FC<Props> = ({ className }) => {
       </div>
 
     </>
-    // <div className={className}>
-    //     <canvas style={{display: 'block', height: '200px', width: '378px'}} id="donaOtrasUnidades"></canvas>
-    // </div>
   );
 }
 

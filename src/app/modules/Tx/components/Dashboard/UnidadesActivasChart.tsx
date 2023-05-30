@@ -14,7 +14,6 @@ const UnidadesActivasChart: React.FC<Props> = ({ className }) => {
       options: {
         chart: {
           id: 'apexchart-unidades',
-          fontFamily: 'Montserrat',
         }
       },
       series: [],
@@ -31,7 +30,6 @@ const UnidadesActivasChart: React.FC<Props> = ({ className }) => {
   const ActualizarGraficas = (Data: any) => {
     let nombreSeries: any[] = []
     let cantidadUnidadesActivas = 0;
-    console.log(Data)
     nombreSeries = Data.map((item: any) => {
       if (item.ClasificacionId == 'Si' || item.ClasificacionId == 'No')
         return item.ClasificacionId;
@@ -71,7 +69,7 @@ const UnidadesActivasChart: React.FC<Props> = ({ className }) => {
     );
     ApexCharts.exec('apexchart-unidades', 'updateOptions', {
       // Para los nombres de la serie
-      labels: labels,
+      labels: labels.filter((e) =>e),
       //para que la lengenda me salga en la parte de abajo
       legend: {
         show: true,

@@ -15,7 +15,6 @@ const VerticalChart: React.FC<Props> = ({ className }) => {
             options: {
                 chart: {
                     id: 'apexchart-vertical',
-                    fontFamily: 'Montserrat',
                 }
             },
             series: [],
@@ -86,7 +85,7 @@ const VerticalChart: React.FC<Props> = ({ className }) => {
         ApexCharts.exec('apexchart-vertical', 'updateOptions', {
             // Para los nombres de la serie
             //para que la lengenda me salga en la parte de abajo
-            labels: agrupadorGeneral,
+            labels: agrupadorGeneral.filter((e) => e),
             legend: {
                 show: true,
                 position: 'bottom'
