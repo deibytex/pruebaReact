@@ -13,6 +13,8 @@ import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/rea
 import moment from "moment";
 import { FechaServidor } from "../../../../../_start/helpers/Helper";
 import { getConfiguraciones, setConfiguraciones } from "../../data/Configuracion";
+import { Check, Edit } from "@mui/icons-material";
+import { Box, IconButton, Tooltip, Typography } from "@mui/material";
 
 export default function Parametrizacion() {
     const [show, setShow] = useState(false);
@@ -20,12 +22,15 @@ export default function Parametrizacion() {
     const [NombeCondicion, setNombreCondicionEvent] = useState("");
     const [lstClientes, setLstClientes] = useState<ClientesFatiga[]>([]);
     const [clienteSeleccionado, setclienteSeleccionado] = useState<ClientesFatiga>();
+    const [Cliente, setCliente] = useState("");
     const [eventoSeleccionado, seteventoSeleccionado] = useState<EventoActivo>();
     const [Tiempo, setTiempo] = useState("");
     const [loader, setLoader] = useState<boolean>(false);
     const [Data, setData] = useState<any[]>([]);
     const [EventosActivos, setEventosActivos] = useState<any[]>([]);
     const [Clave, setClave] = useState("1");
+    const [Cargar, setcargar] = useState(false);
+    const [configuracionAlertaId, setconfiguracionAlertaId] = useState(null);
     /* table state*/
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [globalFilter, setGlobalFilter] = useState('');
@@ -38,6 +43,11 @@ export default function Parametrizacion() {
     const [isLoading, setIsLoading] = useState(false);
     const [isRefetching, setIsRefetching] = useState(false);
     const [isError, setIsError] = useState(false);
+
+
+    const [Mostrar, setMostrar] = useState(true)
+    const [Titulo, setTitulo] = useState("Nueva configuración")
+
     let tempEventos: any[] = [];
     tempEventos.push({ EventId: "-8300145843408847057", descriptionevent: "Distracción" });
     tempEventos.push({ EventId: "3044842204790820242", descriptionevent: "Tabaquismo" });
@@ -74,12 +84,16 @@ export default function Parametrizacion() {
                 accessorKey: 'esActivo',
                 header: 'Estado',
                 Cell({ cell, column, row, table, }) {
-                    return (<>{row.original.esActivo == true ? <span className="badge bg-primary">Activo</span>:<span className="badge bg-danger">Inactivo</span> }</>)
+                    return (<>{row.original.esActivo == true ? <span className="badge bg-primary">Activo</span> : <span className="badge bg-danger">Inactivo</span>}</>)
                 },
             },
             {
-                accessorKey: 'condicion',
-                header: 'Eventos'
+                accessorKey: 'columna',
+                header: 'Eventos',
+                Cell({ cell, column, row, table, }) {
+                    return (row.original.columna)
+                },
+                size: 400
             }
         ];
 
@@ -122,7 +136,7 @@ export default function Parametrizacion() {
         let _data = {};
         _data["clienteId"] = clienteSeleccionado?.ClienteId.toString();
         GetConfiguracionAlerta(_data);
-    }, [clienteSeleccionado])
+    }, [clienteSeleccionado, Cargar == true])
 
     function GetConfiguracionAlerta(data: any) {
         data.nombre = null;
@@ -138,6 +152,7 @@ export default function Parametrizacion() {
             setIsLoading(false);
             setIsRefetching(false);
             setIsError(false);
+            setcargar(false);
         }).catch(({ error }) => {
             console.log("Eror ", error);
             setIsError(true);
@@ -155,6 +170,7 @@ export default function Parametrizacion() {
 
                 })
                 setclienteSeleccionado(cliente[0])
+                setCliente((cliente[0] == undefined ? "":  cliente[0].ClienteId.toString()));
             }} aria-label="Default select example">
                 <option>Seleccione</option>
                 {
@@ -210,22 +226,100 @@ export default function Parametrizacion() {
         }, `Esta seguro que desea quitar el evento ${element} de la lista`, 'Eliminar');
     }
 
-    const Guardar= () =>{
-        let Datos =  {};
+    const Guardar = () => {
+        let Datos = {};
+        let columna:any[] =[];
+       EventosActivos.forEach((o:any) =>{
+        columna.push(tempEventos.map((e:any) =>{
+                if(e.EventId == o ){
+                    return e.descriptionevent;
+                }
+            }).filter((item:any) =>{
+                if(item != undefined)
+                    return item;
+            }))
+        });
+          
         Datos['clave'] = Clave;
         Datos['nombre'] = NombeCondicion;
         Datos['tiempo'] = Tiempo;
         Datos['condicion'] = EventosActivos.join();
         Datos['columna'] = "";
-        Datos['clienteId'] = String(clienteSeleccionado?.ClienteId);
+        Datos['clienteId'] = Cliente;
+        Datos['configuracionAlertaId'] = configuracionAlertaId;
+        Datos['columna'] = columna.join();
         Datos['esActivo'] = true;
+
+        if(Validar()){
+            confirmarDialog(() => {
+                setConfiguraciones(Datos).then((response: AxiosResponse<any>) => {
+                    successDialog("Opeación Éxitosa.", "");
+                    setShow(false);
+                    setcargar(true);
+                }).catch(({ error }) => {
+                    errorDialog("Ha ocurrido un error", "");
+                    setShow(false);
+                })
+            }, `Esta seguro que desea guardar la configuración`, 'Guardar');
+        }
+    };
+
+    const EditarCampos = (row: any) => {
+        setTitulo(`Edicion de configuración para ${row.original.clienteNombre}`)
+        setNombreCondicionEvent(row.original.nombre);
+        setEventosActivos(row.original.condicion.split(","))
+        setTiempo(row.original.tiempo);
+        setCliente(row.original.clienteId);
+        setconfiguracionAlertaId(row.original.configuracionAlertaId);
+        setMostrar(false);
+        setClave("2");
+        setShow(true)
+    }
+    const CamposNuevos = () => {
+        setTitulo(`Nueva configuración`)
+        setNombreCondicionEvent("");
+        setTiempo("");
+        setClave("1");
+        setCliente((clienteSeleccionado == undefined ? "": clienteSeleccionado?.ClienteId.toString()));
+        setEventosActivos([])
+        setMostrar(true);
+        setShow(true)
+    };
+
+    const Validar = () =>{
+        if(NombeCondicion == null || NombeCondicion == undefined || NombeCondicion == ""){
+            errorDialog("Error el nombre es requerido","");
+            return false
+        }
+        if(EventosActivos == null || EventosActivos == undefined || EventosActivos.length == 0){
+            errorDialog("Error debe seleccionar por lo menos un evento","");
+            return false
+        }
+        if(Tiempo == null || Tiempo == undefined || Tiempo == ""){
+            errorDialog("Error el tiempo es requerido","");
+            return false
+        }
+        if(Cliente == null || Cliente == undefined || Cliente ==  "0" || Cliente ==  ""  ||Cliente == undefined){
+            errorDialog("Error seleccione un cliente es requerido","");
+            return false
+        }  
+        return true;
+    }
+    const CambiarEstado = (row:any) =>{
+        let Datos = {};
+        Datos['clave'] = "3";
+        Datos['esActivo'] = (row.original.esActivo == true ? false:true);
+        Datos['configuracionAlertaId'] = row.original.configuracionAlertaId;
         confirmarDialog(() => {
-            setConfiguraciones(Datos).then((response:AxiosResponse<any>) =>{
-                successDialog("Opeación Éxitosa.","");
-            }).catch(({error}) =>{
-                errorDialog("Ha ocurrido un error","");
+            setConfiguraciones(Datos).then((response: AxiosResponse<any>) => {
+                successDialog("Opeación Éxitosa.", "");
+                setShow(false);
+                setcargar(true);
+            }).catch(({ error }) => {
+                errorDialog("Ha ocurrido un error", "");
+                setShow(false);
             })
-        }, `Esta seguro que desea guardar la configuración`, 'Guardar');
+        }, `¿Esta seguro que desea cambiar el estado?`, 'Cambiar');
     }
     return (
         <>
@@ -251,12 +345,12 @@ export default function Parametrizacion() {
                                     <CargaListadoClientes></CargaListadoClientes>
                                 </div>
                                 <div className="form-group" style={{ display: 'inline-block', float: 'right' }}>
-                                    <button className="btn btn-sm btn-primary" onClick={() => { setShow(true); }}>Nuevo</button>
+                                    <button className="btn btn-sm btn-primary" onClick={CamposNuevos}>Nuevo</button>
                                 </div>
                             </div>
                         </div>
                         <div className="card-body">
-                           {(Data != undefined && Data.length != 0) && (<MaterialReactTable
+                            {(Data != undefined) && (<MaterialReactTable
                                 localization={MRT_Localization_ES}
                                 displayColumnDefOptions={{
                                     'mrt-row-actions': {
@@ -276,6 +370,8 @@ export default function Parametrizacion() {
                                 columns={Campos}
                                 data={Data}
                                 enableColumnOrdering
+                                enableEditing
+                                editingMode="modal"
                                 muiToolbarAlertBannerProps={
                                     isError
                                         ? {
@@ -291,6 +387,7 @@ export default function Parametrizacion() {
                                 rowCount={rowCount}
                                 enableStickyHeader
                                 enableDensityToggle={false}
+                                enablePagination={false}
                                 enableRowVirtualization
                                 defaultColumn={{
                                     minSize: 150, //allow columns to get smaller than default
@@ -310,6 +407,26 @@ export default function Parametrizacion() {
                                     showProgressBars: isRefetching,
                                     sorting,
                                 }}
+                                renderRowActions={({ row, table }) => (
+                                    <Box sx={{ display: 'block', gap: '1rem', marginLeft: 'auto', marginRight: 'auto' }}>
+
+                                        <Tooltip arrow placement="top" title="Editar configuración">
+                                            <IconButton onClick={() => {
+                                                EditarCampos(row);
+                                            }}>
+                                                <Edit />
+                                            </IconButton>
+                                        </Tooltip>
+                                        <Tooltip arrow placement="top" title="Desactivar configuración">
+                                            <IconButton onClick={() => {
+                                                CambiarEstado(row);
+                                            }
+                                            }>
+                                                <Check />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </Box>
+                                )}
                             />)}
                         </div>
                     </div>
@@ -317,7 +434,7 @@ export default function Parametrizacion() {
             </BlockUi>
             <Modal show={show} onHide={setShow} size="lg">
                 <Modal.Header closeButton>
-                    <Modal.Title>Nueva configuración</Modal.Title>
+                    <Modal.Title>{Titulo}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <div className="row">
@@ -335,7 +452,7 @@ export default function Parametrizacion() {
                                 <input name="Tiempo" placeholder="Tiempo" className="form-control input-sm" value={Tiempo} onChange={(e: any) => { e.preventDefault(); setTiempo(e.target.value) }} />
                             </div>
                         </div>
-                        <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                        <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4" style={{ display: (Mostrar ? "inline" : "none") }}>
                             <label className="control-label label-sm font-weight-bold" style={{ fontWeight: 'bold' }} htmlFor="ClienteId">Cliente</label>
                             <div className="input-group mb-3">
                                 <span className="input-group-text mb-3"><i className="fas fa-user-tie mb-3"></i></span>
@@ -383,7 +500,6 @@ export default function Parametrizacion() {
 
                         </div>
                     </div>
-
                 </Modal.Body>
                 <Modal.Footer>
                     <Button type="button" variant="primary" onClick={() => {
