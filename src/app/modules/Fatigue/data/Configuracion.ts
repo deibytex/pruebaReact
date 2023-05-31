@@ -1,4 +1,5 @@
 import { GetConfiguracionAlerta, SetConfiguracionAlerta } from "../../../../_start/helpers/Axios/CoreService";
+import { Post_GetConsultasDinamicas } from "../../../../_start/helpers/Axios/DWHService";
 export function  getConfiguraciones (data:any) {
     var params: { [id: string]: string | null; } = {};
     params['nombre'] = data.nombre;
@@ -19,4 +20,14 @@ export function  setConfiguraciones (data:any) {
     return  SetConfiguracionAlerta(params);
 }
 
-  
+
+
+export function GetEventos(Clienteid: string){
+    var params: { [id: string]: string | null | undefined;} = {};
+        params['Clienteid'] = Clienteid; 
+    return Post_GetConsultasDinamicas({
+    NombreConsulta: "ObtenerEventosClienteFatiga", Clase: "FATGQueryHelper",
+    Pagina: null,
+    RecordsPorPagina: null
+    },params)
+};

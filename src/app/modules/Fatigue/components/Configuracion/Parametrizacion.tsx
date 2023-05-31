@@ -10,9 +10,9 @@ import BlockUi from "@availity/block-ui";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
-import moment from "moment";
-import { FechaServidor } from "../../../../../_start/helpers/Helper";
-import { getConfiguraciones, setConfiguraciones } from "../../data/Configuracion";
+
+
+import { GetEventos, getConfiguraciones, setConfiguraciones } from "../../data/Configuracion";
 import { Check, Edit } from "@mui/icons-material";
 import { Box, IconButton, Tooltip, Typography } from "@mui/material";
 
@@ -47,22 +47,23 @@ export default function Parametrizacion() {
 
     const [Mostrar, setMostrar] = useState(true)
     const [Titulo, setTitulo] = useState("Nueva configuración")
-
-    let tempEventos: any[] = [];
-    tempEventos.push({ EventId: "-8300145843408847057", descriptionevent: "Distracción" });
-    tempEventos.push({ EventId: "3044842204790820242", descriptionevent: "Tabaquismo" });
-    tempEventos.push({ EventId: "-480217926216925926", descriptionevent: "Ojos Cerrados" });
-    tempEventos.push({ EventId: "-9097769333405069134", descriptionevent: "Bostezo" });
-    tempEventos.push({ EventId: "807549500629766541", descriptionevent: "No Cinturón de Seguridad" });
-    tempEventos.push({ EventId: "-1712533633274024830", descriptionevent: "Alerta Distancia Seguridad" });
-    tempEventos.push({ EventId: "6698868737266655739	", descriptionevent: "Alerta Colisión" });
-    tempEventos.push({ EventId: "670980146124694777", descriptionevent: "Alerta Salida de Carril" });
-    tempEventos.push({ EventId: "5790861721889710462", descriptionevent: "Uso Celular" });
-    tempEventos.push({ EventId: "4182509794703245564", descriptionevent: "No Conductor" });
-    tempEventos.push({ EventId: "-8223674420093630323", descriptionevent: "Perdida de Video" });
-    tempEventos.push({ EventId: "401009318098363779", descriptionevent: "Excepción en Almacenamiento" });
-    tempEventos.push({ EventId: "280540917853524601", descriptionevent: "Alimentación Perdida" });
-    tempEventos.push({ EventId: "-898226872645200439", descriptionevent: "MiX Vision: Event video requests capped" });
+    const [tempEventos, setTempEventos] = useState<any[]>([])
+    // tempEventos
+    // let tempEventos: any[] = [];
+    // tempEventos.push({ EventId: "-8300145843408847057", descriptionevent: "Distracción" });
+    // tempEventos.push({ EventId: "3044842204790820242", descriptionevent: "Tabaquismo" });
+    // tempEventos.push({ EventId: "-480217926216925926", descriptionevent: "Ojos Cerrados" });
+    // tempEventos.push({ EventId: "-9097769333405069134", descriptionevent: "Bostezo" });
+    // tempEventos.push({ EventId: "807549500629766541", descriptionevent: "No Cinturón de Seguridad" });
+    // tempEventos.push({ EventId: "-1712533633274024830", descriptionevent: "Alerta Distancia Seguridad" });
+    // tempEventos.push({ EventId: "6698868737266655739	", descriptionevent: "Alerta Colisión" });
+    // tempEventos.push({ EventId: "670980146124694777", descriptionevent: "Alerta Salida de Carril" });
+    // tempEventos.push({ EventId: "5790861721889710462", descriptionevent: "Uso Celular" });
+    // tempEventos.push({ EventId: "4182509794703245564", descriptionevent: "No Conductor" });
+    // tempEventos.push({ EventId: "-8223674420093630323", descriptionevent: "Perdida de Video" });
+    // tempEventos.push({ EventId: "401009318098363779", descriptionevent: "Excepción en Almacenamiento" });
+    // tempEventos.push({ EventId: "280540917853524601", descriptionevent: "Alimentación Perdida" });
+    // tempEventos.push({ EventId: "-898226872645200439", descriptionevent: "MiX Vision: Event video requests capped" });
 
     /* fin table */
     let Campos: MRT_ColumnDef<any>[] =
@@ -108,25 +109,18 @@ export default function Parametrizacion() {
         });
     }
     const ObtenerEventos = (cliente: any) => {
-        var params: { [id: string]: string; } = {};
-        //   params["Clienteids"] = String(cliente);
-        //   params["period"] = moment(FechaServidor).format("MYYYY");
-        //   params["Fecha"] = moment(FechaServidor).add(-1, 'days').format("YYYYMMDD");
-        params["Clienteids"] = String(cliente);
-        params["period"] = moment("20221028").format("MYYYY");
-        params["Fecha"] = moment("20221028").add(-1, 'days').format("YYYYMMDD");
-        getEventosActivosPorDia({
-            Clase: "FATGQueryHelper",
-            NombreConsulta: "GetEventosActivosDiario", Pagina: null, RecordsPorPagina: null
-        },
-            params).
-            then((response: AxiosResponse<any>) => {
-                //  setLteventosSeleccionados(response.data);
-                // cuando tengamos los datos activamos todo el trabajo pesado
+        if(cliente != "" &&  cliente != "0" &&  cliente  != undefined && cliente != null)
+            GetEventos(cliente).
+                then((response: AxiosResponse<any>) => {
+                    let Eventos = response.data.map((e:any) =>{
+                    return  { EventId: e.eventTypeId, descriptionevent: (e.CustomName == null ?e.descriptionEvent: e.CustomName )}
+                    })
+                    console.log(Eventos);
+                    setTempEventos(Eventos);
 
-            }).catch((e) => {
-                errorDialog("Consulta eventos Activos", "No hay datos que mostrar");
-            });;
+                }).catch((e) => {
+                    errorDialog("Consulta eventos Activos", "No hay datos que mostrar");
+                });
     }
     useEffect(() => {
         ObtenerClientes();
@@ -171,6 +165,7 @@ export default function Parametrizacion() {
                 })
                 setclienteSeleccionado(cliente[0])
                 setCliente((cliente[0] == undefined ? "":  cliente[0].ClienteId.toString()));
+                ObtenerEventos((cliente[0] == undefined ? "":  cliente[0].ClienteId.toString()));
             }} aria-label="Default select example">
                 <option>Seleccione</option>
                 {
