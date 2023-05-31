@@ -5,7 +5,7 @@ import moment from 'moment-timezone';
 import { useEffect, useState } from "react";
 import { Form, Modal, Button, Card } from "react-bootstrap-v5";
 import { DateRangePicker, useToaster } from "rsuite";
-import { formatFechasView } from "../../../../../_start/helpers/Helper"
+import { formatFechasView, formatSimple } from "../../../../../_start/helpers/Helper"
 import { AxiosResponse } from 'axios';
 import { GetReporteOperadorMovil, listTabs } from '../../data/ReportesData';
 import { MRT_Localization_ES } from 'material-react-table/locales/es';
@@ -18,7 +18,7 @@ import { FormatoColombiaDDMMYYY, FormatoSerializacionYYYY_MM_DD_HHmmss } from '.
 import DualListBox from 'react-dual-listbox';
 import { dualList } from '../../../../../_start/helpers/Models/DualListDTO';
 import BlockUi from 'react-block-ui';
-import { DescargarExcel } from '../../../../../_start/helpers/components/DescargarExcel';
+import { DescargarExcel, DescargarExcelPersonalizado } from '../../../../../_start/helpers/components/DescargarExcel';
 import ReactApexChart from 'react-apexcharts';
 import { toAbsoluteUrl } from '../../../../../_start/helpers';
 import { Totales } from '../../models/ZpOperadorMovilModels'
@@ -231,14 +231,14 @@ export default function ZPOperadorMovil() {
                 Cell(row: any) {
                     return (row.row.original.Movil)
                 },
-                size: 100
+                size: 400
             },
             {
                 accessorKey: 'Fecha',
                 header: 'Fecha',
                 Header: 'Fecha',
                 Cell(row: any) {
-                    return (moment(row.row.original.Fecha).format(formatFechasView))
+                    return (moment(row.row.original.Fecha).format("DD/MM/YYYY"))
                 }
             },
             {
@@ -305,7 +305,7 @@ export default function ZPOperadorMovil() {
                 header: 'Fecha',
                 Header: "Fecha",
                 Cell(row: any) {
-                    return (moment(row.row.original.Fecha).format(formatFechasView))
+                    return (moment(row.row.original.Fecha).format("DD/MM/YYYY"))
                 }
             },
             {
@@ -853,7 +853,7 @@ export default function ZPOperadorMovil() {
                         <div className="d-flex justify-content-between mb-2">
                             <div className="mx-auto">
                                 <div className="ms-3 text-center">
-                                    <h3 className="mb-0">Reporte Zonas Operación</h3>
+                                    <h3 className="mb-0">Zonas de potencia</h3>
                                     <span className="text-muted m-3">Consolidado y Detallado</span>
                                 </div>
                             </div>
@@ -884,7 +884,7 @@ export default function ZPOperadorMovil() {
                             </div>
                             <div className=" d-flex justify-content-end m-1">
                                 <button style={{ display: (tabSel <= 1) ? "inline-block" : "none" }} className="  btn btn-sm btn-primary" type="button" onClick={() => {
-                                    DescargarExcel(DateTableMovil, (tabSel == 0 ? ColumnasTablas[0]['movil'] : ColumnasTablas[1]['operador']), "Reporte")
+                                    DescargarExcelPersonalizado(DateTableMovil, (tabSel == 0 ? ColumnasTablas[0]['movil'] : ColumnasTablas[1]['operador']), "Reporte")
                                 }}>
                                     <i className="bi-file-earmark-excel"></i></button>
                             </div>
