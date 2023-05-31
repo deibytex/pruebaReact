@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useSelector } from "react-redux";
-import { CORE_ExecProcedureByTipoConsulta,  CORE_getconsultadinamicas, CORE_getconsultadinamicasUser, CORE_GetConsultasDinamicas, urlFatigueGetConfiguracionAlerta } from "../../../apiurlstore";
+import { CORE_ExecProcedureByTipoConsulta,  CORE_getconsultadinamicas, CORE_getconsultadinamicasUser, CORE_GetConsultasDinamicas, urlFatigueGetConfiguracionAlerta, urlFatigueSetConfiguracionAlerta } from "../../../apiurlstore";
 import { RootState } from "../../../setup";
 import { ParamsEndPointDynamic } from "../Models/paramsConsultasDinamicas";
 import jwt_decode from "jwt-decode"
@@ -146,6 +146,16 @@ export function GetConfiguracionAlerta(data:any) {
       {
           method:'post',
           url:urlFatigueGetConfiguracionAlerta,
+          data:JSON.stringify(data),
+          headers: { 'Content-Type': 'application/json' },
+      }
+  );
+}
+export function SetConfiguracionAlerta(data:any) {
+  return axios(
+      {
+          method:'post',
+          url:urlFatigueSetConfiguracionAlerta,
           data:JSON.stringify(data),
           headers: { 'Content-Type': 'application/json' },
       }
