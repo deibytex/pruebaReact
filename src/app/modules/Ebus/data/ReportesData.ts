@@ -145,7 +145,14 @@ export const fncReporteAlarma = [
         }
     }
 ]
-
+export const fncReporteOperadorMovil = [
+    {
+        name: "Fecha",
+        getData: (data: any) => {
+            return (moment(data).format(FormatoColombiaDDMMYYY))
+        }
+    }
+]
 // formato para la descarga excel del reporte de nivel de carga
 
 export const fncReporteNivelCarga = [

@@ -166,7 +166,7 @@ export default function ReporteOdometro() {
 
     return (<>
         <ModuleName >eBus</ModuleName>
-        <PageTitle >Reporte Odometro</PageTitle>
+        <PageTitle >Reporte Odómetro</PageTitle>
 
 
         <div className="card card-rounded bg-transparent " style={{ width: '100%' }}  >
