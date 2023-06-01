@@ -10,10 +10,10 @@ import BlockUi from "@availity/block-ui";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
-import { GetEventos, getConfiguraciones, setConfiguraciones } from "../../data/Configuracion";
+import { GetClientesFatiga, GetEventos, getConfiguraciones, setConfiguraciones } from "../../data/Configuracion";
 import { Check, Edit } from "@mui/icons-material";
 import { Box, IconButton, Tooltip } from "@mui/material";
-import { GetClientesFatiga } from "../../data/dashBoardData";
+
 
 export default function Parametrizacion() {
     const [show, setShow] = useState(false);
@@ -108,9 +108,7 @@ export default function Parametrizacion() {
     }, [])
     useEffect(() => {
         //ObtenerEventos(clienteSeleccionado?.ClienteIdS)
-        let _data = {};
-        _data["clienteId"] = clienteSeleccionado?.ClienteId.toString();
-        GetConfiguracionAlerta(_data);
+        GetConfiguracionAlerta([]);
     }, [Cargar == true])
 
     function GetConfiguracionAlerta(data: any) {

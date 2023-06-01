@@ -1,5 +1,5 @@
 import axios from "axios";
-import { GetConfiguracionAlerta, SetConfiguracionAlerta } from "../../../../_start/helpers/Axios/CoreService";
+import { GetConfiguracionAlerta, Post_Getconsultadinamicas, SetConfiguracionAlerta } from "../../../../_start/helpers/Axios/CoreService";
 import { Post_GetConsultasDinamicas } from "../../../../_start/helpers/Axios/DWHService";
 import { DWH_getconsultadinamicasprocedure } from "../../../../apiurlstore";
 export function  getConfiguraciones (data:any) {
@@ -22,7 +22,21 @@ export function  setConfiguraciones (data:any) {
     return  SetConfiguracionAlerta(params);
 }
 
-
+export  function GetClientesFatiga() {
+    var params: { [id: string]: string | null; } = {};
+    return  axios({
+        method: 'post',
+        url: DWH_getconsultadinamicasprocedure,   
+        data: JSON.stringify(params),
+        headers: { 'Content-Type': 'application/json' },
+        params : { Clase: "FATGQueryHelper" , NombreConsulta : "GetClientesFatigaConfiguracion" }
+      });
+    // return Post_Getconsultadinamicas({
+    //     NombreConsulta:  "GetClientesFatigaConfiguracion", Clase: "FATGQueryHelper",
+    //     Pagina: null,
+    //     RecordsPorPagina: null
+    // },params);
+  }
 
 export function GetEventos(Clienteid: string){
     var params: { [id: string]: string | null | undefined;} = {};
