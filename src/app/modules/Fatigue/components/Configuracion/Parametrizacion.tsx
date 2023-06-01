@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import confirmarDialog, { errorDialog, successDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
-import { GetClientesFatiga, getEventosActivosPorDia } from "../../data/dashBoardData";
+import { GetClientesFatiga } from "../../data/dashBoardData";
 import { ClientesFatiga, EventoActivo } from "../../models/EventosActivos";
 import { AxiosResponse } from "axios";
 import { Button, Form, Modal } from "react-bootstrap-v5";
@@ -10,11 +10,9 @@ import BlockUi from "@availity/block-ui";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
-
-
 import { GetEventos, getConfiguraciones, setConfiguraciones } from "../../data/Configuracion";
 import { Check, Edit } from "@mui/icons-material";
-import { Box, IconButton, Tooltip, Typography } from "@mui/material";
+import { Box, IconButton, Tooltip } from "@mui/material";
 
 export default function Parametrizacion() {
     const [show, setShow] = useState(false);
@@ -43,28 +41,9 @@ export default function Parametrizacion() {
     const [isLoading, setIsLoading] = useState(false);
     const [isRefetching, setIsRefetching] = useState(false);
     const [isError, setIsError] = useState(false);
-
-
     const [Mostrar, setMostrar] = useState(true)
     const [Titulo, setTitulo] = useState("Nueva configuración")
     const [tempEventos, setTempEventos] = useState<any[]>([])
-    // tempEventos
-    // let tempEventos: any[] = [];
-    // tempEventos.push({ EventId: "-8300145843408847057", descriptionevent: "Distracción" });
-    // tempEventos.push({ EventId: "3044842204790820242", descriptionevent: "Tabaquismo" });
-    // tempEventos.push({ EventId: "-480217926216925926", descriptionevent: "Ojos Cerrados" });
-    // tempEventos.push({ EventId: "-9097769333405069134", descriptionevent: "Bostezo" });
-    // tempEventos.push({ EventId: "807549500629766541", descriptionevent: "No Cinturón de Seguridad" });
-    // tempEventos.push({ EventId: "-1712533633274024830", descriptionevent: "Alerta Distancia Seguridad" });
-    // tempEventos.push({ EventId: "6698868737266655739	", descriptionevent: "Alerta Colisión" });
-    // tempEventos.push({ EventId: "670980146124694777", descriptionevent: "Alerta Salida de Carril" });
-    // tempEventos.push({ EventId: "5790861721889710462", descriptionevent: "Uso Celular" });
-    // tempEventos.push({ EventId: "4182509794703245564", descriptionevent: "No Conductor" });
-    // tempEventos.push({ EventId: "-8223674420093630323", descriptionevent: "Perdida de Video" });
-    // tempEventos.push({ EventId: "401009318098363779", descriptionevent: "Excepción en Almacenamiento" });
-    // tempEventos.push({ EventId: "280540917853524601", descriptionevent: "Alimentación Perdida" });
-    // tempEventos.push({ EventId: "-898226872645200439", descriptionevent: "MiX Vision: Event video requests capped" });
-
     /* fin table */
     let Campos: MRT_ColumnDef<any>[] =
         [
@@ -109,11 +88,11 @@ export default function Parametrizacion() {
         });
     }
     const ObtenerEventos = (cliente: any) => {
-        if(cliente != "" &&  cliente != "0" &&  cliente  != undefined && cliente != null)
+        if (cliente != "" && cliente != "0" && cliente != undefined && cliente != null)
             GetEventos(cliente).
                 then((response: AxiosResponse<any>) => {
-                    let Eventos = response.data.map((e:any) =>{
-                    return  { EventId: e.eventTypeId, descriptionevent: (e.CustomName == null ?e.descriptionEvent: e.CustomName )}
+                    let Eventos = response.data.map((e: any) => {
+                        return { EventId: e.eventTypeId, descriptionevent: (e.CustomName == null ? e.descriptionEvent : e.CustomName) }
                     })
                     console.log(Eventos);
                     setTempEventos(Eventos);
@@ -164,8 +143,8 @@ export default function Parametrizacion() {
 
                 })
                 setclienteSeleccionado(cliente[0])
-                setCliente((cliente[0] == undefined ? "":  cliente[0].ClienteId.toString()));
-                ObtenerEventos((cliente[0] == undefined ? "":  cliente[0].ClienteId.toString()));
+                setCliente((cliente[0] == undefined ? "" : cliente[0].ClienteId.toString()));
+                ObtenerEventos((cliente[0] == undefined ? "" : cliente[0].ClienteId.toString()));
             }} aria-label="Default select example">
                 <option>Seleccione</option>
                 {
@@ -223,18 +202,18 @@ export default function Parametrizacion() {
 
     const Guardar = () => {
         let Datos = {};
-        let columna:any[] =[];
-       EventosActivos.forEach((o:any) =>{
-        columna.push(tempEventos.map((e:any) =>{
-                if(e.EventId == o ){
+        let columna: any[] = [];
+        EventosActivos.forEach((o: any) => {
+            columna.push(tempEventos.map((e: any) => {
+                if (e.EventId == o) {
                     return e.descriptionevent;
                 }
-            }).filter((item:any) =>{
-                if(item != undefined)
+            }).filter((item: any) => {
+                if (item != undefined)
                     return item;
             }))
         });
-          
+
         Datos['clave'] = Clave;
         Datos['nombre'] = NombeCondicion;
         Datos['tiempo'] = Tiempo;
@@ -245,7 +224,7 @@ export default function Parametrizacion() {
         Datos['columna'] = columna.join();
         Datos['esActivo'] = true;
 
-        if(Validar()){
+        if (Validar()) {
             confirmarDialog(() => {
                 setConfiguraciones(Datos).then((response: AxiosResponse<any>) => {
                     successDialog("Opeación Éxitosa.", "");
@@ -275,35 +254,35 @@ export default function Parametrizacion() {
         setNombreCondicionEvent("");
         setTiempo("");
         setClave("1");
-        setCliente((clienteSeleccionado == undefined ? "": clienteSeleccionado?.ClienteId.toString()));
+        setCliente((clienteSeleccionado == undefined ? "" : clienteSeleccionado?.ClienteId.toString()));
         setEventosActivos([])
         setMostrar(true);
         setShow(true)
     };
 
-    const Validar = () =>{
-        if(NombeCondicion == null || NombeCondicion == undefined || NombeCondicion == ""){
-            errorDialog("Error el nombre es requerido","");
+    const Validar = () => {
+        if (NombeCondicion == null || NombeCondicion == undefined || NombeCondicion == "") {
+            errorDialog("Error el nombre es requerido", "");
             return false
         }
-        if(EventosActivos == null || EventosActivos == undefined || EventosActivos.length == 0){
-            errorDialog("Error debe seleccionar por lo menos un evento","");
+        if (EventosActivos == null || EventosActivos == undefined || EventosActivos.length == 0) {
+            errorDialog("Error debe seleccionar por lo menos un evento", "");
             return false
         }
-        if(Tiempo == null || Tiempo == undefined || Tiempo == ""){
-            errorDialog("Error el tiempo es requerido","");
+        if (Tiempo == null || Tiempo == undefined || Tiempo == "") {
+            errorDialog("Error el tiempo es requerido", "");
             return false
         }
-        if(Cliente == null || Cliente == undefined || Cliente ==  "0" || Cliente ==  ""  ||Cliente == undefined){
-            errorDialog("Error seleccione un cliente es requerido","");
+        if (Cliente == null || Cliente == undefined || Cliente == "0" || Cliente == "" || Cliente == undefined) {
+            errorDialog("Error seleccione un cliente es requerido", "");
             return false
-        }  
+        }
         return true;
     }
-    const CambiarEstado = (row:any) =>{
+    const CambiarEstado = (row: any) => {
         let Datos = {};
         Datos['clave'] = "3";
-        Datos['esActivo'] = (row.original.esActivo == true ? false:true);
+        Datos['esActivo'] = (row.original.esActivo == true ? false : true);
         Datos['configuracionAlertaId'] = row.original.configuracionAlertaId;
         confirmarDialog(() => {
             setConfiguraciones(Datos).then((response: AxiosResponse<any>) => {
@@ -510,5 +489,3 @@ export default function Parametrizacion() {
         </>
     )
 }
-
-
