@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import confirmarDialog, { errorDialog, successDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
-import { GetClientesFatiga } from "../../data/dashBoardData";
+
 import { ClientesFatiga, EventoActivo } from "../../models/EventosActivos";
 import { AxiosResponse } from "axios";
 import { Button, Form, Modal } from "react-bootstrap-v5";
@@ -13,6 +13,7 @@ import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/rea
 import { GetEventos, getConfiguraciones, setConfiguraciones } from "../../data/Configuracion";
 import { Check, Edit } from "@mui/icons-material";
 import { Box, IconButton, Tooltip } from "@mui/material";
+import { GetClientesFatiga } from "../../data/dashBoardData";
 
 export default function Parametrizacion() {
     const [show, setShow] = useState(false);
@@ -25,6 +26,8 @@ export default function Parametrizacion() {
     const [Tiempo, setTiempo] = useState("");
     const [loader, setLoader] = useState<boolean>(false);
     const [Data, setData] = useState<any[]>([]);
+    const [DataFilltrada, setDataFilltrada] = useState<any[]>([]);
+    const [Filtrado, setFiltrado] = useState<boolean>(false);
     const [EventosActivos, setEventosActivos] = useState<any[]>([]);
     const [Clave, setClave] = useState("1");
     const [Cargar, setcargar] = useState(false);
@@ -82,7 +85,6 @@ export default function Parametrizacion() {
             (response) => {
                 setLstClientes(response.data);
             }
-
         ).catch((error) => {
             errorDialog("Consultar Clientes", "Error al consultar clientes, no se puede desplegar informacion");
         });
@@ -109,7 +111,7 @@ export default function Parametrizacion() {
         let _data = {};
         _data["clienteId"] = clienteSeleccionado?.ClienteId.toString();
         GetConfiguracionAlerta(_data);
-    }, [clienteSeleccionado, Cargar == true])
+    }, [Cargar == true])
 
     function GetConfiguracionAlerta(data: any) {
         data.nombre = null;
@@ -142,7 +144,18 @@ export default function Parametrizacion() {
                     return value.ClienteIdS === Number.parseInt(e.currentTarget.value)
 
                 })
-                setclienteSeleccionado(cliente[0])
+                setclienteSeleccionado(cliente[0]);
+                if(cliente[0] != undefined){
+                    console.log(cliente[0]);
+                    let _dt = Data.filter((D) =>{
+                        if(D.clienteId == cliente[0].ClienteId)
+                        return D;
+                    })
+                    setFiltrado(true)
+                    setDataFilltrada(_dt);
+                }else
+                setFiltrado(false);
+               
                 setCliente((cliente[0] == undefined ? "" : cliente[0].ClienteId.toString()));
                 ObtenerEventos((cliente[0] == undefined ? "" : cliente[0].ClienteId.toString()));
             }} aria-label="Default select example">
@@ -342,7 +355,7 @@ export default function Parametrizacion() {
                                     }),
                                 }}
                                 columns={Campos}
-                                data={Data}
+                                data={(Filtrado ? DataFilltrada:Data)}
                                 enableColumnOrdering
                                 enableEditing
                                 editingMode="modal"

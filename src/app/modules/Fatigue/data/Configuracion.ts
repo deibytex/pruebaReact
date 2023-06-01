@@ -1,5 +1,7 @@
+import axios from "axios";
 import { GetConfiguracionAlerta, SetConfiguracionAlerta } from "../../../../_start/helpers/Axios/CoreService";
 import { Post_GetConsultasDinamicas } from "../../../../_start/helpers/Axios/DWHService";
+import { DWH_getconsultadinamicasprocedure } from "../../../../apiurlstore";
 export function  getConfiguraciones (data:any) {
     var params: { [id: string]: string | null; } = {};
     params['nombre'] = data.nombre;
