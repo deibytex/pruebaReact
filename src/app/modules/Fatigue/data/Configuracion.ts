@@ -31,11 +31,6 @@ export  function GetClientesFatiga() {
         headers: { 'Content-Type': 'application/json' },
         params : { Clase: "FATGQueryHelper" , NombreConsulta : "GetClientesFatigaConfiguracion" }
       });
-    // return Post_Getconsultadinamicas({
-    //     NombreConsulta:  "GetClientesFatigaConfiguracion", Clase: "FATGQueryHelper",
-    //     Pagina: null,
-    //     RecordsPorPagina: null
-    // },params);
   }
 
 export function GetEventos(Clienteid: string){
