@@ -24,7 +24,7 @@ const App: React.FC<Props> = ({ basename }) => {
   const tableTheme = useMemo(
     () =>
       createTheme({
-
+    
         typography: {
           fontFamily: "Montserrat"
         }

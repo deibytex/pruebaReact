@@ -103,10 +103,10 @@ const TablaNivelCarga: React.FC<props> = ({ tamanio }) => {
     if (ClienteSeleccionado?.ClienteId != "")
       ObtenerConfiguracion(model.Id, '141', '6', `${ClienteSeleccionado?.ClienteId}`).then((response: any) => {
 
-         console.log("response", {...columnasPorDefecto, ...JSON.parse(response.data[0].Configuracion)} );
-        if (response.data.length > 0) 
-        setlstColumnas({...columnasPorDefecto, ...JSON.parse(response.data[0].Configuracion)} );
-        
+        console.log("response", { ...columnasPorDefecto, ...JSON.parse(response.data[0].Configuracion) });
+        if (response.data.length > 0)
+          setlstColumnas({ ...columnasPorDefecto, ...JSON.parse(response.data[0].Configuracion) });
+
       }
       ).catch((error) => {
         console.log("error", error)
@@ -115,12 +115,12 @@ const TablaNivelCarga: React.FC<props> = ({ tamanio }) => {
   }, [ClienteSeleccionado])
 
 
-  useEffect(() => {  
+  useEffect(() => {
     if (ClienteSeleccionado?.ClienteId != "")
       GuardarConfiguracion(model.Id, '141', '6', `${ClienteSeleccionado?.ClienteId}`, JSON.stringify(lstColumnas),
         moment().format('YYYY-MM-DD HH:mm:ss')).then((response: any) => {
           console.log(response)
-        }).catch((error) => { })    
+        }).catch((error) => { })
 
   }, [lstColumnas])
   //VisibilidadColumnas
@@ -278,7 +278,7 @@ const TablaNivelCarga: React.FC<props> = ({ tamanio }) => {
       enableDensityToggle={false}
       enableRowVirtualization
       enableTableFooter
-
+   enableHiding={isExpandido}
       muiTableContainerProps={{
         sx: { maxHeight: '600px', scrollbarColor: 'primary' }, //give the table a max height
 
@@ -331,9 +331,9 @@ const TablaNivelCarga: React.FC<props> = ({ tamanio }) => {
         showAlertBanner: isError,
         showProgressBars: isRefetching,
         sorting,
-        columnVisibility: lstColumnas
+        columnVisibility: (!isExpandido) ? columnasPorDefecto :lstColumnas
       }}
-      initialState={{ columnVisibility: columnasPorDefecto, showColumnFilters: true, density: 'compact' }}
+      initialState={{ columnVisibility:(!isExpandido) ? columnasPorDefecto :lstColumnas , showColumnFilters: true, density: 'compact' }}
       tableInstanceRef={tableInstanceRef}
       onColumnVisibilityChange={setlstColumnas}
 
