@@ -260,7 +260,7 @@ export default function ReporteSafety() {
                                     row.original.Id == 'EC: Exceso Velocidad > 30 km/h' ? 'cyan' :
                                         'teal'}
                     now={row.original.total}
-                    label={`<span className="fw-bolder">${row.original.total}</span>`}
+                    label={`${row.original.total}`}
                     min={0}
                     max={
                         row.original.Id == 'EC: Aceleracion Brusca > 8 km/h/s' ? maxValueAC :
