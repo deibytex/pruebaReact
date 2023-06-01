@@ -249,6 +249,9 @@ export default function ReporteNivelCarga() {
         dataLabels: {
           enabled: true,
           enabledOnSeries: true,
+          style: {
+            colors: ['#424249']
+          },
           formatter: function (value: any, { seriesIndex, dataPointIndex, w }: any) {
 
             return seriesIndex == 0 ? locateFormatNumberNDijitos(value, 1) : value

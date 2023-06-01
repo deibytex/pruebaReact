@@ -5,33 +5,39 @@ import { MRT_Localization_ES } from 'material-react-table/locales/es';
 import { ColumnFiltersState, PaginationState, SortingState, VisibilityState } from "@tanstack/react-table";
 import { TablaDTO } from "../../models/NivelcargaModels";
 import { useDataNivelCarga } from "../../core/NivelCargaProvider";
+import { set } from "rsuite/esm/utils/dateUtils";
+import { GuardarConfiguracion, ObtenerConfiguracion } from "../../data/NivelCarga";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../../setup";
+import { UserModelSyscaf } from "../../../auth/models/UserModel";
 
 
 // listado de columnas a visualizar por defecto
 //para visibilidad de las columnas
 const columnasPorDefecto = {
-  fechaString: true,
-  placa: true,
-  driver: true,
-  socInicial: true,
-  soc: true,
-  eficiencia: false,
-  autonomia: false,
-  energia: false,
-  energiaDescargada: false,
-  energiaRegenerada: false,
-  odometro: false,
-  kms: false,
-  porRegeneracion: false,
-  velocidadPromedio: false
+  "fechaString": true,
+  "placa": true,
+  "driver": true,
+  "socInicial": true,
+  "soc": true,
+  "eficiencia": false,
+  "autonomia": false,
+  "energia": false,
+  "energiaDescargada": false,
+  "energiaRegenerada": false,
+  "odometro": false,
+  "kms": false,
+  "porRegeneracion": false,
+  "velocidadPromedio": false
 };
+
 
 type props = { tamanio: string }
 
 //VisibilidadColumnas
 const TablaNivelCarga: React.FC<props> = ({ tamanio }) => {
 
-  const { setmarkerSeleccionado, dataTable, MinSocCarga, MaxSocCarga, VehiculosFiltrados, setDatosMapa, isExpandido } = useDataNivelCarga();
+  const { setmarkerSeleccionado, dataTable, MinSocCarga, MaxSocCarga, VehiculosFiltrados, setDatosMapa, isExpandido, ClienteSeleccionado } = useDataNivelCarga();
 
   const tableInstanceRef = useRef<MRT_TableInstance<TablaDTO>>(null);
   //table state
@@ -51,7 +57,7 @@ const TablaNivelCarga: React.FC<props> = ({ tamanio }) => {
   };
 
 
-  const [lstColumnas, setlstColumnas] = useState(columnasPorDefecto);
+  const [lstColumnas, setlstColumnas] = useState({});
 
   const [Datos, setDatos] = useState<TablaDTO[]>([])
   const [lstdirvers, setlstdirvers] = useState<any[]>([])
@@ -82,22 +88,41 @@ const TablaNivelCarga: React.FC<props> = ({ tamanio }) => {
       setDatos(datos);
       setDatosMapa(datos);
     }
-    let VisibilidadColumnas = { ...columnasPorDefecto };
-    if (isExpandido) {
-      Object.entries(VisibilidadColumnas).map(m => {
-        VisibilidadColumnas[m[0]] = true;
 
-      })
-
-    }
-
-    tableInstanceRef.current?.setColumnVisibility((isExpandido) ? VisibilidadColumnas : columnasPorDefecto)
 
 
   }, [dataTable, VehiculosFiltrados, MinSocCarga, MaxSocCarga, isExpandido])
+  const isAuthorized = useSelector<RootState>(
+    ({ auth }) => auth.user
+  );
+
+  // convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
+  const model = (isAuthorized as UserModelSyscaf);
+
+  useEffect(() => {
+    if (ClienteSeleccionado?.ClienteId != "")
+      ObtenerConfiguracion(model.Id, '141', '6', `${ClienteSeleccionado?.ClienteId}`).then((response: any) => {
+
+         console.log("response", {...columnasPorDefecto, ...JSON.parse(response.data[0].Configuracion)} );
+        if (response.data.length > 0) 
+        setlstColumnas({...columnasPorDefecto, ...JSON.parse(response.data[0].Configuracion)} );
+        
+      }
+      ).catch((error) => {
+        console.log("error", error)
+      })
+
+  }, [ClienteSeleccionado])
 
 
+  useEffect(() => {  
+    if (ClienteSeleccionado?.ClienteId != "")
+      GuardarConfiguracion(model.Id, '141', '6', `${ClienteSeleccionado?.ClienteId}`, JSON.stringify(lstColumnas),
+        moment().format('YYYY-MM-DD HH:mm:ss')).then((response: any) => {
+          console.log(response)
+        }).catch((error) => { })    
 
+  }, [lstColumnas])
   //VisibilidadColumnas
 
   let listadoCampos: MRT_ColumnDef<TablaDTO>[] =
@@ -125,7 +150,7 @@ const TablaNivelCarga: React.FC<props> = ({ tamanio }) => {
         filterVariant: 'select',
         filterSelectOptions: lstdirvers,
         enableHiding: false,
-        size:180
+        size: 180
       },
       {
         accessorKey: 'socInicial',
@@ -150,7 +175,7 @@ const TablaNivelCarga: React.FC<props> = ({ tamanio }) => {
       {
         accessorKey: 'kms',
         header: 'Distancia',
-        Header: <span>Distancia <br/>[km]</span>,
+        Header: <span>Distancia <br />[km]</span>,
         Cell({ cell, column, row, table, }) {
           return (row.original.kms?.toFixed(1));
         }
@@ -253,7 +278,7 @@ const TablaNivelCarga: React.FC<props> = ({ tamanio }) => {
       enableDensityToggle={false}
       enableRowVirtualization
       enableTableFooter
-      
+
       muiTableContainerProps={{
         sx: { maxHeight: '600px', scrollbarColor: 'primary' }, //give the table a max height
 
@@ -306,9 +331,12 @@ const TablaNivelCarga: React.FC<props> = ({ tamanio }) => {
         showAlertBanner: isError,
         showProgressBars: isRefetching,
         sorting,
+        columnVisibility: lstColumnas
       }}
-      initialState={{ columnVisibility: lstColumnas, showColumnFilters: true, density: 'compact' }}
+      initialState={{ columnVisibility: columnasPorDefecto, showColumnFilters: true, density: 'compact' }}
       tableInstanceRef={tableInstanceRef}
+      onColumnVisibilityChange={setlstColumnas}
+
 
     />
 

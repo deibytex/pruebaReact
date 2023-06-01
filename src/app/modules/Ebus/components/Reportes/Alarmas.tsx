@@ -172,12 +172,16 @@ export default function ReporteAlarmas() {
         },
         xaxis: {
           categories: []
+        },
+        dataLabels: {
+          enabled: true,
+          style: {
+            colors: ['#424249']
+          }
         }
       },
-      series: [],
-      dataLabels: {
-        enabled: true
-      }
+      series: []
+     
     }
     // asingamos las opciones
     setOpciones(defaultopciones)

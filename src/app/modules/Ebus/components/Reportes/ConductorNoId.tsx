@@ -1,10 +1,10 @@
 import moment from "moment";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { GetReporteEficiencia } from "../../data/ReportesData";
+import { GetReporteEficiencia, fncReporteNoConductor } from "../../data/ReportesData";
 import { PageTitle } from "../../../../../_start/layout/core";
 import { DateRangePicker, Notification, Placeholder, Stack, useToaster } from "rsuite";
 import BlockUi from "@availity/block-ui";
-import { DescargarExcel } from "../../../../../_start/helpers/components/DescargarExcel";
+import { DescargarExcel, DescargarExcelPersonalizado } from "../../../../../_start/helpers/components/DescargarExcel";
 import MaterialReactTable, { MRT_ColumnDef, MRT_TableInstance } from "material-react-table";
 import { FormatoColombiaDDMMYYY, FormatoSerializacionYYYY_MM_DD_HHmmss } from "../../../../../_start/helpers/Constants";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
@@ -213,12 +213,15 @@ export default function ReporteConductorNoId() {
         legend: {
           showForSingleSeries: true,
           position: 'top'
+        },
+        dataLabels: {
+          enabled: true,
+          style: {
+            colors: ['#424249']
+          }
         }
       },
-      series: [],
-      dataLabels: {
-        enabled: true
-      }
+      series: []
     }
 
 
@@ -244,12 +247,15 @@ export default function ReporteConductorNoId() {
         legend: {
           showForSingleSeries: true,
           position: 'top'
+        },
+        dataLabels: {
+          enabled: true,
+          style: {
+            colors: ['#424249']
+          }
         }
       },
       series: [],
-      dataLabels: {
-        enabled: true
-      },
       title: { text: "total talgo" }
     }
 
@@ -572,7 +578,7 @@ export default function ReporteConductorNoId() {
           <div className="card bg-secondary d-flex flex-row  justify-content-between m-1">
 
             <div className="d-flex justify-content-start ">
-              <label className="control-label label  label-sm m-2 mt-6" style={{ fontWeight: 'bold' }}>Fecha inicial: </label>
+              <label className="control-label label  label-sm m-2 mt-6" style={{ fontWeight: 'bold' }}>Fechas: </label>
               {(combine && allowedMaxDays && allowedRange) && (
                 <DateRangePicker className="m-4" format="dd/MM/yyyy" value={[filtros.FechaInicial, filtros.FechaFinal]}
                   disabledDate={combine(allowedMaxDays(7), allowedRange(
@@ -678,7 +684,7 @@ export default function ReporteConductorNoId() {
                 sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
               >
 
-                <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataFiltrada, listadoCampos, "ConductorNoId") }}>
+                <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcelPersonalizado(dataFiltrada, listadoCampos, "ConductorNoId",fncReporteNoConductor) }}>
                   <i className="bi-file-earmark-excel"></i></button>
 
 

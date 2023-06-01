@@ -581,14 +581,7 @@ export default function ReporteViaje() {
     <PageTitle> Gráfica Viajes</PageTitle>
     <BlockUi tag="div" keepInView blocking={loader ?? false}  >
 
-      <div className="card card-rounded shadow-sm mt-2" style={{ width: '100%' }}  >
-
-        <div className="d-flex justify-content-end mt-2">
-          <div style={{ float: 'right' }}>
-            <CargaListadoClientes />
-          </div>
-        </div>
-      </div>
+  
       <div className="container mb-2 mt-2"
         style={{ width: "100%" }}>
         <Stack>
@@ -604,8 +597,10 @@ export default function ReporteViaje() {
 
 
       </div>
-      <div className="card bg-secondary d-flex justify-content-between m-1">
-        <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8"> <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fechas: </label>
+      <div className="card bg-secondary d-flex flex-row  justify-content-between m-1">
+
+<div className="d-flex justify-content-start ">
+  <label className="control-label label  label-sm m-2 mt-6" style={{ fontWeight: 'bold' }}>Fechas: </label>
           {(combine && allowedMaxDays && allowedRange) && (
             <DateRangePicker className="mt-2" format="dd/MM/yyyy" value={[filtros.FechaInicial, filtros.FechaFinal]}
               disabledDate={combine(allowedMaxDays(7), allowedRange(
@@ -623,11 +618,18 @@ export default function ReporteViaje() {
             />
           )}
 
-          <Button className="m-2  btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}><i className="bi-car-front-fill"></i></Button>
-          <Button className="m-2  btn btn-sm btn-primary" onClick={() => () => { ConsultarData(); }}><i className="bi-search"></i></Button>
+          <Button className="m-2 mb-4  btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}><i className="bi-car-front-fill"></i></Button>
+          <Button className="m-2 mb-4  btn btn-sm btn-primary" onClick={() => () => { ConsultarData(); }}><i className="bi-search"></i></Button>
 
         </div>
-        <div className="d-flex justify-content-start  ">
+       
+        <div className="d-flex justify-content-end mt-2">
+          <div style={{ float: 'right' }}>
+            <CargaListadoClientes />
+          </div>
+        </div>
+      </div>
+      <div className="d-flex justify-content-start  ">
           <Checkbox
             indeterminate={value.length > 0 && value.length < data.length}
             checked={value.length === data.length}
@@ -644,7 +646,6 @@ export default function ReporteViaje() {
             ))}
           </CheckboxGroup>
         </div>
-      </div>
 
 
       {/* begin::Chart */}

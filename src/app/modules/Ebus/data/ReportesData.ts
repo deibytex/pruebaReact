@@ -222,3 +222,15 @@ export const fncReporteEficiencia = [
         }
     }
 ]
+
+
+
+// listado de funciones personalizado para los reportes 
+export const fncReporteNoConductor = [
+    {
+        name: "noidporc",
+        getData: (data: number) => {
+            return data
+        }
+    }
+]

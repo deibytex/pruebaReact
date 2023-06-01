@@ -23,12 +23,8 @@ export function AuthPage() {
      
     <div   className="d-flex flex-column flex-lg-row flex-column-fluid"  id="kt_login"      >
      
-      <div className="d-flex flex-column text-center items-aling-center justify-content-center bg-primary w-lg-600px pt-0"
-        style={{ 
-          backgroundImage: `url(${toAbsoluteUrl("/media/syscaf/FondoRecortado.png")})` 
-          ,backgroundRepeat:"no-repeat" ,
-          backgroundSize:"100% 100%"
-        }}
+      <div className="d-flex flex-column text-center items-aling-center justify-content-center  w-lg-600px pt-0"
+       style={{backgroundImage:`linear-gradient(to right, #1B4256 , #007675)`}}
       >
 
      

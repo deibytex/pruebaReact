@@ -252,25 +252,25 @@ export default function ReporteSafety() {
         minSize: 200,
         Cell: ({ cell, column, row, table }) => {
             return <span title={`${row.original.operador.toString()} : ${row.original.total}`}>
-                <ProgressBar 
-                    variant={row.original.Id == 'EC: Aceleracion Brusca > 8 km/h/s' ? 'indigo' : 
-                    row.original.Id == 'EC: Exceso Velocidad > 50 km/h' ? 'yellow' : 
-                    row.original.Id == 'EC: Frenada Brusca > 10 km/h/s' ? 'pink' : 
-                    row.original.Id == 'EC: Giro Brusco > 0,3 G' ? 'orange' : 
-                    row.original.Id == 'EC: Exceso Velocidad > 30 km/h' ? 'cyan' : 
-                    'teal'}
-                    now={row.original.total} 
-                    label={`${row.original.total}`} 
-                    min={0} 
+                <ProgressBar
+                    variant={row.original.Id == 'EC: Aceleracion Brusca > 8 km/h/s' ? 'indigo' :
+                        row.original.Id == 'EC: Exceso Velocidad > 50 km/h' ? 'yellow' :
+                            row.original.Id == 'EC: Frenada Brusca > 10 km/h/s' ? 'pink' :
+                                row.original.Id == 'EC: Giro Brusco > 0,3 G' ? 'orange' :
+                                    row.original.Id == 'EC: Exceso Velocidad > 30 km/h' ? 'cyan' :
+                                        'teal'}
+                    now={row.original.total}
+                    label={`<span className="fw-bolder">${row.original.total}</span>`}
+                    min={0}
                     max={
-                        row.original.Id == 'EC: Aceleracion Brusca > 8 km/h/s' ? maxValueAC : 
-                         row.original.Id == 'EC: Exceso Velocidad > 50 km/h' ? maxValueVel50 : 
-                         row.original.Id == 'EC: Frenada Brusca > 10 km/h/s' ? maxValueFB : 
-                         row.original.Id == 'EC: Giro Brusco > 0,3 G' ? maxValueGB : 
-                         row.original.Id == 'EC: Exceso Velocidad > 30 km/h' ? maxValueVel30 : 
-                        maxValueCD
-                        } 
-                    style={{width:'150px'}}/>
+                        row.original.Id == 'EC: Aceleracion Brusca > 8 km/h/s' ? maxValueAC :
+                            row.original.Id == 'EC: Exceso Velocidad > 50 km/h' ? maxValueVel50 :
+                                row.original.Id == 'EC: Frenada Brusca > 10 km/h/s' ? maxValueFB :
+                                    row.original.Id == 'EC: Giro Brusco > 0,3 G' ? maxValueGB :
+                                        row.original.Id == 'EC: Exceso Velocidad > 30 km/h' ? maxValueVel30 :
+                                            maxValueCD
+                    }
+                    style={{ width: '150px' }} />
             </span>
         }
     }];
@@ -343,25 +343,25 @@ export default function ReporteSafety() {
                         text: "Eventos"
                     }
                 }
-                // ,
-                // {
-                //     min: 0,
-                //     max: 1,
-                //     opposite: true,
-                //     show: false, 
-                //     labels: {
-                //         formatter: function (val: number, index: any) {
-                //             return val.toFixed(0);
-                //         }
-                //     }
-                // }
+                    // ,
+                    // {
+                    //     min: 0,
+                    //     max: 1,
+                    //     opposite: true,
+                    //     show: false, 
+                    //     labels: {
+                    //         formatter: function (val: number, index: any) {
+                    //             return val.toFixed(0);
+                    //         }
+                    //     }
+                    // }
                 ],
                 dataLabels: {
                     enabled: true,
                     enabledOnSeries: true,
                     style: {
-                        colors: ['#7E8299']
-                      }
+                        colors: ['#424249']
+                    }
                 }
             },
             series: []
@@ -395,7 +395,9 @@ export default function ReporteSafety() {
                     }
                 }],
                 dataLabels: {
-                    enabled: true,
+                    enabled: true, style: {
+                        colors: ['#424249']
+                    },
                     enabledOnSeries: true,
                     formatter: function (value: any, { seriesIndex, dataPointIndex, w }: any) {
                         return locateFormatNumberNDijitos(value, 1)
@@ -486,22 +488,22 @@ export default function ReporteSafety() {
                     return p;
                 }, []);
 
-                 // listados de operadores de los datos que traemos
-                 setlstOperadores(lstOperadores);
+                // listados de operadores de los datos que traemos
+                setlstOperadores(lstOperadores);
 
                 if (tabSel == 2) {
-                     // vamos a llenar la informacion de los Eventos
+                    // vamos a llenar la informacion de los Eventos
                     let lstEventos = (response.data as any[]).reduce((p, c) => {
-                    let evento = c["Evento"];
-                    let isExists = p.filter((f: any) => f["value"] === evento);
-                    if (isExists.length == 0)
-                        p.push({ "value": evento, "label": evento })
-                    return p;
-                }, []);
+                        let evento = c["Evento"];
+                        let isExists = p.filter((f: any) => f["value"] === evento);
+                        if (isExists.length == 0)
+                            p.push({ "value": evento, "label": evento })
+                        return p;
+                    }, []);
 
-                // listados de eventos de los datos que traemos
-                setlstEventos(lstEventos);
-                };      
+                    // listados de eventos de los datos que traemos
+                    setlstEventos(lstEventos);
+                };
 
                 // datos filtrados que al principio son los mismos extraidos
                 datosfiltrados(response.data)
@@ -933,7 +935,7 @@ export default function ReporteSafety() {
             setTotalesGB(TotalGB[0] == undefined ? [] : TotalGB[0]);
             setTotalesVel50(TotalVEL50[0] == undefined ? [] : TotalVEL50[0]);
             setTotalesVel30(TotalVEL30[0] == undefined ? [] : TotalVEL30[0]);
-        };        
+        };
     };
 
     useEffect(() => {
@@ -944,7 +946,7 @@ export default function ReporteSafety() {
         if (TotalesVel50.length > 0) setmaxValueVel50(TotalesVel50[0].total);
         if (TotalesVel30.length > 0) setmaxValueVel30(TotalesVel30[0].total);
     }, [TotalesAC, TotalesCD, TotalesFB, TotalesGB, TotalesVel50, TotalesVel30])
-    
+
     // VERIFICA QUE SE DEBA CONSULTAR NUEVAMENTE LA INFORMACION EN LA BASE DE DATOS
 
     // VALIDA LAS FECHAS QUE SEAN LAS CORRECTAS Y ACTUALIZA LOS FILTROS
@@ -1039,16 +1041,12 @@ export default function ReporteSafety() {
         <PageTitle>Reporte Safety</PageTitle>
         <BlockUi tag="div" keepInView blocking={loader ?? false}  >
             <div className="card card-rounded shadow mt-2 text-primary" style={{ width: '100%' }}>
-                <div className="d-flex justify-content-end mt-2 m-2">
-                    <div style={{ float: 'right' }}>
-                        <CargaListadoClientes />
-                    </div>
-                </div>
+
                 <div className="d-flex justify-content-between mb-2">
                     <div className="d-flex justify-content-between mx-auto">
                         <div className="ms-9 text-center">
                             <h3 className="mb-0">Reporte Eficiencia</h3>
-                            <span className="text-muted m-3">{TipoReporte[tabSel].reporte}</span>
+                           
                         </div>
                     </div>
                 </div>
@@ -1058,8 +1056,10 @@ export default function ReporteSafety() {
                             (Object.entries(lstIndicadores).map((element: any) => {
 
                                 return (
-                                    <div key={`indicadores_${element[0]}`} className="row card shadow m-2 col-sm-3 col-md-3 col-xs-3 mx-auto"
-                                        style={{ backgroundColor: `${(element[0] == "Cond Rojo") ? "#F26E5F" : (element[0] == "Cond Ambar") ? "#D7962E" : (element[0] == "Cond Verde") ? "#64B178" : ""}` }} >
+                                    <div key={`indicadores_${element[0]}`} className="row card shadow m-2 px-2 col-sm-3 col-md-3 col-xs-3 mx-auto"
+                                        style={{ backgroundColor: `${(element[0] == "Cond Rojo") ? "#F26E5F" : (element[0] == "Cond Ambar") ? "#D7962E" : 
+                                        (element[0] == "Cond Verde") ? "#64B178" : ""}` }} 
+                                        >
                                         <div className="ms-3 text-center m-4">
                                             <h2 className={`mb-0 ${(element[0] != "Calificación Total") ? "text-white" : ""}`}><span id={element[0]}>{element[1]}</span></h2>
                                             <span className={`${(element[0] != "Calificación Total") ? "text-white" : "text-muted"}`}>{element[0]}</span>
@@ -1070,10 +1070,10 @@ export default function ReporteSafety() {
                         }
                     </div>
                 </div>
-                <div className="card bg-secondary d-flex justify-content-between m-1">
-               
-                    <div className="col-sm-8 col-md-8 col-xs-8 col-lg-8">
-                        <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fechas: </label>
+                <div className="card bg-secondary d-flex flex-row  justify-content-between">
+
+                    <div className="d-flex justify-content-start ">
+                        <label className="control-label label  label-sm m-2 mt-6" style={{ fontWeight: 'bold' }}>Fechas: </label>
                         {(combine && allowedRange && allowedMaxDays) && (
                             <DateRangePicker size="lg" className="mt-2" format="dd/MM/yyyy" value={[TipoReporte[tabSel].filtros.FechaInicial, TipoReporte[tabSel].filtros.FechaFinal]}
                                 hoverRange={
@@ -1095,11 +1095,16 @@ export default function ReporteSafety() {
                                 }}
                             />
                         )}
-                        <Button className="m-2  btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}>
+                        <Button className="mb-6 mx-2 mt-2 btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}>
                             <i className="bi-person"></i></Button>
-                        {(tabSel == 2) && (<Button className="m-2  btn btn-sm btn-primary" onClick={() => { setShowModalEventos(true) }}>
-                        <i className="bi-card-list"></i></Button>)}
-                        <Button className="m-2  btn btn-sm btn-primary" onClick={() => { ConsultarData() }}><i className="bi-search"></i></Button>
+                        {(tabSel == 2) && (<Button className="mb-6 mx-2 mt-2   btn btn-sm btn-primary" onClick={() => { setShowModalEventos(true) }}>
+                            <i className="bi-card-list"></i></Button>)}
+                        <Button className="mb-6 mx-2 mt-2   btn btn-sm btn-primary" onClick={() => { ConsultarData() }}><i className="bi-search"></i></Button>
+                    </div>
+                    <div className="d-flex justify-content-end mt-2 m-2">
+                        <div style={{ float: 'right' }}>
+                            <CargaListadoClientes />
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1158,7 +1163,7 @@ export default function ReporteSafety() {
                     <div style={{ display: (tabSel == 2) ? "block" : "none" }}>
 
                         <div className="row" >
-                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll'}} >
+                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll' }} >
                                 <div className="text-center"><label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px', display: (tabSel == 2) ? "block" : "none" }}>Exceso Velocidad &gt; 50 km/h</label></div>
                                 {(TotalesVel50.length != 0) && (<MaterialReactTable
                                     // tableInstanceRef={ColumnasTablas['movil']}
@@ -1210,7 +1215,7 @@ export default function ReporteSafety() {
                                     }}
                                 />)}
                             </div>
-                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll'}}  >
+                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll' }}  >
                                 <div className="text-center"><label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px', display: (tabSel == 2) ? "block" : "none" }}>Aceleración Brusca &gt; 8 km/h/s</label></div>
                                 {(TotalesAC.length != 0) && (<MaterialReactTable
                                     // tableInstanceRef={ColumnasTablas['movil']}
@@ -1262,7 +1267,7 @@ export default function ReporteSafety() {
                                     }}
                                 />)}
                             </div>
-                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll'}}  >
+                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll' }}  >
                                 <div className="text-center">
                                     <label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px', display: (tabSel == 2) ? "block" : "none" }}>Frenada Brusca &gt; 10 km/h/s</label>
                                 </div>
@@ -1318,7 +1323,7 @@ export default function ReporteSafety() {
                             </div>
                         </div>
                         <div className="row" >
-                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll'}}  >
+                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll' }}  >
                                 <div className="text-center"><label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px', display: (tabSel == 2) ? "block" : "none" }}>Exceso Velocidad &gt; 30 km/h</label></div>
                                 {(TotalesVel30.length != 0) && (<MaterialReactTable
                                     // tableInstanceRef={ColumnasTablas['movil']}
@@ -1370,7 +1375,7 @@ export default function ReporteSafety() {
                                     }}
                                 />)}
                             </div>
-                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll'}}  >
+                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll' }}  >
                                 <div className="text-center"><label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px', display: (tabSel == 2) ? "block" : "none" }}>Giro Brusco &gt; 0.30 G</label></div>
                                 {(TotalesGB.length != 0) && (<MaterialReactTable
                                     // tableInstanceRef={ColumnasTablas['movil']}
@@ -1422,7 +1427,7 @@ export default function ReporteSafety() {
                                     }}
                                 />)}
                             </div>
-                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll'}}  >
+                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll' }}  >
                                 <div className="text-center">
                                     <label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px', display: (tabSel == 2) ? "block" : "none" }}>Cinturón Desabrochado &gt; 0 km/h</label>
                                 </div>
@@ -1479,82 +1484,82 @@ export default function ReporteSafety() {
                         </div>
                     </div>
                     <div className="row">
-                    <div className="col-xs-12 col-sm-12 col-md-12">
-                    <div className="text-center"><label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px' }}> </label></div>
-                    <MaterialReactTable
-                            enableColumnFilters={false}
-                            initialState={{ density: 'compact', columnVisibility: { mes: false } }}
-                            enableColumnOrdering
-                            enableColumnDragging={false}
-                            enablePagination={false}
-                            enableStickyHeader
-                            enableDensityToggle={false}
-                            enableRowVirtualization
-                            localization={MRT_Localization_ES}
-                            displayColumnDefOptions={{
-                                'mrt-row-actions': {
-                                    muiTableHeadCellProps: {
-                                        align: 'center',
-                                    }
-                                },
-                            }}
-                            defaultColumn={{
-                                minSize: 20, //allow columns to get smaller than default
-                                maxSize: 100, //allow columns to get larger than default
-                                size: 80, //make columns wider by default
-                            }}
-                            muiTableContainerProps={{
-                                ref: tableContainerRef, //get access to the table container element
-                                sx: { maxHeight: '400px' }, //give the table a max height
-                            }}
-                            muiTableHeadCellProps={{
-                                sx: (theme) => ({
-                                    fontSize: 14,
-                                    fontStyle: 'bold',
-                                    color: 'rgb(27, 66, 94)',
-                                    //backgroundColor: 'yellow'
-                                }),
-                            }}
-                            columns={columnas}
-                            data={dataFiltrada}
-                            // editingMode="modal" //default         
-                            // enableTopToolbar={false}
+                        <div className="col-xs-12 col-sm-12 col-md-12">
+                            <div className="text-center"><label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px' }}> </label></div>
+                            <MaterialReactTable
+                                enableColumnFilters={false}
+                                initialState={{ density: 'compact', columnVisibility: { mes: false } }}
+                                enableColumnOrdering
+                                enableColumnDragging={false}
+                                enablePagination={false}
+                                enableStickyHeader
+                                enableDensityToggle={false}
+                                enableRowVirtualization
+                                localization={MRT_Localization_ES}
+                                displayColumnDefOptions={{
+                                    'mrt-row-actions': {
+                                        muiTableHeadCellProps: {
+                                            align: 'center',
+                                        }
+                                    },
+                                }}
+                                defaultColumn={{
+                                    minSize: 20, //allow columns to get smaller than default
+                                    maxSize: 100, //allow columns to get larger than default
+                                    size: 80, //make columns wider by default
+                                }}
+                                muiTableContainerProps={{
+                                    ref: tableContainerRef, //get access to the table container element
+                                    sx: { maxHeight: '400px' }, //give the table a max height
+                                }}
+                                muiTableHeadCellProps={{
+                                    sx: (theme) => ({
+                                        fontSize: 14,
+                                        fontStyle: 'bold',
+                                        color: 'rgb(27, 66, 94)',
+                                        //backgroundColor: 'yellow'
+                                    }),
+                                }}
+                                columns={columnas}
+                                data={dataFiltrada}
+                                // editingMode="modal" //default         
+                                // enableTopToolbar={false}
 
-                            // enableEditing
-                            /* onEditingRowSave={handleSaveRowEdits}
-                                onEditingRowCancel={handleCancelRowEdits}*/
-                            muiToolbarAlertBannerProps={
-                                isError
-                                    ? {
-                                        color: 'error',
-                                        children: 'Error al cargar información',
-                                    }
-                                    : undefined
-                            }
-                            onColumnFiltersChange={setColumnFilters}
-                            onGlobalFilterChange={setGlobalFilter}
-                            onPaginationChange={setPagination}
-                            onSortingChange={setSorting}
-                            rowCount={rowCount}
-                            state={{
-                                columnFilters,
-                                globalFilter,
-                                isLoading,
-                                pagination,
-                                showAlertBanner: isError,
-                                showProgressBars: isRefetching,
-                                sorting,
-                            }}
-                            renderTopToolbarCustomActions={({ table }) => (
-                                <Box
-                                    sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
-                                >
-                                    <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataFiltrada, TipoReporteBase[tabSel].columnas, `Safety ${TipoReporteBase[tabSel].reporte}`) }}>
-                                        <i className="bi-file-earmark-excel"></i></button>
-                                </Box>
-                            )}
-                        />
-                    </div>
+                                // enableEditing
+                                /* onEditingRowSave={handleSaveRowEdits}
+                                    onEditingRowCancel={handleCancelRowEdits}*/
+                                muiToolbarAlertBannerProps={
+                                    isError
+                                        ? {
+                                            color: 'error',
+                                            children: 'Error al cargar información',
+                                        }
+                                        : undefined
+                                }
+                                onColumnFiltersChange={setColumnFilters}
+                                onGlobalFilterChange={setGlobalFilter}
+                                onPaginationChange={setPagination}
+                                onSortingChange={setSorting}
+                                rowCount={rowCount}
+                                state={{
+                                    columnFilters,
+                                    globalFilter,
+                                    isLoading,
+                                    pagination,
+                                    showAlertBanner: isError,
+                                    showProgressBars: isRefetching,
+                                    sorting,
+                                }}
+                                renderTopToolbarCustomActions={({ table }) => (
+                                    <Box
+                                        sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
+                                    >
+                                        <button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataFiltrada, TipoReporteBase[tabSel].columnas, `Safety ${TipoReporteBase[tabSel].reporte}`) }}>
+                                            <i className="bi-file-earmark-excel"></i></button>
+                                    </Box>
+                                )}
+                            />
+                        </div>
                     </div>
 
                     <div className={`tab-pane fade ${tabSel === 0 ? "show active" : ""}`} id="tab0_content" >

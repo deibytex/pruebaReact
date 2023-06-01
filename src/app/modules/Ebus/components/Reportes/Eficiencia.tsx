@@ -344,6 +344,8 @@ export default function ReporteEficiencia() {
         ],
         dataLabels: {
           enabled: true,
+         
+         
           enabledOnSeries: true,
           formatter: function (value: any, { seriesIndex, dataPointIndex, w }: any) {
             return formatNumberChart(value)

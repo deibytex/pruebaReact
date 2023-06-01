@@ -56,8 +56,8 @@ export function AsideMenuMain() {
            {opcionesPadres.map((element) => {
 
         return (
-          <div key={`row menu-padre${element.opcionId}`} className="menu-item  flex px-2 ">
-            <Button className="flex btn btn-sm "
+          <div key={`row menu-padre${element.opcionId}`} className="menu-item  flex px-2">
+            <Button className="flex btn btn-sm bg-transparent "
               onClick={() => setmenuSelected((menuSelected === element.opcionId) ? 0 : element.opcionId)}
               aria-controls={`collapse-${element.opcionId}`}
               aria-expanded={(menuSelected === element.opcionId)}
