@@ -18,13 +18,14 @@ import { FormatoColombiaDDMMYYY, FormatoSerializacionYYYY_MM_DD_HHmmss } from '.
 import DualListBox from 'react-dual-listbox';
 import { dualList } from '../../../../../_start/helpers/Models/DualListDTO';
 import BlockUi from 'react-block-ui';
-import { DescargarExcel, DescargarExcelPersonalizado } from '../../../../../_start/helpers/components/DescargarExcel';
+import { DescargarExcelPersonalizado } from '../../../../../_start/helpers/components/DescargarExcel';
 import ReactApexChart from 'react-apexcharts';
 import { toAbsoluteUrl } from '../../../../../_start/helpers';
 import { Totales } from '../../models/ZpOperadorMovilModels'
 import ProgressBar from '@ramonak/react-progress-bar';
 import { DrawDynamicIconMuiMaterial } from "../../../../../_start/helpers/components/IconsMuiDynamic";
 import { Box } from "@mui/material";
+import ErrorBoundaryComponent from "../../../../../_start/helpers/components/Error";
 
 export default function ZPOperadorMovil() {
     let filtrosBase: FiltrosReportesZp = {
@@ -57,7 +58,7 @@ export default function ZPOperadorMovil() {
     const [opciones, setOpciones] = useState<any>(null);
     const [OpcionesAcumulado, setAcumulado] = useState<any>(null);
     const [DateTableMovil, setDateTableMovil] = useState<any[]>([]);
-    const [DataExport, setDataExport] = useState<any[]>([]);
+    const [DateTableOperador, setDateTableOperador] = useState<any[]>([]);
     const [isCallData, setisCallData] = useState<boolean>(false); // permite validar 
     const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente);
     const [Clientes, setClientes] = useState<ClienteDTO[]>([]);
@@ -79,11 +80,13 @@ export default function ZPOperadorMovil() {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [sortingC, setSortingC] = useState<SortingState>([]);
     const [sortingG, setSortingG] = useState<SortingState>([]);
+    const [sortingf, setSortingf] = useState<SortingState>([]);
     const [pagination, setPagination] = useState<PaginationState>({
         pageIndex: 0,
         pageSize: 10,
     });
     const [rowCountMovil, setRowCountMovil] = useState(0);
+    const [rowCountOperador, setRowCountOperador] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [isRefetching, setIsRefetching] = useState(false);
     const [isError, setIsError] = useState(false);
@@ -164,26 +167,6 @@ export default function ZPOperadorMovil() {
 
     }, [ClienteSeleccionado, tabSel]);
 
-    useEffect(() => {
-        // VALIDAMOS EL INDEX SELECCIONADO
-
-        if (idxSeleccionado !== -2) // lo hacemos para que no dispare varias veces el llamado de la base de datos la primera vez que se carga
-        {
-            let Tiporeporte = [...TipoReporte];
-            TipoReporte[tabSel].filtros.IndGrafica = idxSeleccionado;
-            TipoReporte[tabSel].filtros.FechaGrafica = lablesAxisx[idxSeleccionado];
-            setTipoReporte(Tiporeporte)
-        }
-        return function cleanUp() {
-        };
-    }, [idxSeleccionado])
-
-    useEffect(() => {
-        if (idxSeleccionado !== -2)// lo hacemos para que no dispare varias veces el llamado de la base de datos la primera vez que se carga
-            Consultar(tabSel);
-        return function cleanUp() {
-        };
-    }, [TipoReporte])
     const Consultar = (Tab: any) => {
         if (TipoReporte[Tab].filtros.consultar == true || isCallData) {
             ObtenerDatos(Tab);
@@ -199,16 +182,19 @@ export default function ZPOperadorMovil() {
         },
         Cell: ({ cell, column, row, table }) => {
             return <span className="fw-bolder" style={{ fontSize: '10px' }}>{row.original.Operador}</span>
-        }
+        },
+        size: 200,
+        maxSize: 200,
+        minSize: 200,
     }, {
         accessorKey: 'Total',
         header: 'Total',
         Header: ({ column, header, table }) => {
             return "";
         },
-        size: 200,
-        maxSize: 200,
-        minSize: 200,
+        size: 150,
+        maxSize: 150,
+        minSize: 150,
         Cell: ({ cell, column, row, table }) => {
             let Total = (row.original.Total == null ? 0 : row.original.Total)
             return <span title={`${row.original.Completo?.toString()} : ${Total}`}>
@@ -218,7 +204,7 @@ export default function ZPOperadorMovil() {
                     bgColor={`${(row.original.Id == "4.Pot 150<P<175" ? '#ebba09' : '#F44336')}`}
                     labelSize={`10px`}
                     width='200px'
-                    customLabel={`${Total}`}
+                    customLabel={`${Total} %`}
                     completed={`${(Number(Total) * 100 + 50)}`}
                     maxCompleted={500}>
                 </ProgressBar>
@@ -371,8 +357,8 @@ export default function ZPOperadorMovil() {
         setIsRefetching(true)
         setloader(true)
         let Tab = (key == null || key == undefined ? "0" : key.toString());
-        GetReporteOperadorMovil(moment(TipoReporte[0].filtros.FechaInicial).format(FormatoSerializacionYYYY_MM_DD_HHmmss)
-            , moment(TipoReporte[0].filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss), Tab).then((response: AxiosResponse<any>) => {
+        GetReporteOperadorMovil(moment(TipoReporte[key].filtros.FechaInicial).format(FormatoSerializacionYYYY_MM_DD_HHmmss)
+            , moment(TipoReporte[key].filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss), Tab).then((response: AxiosResponse<any>) => {
                 let Tiporeporte = [...TipoReporte];
                 Tiporeporte[Tab].Data = response.data;
                 setTipoReporte(Tiporeporte);
@@ -451,15 +437,6 @@ export default function ZPOperadorMovil() {
         setTipoReporte(Tiporeporte)
 
     }
-    // funcion que cambia el rango de fechas por tipo de reporte
-    // 6 meses y ultimos 30 dias respectivamente
-    useEffect(() => {
-        Consultar(tabSel);
-        // ColumnasTablas.push({movil});
-        // ColumnasTablas.push({operador});
-        return function cleanUp() {
-        };
-    }, [])
     const filtarDatosSistema = (key: any | null | undefined) => {
         setloader(true)
         let Tab = parseInt(key);
@@ -501,15 +478,17 @@ export default function ZPOperadorMovil() {
 
         //Agrupamos por operador
         let agrupadoOperador: any[] = [];
-        if (Tab == 1 || Tab == 2)
+        if (Tab == 1 || Tab == 2){
             agrupadoOperador = datosfiltrados
-                .reduce((p: any, c: any) => {
-                    let name = c.Operador;
-                    p[name] = p[name] ?? [];
-                    p[name].push(c);
-                    return p;
-                }, {});
-
+            .reduce((p: any, c: any) => {
+                let name = c.Operador;
+                p[name] = p[name] ?? [];
+                p[name].push(c);
+                return p;
+            }, {});
+           
+        }
+           
         let labels = new Array();
         let labelsConductores = new Array();
         // agrupa los elementos para ser mostrado por la grafica
@@ -541,7 +520,7 @@ export default function ZPOperadorMovil() {
         let PorEV4Agrupado = 0;
         let PorEV5Agrupado = 0;
 
-       
+
         let LabelPeriodo = ["Periodo"];
         if (Tab < 2) {
             datosfiltrados.map((item: any) => {
@@ -625,12 +604,12 @@ export default function ZPOperadorMovil() {
                 TotalTemp.push({
                     Id: "4.Pot 150<P<175",
                     Completo: elem[0],
-                    Operador: (elem[0] != undefined ? `${elem[0].substring(0, 18)}..` : ""), Total: Number((TotalesConductor / totales * 100).toFixed(2))
+                    Operador: (elem[0] != undefined ? `${elem[0].substring(0, 25)}..` : ""), Total: Number((TotalesConductor / totales * 100).toFixed(2))
                 });
                 TotalesV5Temp.push({
                     Id: "5.Pot P>175",
                     Completo: elem[0],
-                    Operador: (elem[0] != undefined ? `${elem[0].substring(0, 18)}..` : ""), Total: Number((TotalesConductorV5 / totalesV5 * 100).toFixed(2))
+                    Operador: (elem[0] != undefined ? `${elem[0].substring(0, 25)}..` : ""), Total: Number((TotalesConductorV5 / totalesV5 * 100).toFixed(2))
                 });
             });
 
@@ -644,7 +623,7 @@ export default function ZPOperadorMovil() {
             //aplico filtros y hago los calculos
 
             let datos = (TipoReporte[1].Data.length == 0 ? TipoReporte[0].Data : TipoReporte[1].Data)
-             // filtra por operadores a los reportes que se necesiten
+            // filtra por operadores a los reportes que se necesiten
             if (filtros.Operadores != null && filtros.Operadores.length > 0) {
                 datos = datos.filter(function (o) {
                     return (filtros.Operadores != null) ? filtros.Operadores.indexOf(o['Operador']) > -1 : [];
@@ -717,19 +696,19 @@ export default function ZPOperadorMovil() {
         // se debe pasar el id configurado al momento de su creaci'on para poder
         // actializar los datos
         ApexCharts.exec('apexchart-example', 'updateSeries', [{
-            name: '0. Reg 0<P',
+            name: '0. Reg 0&lt;P',
             data: Ev0
         }, {
-            name: '1.Pot 0<P<50',
+            name: '1.Pot 0&lt;P&lt;50',
             data: Ev1
         }, {
-            name: '2.Pot 50<P<100',
+            name: '2.Pot 50&lt;P&lt;100',
             data: Ev2
         }, {
-            name: '3.Pot 100<P<150',
+            name: '3.Pot 100&lt;P&lt;150',
             data: Ev3
         }, {
-            name: '4.Pot 150<P<175',
+            name: '4.Pot 150&lt;P&lt;175',
             data: Ev4
         }, {
             name: '5.Pot P>175',
@@ -737,43 +716,41 @@ export default function ZPOperadorMovil() {
         }]);
         //Agrupado
         ApexCharts.exec('apexchart-acumulado', 'updateSeries', [{
-            name: '0. Reg 0<P',
+            name: '0. Reg 0&lt;P',
             data: Ev0Agrupado
         }, {
-            name: '1.Pot 0<P<50',
+            name: '1.Pot 0&lt;P&lt;50',
             data: Ev1Agrupado
         }, {
-            name: '2.Pot 50<P<100',
+            name: '2.Pot 50&lt;P&lt;100',
             data: Ev2Agrupado
         }, {
-            name: '3.Pot 100<P<150',
+            name: '3.Pot 100&lt;P&lt;150',
             data: Ev3Agrupado
         }, {
-            name: '4.Pot 150<P<175',
+            name: '4.Pot 150&lt;P&lt;175',
             data: Ev4Agrupado
         }, {
             name: '5.Pot P>175',
             data: Ev5Agrupado
         }]);
-        setDateTableMovil(datosfiltrados);
-        //para el exportado
-        let DatosExpor = DateTableMovil.map((val) =>{
-            return (val.EV0Regeneracion0P != 0 ? val.EV0Regeneracion0P / val.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
-        })
-
-        setDataExport(DatosExpor);
-
-        setRowCountMovil(datosfiltrados.length);
+        if(Tab == 0){
+            setDateTableMovil(datosfiltrados);
+            setRowCountMovil(datosfiltrados.length);
+        }else if(Tab == 1){
+            setDateTableOperador(datosfiltrados);
+            setRowCountOperador(datosfiltrados.length);
+        }
         setloader(false)
     };
     const OnClickTabs = (Tab: number) => {
-        setisCallData(false);
-        setidxSeleccionado(-1);
-        settabSel(Tab);
+        // setidxSeleccionado(-1);
         let data = TipoReporte[Tab].Data
         if (TipoReporte[Tab].filtros.consultar == true) {
-            Consultar(Tab);
+            settabSel(Tab);
+            // Consultar(Tab);
         } else {
+            settabSel(Tab);
             filtarDatosSistema(Tab);
         }
     }
@@ -787,10 +764,8 @@ export default function ZPOperadorMovil() {
                 if (lstClientes !== undefined && lstClientes.length > 0)
                     setClienteSeleccionado(lstClientes[0]);
             }} aria-label="Default select example" defaultValue={ClienteSeleccionado?.clienteIdS}>
-
                 {
                     Clientes?.map((element: any, i: any) => {
-
                         return (<option key={element.clienteIdS} value={(element.clienteIdS != null ? element.clienteIdS : 0)}>{element.clienteNombre}</option>)
                     })
                 }
@@ -847,12 +822,13 @@ export default function ZPOperadorMovil() {
         );
     }
 
-    
+
     return (
         <>
             <PageTitle >{TituloReporteZP}</PageTitle>
             <div className="row  col-sm-12 col-md-12 col-xs-12 rounded border  mt-1 mb-2 shadow-sm " style={{ width: '100%' }}  >
                 <BlockUi tag="div" keepInView blocking={loader ?? false}  >
+
                     <div className="card">
                         <div className='card-header'>
                             <div className="w-100 ">
@@ -894,7 +870,7 @@ export default function ZPOperadorMovil() {
                                 <Button className="ms-2 btn btn-sm btn-primary" onClick={() => { Consultar(tabSel) }}><i className="bi-search"></i></Button>
                             </div>
                             <div className=" d-flex justify-content-end m-1">
-                                
+
                             </div>
 
                         </div>
@@ -907,7 +883,7 @@ export default function ZPOperadorMovil() {
                                         {listTabs.map((tab, idx) => {
                                             return (<li className="nav-item mb-3" key={`tabenc_${idx}`}>
                                                 <a
-                                                    onClick={() => OnClickTabs(idx)}
+                                                    onClick={() => { OnClickTabs(idx) }}
                                                     className={`nav-link w-225px h-70px ${tabSel === idx ? "active btn-active-light" : ""
                                                         } fw-bolder me-2`}
                                                     id={`tab${idx}`}
@@ -961,6 +937,8 @@ export default function ZPOperadorMovil() {
                                     <div className={`tab-pane fade ${tabSel === 0 ? "show active" : ""}`} id="tab0_content" >
                                         {/* begin::Cards */}
                                         <div className="overflow-auto">
+
+
                                             {(DateTableMovil.length != 0) && (ColumnasTablas[0]['movil'] != undefined) && (<MaterialReactTable
                                                 tableInstanceRef={ColumnasTablas[0]['movil']}
                                                 localization={MRT_Localization_ES}
@@ -1020,32 +998,34 @@ export default function ZPOperadorMovil() {
                                                     pagination,
                                                     showAlertBanner: isError,
                                                     showProgressBars: isRefetching,
-                                                    sorting:sorting
+                                                    sorting: sorting
                                                 }}
                                                 renderTopToolbarCustomActions={({ table }) => (
                                                     <Box
-                                                      sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
+                                                        sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
                                                     >
-                                        <button style={{ display: (tabSel <= 1) ? "inline-block" : "none" }} className="  btn btn-sm btn-primary" type="button" onClick={() => {
-                                    DescargarExcelPersonalizado(DateTableMovil.map((e:any) =>{
-                                        let val = {};
-                                        val['Movil'] = e.Movil
-                                        val['Fecha'] = e.Fecha;
-                                        val['EV0Regeneracion0P']  = (e.EV0Regeneracion0P != 0 ? e.EV0Regeneracion0P / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
-                                        val['EV1Potencia0P50'] =(e.EV1Potencia0P50 != 0 ? e.EV1Potencia0P50 / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
-                                        val['EV2Potencia50P100'] = (e.EV2Potencia50P100 != 0 ? e.EV2Potencia50P100 / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
-                                        val['EV3Potencia100P150'] = (e.EV3Potencia100P150 != 0 ? e.EV3Potencia100P150 / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
-                                        val['EV4Potencia150P175'] =(e.EV4Potencia150P175 != 0 ? e.EV4Potencia150P175 / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
-                                        val['EV5Potencia175'] =(e.EV5Potencia175 != 0 ? e.EV5Potencia175 / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
-                                        val['Operador'] = e.Operador;
-                                        return val ;
-                                    }), (tabSel == 0 ? ColumnasTablas[0]['movil'] : ColumnasTablas[1]['operador']), "Reporte ZP", fncReporteOperadorMovil)
-                                }}>
-                                    <i className="bi-file-earmark-excel"></i></button>
-                                        
+                                                        <button style={{ display: (tabSel <= 1) ? "inline-block" : "none" }} className="  btn btn-sm btn-primary" type="button" onClick={() => {
+                                                            DescargarExcelPersonalizado(DateTableMovil.map((e: any) => {
+                                                                let val = {};
+                                                                val['Movil'] = e.Movil
+                                                                val['Fecha'] = e.Fecha;
+                                                                val['EV0Regeneracion0P'] = (e.EV0Regeneracion0P != 0 ? e.EV0Regeneracion0P / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
+                                                                val['EV1Potencia0P50'] = (e.EV1Potencia0P50 != 0 ? e.EV1Potencia0P50 / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
+                                                                val['EV2Potencia50P100'] = (e.EV2Potencia50P100 != 0 ? e.EV2Potencia50P100 / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
+                                                                val['EV3Potencia100P150'] = (e.EV3Potencia100P150 != 0 ? e.EV3Potencia100P150 / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
+                                                                val['EV4Potencia150P175'] = (e.EV4Potencia150P175 != 0 ? e.EV4Potencia150P175 / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
+                                                                val['EV5Potencia175'] = (e.EV5Potencia175 != 0 ? e.EV5Potencia175 / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
+                                                                val['Operador'] = e.Operador;
+                                                                return val;
+                                                            }), (tabSel == 0 ? ColumnasTablas[0]['movil'] : ColumnasTablas[1]['operador']), "Reporte ZP", fncReporteOperadorMovil)
+                                                        }}>
+                                                            <i className="bi-file-earmark-excel"></i></button>
+
                                                     </Box>
-                                                  )}
+                                                )}
                                             />)}
+
+
                                         </div>
                                         {/* end::Cards      */}
                                     </div>
@@ -1055,93 +1035,96 @@ export default function ZPOperadorMovil() {
                                     <div className={`tab-pane fade ${tabSel === 1 ? "show active" : ""}`} id="tab1_content">
                                         {/* begin::Cards */}
                                         <div className="overflow-auto">
-                                            {/*Tabla de los operadores */}
-                                            {(DateTableMovil.length != 0) && (ColumnasTablas[1]['operador'] != undefined) && (<MaterialReactTable
-                                                 tableInstanceRef={ColumnasTablas[1]['operador']}
-                                                localization={MRT_Localization_ES}
-                                                displayColumnDefOptions={{
-                                                    'mrt-row-actions': {
-                                                        muiTableHeadCellProps: {
-                                                            align: 'center',
+                                            <ErrorBoundaryComponent>
+                                                {/*Tabla de los operadores */}
+                                                {
+                                                (DateTableOperador.length != 0) && (tabSel == 1) && (ColumnasTablas[1]['operador'] != undefined) && (<MaterialReactTable
+                                                    tableInstanceRef={ColumnasTablas[1]['operador']}
+                                                    localization={MRT_Localization_ES}
+                                                    displayColumnDefOptions={{
+                                                        'mrt-row-actions': {
+                                                            muiTableHeadCellProps: {
+                                                                align: 'center',
+                                                            },
+                                                            size: 120,
                                                         },
-                                                        size: 120,
-                                                    },
-                                                }}
-                                                muiTableHeadCellProps={{
-                                                    sx: (theme) => ({
-                                                        fontSize: 14,
-                                                        fontStyle: 'bold',
-                                                        color: 'rgb(27, 66, 94)'
+                                                    }}
+                                                    muiTableHeadCellProps={{
+                                                        sx: (theme) => ({
+                                                            fontSize: 14,
+                                                            fontStyle: 'bold',
+                                                            color: 'rgb(27, 66, 94)'
 
-                                                    }),
-                                                }}
-                                                columns={ColumnasTablas[1]['operador']}
-                                                data={DateTableMovil}
-                                                // editingMode="modal" //default         
-                                                // enableTopToolbar={false}
-                                                enableColumnOrdering
-                                                // enableEditing
-                                                /* onEditingRowSave={handleSaveRowEdits}
-                                                    onEditingRowCancel={handleCancelRowEdits}*/
-                                                muiToolbarAlertBannerProps={
-                                                    isError
-                                                        ? {
-                                                            color: 'error',
-                                                            children: 'Error al cargar información',
-                                                        }
-                                                        : undefined
-                                                }
-                                                onColumnFiltersChange={setColumnFilters}
-                                                onGlobalFilterChange={setGlobalFilter}
-                                                onPaginationChange={setPagination}
-                                                onSortingChange={setSortingC}
-                                                rowCount={rowCountMovil}
-                                                enableStickyHeader
-                                                enableDensityToggle={false}
-                                                enableRowVirtualization
-                                                enablePagination={false}
-                                                defaultColumn={{
-                                                    minSize: 150, //allow columns to get smaller than default
-                                                    maxSize: 400, //allow columns to get larger than default
-                                                    size: 150, //make columns wider by default
-                                                }}
-                                                muiTableContainerProps={{
-                                                    sx: { maxHeight: '400px' }, //give the table a max height
-                                                }}
-                                                initialState={{ density: 'compact' }}
-                                                state={{
-                                                    columnFilters,
-                                                    globalFilter,
-                                                    isLoading,
-                                                    pagination,
-                                                    showAlertBanner: isError,
-                                                    showProgressBars: isRefetching,
-                                                    sorting:sortingC,
-                                                }}
-                                                renderTopToolbarCustomActions={({ table }) => (
-                                                    <Box
-                                                      sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
-                                                    >
-                                                        <button style={{ display: (tabSel <= 1) ? "inline-block" : "none" }} className="  btn btn-sm btn-primary" type="button" onClick={() => {
-                                                                DescargarExcelPersonalizado(DateTableMovil.map((e:any) =>{
+                                                        }),
+                                                    }}
+                                                    columns={ColumnasTablas[1]['operador']}
+                                                    data={DateTableOperador}
+                                                    // editingMode="modal" //default         
+                                                    // enableTopToolbar={false}
+                                                    enableColumnOrdering
+                                                    // enableEditing
+                                                    /* onEditingRowSave={handleSaveRowEdits}
+                                                        onEditingRowCancel={handleCancelRowEdits}*/
+                                                    muiToolbarAlertBannerProps={
+                                                        isError
+                                                            ? {
+                                                                color: 'error',
+                                                                children: 'Error al cargar información',
+                                                            }
+                                                            : undefined
+                                                    }
+                                                    onColumnFiltersChange={setColumnFilters}
+                                                    onGlobalFilterChange={setGlobalFilter}
+                                                    onPaginationChange={setPagination}
+                                                    onSortingChange={setSortingC}
+                                                    rowCount={rowCountOperador}
+                                                    enableStickyHeader
+                                                    enableDensityToggle={false}
+                                                    enableRowVirtualization
+                                                    enablePagination={false}
+                                                    defaultColumn={{
+                                                        minSize: 150, //allow columns to get smaller than default
+                                                        maxSize: 400, //allow columns to get larger than default
+                                                        size: 150, //make columns wider by default
+                                                    }}
+                                                    muiTableContainerProps={{
+                                                        sx: { maxHeight: '400px' }, //give the table a max height
+                                                    }}
+                                                    initialState={{ density: 'compact' }}
+                                                    state={{
+                                                        columnFilters,
+                                                        globalFilter,
+                                                        isLoading,
+                                                        pagination,
+                                                        showAlertBanner: isError,
+                                                        showProgressBars: isRefetching,
+                                                        sorting: sortingC,
+                                                    }}
+                                                    renderTopToolbarCustomActions={({ table }) => (
+                                                        <Box
+                                                            sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
+                                                        >
+                                                            <button style={{ display: (tabSel <= 1) ? "inline-block" : "none" }} className="  btn btn-sm btn-primary" type="button" onClick={() => {
+                                                                DescargarExcelPersonalizado(DateTableOperador.map((e: any) => {
                                                                     let val = {};
                                                                     val['Movil'] = e.Movil
                                                                     val['Fecha'] = e.Fecha;
-                                                                    val['EV0Regeneracion0P']  = (e.EV0Regeneracion0P != 0 ? e.EV0Regeneracion0P / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
-                                                                    val['EV1Potencia0P50'] =(e.EV1Potencia0P50 != 0 ? e.EV1Potencia0P50 / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
+                                                                    val['EV0Regeneracion0P'] = (e.EV0Regeneracion0P != 0 ? e.EV0Regeneracion0P / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
+                                                                    val['EV1Potencia0P50'] = (e.EV1Potencia0P50 != 0 ? e.EV1Potencia0P50 / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
                                                                     val['EV2Potencia50P100'] = (e.EV2Potencia50P100 != 0 ? e.EV2Potencia50P100 / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
                                                                     val['EV3Potencia100P150'] = (e.EV3Potencia100P150 != 0 ? e.EV3Potencia100P150 / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
-                                                                    val['EV4Potencia150P175'] =(e.EV4Potencia150P175 != 0 ? e.EV4Potencia150P175 / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
-                                                                    val['EV5Potencia175'] =(e.EV5Potencia175 != 0 ? e.EV5Potencia175 / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
+                                                                    val['EV4Potencia150P175'] = (e.EV4Potencia150P175 != 0 ? e.EV4Potencia150P175 / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
+                                                                    val['EV5Potencia175'] = (e.EV5Potencia175 != 0 ? e.EV5Potencia175 / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
                                                                     val['Operador'] = e.Operador;
-                                                                    return val ;
-                                                                }), (tabSel == 0 ? ColumnasTablas[0]['movil'] : ColumnasTablas[1]['operador']), "Reporte ZP", fncReporteOperadorMovil)
+                                                                    return val;
+                                                                }), (ColumnasTablas[1]['operador']), "Reporte ZP", fncReporteOperadorMovil)
                                                             }}>
-                                                    <i className="bi-file-earmark-excel"></i></button>
-                                        
-                                                    </Box>
-                                                  )}
-                                            />)}
+                                                                <i className="bi-file-earmark-excel"></i></button>
+
+                                                        </Box>
+                                                    )}
+                                                />)}
+                                            </ErrorBoundaryComponent>
                                         </div>
                                         {/* end::Cards      */}
                                     </div>
@@ -1189,6 +1172,7 @@ export default function ZPOperadorMovil() {
                                                                         enableHiding={false}
                                                                         enableFullScreenToggle={false}
                                                                         enableSortingRemoval={false}
+                                                                        onSortingChange={setSortingG}
                                                                         enableStickyHeader
                                                                         enableRowVirtualization
                                                                         defaultColumn={{
@@ -1204,7 +1188,7 @@ export default function ZPOperadorMovil() {
                                                                             pagination,
                                                                             showAlertBanner: isError,
                                                                             showProgressBars: isRefetching,
-                                                                            sorting:sortingG,
+                                                                            sorting: sortingG,
                                                                         }}
                                                                     />)}
 
@@ -1242,6 +1226,7 @@ export default function ZPOperadorMovil() {
                                                                         enableHiding={false}
                                                                         enableFullScreenToggle={false}
                                                                         enableSortingRemoval={false}
+                                                                        onSortingChange={setSortingf}
                                                                         enableStickyHeader
                                                                         enableRowVirtualization
                                                                         defaultColumn={{
@@ -1257,7 +1242,7 @@ export default function ZPOperadorMovil() {
                                                                             pagination,
                                                                             showAlertBanner: isError,
                                                                             showProgressBars: isRefetching,
-                                                                            sorting:sortingG,
+                                                                            sorting: sortingf,
                                                                         }}
                                                                     />)}
                                                                 </div>
@@ -1267,17 +1252,16 @@ export default function ZPOperadorMovil() {
                                                 </div>
                                             </div>
                                         </div>
+
                                         {/* end::Cards      */}
                                     </div>
-
                                     {/* end::Tab Pane 3 */}
-
                                 </div>
                                 {/* end::Tab Content */}
                             </div>
-
                         </div>
                     </div>
+
                 </BlockUi>
                 <Modal show={showModal} onHide={setShowModal} size="lg">
                     <Modal.Header closeButton>
