@@ -139,7 +139,7 @@ export default function Parametrizacion() {
     }
     function CargaListadoClientes() {
         return (
-            <Form.Select className=" mb-3 " onChange={(e) => {
+            <Form.Select defaultValue={0} className=" mb-3 " onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
                 let cliente = lstClientes.filter((value, index) => {
                     return value.ClienteIdS === Number.parseInt(e.currentTarget.value)
@@ -155,7 +155,6 @@ export default function Parametrizacion() {
                     setDataFilltrada(_dt);
                 }else
                 setFiltrado(false);
-               
                 setCliente((cliente[0] == undefined ? "" : cliente[0].ClienteId.toString()));
                 ObtenerEventos((cliente[0] == undefined ? "" : cliente[0].ClienteId.toString()));
             }} aria-label="Default select example">
@@ -187,7 +186,7 @@ export default function Parametrizacion() {
 
     function CargaListadoEventos() {
         return (
-            <Form.Select className=" mb-3 " onChange={(e) => {
+            <Form.Select defaultValue={0} className=" mb-3 " onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
                 let evento = tempEventos.filter((value, index) => {
                     return value.EventId === e.currentTarget.value//Number.parseInt(e.currentTarget.value)
