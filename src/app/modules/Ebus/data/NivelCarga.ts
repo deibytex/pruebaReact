@@ -13,8 +13,15 @@ export  function GetVehiculos(ClienteIds: string|null) {
 
 export function GetClientesEsomos(){
     var params: { [id: string]: string | null; } = {};
+
     return  Post_GetConsultasDinamicasUserDWH({    Clase : "EbusQueryHelper",  NombreConsulta: "getListClienteAsignados", Pagina :null, RecordsPorPagina :null}, params);
 }
+export function GetClientesEsomos1( userid:string){
+    var params: { [id: string]: string | null; } = {};
+
+    return  Post_GetConsultasDinamicasUserDWH({    Clase : "EbusQueryHelper",  NombreConsulta: "getListClienteAsignados", Pagina :null, RecordsPorPagina :null}, params);
+}
+
 
 export function PostEventActiveViajesByDayAndClient(clientesIds:string, Periodo:string){
     var params: { [id: string]: string | null; } = {};

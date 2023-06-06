@@ -25,13 +25,13 @@ const ModalUsuarios : React.FC<Props> = ({show, handleClose, ClienteId }) =>{
       );
   }
   useEffect(() =>{
-   GetClientesUsuarios(null, null, ClienteId,).then((response:AxiosResponse<any>) =>{
+   GetClientesUsuarios(null, 6, ClienteId,).then((response:AxiosResponse<any>) =>{
        let Usuarios = response.data.data.map((item:any,index:any) =>{
-           return {"value":item.UsuarioIds, "label":item.NombreUsuario};
+           return {"value":item.id, "label":item.nombres};
        });
        setUsuarios(Usuarios);
        let seleccionados = response.data.data.map((item:any,index:any) =>{
-           return (item.EsSeleccionado == true) ? item.UsuarioIds:undefined;
+           return (item.esSeleccionado) ? item.id:undefined;
        }).filter((value:any, index:any) =>{
            return value != undefined
        });

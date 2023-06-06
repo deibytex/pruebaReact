@@ -3,12 +3,15 @@ import moment from "moment";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap-v5";
 import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
-import { GetClientesEsomos, PostEventActiveViajesByDayAndClient, ValidarTiempoActualizacion } from "../data/NivelCarga";
+import { GetClientesEsomos, GetClientesEsomos1, PostEventActiveViajesByDayAndClient, ValidarTiempoActualizacion } from "../data/NivelCarga";
 import { ClienteDTO, dualListDTO, InicioCliente, TablaDTO } from "../models/NivelcargaModels";
 import { CirclesWithBar, Vortex, Watch } from "react-loader-spinner";
 import Nouislider from "nouislider-react";
 import DualListBox from "react-dual-listbox";
 import { ExportarExcel } from "../components/EventoCarga/ExportarExcel";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../setup";
+import { UserModelSyscaf } from "../../auth/models/UserModel";
 
 // clase con los funciones  y datos a utiilizar
 type Props = {
@@ -136,6 +139,15 @@ const IndicadorCargado: React.FC = ({ children }) => {
 //Hace toda la magia de ir al servidor, traerse los datos y setearlos
 const DataEventosTiempoClientes: React.FC = ({ children }) => {
     const {Clientes, ClienteSeleccionado, setVisible, setEstotal,  setClienteSeleccionado, setClientes, setPeriodo, setdataTable } = useDataNivelCarga();
+       // informacion del usuario almacenado en el sistema
+       const isAuthorized = useSelector<RootState>(
+        ({ auth }) => auth.user
+    );
+
+    // convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
+    const model = (isAuthorized as UserModelSyscaf);
+
+   
     const interval = useRef<any>();
     const CargarEventos = (clienteIdS: string, Periodo: string) => {
         setVisible(true)
@@ -171,7 +183,9 @@ const DataEventosTiempoClientes: React.FC = ({ children }) => {
     //CONSULTA VEHICULOS OPERANDO
     let consulta = (children: any) => {
         // consultamos en la base de datos la informacion de vehiculos operando
-        GetClientesEsomos().then((response: AxiosResponse<any>) => {
+
+
+        GetClientesEsomos1(model.Id).then((response: AxiosResponse<any>) => {
             setClientes(response.data);
             setClienteSeleccionado(response.data[0])
             setPeriodo(children);
