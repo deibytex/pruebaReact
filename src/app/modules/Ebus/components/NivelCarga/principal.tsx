@@ -1,4 +1,5 @@
-import {  SocFiltro,  useDataNivelCarga,  VehiculosFiltros } from "../../core/NivelCargaProvider";
+import {   useDataNivelCarga } from "../../core/NivelCargaProvider";
+import { SocFiltro, VehiculosFiltros } from "./commonComponents";
 import { Mapa } from "./mapa";
 import { TablaNivelCarga } from "./TablaNivelCarga";
 
@@ -9,7 +10,7 @@ type Props = {
     ResetearDatos: boolean;
 
 };
-const  Principal: React.FC<Props> = ({ExpandirContraerTabla, tamaTabla, tamaMapa, ResetearDatos}) => {
+const  Principal: React.FC<Props> = ({ tamaTabla, tamaMapa}) => {
     const {setisExpandido} = useDataNivelCarga()
   tamaMapa = (tamaTabla === '6');
   setisExpandido ((tamaTabla === '12'));    

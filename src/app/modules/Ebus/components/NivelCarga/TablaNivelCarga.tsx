@@ -131,7 +131,7 @@ const TablaNivelCarga: React.FC<props> = ({ tamanio }) => {
         accessorKey: 'fechaString',
         header: 'Fecha',
         enableHiding: false,
-        size: 80
+        size:50
       },
       {
         accessorKey: 'placa',
@@ -142,7 +142,8 @@ const TablaNivelCarga: React.FC<props> = ({ tamanio }) => {
           return (cell.getValue() != null) ? <a style={{ cursor: 'pointer' }}
             data-rel={row.original.placa} href="#" id="MapaIndividual" onClick={() => { cargarMapaIndividual(row) }}
             className="MapaIndividual"> {(row.original.placa == null ? "" : row.original.placa)}</a> : "";
-        }
+        },
+        size:50
       },
       {
         accessorKey: 'driver',
@@ -150,7 +151,7 @@ const TablaNivelCarga: React.FC<props> = ({ tamanio }) => {
         filterVariant: 'select',
         filterSelectOptions: lstdirvers,
         enableHiding: false,
-        size: 180
+       size : 80
       },
       {
         accessorKey: 'socInicial',
@@ -319,7 +320,7 @@ const TablaNivelCarga: React.FC<props> = ({ tamanio }) => {
           : undefined
       }
       defaultColumn={{
-        minSize: 10, //allow columns to get smaller than default
+        minSize: 50, //allow columns to get smaller than default
         maxSize: 300, //allow columns to get larger than default
         size: 50,
       }}
