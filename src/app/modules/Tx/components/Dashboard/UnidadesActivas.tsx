@@ -40,9 +40,9 @@ const UnidadesActivas: React.FC = () => {
         if (Data)
         if (Data['Unidades'] != undefined) {
             Data['Unidades'].filter(function (item: any, index: any) {
-                var i = AdminsUnidadesActivas.findIndex(x => (x.usuarioIds.trim() == item.usuarioIds.trim()));
+                var i = AdminsUnidadesActivas.findIndex(x => ((x.usuarioIds != null || x.usuarioIds != undefined ? x.usuarioIds.trim(): x.usuarioIds) == (item.usuarioIds != null || item.usuarioIds != undefined ? item.usuarioIds.trim():item.usuarioIds) ));
                 if (i <= -1) {
-                    AdminsUnidadesActivas.push({ "nombre": item.Administrador, "usuarioIds": item.usuarioIds.trim() });
+                    AdminsUnidadesActivas.push({ "nombre": item.Administrador, "usuarioIds": (item.usuarioIds != null || item.usuarioIds != undefined ? item.usuarioIds.trim():item.usuarioIds) });
                 }
                 return null;
             });
@@ -67,16 +67,11 @@ const UnidadesActivas: React.FC = () => {
     }
     //para el menu de admins
     const MenuAdministradores = AdminsUnidadesActivas?.map((val: any, index: any) => {
-
         return (
-
             (val.nombre != "No Definido") && (<li key={val.nombre} className="nav-item" role="presentation">
                 <button onClick={FiltrarByAdmins} key={val.usuarioIds} className={`nav-link text-success ${(index == 0 ? 'active' : '')} fw-bolder`} id="pills-profile-tab" data-bs-toggle="pill" data-bs-target={`#pill--${val.usuarioIds}`} type="button" role="tab" aria-controls="pills-profile" aria-selected="false">{val.nombre}</button>
             </li>)
-
-
         )
-
     });
     const handleChange = (value: any[]) => 
     {
