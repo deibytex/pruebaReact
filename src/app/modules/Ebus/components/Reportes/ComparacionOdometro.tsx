@@ -89,7 +89,7 @@ export default function ReporteComparacionOdometro() {
       setIsLoading(true);
       GetClientesEsomos().then((response: AxiosResponse<any>) => {
         setClientes(response.data);
-        setClienteSeleccionado(response.data[0])
+        setClienteSeleccionado(response.data[0].clienteIdS)
         setIsLoading(false);
       }).catch((error) => {
         console.log(error);

@@ -1,7 +1,7 @@
 import moment from "moment";
 import { Post_getDynamicValueProcedureDWHTabla, Post_GetConsultasDinamicas } from "../../../../_start/helpers/Axios/DWHService";
-import { locateFormatNumberNDijitos, msToTimeSeconds } from "../../../../_start/helpers/Helper";
-import { TabProperty } from "../../../../_start/helpers/Models/Tabs";
+import {  GetPeriodoByFecha, locateFormatNumberNDijitos, msToTimeSeconds } from "../../../../_start/helpers/Helper";
+
 import { FormatoColombiaDDMMYYY } from "../../../../_start/helpers/Constants";
 
 /**/
@@ -15,15 +15,16 @@ export function GetReporteAlarmas(clientesIds: string, FechaInicio: string, Fech
     }, params);
 }
 
-export function GetReporteOdometro(FechaInicial: string, FechaFinal: string) {
+export function GetReporteOdometro(FechaInicial: string, FechaFinal: string, clientesIds : string) {
     var params: { [id: string]: string | null | undefined; } = {};
     params['FechaInicial'] = FechaInicial;
     params['FechaFinal'] = FechaFinal;
+    params['ClienteIds'] = clientesIds;
+  
 
-    return Post_GetConsultasDinamicas({
-        NombreConsulta: "GetUltimoOdometro", Clase: "EBUSQueryHelper",
-        Pagina: null,
-        RecordsPorPagina: null
+    return Post_getDynamicValueProcedureDWHTabla({
+        NombreConsulta: "GetUltimoOdometroReact", Clase: "EBUSQueryHelper",
+        tabla: `${GetPeriodoByFecha(FechaInicial)}_${clientesIds}`
     }, params);
 }
 
@@ -60,10 +61,9 @@ export function GetReporteNivelCarga(FechaInicial: string, FechaFinal: string, c
     params['FechaFinal'] = FechaFinal;
     params['Movil'] = null;
 
-    return Post_GetConsultasDinamicas({
-        NombreConsulta: "GetRecargasDetalladoPorFechasyVehiculo", Clase: "EBUSQueryHelper",
-        Pagina: null,
-        RecordsPorPagina: null
+    return Post_getDynamicValueProcedureDWHTabla({
+        NombreConsulta: "GetRecargasDetalladoPorFechasyVehiculoReact", Clase: "EBUSQueryHelper",
+        tabla: clientesIds
     }, params);
 }
 

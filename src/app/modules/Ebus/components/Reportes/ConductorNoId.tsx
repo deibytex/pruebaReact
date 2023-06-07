@@ -161,7 +161,7 @@ export default function ReporteConductorNoId() {
     () => {
       GetClientesEsomos().then((response: AxiosResponse<any>) => {
         setClientes(response.data);
-        setClienteSeleccionado(response.data[0])
+        setClienteSeleccionado(response.data[0].clienteIdS)
 
       }).catch((error) => {
         console.log(error);

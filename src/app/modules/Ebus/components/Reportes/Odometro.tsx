@@ -4,10 +4,10 @@ import { ColumnFiltersState, SortingState, PaginationState } from "@tanstack/rea
 import MaterialReactTable, { MRT_ColumnDef, MRT_TableInstance } from "material-react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import moment from "moment";
-import { useEffect, useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { Button, Form, Modal } from "react-bootstrap-v5";
 import DualListBox from "react-dual-listbox";
-import { DatePicker, DateRangePicker } from "rsuite";
+import { DatePicker, Placeholder } from "rsuite";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 import { ModuleName, PageTitle } from "../../../../../_start/layout/core";
 import { dualList } from "../../../CorreosTx/models/dataModels";
@@ -19,6 +19,7 @@ import { Box } from "@mui/material";
 import { ClienteDTO } from "../../../../../_start/helpers/Models/ClienteDTO";
 import { GetClientesEsomos } from "../../data/NivelCarga";
 import { AxiosResponse } from "axios";
+import { Notification, useToaster } from "rsuite";
 
 
 export default function ReporteOdometro() {
@@ -42,12 +43,26 @@ export default function ReporteOdometro() {
     const [fechaSeleccionada, setFechaSeleccionada] = useState(moment().startOf('day').add(3, 'hours'));
     const [lstVehiculos, setlstVehiculos] = useState<dualList[]>([]);
     const [lstSeleccionados, setSeleccionados] = useState<string[]>([]);
-
+    const toaster = useToaster();
     const [showModal, setShowModal] = useState<boolean>(false);
     const [ClienteSeleccionado, setClienteSeleccionado] = useState<number>(0);
     const [Clientes, setClientes] = useState<ClienteDTO[]>();
     const refTabla = useRef<MRT_TableInstance<any>>(null);
 
+
+    const message = (type: any, titulo: string, mensaje: React.ReactNode) => {
+        return (<Notification className="bg-light-danger" type={type} header={titulo} 
+        closable duration={10000}>
+            {mensaje}
+        </Notification>)
+    }
+
+ const  infoMensaje = (mensaje: string) => {
+
+    return <Placeholder.Paragraph style={{ width: 320 }} rows={3} >
+        {mensaje}
+    </Placeholder.Paragraph>
+ }
     // listado de campos a extraer
     let listadoCampos: MRT_ColumnDef<any>[] =
 
@@ -83,14 +98,14 @@ export default function ReporteOdometro() {
 
         GetClientesEsomos().then((response: AxiosResponse<any>) => {
             setClientes(response.data);
-            setClienteSeleccionado(response.data[0])
-
+            setClienteSeleccionado(response.data[0].clienteIdS)
         }).catch((error) => {
-            console.log(error);
-            errorDialog("<i>Eror al consultar los clientes</i>", "")
-        })
 
-        ConsultarDataOdometro();
+            toaster.push(message('error', "Consulta datos", "Error al consultar datos"), {
+                placement: 'topCenter'
+            });
+
+        })
 
         return () => {
             // limpiamos la informacion de odomtros
@@ -100,7 +115,8 @@ export default function ReporteOdometro() {
 
     useEffect(() => {
 
-        ConsultarDataOdometro();
+        if (ClienteSeleccionado != 0)
+            ConsultarDataOdometro();
     }, [ClienteSeleccionado]);
 
 
@@ -119,7 +135,7 @@ export default function ReporteOdometro() {
         setIsLoading(true)
         setIsError(false)
         GetReporteOdometro(moment(fechaSeleccionada).add(-1, 'days').format(FormatoSerializacionYYYY_MM_DD_HHmmss),
-            moment(fechaSeleccionada).format(FormatoSerializacionYYYY_MM_DD_HHmmss)).then((response) => {
+            moment(fechaSeleccionada).format(FormatoSerializacionYYYY_MM_DD_HHmmss), ClienteSeleccionado.toString()).then((response) => {
                 let data = response.data;
                 // de la consulta escogemos los vehiculos que nos serviran de filtro
                 let lstVehiculos: dualList[] = [];
@@ -136,7 +152,10 @@ export default function ReporteOdometro() {
                 setIsRefetching(false)
                 setIsLoading(false)
                 setIsError(true)
-                errorDialog("Consultar Odometros", "Error al realizar consulta");
+                setDataOdometro([]);
+                toaster.push(message('error', "Datos Odómetro", "Error al consultar datos, favor intente nuevamente en unos minutos."), {
+                    placement: 'topEnd'
+                });
             })
 
     }
@@ -155,15 +174,15 @@ export default function ReporteOdometro() {
             <Form.Select className="m-2" onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
                 let lstClientes = Clientes?.filter((value: any, index: any) => {
-                    return value.clienteIdS === Number.parseInt(e.currentTarget.value)
+
+                    return value.clienteIdS == Number.parseInt(e.currentTarget.value)
                 })
+
                 if (lstClientes !== undefined && lstClientes.length > 0)
                     setClienteSeleccionado(Number.parseInt(e.currentTarget.value));
             }} aria-label="Default select example" defaultValue={ClienteSeleccionado}>
-
                 {
                     Clientes?.map((element: any, i: any) => {
-
                         return (<option key={element.clienteIdS} value={(element.clienteIdS != null ? element.clienteIdS : 0)}>{element.clienteNombre}</option>)
                     })
                 }
@@ -218,7 +237,7 @@ export default function ReporteOdometro() {
 
                 </div>
                 <MaterialReactTable
-                    enableColumnFilters ={false}
+                    enableColumnFilters={false}
                     tableInstanceRef={refTabla}
                     localization={MRT_Localization_ES}
                     enableColumnDragging={false}

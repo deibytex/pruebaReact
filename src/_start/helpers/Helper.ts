@@ -12,7 +12,12 @@ export const  formatViewHoraMinuto = "DD/MM/YYYY HH:mm";
 var utcMoment = moment.tz('America/Bogota').locale('es');
 export const FechaServidor =new Date( utcMoment.format() );
 export const FechaMomentUtc =utcMoment;
+export const FechaServidorPeriodo =FechaMomentUtc.format("MYYYY");
 
+export function GetPeriodoByFecha(Fecha: any) {
+
+  return moment(Fecha).format("MYYYY");
+}
 // milisegundos a time
 export  function msToTime(s : number) {
 
