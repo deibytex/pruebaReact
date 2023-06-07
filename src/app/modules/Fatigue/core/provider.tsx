@@ -2,8 +2,9 @@ import moment from "moment";
 import { createContext, useContext, useEffect, useState } from "react";
 import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
 import { FechaServidor } from "../../../../_start/helpers/Helper";
-import { getEventosActivosPorDia, getVehiculosOperando } from "../data/dashBoardData";
+import { GetAlarmas, GetDetalladoEventos, getEventosActivosPorDia, getVehiculosOperando } from "../data/dashBoardData";
 import { EventoActivo } from "../models/EventosActivos";
+import { AxiosResponse } from "axios";
 
 // clase con los funciones  y datos a utiilizar
 export interface FatigueContextModel {
@@ -15,6 +16,10 @@ export interface FatigueContextModel {
     setListadoVehiculoSinOperacion: (lstvehiculos: any[]) => void;
     iserror?: any;
     setError: (error: any) => void;
+    DataAlertas?:any;
+    setDataAlertas:(DataAlertas:any) =>void;
+    DataDetallado?:any;
+    setDataDetallado:(DataAlertas:any) =>void;
  
 }
 
@@ -22,7 +27,9 @@ const FatigueContext = createContext<FatigueContextModel>({
     setvehiculosOperacion: (vehiculos: any) => { },
     setlistadoEventosActivos: (eventos: EventoActivo[]) => { },
     setListadoVehiculoSinOperacion: (lstvehiculos: any[]) => { },
-    setError: (error: any) => { }
+    setError: (error: any) => { },
+    setDataAlertas: (DataAlertas: any) => { },
+    setDataDetallado: (DataDetallado: any) => { }
 });
 
 
@@ -31,13 +38,15 @@ const FatigueProvider: React.FC = ({ children }) => {
     const [listadoEventosActivos, setlistadoEventosActivos] = useState<EventoActivo[]>([]);
     const [ListadoVehiculoSinOperacion, setListadoVehiculoSinOperacion] = useState<any[]>([]);
     const [iserror, setError] = useState<any>({});
+    const [DataAlertas, setDataAlertas] = useState<any[]>([]);
+    const [DataDetallado, setDataDetallado] = useState<any[]>([]);
     const value: FatigueContextModel = {
         vehiculosOperacion,
         setvehiculosOperacion,
         listadoEventosActivos,
         setlistadoEventosActivos,
         ListadoVehiculoSinOperacion,
-        setListadoVehiculoSinOperacion, iserror, setError
+        setListadoVehiculoSinOperacion, iserror, setError, DataAlertas, setDataAlertas,DataDetallado,setDataDetallado
     };
     return (
         <FatigueContext.Provider value={value}>
@@ -55,7 +64,7 @@ function useDataFatigue() {
 // segun parametrización que debe realizarse
 
 const DataVehiculoOperando: React.FC = ({ children }) => {
-    const { setvehiculosOperacion, setlistadoEventosActivos, setListadoVehiculoSinOperacion, setError, iserror } = useDataFatigue();
+    const { setvehiculosOperacion, setlistadoEventosActivos, setListadoVehiculoSinOperacion, setError, iserror, setDataAlertas,  setDataDetallado } = useDataFatigue();
     let idinterval: number = 0;
 
 
@@ -79,6 +88,22 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
         ).catch((error) => {
             setError({ accion: "DataVehiculoOperando", error });
         })
+
+        GetAlarmas(children, FechaServidor, moment(FechaServidor).add("8", "hours").toDate()).then((response:AxiosResponse<any>) =>{
+            setDataAlertas(response.data);
+        }).catch((error:any) =>{
+            console.log("Error : ", error);
+        });
+
+        GetDetalladoEventos(children,FechaServidor ).then((response:AxiosResponse<any>) =>{
+            let Data  = new Array()
+            response.data.map((e:any) =>{
+                Data = [...Data, ...JSON.parse(e.DetalladoEventos)]
+            })
+            setDataDetallado(Data);
+        }).catch((error:any) =>{
+            console.log("Error detallado de evento: ", error);
+        });
 
     }
 

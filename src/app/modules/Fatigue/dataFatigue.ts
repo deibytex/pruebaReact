@@ -2,6 +2,8 @@ import { uuid } from "uuidv4";
 import Moment from 'moment';
 import _ from "lodash";
 import { EventoActivo } from "./models/EventosActivos";
+import { GetAlarmas } from "./data/dashBoardData";
+import { AxiosResponse } from "axios";
 
 
 
