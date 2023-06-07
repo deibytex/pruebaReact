@@ -1,22 +1,21 @@
 import moment from "moment";
-import { SetStateAction, useEffect, useRef, useState } from "react";
+import {  useEffect, useRef, useState } from "react";
 import { GetReporteViajes } from "../../data/ReportesData";
 import { ModuleName, PageTitle } from "../../../../../_start/layout/core";
-import { Checkbox, CheckboxGroup, DateRangePicker, Notification, Placeholder, useToaster } from "rsuite";
+import { Checkbox, CheckboxGroup, DateRangePicker,  useToaster } from "rsuite";
 import BlockUi from "@availity/block-ui";
 import { DescargarExcel } from "../../../../../_start/helpers/components/DescargarExcel";
 import MaterialReactTable, { MRT_ColumnDef, MRT_TableInstance } from "material-react-table";
 import { FormatoColombiaDDMMYYY, FormatoColombiaDDMMYYYHHmmss, FormatoSerializacionYYYY_MM_DD_HHmmss } from "../../../../../_start/helpers/Constants";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
-import { Button, Card, Form, Modal } from "react-bootstrap-v5";
+import { Button,  Form, Modal } from "react-bootstrap-v5";
 import ReactApexChart from "react-apexcharts";
 import { FiltrosReportes } from "../../models/eBus";
 import { ClienteDTO } from "../../models/NivelcargaModels";
 import { AxiosResponse } from "axios";
 import { GetClientesEsomos } from "../../data/NivelCarga";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
-import { InicioCliente } from "../../../../../_start/helpers/Models/ClienteDTO";
 import { locateFormatNumberNDijitos, locateFormatPercentNDijitos } from "../../../../../_start/helpers/Helper";
 import { Box } from "@mui/material";
 import { getVehiculosCliente } from "../../../../../_start/helpers/Axios/DWHService";
@@ -125,7 +124,7 @@ export default function ReporteViaje() {
   const refChart = useRef<ReactApexChart>(null);
   const tablaAlarmas = useRef<MRT_TableInstance<any>>(null);
 
-  const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente);
+  const [ClienteSeleccionado, setClienteSeleccionado] = useState<number>(0);
   const [Clientes, setClientes] = useState<ClienteDTO[]>();
   const [filtros, setFiltros] = useState<FiltrosReportes>(Filtros);
   const [loader, setloader] = useState<boolean>(false);
@@ -239,8 +238,8 @@ export default function ReporteViaje() {
     // cuando trae la informacipn de los clientes, debe traer la informacion
     // de los vehiculos
     setSeleccionados([]);
-    if (ClienteSeleccionado.clienteIdS != 0)
-      ConsultaVehiculosClienteSeleccionado(ClienteSeleccionado.clienteIdS);
+    if (ClienteSeleccionado != 0)
+      ConsultaVehiculosClienteSeleccionado(ClienteSeleccionado);
 
 
     // configuramos el chart
@@ -373,7 +372,7 @@ export default function ReporteViaje() {
 
     // consulta la informacion de las alarmas cuando 
     // cambia el ciente seleecionado y las fechas 
-    if (ClienteSeleccionado.clienteIdS != 0 && lstSeleccionados.length > 0)
+    if (ClienteSeleccionado != 0 && lstSeleccionados.length > 0)
       ConsultarData();
   }, [lstSeleccionados, filtros, eventsSelected])
 
@@ -390,7 +389,7 @@ export default function ReporteViaje() {
       setIsRefetching(true)
       setloader(true)
       GetReporteViajes(moment(filtros.FechaInicial).format(FormatoSerializacionYYYY_MM_DD_HHmmss),
-        moment(filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss), ClienteSeleccionado.clienteIdS, lstSeleccionados[0])
+        moment(filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss), ClienteSeleccionado, lstSeleccionados[0])
         .then((response) => {
           //asignamos la informcion consultada 
           setAlarmas(response.data);
@@ -541,7 +540,7 @@ export default function ReporteViaje() {
 
   function ConsultaVehiculosClienteSeleccionado(clienteids: number | undefined) {
 
-    getVehiculosCliente((clienteids ?? ClienteSeleccionado.clienteIdS).toString(), 'Available')
+    getVehiculosCliente((clienteids ?? ClienteSeleccionado).toString(), 'Available')
       .then((response: AxiosResponse<any>) => {
 
         let listadoVehiculos = response.data.map((v: any) => {
@@ -558,12 +557,8 @@ export default function ReporteViaje() {
     return (
       <Form.Select className=" mb-3 " onChange={(e) => {
         // buscamos el objeto completo para tenerlo en el sistema
-        let lstClientes = Clientes?.filter((value: any, index: any) => {
-          return value.clienteIdS === Number.parseInt(e.currentTarget.value)
-        })
-        if (lstClientes !== undefined && lstClientes.length > 0)
-          setClienteSeleccionado(lstClientes[0]);
-      }} aria-label="Default select example" defaultValue={ClienteSeleccionado?.clienteIdS}>
+          setClienteSeleccionado(Number.parseInt(e.currentTarget.value));
+      }} aria-label="Default select example" defaultValue={ClienteSeleccionado}>
 
         {
           Clientes?.map((element: any, i: any) => {

@@ -16,7 +16,7 @@ import { DescargarExcel } from "../../../../../_start/helpers/components/Descarg
 import { FormatoColombiaDDMMYYYHHmmss, FormatoSerializacionYYYY_MM_DD_HHmmss } from "../../../../../_start/helpers/Constants";
 import { isBefore, isAfter } from "rsuite/esm/utils/dateUtils";
 import { Box } from "@mui/material";
-import { ClienteDTO, InicioCliente } from "../../../../../_start/helpers/Models/ClienteDTO";
+import { ClienteDTO } from "../../../../../_start/helpers/Models/ClienteDTO";
 import { GetClientesEsomos } from "../../data/NivelCarga";
 import { AxiosResponse } from "axios";
 
@@ -44,8 +44,7 @@ export default function ReporteOdometro() {
     const [lstSeleccionados, setSeleccionados] = useState<string[]>([]);
 
     const [showModal, setShowModal] = useState<boolean>(false);
-    const { allowedMaxDays, allowedRange, combine } = DateRangePicker;
-    const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente);
+    const [ClienteSeleccionado, setClienteSeleccionado] = useState<number>(0);
     const [Clientes, setClientes] = useState<ClienteDTO[]>();
     const refTabla = useRef<MRT_TableInstance<any>>(null);
 
@@ -98,6 +97,14 @@ export default function ReporteOdometro() {
             setDataOdometro([])
         }
     }, []);
+
+    useEffect(() => {
+
+        ConsultarDataOdometro();
+    }, [ClienteSeleccionado]);
+
+
+
     useEffect(() => {
         let datosfiltrados = dataOdometro;
         // si hay vehiculos seleccionados los filtramos
@@ -151,8 +158,8 @@ export default function ReporteOdometro() {
                     return value.clienteIdS === Number.parseInt(e.currentTarget.value)
                 })
                 if (lstClientes !== undefined && lstClientes.length > 0)
-                    setClienteSeleccionado(lstClientes[0]);
-            }} aria-label="Default select example" defaultValue={ClienteSeleccionado?.clienteIdS}>
+                    setClienteSeleccionado(Number.parseInt(e.currentTarget.value));
+            }} aria-label="Default select example" defaultValue={ClienteSeleccionado}>
 
                 {
                     Clientes?.map((element: any, i: any) => {

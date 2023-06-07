@@ -17,7 +17,6 @@ import { ClienteDTO } from "../../models/NivelcargaModels";
 import { AxiosResponse } from "axios";
 import { GetClientesEsomos } from "../../data/NivelCarga";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
-import { InicioCliente } from "../../../../../_start/helpers/Models/ClienteDTO";
 import { locateFormatNumberNDijitos } from "../../../../../_start/helpers/Helper";
 import { Box } from "@mui/material";
 
@@ -42,7 +41,7 @@ export default function ReporteComparacionOdometro() {
   const { allowedMaxDays, allowedRange, combine } = DateRangePicker;
   const tablaAlarmas = useRef<MRT_TableInstance<any>>(null);
 
-  const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente); 
+  const [ClienteSeleccionado, setClienteSeleccionado] = useState<number>(0);
   const [Clientes, setClientes] = useState<ClienteDTO[]>();
   const [filtros, setFiltros] = useState<FiltrosReportes>(Filtros);
   const [loader, setloader] = useState<boolean>(false);
@@ -106,7 +105,7 @@ export default function ReporteComparacionOdometro() {
 
     // consulta la informacion de las alarmas cuando 
     // cambia el ciente seleecionado y las fechas 
-    if (ClienteSeleccionado.clienteIdS != 0)
+    if (ClienteSeleccionado != 0)
       ConsultarDataAlarmas();
 
     // configuramos el chart
@@ -186,7 +185,7 @@ setRowCount(ArrayMovil.length); // actualizamos la informacion de las filas
       setIsRefetching(true)
       setloader(true)
       GetInformacionOdometro(moment(filtros.FechaInicial).format(FormatoSerializacionYYYY_MM_DD_HHmmss),
-        moment(filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss), ClienteSeleccionado.clienteIdS)
+        moment(filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss), ClienteSeleccionado)
         .then((response) => {
           //asignamos la informcion consultada 
           setData(response.data);
@@ -374,13 +373,8 @@ setRowCount(ArrayMovil.length); // actualizamos la informacion de las filas
   function CargaListadoClientes() {
     return (
       <Form.Select className=" mb-3 " onChange={(e) => {
-        // buscamos el objeto completo para tenerlo en el sistema
-        let lstClientes = Clientes?.filter((value: any, index: any) => {
-          return value.clienteIdS === Number.parseInt(e.currentTarget.value)
-        })
-        if (lstClientes !== undefined && lstClientes.length > 0)
-          setClienteSeleccionado(lstClientes[0]);
-      }} aria-label="Default select example" defaultValue={ClienteSeleccionado?.clienteIdS}>
+                setClienteSeleccionado(Number.parseInt(e.currentTarget.value));
+      }} aria-label="Default select example" value={ClienteSeleccionado}>
 
         {
           Clientes?.map((element: any, i: any) => {

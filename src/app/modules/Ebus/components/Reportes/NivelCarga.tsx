@@ -18,7 +18,6 @@ import { ClienteDTO } from "../../models/NivelcargaModels";
 import { AxiosResponse } from "axios";
 import { GetClientesEsomos } from "../../data/NivelCarga";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
-import { InicioCliente } from "../../../../../_start/helpers/Models/ClienteDTO";
 import { locateFormatNumberNDijitos, msToTimeSeconds } from "../../../../../_start/helpers/Helper";
 import { Box } from "@mui/material";
 
@@ -43,7 +42,7 @@ export default function ReporteNivelCarga() {
   const refChart = useRef<ReactApexChart>(null);
   const tablaAlarmas = useRef<MRT_TableInstance<any>>(null);
 
-  const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente);
+  const [ClienteSeleccionado, setClienteSeleccionado] = useState<number>(0);
 
   const [totalEnergia, setTotalEnergia] = useState<number>(0);
   const [Clientes, setClientes] = useState<ClienteDTO[]>();
@@ -175,7 +174,7 @@ export default function ReporteNivelCarga() {
       setIsLoading(true);
       GetClientesEsomos().then((response: AxiosResponse<any>) => {
         setClientes(response.data);
-        setClienteSeleccionado(response.data[0])
+        setClienteSeleccionado(response.data[0].clienteIdS)
         setIsLoading(false);
       }).catch((error) => {
         console.log(error);
@@ -191,7 +190,7 @@ export default function ReporteNivelCarga() {
 
     // consulta la informacion de las alarmas cuando 
     // cambia el ciente seleecionado y las fechas 
-    if (ClienteSeleccionado.clienteIdS != 0)
+    if (ClienteSeleccionado != 0)
       ConsultarDataAlarmas();
 
     // configuramos el chart
@@ -305,7 +304,7 @@ export default function ReporteNivelCarga() {
       setIsRefetching(true)
       setloader(true)
       GetReporteNivelCarga(moment(filtros.FechaInicial).format(FormatoSerializacionYYYY_MM_DD_HHmmss),
-        moment(filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss), ClienteSeleccionado.clienteIdS)
+        moment(filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss), ClienteSeleccionado)
         .then((response) => {
           //asignamos la informcion consultada 
           setData(response.data);
@@ -500,12 +499,8 @@ export default function ReporteNivelCarga() {
     return (
       <Form.Select className=" m-2" onChange={(e) => {
         // buscamos el objeto completo para tenerlo en el sistema
-        let lstClientes = Clientes?.filter((value: any, index: any) => {
-          return value.clienteIdS === Number.parseInt(e.currentTarget.value)
-        })
-        if (lstClientes !== undefined && lstClientes.length > 0)
-          setClienteSeleccionado(lstClientes[0]);
-      }} aria-label="Default select example" defaultValue={ClienteSeleccionado?.clienteIdS}>
+        setClienteSeleccionado(Number.parseInt(e.currentTarget.value));
+      }} aria-label="Default select example" value={ClienteSeleccionado}>
 
         {
           Clientes?.map((element: any, i: any) => {

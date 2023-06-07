@@ -1,25 +1,23 @@
 import moment from "moment";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect,  useRef, useState } from "react";
 import { GetReporteEficiencia, fncReporteNoConductor } from "../../data/ReportesData";
 import { PageTitle } from "../../../../../_start/layout/core";
 import { DateRangePicker, Notification, Placeholder, Stack, useToaster } from "rsuite";
 import BlockUi from "@availity/block-ui";
-import { DescargarExcel, DescargarExcelPersonalizado } from "../../../../../_start/helpers/components/DescargarExcel";
+import {  DescargarExcelPersonalizado } from "../../../../../_start/helpers/components/DescargarExcel";
 import MaterialReactTable, { MRT_ColumnDef, MRT_TableInstance } from "material-react-table";
 import { FormatoColombiaDDMMYYY, FormatoSerializacionYYYY_MM_DD_HHmmss } from "../../../../../_start/helpers/Constants";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import DualListBox from "react-dual-listbox";
 import { dualList } from "../../../CorreosTx/models/dataModels";
-import { Button, Card, Form, Modal } from "react-bootstrap-v5";
+import { Button,  Form, Modal } from "react-bootstrap-v5";
 import ReactApexChart from "react-apexcharts";
 import { FiltrosReportes } from "../../models/eBus";
 import { ClienteDTO } from "../../models/NivelcargaModels";
 import { AxiosResponse } from "axios";
 import { GetClientesEsomos } from "../../data/NivelCarga";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
-import { InicioCliente } from "../../../../../_start/helpers/Models/ClienteDTO";
-import { right } from "@popperjs/core";
 import { Box } from "@mui/material";
 import { locateFormatNumberNDijitos, locateFormatPercentNDijitos } from "../../../../../_start/helpers/Helper";
 
@@ -45,7 +43,7 @@ export default function ReporteConductorNoId() {
   const refChart = useRef<ReactApexChart>(null);
   const tablaAlarmas = useRef<MRT_TableInstance<any>>(null);
 
-  const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente);
+  const [ClienteSeleccionado, setClienteSeleccionado] = useState<number>(0);
   const [Clientes, setClientes] = useState<ClienteDTO[]>();
   const [filtros, setFiltros] = useState<FiltrosReportes>(Filtros);
   const [loader, setloader] = useState<boolean>(false);
@@ -185,7 +183,7 @@ export default function ReporteConductorNoId() {
 
     // consulta la informacion de las alarmas cuando 
     // cambia el ciente seleecionado y las fechas 
-    if (ClienteSeleccionado.clienteIdS != 0)
+    if (ClienteSeleccionado != 0)
       ConsultarDataReporte();
 
     // configuramos el chart
@@ -293,7 +291,7 @@ export default function ReporteConductorNoId() {
       setIsRefetching(true)
       setloader(true)
       GetReporteEficiencia(moment(filtros.FechaInicial).format(FormatoSerializacionYYYY_MM_DD_HHmmss),
-        moment(filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss), ClienteSeleccionado.clienteIdS, 3)
+        moment(filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss), ClienteSeleccionado, 3)
         .then((response) => {
           //asignamos la informcion consultada 
           setData(response.data);
@@ -540,12 +538,8 @@ export default function ReporteConductorNoId() {
     return (
       <Form.Select className=" m-2 " onChange={(e) => {
         // buscamos el objeto completo para tenerlo en el sistema
-        let lstClientes = Clientes?.filter((value: any, index: any) => {
-          return value.clienteIdS === Number.parseInt(e.currentTarget.value)
-        })
-        if (lstClientes !== undefined && lstClientes.length > 0)
-          setClienteSeleccionado(lstClientes[0]);
-      }} aria-label="Default select example" defaultValue={ClienteSeleccionado?.clienteIdS}>
+           setClienteSeleccionado(Number.parseInt(e.currentTarget.value));
+      }} aria-label="Default select example" value={ClienteSeleccionado}>
 
         {
           Clientes?.map((element: any, i: any) => {

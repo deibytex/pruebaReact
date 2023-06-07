@@ -185,7 +185,7 @@ export default function ReporteSafety() {
     });
     const { allowedMaxDays, allowedRange, combine } = DateRangePicker;
 
-    const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente);
+    const [ClienteSeleccionado, setClienteSeleccionado] = useState<number>(0);
 
 
     const [Clientes, setClientes] = useState<ClienteDTO[]>();
@@ -300,7 +300,7 @@ export default function ReporteSafety() {
 
         // consulta la informacion de las alarmas cuando 
         // cambia el ciente seleecionado y las fechas 
-        if (ClienteSeleccionado.clienteIdS != 0)
+        if (ClienteSeleccionado != 0)
             ConsultarData();
 
         // configuramos el chart
@@ -449,7 +449,7 @@ export default function ReporteSafety() {
 
 
     useEffect(() => {
-        if (ClienteSeleccionado.clienteIdS != 0)
+        if (ClienteSeleccionado != 0)
             ConsultarData();
     }, [tabSel, TipoReporte])
 
@@ -470,7 +470,7 @@ export default function ReporteSafety() {
             setIsRefetching(true)
             setloader(true)
             GetDataSafety(moment(TipoReporte[tabSel].filtros.FechaInicial).format(FormatoSerializacionYYYY_MM_DD_HHmmss)
-                , moment(TipoReporte[tabSel].filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss), ClienteSeleccionado.clienteIdS,
+                , moment(TipoReporte[tabSel].filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss), ClienteSeleccionado,
                 tabSel
             ).then((response) => {
                 //asignamos la informcion consultada 
@@ -1022,12 +1022,9 @@ export default function ReporteSafety() {
         return (
             <Form.Select className=" mb-3 " onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
-                let lstClientes = Clientes?.filter((value: any, index: any) => {
-                    return value.clienteIdS === Number.parseInt(e.currentTarget.value)
-                })
-                if (lstClientes !== undefined && lstClientes.length > 0)
-                    setClienteSeleccionado(lstClientes[0]);
-            }} aria-label="Default select example" defaultValue={ClienteSeleccionado?.clienteIdS}>
+             
+                    setClienteSeleccionado(Number.parseInt(e.currentTarget.value));
+            }} aria-label="Default select example" value={ClienteSeleccionado}>
                 {
                     Clientes?.map((element: any, i: any) => {
                         return (<option key={element.clienteIdS} value={(element.clienteIdS != null ? element.clienteIdS : 0)}>{element.clienteNombre}</option>)
@@ -1045,7 +1042,7 @@ export default function ReporteSafety() {
                 <div className="d-flex justify-content-between mb-2">
                     <div className="d-flex justify-content-between mx-auto">
                         <div className="ms-9 text-center">
-                            <h3 className="mb-0">Reporte Eficiencia</h3>
+                            <h3 className="mb-0">Reporte Safety</h3>
                            
                         </div>
                     </div>

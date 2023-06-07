@@ -44,7 +44,7 @@ export default function ReporteAlarmas() {
   const refChart = useRef<ReactApexChart>(null);
   const tablaAlarmas = useRef<MRT_TableInstance<any>>(null);
 
-  const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente);
+  const [ClienteSeleccionado, setClienteSeleccionado] = useState<number>(0);
   const [Clientes, setClientes] = useState<ClienteDTO[]>();
   const [filtros, setFiltros] = useState<FiltrosReportes>(Filtros);
   const [loader, setloader] = useState<boolean>(false);
@@ -131,7 +131,7 @@ export default function ReporteAlarmas() {
     () => {
       GetClientesEsomos().then((response: AxiosResponse<any>) => {
         setClientes(response.data);
-        setClienteSeleccionado(response.data[0])
+        setClienteSeleccionado(response.data[0].clienteIdS)
 
       }).catch((error) => {
         console.log(error);
@@ -147,7 +147,7 @@ export default function ReporteAlarmas() {
 
     // consulta la informacion de las alarmas cuando 
     // cambia el ciente seleecionado y las fechas 
-    if (ClienteSeleccionado.clienteIdS != 0)
+    if (ClienteSeleccionado != 0)
       ConsultarDataAlarmas();
 
     // configuramos el chart
@@ -223,7 +223,7 @@ export default function ReporteAlarmas() {
       setIsLoading(true)
       setIsRefetching(true)
       setloader(true)
-      GetReporteAlarmas(ClienteSeleccionado.clienteIdS.toString(), moment(filtros.FechaInicial).format(FormatoSerializacionYYYY_MM_DD_HHmmss),
+      GetReporteAlarmas(ClienteSeleccionado.toString(), moment(filtros.FechaInicial).format(FormatoSerializacionYYYY_MM_DD_HHmmss),
         moment(filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss))
         .then((response) => {
           //asignamos la informcion consultada 
@@ -417,12 +417,9 @@ export default function ReporteAlarmas() {
     return (
       <Form.Select className="m-2 " onChange={(e) => {
         // buscamos el objeto completo para tenerlo en el sistema
-        let lstClientes = Clientes?.filter((value: any, index: any) => {
-          return value.clienteIdS === Number.parseInt(e.currentTarget.value)
-        })
-        if (lstClientes !== undefined && lstClientes.length > 0)
-          setClienteSeleccionado(lstClientes[0]);
-      }} aria-label="Default select example" defaultValue={ClienteSeleccionado?.clienteIdS}>
+  
+          setClienteSeleccionado(Number.parseInt(e.currentTarget.value));
+      }} aria-label="Default select example" value={ClienteSeleccionado}>
 
         {
           Clientes?.map((element: any, i: any) => {

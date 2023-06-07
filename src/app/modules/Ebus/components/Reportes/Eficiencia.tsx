@@ -4,25 +4,25 @@ import { GetDataEficiencia,  fncReporteEficiencia,  listTabsEficiencia } from ".
 import { PageTitle } from "../../../../../_start/layout/core";
 import { DateRangePicker, Notification, Placeholder, useToaster } from "rsuite";
 import BlockUi from "@availity/block-ui";
-import { DescargarExcel, DescargarExcelPersonalizado } from "../../../../../_start/helpers/components/DescargarExcel";
+import { DescargarExcelPersonalizado } from "../../../../../_start/helpers/components/DescargarExcel";
 import MaterialReactTable, { MRT_ColumnDef, MRT_TableInstance } from "material-react-table";
 import { FormatoColombiaDDMMYYY,  FormatoSerializacionYYYY_MM_DD_HHmmss } from "../../../../../_start/helpers/Constants";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import DualListBox from "react-dual-listbox";
 import { dualList } from "../../../CorreosTx/models/dataModels";
-import { Button, Card, Form, Modal } from "react-bootstrap-v5";
+import { Button,  Form, Modal } from "react-bootstrap-v5";
 import ReactApexChart from "react-apexcharts";
 import { FiltrosReportes } from "../../models/eBus";
 import { ClienteDTO } from "../../models/NivelcargaModels";
 import { AxiosResponse } from "axios";
 import { GetClientesEsomos } from "../../data/NivelCarga";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
-import { InicioCliente } from "../../../../../_start/helpers/Models/ClienteDTO";
+
 import { formatNumberChart, locateFormatNumberNDijitos, locateFormatPercentNDijitos, msToTimeSeconds } from "../../../../../_start/helpers/Helper";
 import { Box } from "@mui/material";
 import { DrawDynamicIconMuiMaterial } from "../../../../../_start/helpers/components/IconsMuiDynamic";
-import { subDays, addDays } from "rsuite/esm/utils/dateUtils";
+
 
 
 
@@ -160,7 +160,7 @@ export default function ReporteEficiencia() {
   });
   const { allowedMaxDays, allowedRange, combine, before, after } = DateRangePicker;
 
-  const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente);
+  const [ClienteSeleccionado, setClienteSeleccionado] = useState<number>(0);
 
 
   const [Clientes, setClientes] = useState<ClienteDTO[]>();
@@ -232,7 +232,7 @@ export default function ReporteEficiencia() {
 
     // consulta la informacion de las alarmas cuando 
     // cambia el ciente seleecionado y las fechas 
-    if (ClienteSeleccionado.clienteIdS != 0)
+    if (ClienteSeleccionado != 0)
       ConsultarData();
 
     // configuramos el chart
@@ -388,7 +388,7 @@ export default function ReporteEficiencia() {
 
 
   useEffect(() => {
-    if (ClienteSeleccionado.clienteIdS != 0)
+    if (ClienteSeleccionado != 0)
       ConsultarData();
 
   }, [tabSel, TipoReporte])
@@ -403,7 +403,7 @@ export default function ReporteEficiencia() {
       setIsRefetching(true)
       setloader(true)
       GetDataEficiencia(moment(TipoReporte[tabSel].filtros.FechaInicial).format(FormatoSerializacionYYYY_MM_DD_HHmmss)
-        , moment(TipoReporte[tabSel].filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss), ClienteSeleccionado.clienteIdS,
+        , moment(TipoReporte[tabSel].filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss), ClienteSeleccionado,
         tabSel
       )
         .then((response) => {
@@ -685,12 +685,9 @@ export default function ReporteEficiencia() {
     return (
       <Form.Select className=" m-2 " onChange={(e) => {
         // buscamos el objeto completo para tenerlo en el sistema
-        let lstClientes = Clientes?.filter((value: any, index: any) => {
-          return value.clienteIdS === Number.parseInt(e.currentTarget.value)
-        })
-        if (lstClientes !== undefined && lstClientes.length > 0)
-          setClienteSeleccionado(lstClientes[0]);
-      }} aria-label="Default select example" defaultValue={ClienteSeleccionado?.clienteIdS}>
+   
+          setClienteSeleccionado(Number.parseInt(e.currentTarget.value));
+      }} aria-label="Default select example" value={ClienteSeleccionado}>
 
         {
           Clientes?.map((element: any, i: any) => {

@@ -59,7 +59,7 @@ export default function ZPOperadorMovil() {
     const [DateTableMovil, setDateTableMovil] = useState<any[]>([]);
     const [DataExport, setDataExport] = useState<any[]>([]);
     const [isCallData, setisCallData] = useState<boolean>(false); // permite validar 
-    const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente);
+    const [ClienteSeleccionado, setClienteSeleccionado] = useState<number>(0);
     const [Clientes, setClientes] = useState<ClienteDTO[]>([]);
     const [lablesAxisx, setlablesAxisx] = useState<string[]>([]);
     const [showModal, setShowModal] = useState<boolean>(false);
@@ -108,7 +108,7 @@ export default function ZPOperadorMovil() {
     useEffect(() => {
         // consulta la informacion de las alarmas cuando 
         // cambia el ciente seleecionado y las fechas 
-        if (ClienteSeleccionado.clienteIdS != 0)
+        if (ClienteSeleccionado != 0)
             Consultar(tabSel);
 
         // WARNING --  HAY QUE TENER PRESENTE QUE LOS USESTATE
@@ -781,12 +781,9 @@ export default function ZPOperadorMovil() {
         return (
             <Form.Select className="mb-3 " onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
-                let lstClientes = Clientes?.filter((value: any, index: any) => {
-                    return value.clienteIdS === Number.parseInt(e.currentTarget.value)
-                })
-                if (lstClientes !== undefined && lstClientes.length > 0)
-                    setClienteSeleccionado(lstClientes[0]);
-            }} aria-label="Default select example" defaultValue={ClienteSeleccionado?.clienteIdS}>
+              
+                    setClienteSeleccionado(Number.parseInt(e.currentTarget.value));
+            }} aria-label="Default select example" defaultValue={ClienteSeleccionado}>
 
                 {
                     Clientes?.map((element: any, i: any) => {
