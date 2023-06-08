@@ -43,14 +43,14 @@ export default function ZPOperadorMovil() {
     moment.tz.setDefault("America/Bogota");
     // variable que contiene los filtros del sistema
     const TipoReporteBase = [
-        { reporte: "tblmovildia", tabla: "tblmovildia", filtros: { ...filtrosBase, MaxDay: 5 }, Data: [], tipo: 1 },
-        { reporte: "tbloperadordia", tabla: "tbloperadordia", filtros: { ...filtrosBase, MaxDay: 5 }, Data: [], tipo: 2 },
-        { reporte: "tbloperadorgrafica", tabla: "tbloperadorgrafica", filtros: { ...filtrosBase, MaxDay: 5 }, Data: [], tipo: 3 },
+        { reporte: "tblmovildia", tabla: "tblmovildia", filtros: { ...filtrosBase, MaxDay: 30 }, Data: [], tipo: 1 },
+        { reporte: "tbloperadordia", tabla: "tbloperadordia", filtros: { ...filtrosBase, MaxDay: 30 }, Data: [], tipo: 2 },
+        { reporte: "tbloperadorgrafica", tabla: "tbloperadorgrafica", filtros: { ...filtrosBase, MaxDay: 7 }, Data: [], tipo: 3 },
     ]
     // filtros para los que son diarios, maximo 30 dias
     TipoReporteBase[1].filtros.FechaInicial = moment().startOf('day').startOf('day').add(-5, 'days').toDate();
     TipoReporteBase[1].filtros.FechaFinal = moment().startOf('day').toDate();
-    TipoReporteBase[1].filtros.limitdate = 5;
+    TipoReporteBase[1].filtros.limitdate = 30;
     const [TipoReporte, setTipoReporte] = useState(TipoReporteBase);
     const [idxSeleccionado, setidxSeleccionado] = useState<number>(-2);
     const [loader, setloader] = useState<boolean>(false);
@@ -452,8 +452,7 @@ export default function ZPOperadorMovil() {
             FechaFinal = moment(filtros.FechaGrafica, FormatoColombiaDDMMYYY).toDate();
         }
         // filtramos por las fechas
-        if (key < 2)
-            datosfiltrados = datosfiltrados.
+        datosfiltrados = datosfiltrados.
                 filter((f: any) => moment(f.Fecha).toDate() >= FechaInicial && moment(f.Fecha).toDate() <= FechaFinal);
         // filtramos por los vehivulos
         if (filtros.Vehiculos.length > 0) {
