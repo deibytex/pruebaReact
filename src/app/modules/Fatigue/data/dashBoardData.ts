@@ -56,3 +56,14 @@ export  function getEventosActivosPorDia(props: ParamsEndPointDynamic , body: an
       params : { Clase: "FATGQueryHelper" , NombreConsulta : "GetClienteFatiguePorUsuario" }
     });
   }
+
+  export  function getAlertas() {
+    var params: { [id: string]: string | null; } = {};
+    return  axios({
+      method: 'post',
+      url: DWH_getconsultadinamicasprocedure,
+      data: JSON.stringify(params),
+      headers: { 'Content-Type': 'application/json' },
+      params : { Clase: "FATGQueryHelper" , NombreConsulta : "getAlertas" }
+    });
+  }

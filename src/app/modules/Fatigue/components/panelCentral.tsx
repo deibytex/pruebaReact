@@ -7,7 +7,7 @@ import { useDataFatigue } from "../core/provider";
 import { listTabs } from "../data/tabListPanelCentral";
 import { EventoActivo } from "../models/EventosActivos";
 import CardContainer from "./baseCard_Tab4";
-import { CardContainerEventos } from "./cardEventosDetallados_Tab3";
+import { CardContainerEventos } from "./cardEventosAlertas";
 
 import { FAG_TablaPanelRiesgo } from "./TablaPanelRiesgo_Tab1";
 
@@ -28,13 +28,13 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
   const [activeChart, setActiveChart] = useState<ApexCharts | undefined>();
   const [activeEvents, setactiveEvents] = useState<EventoActivo[]>([]);
 
-  const {listadoEventosActivos} = useDataFatigue();
+  const { listadoEventosActivos } = useDataFatigue();
   // TRAE LA INFORMACION DE EVENTOS ACTIVOS POR DIA
   useEffect(() => {
-    
+
     setTab(parseInt(activeTab.replace('#tab', '')));
     setactiveEvents(listadoEventosActivos ?? []);
-  
+
     return function cleanUp() {
       if (activeChart) {
         activeChart.destroy();
@@ -86,7 +86,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
               path="/media/icons/duotone/Layout/Layout-4-blocks-2.svg"
             />
           </button>
-         
+
           {/* end::Dropdown */}
         </div>
       </div>
@@ -148,57 +148,20 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
               id="tab1_content"
             >
               {/* begin::Content */}
-              <div className="d-flex justify-content-center mb-10">
+              {/* begin::Cards */}
+              <div className="overflow-auto">
 
-
-                <div className="row g-0 g-xl-12 g-xxl-12">
-                  <div className="col-xl-4">
-                    <TimeLineAlertas className="card-stretch mb-5 mb-xxl-8" />
-                  </div>
-
-                  <div className="col-xl-8">
-                    <FAG_TablaPanelRiesgo className="card-stretch mb-5 mb-xxl-8" />
-                  </div>
-
-                  {/* begin::Content */}
-
-                  
-                  <div className="card-toolbar card-title align-items-start flex-column">
-                  
-                  <span className="fw-bolder text-dark text-center fs-3">TimeLine Últimas 2 Horas</span>
-                  {/* begin::Dropdown */}
-                  <button
-                    type="button"
-                    className="btn btn-sm btn-icon btn-color-primary btn-active-light-primary"
-                    data-kt-menu-trigger="click"
-                    data-kt-menu-placement="bottom-end"
-                    data-kt-menu-flip="top-end"
-                  >
-                    <KTSVG
-                      path="/media/icons/duotone/Layout/Layout-4-blocks-2.svg"
-                      className="svg-icon-1"
-                    />
-                  </button>
-                 
-                  {/* end::Dropdown */}
-        </div>
-                  {/* begin::Chart */}
-                  {
-                    // verificamos que exista datos para poder ingresar los datos en el contenedor 
-
-                    (activeEvents.length > 0) && (
-                      <div id="tab1_chart" className="col-xl-12" style={{ height: "250px" }} />
-                    )
-                  }
-                  {/* end::Chart      */}
-
-                </div>
-
-
-                {/* end::Content  */}
-
-
+                {
+                  // verificamos que exista datos para poder ingresar los datos en el contenedor 
+                  (activeEvents.length > 0) && (<CardContainerEventos isActive={true} isDetails={false} />)
+                }
               </div>
+
+
+              {/* end::Content  */}
+
+
+
             </div>
             {/* end::Tab Pane 1 */}
 
@@ -209,8 +172,8 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
               id="tab2_content"
             >
               <div style={{ height: width }}></div>
-              
-               {/* <MapTab /> */}
+
+              {/* <MapTab /> */}
 
             </div>
             {/* end::Tab Pane 2 */}
@@ -226,37 +189,13 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
               {/* begin::Cards */}
               <div className="overflow-auto">
 
-                {
-                  // verificamos que exista datos para poder ingresar los datos en el contenedor 
-                  (activeEvents.length > 0) && (<CardContainerEventos isActive={true} isDetails={false} />)
-                }
+                <div style={{ height: width }}></div>
               </div>
 
               {/* end::Cards      */}
             </div>
             {/* end::Tab Pane 3 */}
 
-            {/* begin::Tab Pane 4 */}
-            <div
-              className={`tab-pane fade ${activeTab === "#tab4" ? "show active" : ""
-                }`}
-              id="tab4_content"
-            >
-
-              {/* begin::Cards */}
-              <div className="overflow-auto"> <CardContainer /></div>
-
-              {/* end::Cards      */}
-
-            </div>
-
-            <div
-              className={`tab-pane fade ${activeTab === "#tab5" ? "show active" : ""
-                }`}
-              id="tab5_content"
-            >
-            </div>
-            {/* end::Tab Pane 4 */}
           </div>
           {/* end::Tab Content */}
         </div>
@@ -277,15 +216,18 @@ function getChartOptions(
       name: "Critico",
       data: [
         [1, 3087998871497481258]
-      ] }, 
+      ]
+    },
     {
       name: "Elevado",
       data: [
-       ] }, {
+      ]
+    }, {
       name: "Normal",
-      data: 
-      [
-      ] }],
+      data:
+        [
+        ]
+    }],
     chart: {
       fontFamily: "inherit",
       type: "scatter",

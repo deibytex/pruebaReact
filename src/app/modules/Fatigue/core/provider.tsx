@@ -2,7 +2,7 @@ import moment from "moment";
 import { createContext, useContext, useEffect, useState } from "react";
 import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
 import { FechaServidor } from "../../../../_start/helpers/Helper";
-import { getEventosActivosPorDia, getVehiculosOperando } from "../data/dashBoardData";
+import { getAlertas, getEventosActivosPorDia, getVehiculosOperando } from "../data/dashBoardData";
 import { EventoActivo } from "../models/EventosActivos";
 
 // clase con los funciones  y datos a utiilizar
@@ -13,6 +13,8 @@ export interface FatigueContextModel {
     setlistadoEventosActivos: (eventos: EventoActivo[]) => void;
     ListadoVehiculoSinOperacion?: any[];
     setListadoVehiculoSinOperacion: (lstvehiculos: any[]) => void;
+    alertas?: any;
+    setalertas: (lstalertas: any[]) => void;
     iserror?: any;
     setError: (error: any) => void;
  
@@ -22,6 +24,7 @@ const FatigueContext = createContext<FatigueContextModel>({
     setvehiculosOperacion: (vehiculos: any) => { },
     setlistadoEventosActivos: (eventos: EventoActivo[]) => { },
     setListadoVehiculoSinOperacion: (lstvehiculos: any[]) => { },
+    setalertas: (lstalertas: any[]) => { },
     setError: (error: any) => { }
 });
 
@@ -30,6 +33,7 @@ const FatigueProvider: React.FC = ({ children }) => {
     const [vehiculosOperacion, setvehiculosOperacion] = useState<any>({});
     const [listadoEventosActivos, setlistadoEventosActivos] = useState<EventoActivo[]>([]);
     const [ListadoVehiculoSinOperacion, setListadoVehiculoSinOperacion] = useState<any[]>([]);
+    const [alertas, setalertas] = useState<any[]>([]);
     const [iserror, setError] = useState<any>({});
     const value: FatigueContextModel = {
         vehiculosOperacion,
@@ -37,7 +41,10 @@ const FatigueProvider: React.FC = ({ children }) => {
         listadoEventosActivos,
         setlistadoEventosActivos,
         ListadoVehiculoSinOperacion,
-        setListadoVehiculoSinOperacion, iserror, setError
+        setListadoVehiculoSinOperacion,
+        alertas, 
+        setalertas,
+        iserror, setError
     };
     return (
         <FatigueContext.Provider value={value}>
@@ -55,7 +62,7 @@ function useDataFatigue() {
 // segun parametrización que debe realizarse
 
 const DataVehiculoOperando: React.FC = ({ children }) => {
-    const { setvehiculosOperacion, setlistadoEventosActivos, setListadoVehiculoSinOperacion, setError, iserror } = useDataFatigue();
+    const { setvehiculosOperacion, setlistadoEventosActivos, setListadoVehiculoSinOperacion, setalertas, setError, iserror } = useDataFatigue();
     let idinterval: number = 0;
 
 
@@ -106,18 +113,36 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
 
     }
 
+     // CONSULTA EVENTOS ACTIVOS POR MINUTO
+     let consultaAlertas = () => {
+        // consultamos en la base de datos la informacion de vehiculos operando
+        getAlertas().then(
+
+            (response) => {
+                console.log(response.data);
+                setalertas(response.data);
+            }
+
+        ).catch((error) => {
+            setError({ accion: "alertas", error });
+        })
+
+    }
+
     useEffect(() => {
 
         if (children) {
         
             consulta(children.toString());
             consultaEventsActivos(children.toString());
+            consultaAlertas();
             // si no tiene error hace el interval
             if (iserror === null || iserror === undefined)
                 if (idinterval === 0) {
                     idinterval = window.setInterval(() => {
                         consulta(children.toString());
                         consultaEventsActivos(children.toString());
+                        consultaAlertas();
                     }, 120000)
                 }
         }
