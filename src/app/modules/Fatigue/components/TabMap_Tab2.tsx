@@ -32,7 +32,13 @@ export function MapTab() {
         iconSize: [25, 25]
     });
 
-   
+    useEffect(() => {
+        setTimeout(function () {      
+            setisClustering(false)
+                setzoom(16)
+        }, 1000);
+            }
+    ,[])
 
     // setTimeout(function () {      
     //     if(map.length != 0)
