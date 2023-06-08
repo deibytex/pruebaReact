@@ -129,7 +129,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
             }
         },
         series: []
-        , colors: ['#008FFB', '#00E396', '#CED4DC'],
+        // , colors: ['#008FFB', '#00E396', '#CED4DC'],
 
     }
     // asingamos las opciones
@@ -137,7 +137,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
     return function cleanUp() {
         //SE DEBE DESTRUIR EL OBJETO CHART
     };
-}, [DataAlertas]);
+}, []);
 
 useEffect(() =>{
   if(DataAlertas != undefined && DataAlertas.length != 0)
@@ -305,7 +305,7 @@ let PintarGrafica = (datos: any[]) => {
                   </div>
 
                   <div className="col-xl-8">
-                    <FAG_TablaPanelRiesgo className="card-stretch mb-5 mb-xxl-8" />
+                    {/* <FAG_TablaPanelRiesgo className="card-stretch mb-5 mb-xxl-8" /> */}
                   </div>
 
                   {/* begin::Content */}

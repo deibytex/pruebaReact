@@ -1,17 +1,16 @@
 import { useEffect, useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer, Tooltip, useMap } from "react-leaflet";
-import { Icon} from "leaflet";
+import { Icon } from "leaflet";
 
 import { useDataFatigue } from "../core/provider";
 import { EventoActivo } from "../models/EventosActivos";
-import { array } from "yup";
 import { toAbsoluteUrl } from "../../../../_start/helpers";
 import L from "leaflet";
 import { Box, Typography } from "@mui/material";
 import MarkerClusterGroup from "react-leaflet-markercluster";
 export function MapTab() {
     const [show, setshowp] = useState<boolean>(false);
-    const {listadoEventosActivos, DataDetallado} = useDataFatigue();
+    const { DataDetallado } = useDataFatigue();
     const [zoom, setzoom] = useState<number>(13);
     const [map, setMap] = useState<EventoActivo[]>([]);
     const [activePark, setActivePark] = useState<EventoActivo>();
@@ -35,23 +34,17 @@ export function MapTab() {
 
     useEffect(() => {
         setTimeout(function () {
-            setisClustering(false)
+           // setisClustering(false)
             setzoom(16)
-            // setshowp(true)
-        }, 2000);
+            setshowp(true)
+        }, 3000);
     }, [])
 
-    // setTimeout(function () {      
-    //     if(map.length != 0)
-    //     map.invalidateSize();
-    // }, 1000);
-
-    useEffect(() =>{
-        if (DataDetallado != undefined && DataDetallado.length > 0) {              
+    useEffect(() => {
+        if (DataDetallado != undefined && DataDetallado.length > 0) {
             setMap(DataDetallado);
-        
-            setcenterLatitud(Number.parseFloat(DataDetallado[0].latitud))
-            setcenterLongitud(Number.parseFloat(DataDetallado[0].longitud))
+            setcenterLatitud(Number.parseFloat(DataDetallado[0].Latitud))
+            setcenterLongitud(Number.parseFloat(DataDetallado[0].Longitud))
         }
     }, [DataDetallado])
 
@@ -59,16 +52,16 @@ export function MapTab() {
         const mapa = useMap();
         return (<>
             {map != undefined && map.length > 0 &&
-                map.map((park:any) => {
+                map.map((park: any, index:any) => {
                     return (
                         <Marker
-                            title={park.placa}
+                            title={park.EventId}
                             icon={L.icon({
                                 iconUrl: toAbsoluteUrl('/media/syscaf/iconbus.png'),
                                 iconSize: [40, 40]
 
                             })}
-                            key={park.assetId}
+                            key={index}
                             position={[
                                 Number.parseFloat(park.Latitud),
                                 Number.parseFloat(park.Longitud)
@@ -80,7 +73,7 @@ export function MapTab() {
                             }}>
 
                             <Tooltip className="bg-transparent border-0  text-white fs-8" direction="right" offset={[13, 0]} opacity={1} permanent>
-                                {park.placa}
+                                {park.EventId}
                             </Tooltip>
 
                         </Marker>
@@ -116,7 +109,7 @@ export function MapTab() {
                         mapa.setView(
                             [
                                 activePark.Latitud,
-                               activePark.Longitud
+                                activePark.Longitud
                             ],
                             zoom
                         );
@@ -153,30 +146,29 @@ export function MapTab() {
 
 
     return (
- 
-        <MapContainer 
-            id="mapcontainter" 
-            center={[centerLatitud, centerLongitud]} 
-            zoom={zoom}
-            className=" ml-4"
-            style={{ height: 700}}
-            // whenCreated={setMap}
-        >
-           <TileLayer
-                url={CapaBasicNight}
-            />
-
-            <RenderPopUp />
-
-            {/**  si son todos aplicamos el clustering, si se filtra lo desagregamos*/}
-            {(isClustering) && (<MarkerClusterGroup>
-                <Puntos />
-            </MarkerClusterGroup>)}
-
-
-            {(!isClustering) && (
-                <Puntos />
+        <>
+            {(show) && (
+                <MapContainer
+                    id="mapcontainter"
+                    center={[centerLatitud, centerLongitud]}
+                    zoom={zoom}
+                    className=" ml-4"
+                    style={{ height: 700 }}
+                // whenCreated={setMap}
+                >
+                    <TileLayer
+                        url={CapaBasicNight}
+                    />
+                    <RenderPopUp />
+                    {/**  si son todos aplicamos el clustering, si se filtra lo desagregamos*/}
+                    {(isClustering) && (<MarkerClusterGroup>
+                        <Puntos />
+                    </MarkerClusterGroup>)}
+                    {(!isClustering) && (
+                        <Puntos />
+                    )}
+                </MapContainer>
             )}
-
-        </MapContainer>);
+        </>
+    );
 }

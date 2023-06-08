@@ -88,14 +88,14 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
         ).catch((error) => {
             setError({ accion: "DataVehiculoOperando", error });
         })
-
+      //  let datetemp = moment("2023-06-06 09:19:05.990").toDate()
         GetAlarmas(children, FechaServidor, moment(FechaServidor).add("8", "hours").toDate()).then((response:AxiosResponse<any>) =>{
             setDataAlertas(response.data);
         }).catch((error:any) =>{
             console.log("Error : ", error);
         });
-        let datetemp = moment("2023-06-06").toDate()
-        GetDetalladoEventos(children,datetemp ).then((response:AxiosResponse<any>) =>{
+      
+        GetDetalladoEventos(children,FechaServidor ).then((response:AxiosResponse<any>) =>{
             let Data  = new Array()
             response.data.map((e:any) =>{
                 Data = [...Data, ...JSON.parse(e.DetalladoEventos)]
