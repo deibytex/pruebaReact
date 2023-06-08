@@ -10,6 +10,7 @@ import L from "leaflet";
 import { Box, Typography } from "@mui/material";
 import MarkerClusterGroup from "react-leaflet-markercluster";
 export function MapTab() {
+    const [show, setshowp] = useState<boolean>(false);
     const {listadoEventosActivos, DataDetallado} = useDataFatigue();
     const [zoom, setzoom] = useState<number>(13);
     const [map, setMap] = useState<EventoActivo[]>([]);
@@ -33,12 +34,12 @@ export function MapTab() {
     });
 
     useEffect(() => {
-        setTimeout(function () {      
+        setTimeout(function () {
             setisClustering(false)
-                setzoom(16)
-        }, 1000);
-            }
-    ,[])
+            setzoom(16)
+            // setshowp(true)
+        }, 2000);
+    }, [])
 
     // setTimeout(function () {      
     //     if(map.length != 0)
@@ -48,7 +49,7 @@ export function MapTab() {
     useEffect(() =>{
         if (DataDetallado != undefined && DataDetallado.length > 0) {              
             setMap(DataDetallado);
-            // setshowp(true)
+        
             setcenterLatitud(Number.parseFloat(DataDetallado[0].latitud))
             setcenterLongitud(Number.parseFloat(DataDetallado[0].longitud))
         }
@@ -152,6 +153,7 @@ export function MapTab() {
 
 
     return (
+ 
         <MapContainer 
             id="mapcontainter" 
             center={[centerLatitud, centerLongitud]} 

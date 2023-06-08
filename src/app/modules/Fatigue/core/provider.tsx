@@ -94,8 +94,8 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
         }).catch((error:any) =>{
             console.log("Error : ", error);
         });
-
-        GetDetalladoEventos(children,FechaServidor ).then((response:AxiosResponse<any>) =>{
+        let datetemp = moment("2023-06-06").toDate()
+        GetDetalladoEventos(children,datetemp ).then((response:AxiosResponse<any>) =>{
             let Data  = new Array()
             response.data.map((e:any) =>{
                 Data = [...Data, ...JSON.parse(e.DetalladoEventos)]
