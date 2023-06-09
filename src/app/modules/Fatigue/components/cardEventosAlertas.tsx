@@ -15,7 +15,7 @@ import type {
 } from '@tanstack/react-table';
 import { EsPermitido } from "../../../../_start/helpers/Axios/CoreService";
 import { Box, IconButton, Tooltip, Typography } from "@mui/material";
-import { ManageSearch } from "@mui/icons-material";
+import { ManageSearch, Map } from "@mui/icons-material";
 import { msToTime } from "../../../../_start/helpers/Helper";
 type Props = {
 
@@ -26,7 +26,7 @@ type Props = {
 
 const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
-  const { alertas } = useDataFatigue();
+  const { alertas, setTabGlobal, setDataDetalladoFiltrado, setFiltrado, setloader } = useDataFatigue();
 
   const { listadoEventosActivos } = useDataFatigue();
   const [dataAlertas, setDataAlertas] = useState([]);
@@ -128,10 +128,18 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         size: 80
       }
 
-    ];;
+    ];
 
+  const IrToMap = (row: any) => {
+    setloader(true);
+      let Data  = new Array()
+      Data = [...Data, ...JSON.parse(row.original.DetalladoEventos)]
+      setDataDetalladoFiltrado(Data);
+      setFiltrado(true)
+      console.log(row);
+      setTabGlobal('#tab2');
+  };
   return (
-
     <>
       <MaterialReactTable
         localization={MRT_Localization_ES}
@@ -145,7 +153,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         }}
         columns={columnasTabla}
         data={alertas}
-        //editingMode="modal" //default         
+        editingMode="modal" //default         
         enableTopToolbar
         enableColumnOrdering
         enableEditing
@@ -175,14 +183,18 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
                 <ManageSearch />
               </IconButton>
             </Tooltip>
-
-
+            {/* Para el mapa  Marcial*/}
+            <Tooltip arrow placement="top" title="Ver en el mapa">
+              <IconButton onClick={(e:any) => {
+                IrToMap(row);
+              }} >
+                <Map />
+              </IconButton>
+            </Tooltip>
           </Box>
         )
         }
-
         renderDetailPanel={({ row }) => (
-
           <Tabs
             defaultActiveKey="gestion"
             className="mb-3 border"

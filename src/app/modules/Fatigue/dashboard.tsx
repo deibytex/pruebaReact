@@ -14,6 +14,7 @@ import { Form } from "react-bootstrap-v5";
 import { Console } from "console";
 
 import React from "react";
+import BlockUi from "@availity/block-ui";
 
 
 export default function FatigueDashboard() {
@@ -63,7 +64,7 @@ export default function FatigueDashboard() {
                 if (lstClientes)
                     setclienteSeleccionado(cliente[0])
             }} aria-label="Default select example" defaultValue={clienteSeleccionado?.ClienteIdS} >
-                <option>Seleccione</option>
+                <option >Seleccione</option>
                 {
                     lstClientes.map((element) => {
 
@@ -95,9 +96,10 @@ export default function FatigueDashboard() {
              * nos garantiza que todos los datos que se obtengan sus hijos tengan acceso a consultarlo sin necesidad de pasarlo
              * con parametros o sesiones
             */}
-
+          
 
             <FatigueProvider>
+        
                 <PageTitle >Fatigue App </PageTitle>
                 <DataVehiculoOperando>{clienteSeleccionado?.ClienteIdS}</DataVehiculoOperando>
                 {/* begin::Row */}
@@ -133,7 +135,7 @@ export default function FatigueDashboard() {
                     <div className="col-xl-3">
                         <BaseIndicador className={"card-stretch mb-1 mb-xxl-2"} titulo={""} subtitulo={""}  >
                             {/*Contenido que quiero mostar dentro del indicador*/}
-                            <IndicadorPanelGeneral className={""} />
+                            {/* <IndicadorPanelGeneral className={"card"} /> */}
                         </BaseIndicador>
                     </div>
                     <div className="col-xl-3">
@@ -155,9 +157,10 @@ export default function FatigueDashboard() {
              
 
                
-
+             
                 {/* end::Row */}
             </FatigueProvider>
+          
         </>
     )
 }

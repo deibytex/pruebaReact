@@ -3,16 +3,15 @@ import { useEffect, useState } from "react";
 import { getCSSVariableValue } from "../../../../_start/assets/ts/_utils";
 import { KTSVG, toAbsoluteUrl } from "../../../../_start/helpers";
 import { useDataFatigue } from "../core/provider";
-
 import { listTabs } from "../data/tabListPanelCentral";
 import { EventoActivo } from "../models/EventosActivos";
-import CardContainer from "./baseCard_Tab4";
 import { CardContainerEventos } from "./cardEventosAlertas";
+import { locateFormatNumberNDijitos, locateFormatPercentNDijitos } from "../../../../_start/helpers/Helper";
+import { MapTab } from "./TabMap_Tab2";
+import moment from "moment";
+import ReactApexChart from "react-apexcharts";
+import BlockUi from "@availity/block-ui";
 
-import { FAG_TablaPanelRiesgo } from "./TablaPanelRiesgo_Tab1";
-
-
-import { TimeLineAlertas } from "./TimeLineAlertas_Tab1";
 
 type Props = {
   className: string;
@@ -28,7 +27,154 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
   const [activeChart, setActiveChart] = useState<ApexCharts | undefined>();
   const [activeEvents, setactiveEvents] = useState<EventoActivo[]>([]);
 
-  const { listadoEventosActivos } = useDataFatigue();
+  const { listadoEventosActivos, DataAlertas, DataDetallado, tabGlobal, setTabGlobal, loader } = useDataFatigue();
+
+  const [opciones, setOpciones] = useState<any>(null);
+
+  useEffect(() => {
+    // cuando trae la informacipn de los clientes, debe traer la informacion
+    // de los vehiculos
+    //   ConsultaVehiculosClienteSeleccionado(ClienteSeleccionado.clienteIdS);
+
+    // configuramos el chart
+
+    // WARNING --  HAY QUE TENER PRESENTE QUE LOS USESTATE
+    // DENTRO DE LOS EVENTOS DE LA GRAFICA NO USA EL ESTADO ACTUAL SINO EL ESTADO
+    // AL MOMENTO DE SER CREADO, SE DEBEN USAR LOS SETUSETATE Y LOS CLICK EVENTS 
+    // PARA QUE USE LOS USESTATE CON LA INFORMACIONF REAL
+
+    let defaultopciones = {
+        options: {
+
+            chart: {
+                fontFamily: 'Montserrat',
+                animations: { enabled: true },
+                zoom: {
+                    enabled: true,
+                    type: 'x',
+                    // autoScaleYaxis: false,
+                    zoomedArea: {
+                        fill: {
+                            color: '#90CAF9',
+                            opacity: 0.4
+                        },
+                        stroke: {
+                            color: '#0D47A1',
+                            opacity: 0.4,
+                            width: 1
+                        }
+                    }
+                },
+                type: 'area',
+                //   stacked: true,
+                id: 'fatg-graficadearea',
+                events: {
+                    selection: function (chart: any, e: any) {
+                        console.log(new Date(e.xaxis.min))
+                    }
+                }
+            },
+            stroke: {
+                curve: 'smooth'
+            }
+            ,
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    opacityFrom: 0.6,
+                    opacityTo: 0.8,
+                }
+            },
+            legend: {
+                position: 'top',
+                horizontalAlign: 'left',
+                onItemClick: {
+                    toggleDataSeries: false
+                }
+            },
+            xaxis: {
+                type: 'datetime'
+            },
+            yaxis: [{
+                showAlways: true,
+                tickAmount: 5,
+                min: 0,
+                labels: {
+                    formatter: function (val: number, index: any) {
+                        return val.toFixed(0);
+                    }
+                },
+                title: {
+                    text: "Alarmas"
+                }
+            },
+            {
+                show: false,
+                min: 0
+            }
+            ],
+            dataLabels: {
+                enabled: true,
+                // formatter: function (value: any, { seriesIndex, dataPointIndex, w }: any) {
+                //     return seriesIndex == 0 ? value : (seriesIndex == 1 ? locateFormatPercentNDijitos(value / 100, 0) : locateFormatNumberNDijitos(value, 1))
+                // },
+            },
+            tooltip: {
+                y: {
+                    formatter: function (value: any, { seriesIndex, dataPointIndex, w }: any) {
+                        return seriesIndex == 0 ? value : (seriesIndex == 1 ? locateFormatPercentNDijitos(value / 100, 0) : locateFormatNumberNDijitos(value, 1))
+                    },
+                }
+            }
+        },
+        series: []
+        // , colors: ['#008FFB', '#00E396', '#CED4DC'],
+
+    }
+    // asingamos las opciones
+    setOpciones(defaultopciones)
+    return function cleanUp() {
+        //SE DEBE DESTRUIR EL OBJETO CHART
+    };
+}, []);
+
+// FILTRA LOS DATOS QUE SE CONSULTAN DE LA BASE DE DATOS
+// SI EXISTE SE PASA LOS DATOS ALMACENADOS EN EL SISTEMA
+let PintarGrafica = (datos: any[]) => {
+    // agrupa los elementos para ser mostrado por la grafica
+    
+    let datosFiltrados: any[] = datos;
+
+    let Datos= new Array();
+    let dataTransformada = new Array()
+    // agrupamos por fechas la informacion
+    datosFiltrados
+    .forEach(
+      (m) => {
+        dataTransformada.push(m)
+      }
+    );
+    dataTransformada = dataTransformada.sort((a: any, b: any) => {
+        return moment(a.fechaHora).toDate().getTime() - moment(b.fechaHora).toDate().getTime();
+    });
+    // actualizamos los datos de las series
+    let data:any[] = [];
+    Datos.push({"name" : "Alertas", "data": dataTransformada.map((f, ind) => {
+        return {"x":moment(f.FechaHora).toDate().getTime(),"y":f.Cantidad};
+    })});
+    // funcion que actualiza los datos de las series
+    // se debe pasar el id configurado al momento de su creaci'on para poder
+    // actializar los datos
+    ApexCharts.exec('fatg-graficadearea', 'updateSeries', Datos);
+}
+
+
+
+useEffect(() =>{
+  if(DataAlertas != undefined && DataAlertas.length != 0)
+    PintarGrafica(DataAlertas);
+},[DataAlertas])
+
   // TRAE LA INFORMACION DE EVENTOS ACTIVOS POR DIA
   useEffect(() => {
 
@@ -44,28 +190,35 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
 
   const setTab = (tabNumber: number) => {
     setActiveTab(`#tab${tabNumber}`);
-    if (activeChart) {
-      activeChart.destroy();
-    }
+    setTabGlobal(`#tab${tabNumber}`);
+    // if (activeChart) {
+    //   activeChart.destroy();
+    // }
 
-    const element = document.querySelector(
-      `#tab${tabNumber}_chart`
-    ) as HTMLElement;
-    if (!element) {
-      return;
-    }
+    // const element = document.querySelector(
+    //   `#tab${tabNumber}_chart`
+    // ) as HTMLElement;
+    // if (!element) {
+    //   return;
+    // }
 
-    const height = parseInt(getCss(element, "height"));
-    const chart = new ApexCharts(element, getChartOptions(tabNumber, height));
-    chart.render();
-    setActiveChart(chart);
+    // const height = parseInt(getCss(element, "height"));
+    // const chart = new ApexCharts(element, getChartOptions(tabNumber, height));
+    // chart.render();
+    // setActiveChart(chart);
 
     if (tabNumber == 2)
       setWidth("100px");
   };
 
+  useEffect(() =>{
+    if(tabGlobal == `#tab2`)
+        setTab(2);
+  },[tabGlobal])
+
   return (
     <div className={`card ${className}`}>
+          <BlockUi tag="div" keepInView blocking={loader ?? false}  >
       {/* begin::Header */}
       <div className="card-header align-items-center border-0 mt-5">
         <h3 className="card-title align-items-start flex-column">
@@ -171,10 +324,11 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
                 }`}
               id="tab2_content"
             >
-              <div style={{ height: width }}></div>
-
-              {/* <MapTab /> */}
-
+                <div className="card">
+                  <div className="card-body">
+                     {(DataDetallado?.length != 0) && (<MapTab></MapTab>)}
+                  </div>
+                </div>
             </div>
             {/* end::Tab Pane 2 */}
 
@@ -189,7 +343,19 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
               {/* begin::Cards */}
               <div className="overflow-auto">
 
-                <div style={{ height: width }}></div>
+                <div style={{ height: 400 }}>
+                  {/* // verificamos que exista datos para poder ingresar los datos en el contenedor  */}
+                  <div className="card">
+                    <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
+                      {(opciones != null) && (
+                        <ReactApexChart
+                          options={opciones.options}
+                          series={opciones.series}
+                          height={400} type="area" />)}
+                    </div>
+                  </div>
+
+                </div>
               </div>
 
               {/* end::Cards      */}
@@ -201,6 +367,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
         </div>
       </div>
       {/* end: Card Body */}
+      </BlockUi>
     </div>
   );
 };
