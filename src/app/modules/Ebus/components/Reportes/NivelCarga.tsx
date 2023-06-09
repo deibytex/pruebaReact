@@ -50,7 +50,7 @@ export default function ReporteNivelCarga() {
   const [loader, setloader] = useState<boolean>(false);
   const [lablesAxisx, setlablesAxisx] = useState<string[]>([]);
   const [idxSeleccionado, setidxSeleccionado] = useState<number>(-2);
-  const [isCallData, setisCallData] = useState<boolean>(false);
+  const [isCallData, setisCallData] = useState<boolean>(true);
 
 
   const [data, setData] = useState<any[]>([]);
@@ -173,11 +173,12 @@ export default function ReporteNivelCarga() {
     () => {
       setIsLoading(true);
       GetClientesEsomos().then((response: AxiosResponse<any>) => {
+      
         setClientes(response.data);
         setClienteSeleccionado(response.data[0].clienteIdS)
         setIsLoading(false);
       }).catch((error) => {
-        console.log(error);
+        
         errorDialog("<i>Eror al consultar los clientes</i>", "")
       })
 
@@ -298,7 +299,7 @@ export default function ReporteNivelCarga() {
   // metodo qeu consulta los datos de las alarmasg
   let ConsultarDataAlarmas = () => {
 
-    if (data.length == 0 || isCallData) {
+    if (isCallData) {
       setIsError(false)
       setIsLoading(true)
       setIsRefetching(true)
@@ -500,6 +501,7 @@ export default function ReporteNivelCarga() {
       <Form.Select className=" m-2" onChange={(e) => {
         // buscamos el objeto completo para tenerlo en el sistema
         setClienteSeleccionado(Number.parseInt(e.currentTarget.value));
+        setisCallData(true)
       }} aria-label="Default select example" value={ClienteSeleccionado}>
 
         {

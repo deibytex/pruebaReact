@@ -49,7 +49,7 @@ export default function ReporteConductorNoId() {
   const [loader, setloader] = useState<boolean>(false);
   const [lablesAxisx, setlablesAxisx] = useState<string[]>([]);
   const [idxSeleccionado, setidxSeleccionado] = useState<number>(-2);
-  const [isCallData, setisCallData] = useState<boolean>(false);
+  const [isCallData, setisCallData] = useState<boolean>(true);
 
 
   const [data, setData] = useState<any[]>([]);
@@ -164,13 +164,15 @@ export default function ReporteConductorNoId() {
         setClienteSeleccionado(response.data[0].clienteIdS)
 
       }).catch((error) => {
-        console.log(error);
+        
         errorDialog("<i>Eror al consultar los clientes</i>", "")
       })
 
       return function cleanUp() {
         let chart = document.getElementById("ReporteDistanciaTotal");
-        console.log(refChart)
+        setData([])
+        setDataFiltrada([])
+   
         //SE DEBE DESTRUIR EL OBJETO CHART
         if (chart)
           ApexCharts.exec('ReporteDistanciaTotal', 'destroy')
@@ -183,6 +185,7 @@ export default function ReporteConductorNoId() {
 
     // consulta la informacion de las alarmas cuando 
     // cambia el ciente seleecionado y las fechas 
+
     if (ClienteSeleccionado != 0)
       ConsultarDataReporte();
 
@@ -285,7 +288,7 @@ export default function ReporteConductorNoId() {
   // metodo qeu consulta los datos de las alarmasg
   let ConsultarDataReporte = () => {
 
-    if (data.length == 0 || isCallData) {
+    if ( isCallData) {
       setIsError(false)
       setIsLoading(true)
       setIsRefetching(true)
@@ -314,9 +317,10 @@ export default function ReporteConductorNoId() {
           setIsRefetching(false)
           setRowCount(response.data.length)
           setloader(false)
+          datosfiltrados(response.data)
 
         }).catch((e) => {
-          console.log(e);
+
           setIsError(true);
           setloader(false);
           setIsLoading(false)
@@ -539,6 +543,7 @@ export default function ReporteConductorNoId() {
       <Form.Select className=" m-2 " onChange={(e) => {
         // buscamos el objeto completo para tenerlo en el sistema
            setClienteSeleccionado(Number.parseInt(e.currentTarget.value));
+           setisCallData(true)
       }} aria-label="Default select example" value={ClienteSeleccionado}>
 
         {

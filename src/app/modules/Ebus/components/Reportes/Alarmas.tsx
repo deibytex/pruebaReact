@@ -173,8 +173,12 @@ export default function ReporteAlarmas() {
         xaxis: {
           categories: []
         },
+        legend: {
+          showForSingleSeries: true
+        },
         dataLabels: {
           enabled: true,
+          
           style: {
             colors: ['#424249']
           }
@@ -294,6 +298,22 @@ export default function ReporteAlarmas() {
     let totalPastillas = new Array();
     let totalTemperatura = new Array();
     let labels = new Array();
+// obtenemos los lables dinamicamente
+let seriesGrafica = datosFiltrados
+      .reduce((p, c) => {
+        let name = c['Descripcion'];
+
+       let filtro = p.filter((f: any) => f.name === name);
+
+       if(filtro.length == 0)
+         p.push({
+          name,
+          data: []
+        });
+        return p;
+      }, []);
+
+    
     // agrupamos por fechas la informacion
     let agrupadofecha = datosFiltrados
       .reduce((p, c) => {
@@ -303,7 +323,7 @@ export default function ReporteAlarmas() {
         return p;
       }, {});
 
-    console.log('agrupadofecha', agrupadofecha)
+      
     Object.entries(agrupadofecha).map((elem: any) => {
       labels.push(elem[0]);
       // agrupamos por descripcion para saber el total de alarmas por cada uno 
@@ -316,12 +336,11 @@ export default function ReporteAlarmas() {
         return p;
       }, {});
 
-      //tomamos la cantidad por descripcion
-      let ttPastillas = agrupadoDescripcion["EV: Alarma Cambio Pastillas Disco Frenos"];
-      let ttTemperatura = agrupadoDescripcion["EV: Alarma Temperatura Celda Batería > 45°C"]
+        // iteramos las series para actualizar los datos
+      seriesGrafica.map((serie: any) => {
+        serie.data.push(agrupadoDescripcion[serie.name] ?? 0);        
+      });
 
-      totalPastillas.push(ttPastillas ?? 0);
-      totalTemperatura.push(ttTemperatura ?? 0);
     });
     setlablesAxisx(labels)
     // se debe volver actualizar los eventos pues 'estos no
@@ -347,17 +366,7 @@ export default function ReporteAlarmas() {
     // funcion que actualiza los datos de las series
     // se debe pasar el id configurado al momento de su creaci'on para poder
     // actializar los datos
-    ApexCharts.exec('apexchart-example', 'updateSeries', [{
-      name: 'EV: Alarma Cambio Pastillas Disco Frenos',
-      data: totalPastillas
-    },
-    {
-      name: 'EV: Alarma Temperatura Celda Batería > 45°C',
-      data: totalTemperatura
-    }]);
-
-
-
+    ApexCharts.exec('apexchart-example', 'updateSeries', seriesGrafica);
 
 
   }
@@ -419,6 +428,7 @@ export default function ReporteAlarmas() {
         // buscamos el objeto completo para tenerlo en el sistema
   
           setClienteSeleccionado(Number.parseInt(e.currentTarget.value));
+          setisCallData(true)
       }} aria-label="Default select example" value={ClienteSeleccionado}>
 
         {

@@ -10,7 +10,7 @@ export function GetReporteAlarmas(clientesIds: string, FechaInicio: string, Fech
     params['FechaInicio'] = FechaInicio;
     params['FechaFinal'] = FechaFinal;
     return Post_getDynamicValueProcedureDWHTabla({
-        NombreConsulta: "GetReporteAlarma", Clase: "EBUSQueryHelper",
+        NombreConsulta: "GetReporteAlarmaReact", Clase: "EBUSQueryHelper",
         tabla: clientesIds
     }, params);
 }
@@ -22,9 +22,10 @@ export function GetReporteOdometro(FechaInicial: string, FechaFinal: string, cli
     params['ClienteIds'] = clientesIds;
   
 
-    return Post_getDynamicValueProcedureDWHTabla({
+    return Post_GetConsultasDinamicas({
         NombreConsulta: "GetUltimoOdometroReact", Clase: "EBUSQueryHelper",
-        tabla: `${GetPeriodoByFecha(FechaInicial)}_${clientesIds}`
+        Pagina: null,
+        RecordsPorPagina: null
     }, params);
 }
 
@@ -67,15 +68,14 @@ export function GetReporteNivelCarga(FechaInicial: string, FechaFinal: string, c
     }, params);
 }
 
-export function GetInformacionOdometro(FechaInicial: string, FechaFinal: string, clientesIds: number) {
+export function GetInformacionOdometro(FechaInicial: string, FechaFinal: string, clientesIds: string) {
     var params: { [id: string]: string | null | undefined; } = {};
     params['FechaInicial'] = FechaInicial;
     params['FechaFinal'] = FechaFinal;
 
-    return Post_GetConsultasDinamicas({
-        NombreConsulta: "GetReporteUltimoOdometro", Clase: "EBUSQueryHelper",
-        Pagina: null,
-        RecordsPorPagina: null
+    return Post_getDynamicValueProcedureDWHTabla({
+        NombreConsulta: "GetReporteUltimoOdometroReact", Clase: "EBUSQueryHelper",
+        tabla: clientesIds
     }, params);
 }
 
@@ -108,10 +108,9 @@ export function GetReporteViajes(FechaInicial: string, FechaFinal: string,
     params['FechaFinal'] = FechaFinal;
     params['Movil'] = `${Movil}`;
 
-    return Post_GetConsultasDinamicas({
-        NombreConsulta: "GetReporteViajes", Clase: "EBUSQueryHelper",
-        Pagina: null,
-        RecordsPorPagina: null
+    return Post_getDynamicValueProcedureDWHTabla({
+        NombreConsulta: "GetReporteViajesReact", Clase: "EBUSQueryHelper",
+        tabla: clientesIds
     }, params);
 }
 

@@ -125,6 +125,7 @@ export default function ReporteComparacionOdometro() {
 
 
   useEffect(() => {
+    if (ClienteSeleccionado != 0)
     ConsultarDataAlarmas();
   }, [filtros])
 
@@ -185,7 +186,7 @@ setRowCount(ArrayMovil.length); // actualizamos la informacion de las filas
       setIsRefetching(true)
       setloader(true)
       GetInformacionOdometro(moment(filtros.FechaInicial).format(FormatoSerializacionYYYY_MM_DD_HHmmss),
-        moment(filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss), ClienteSeleccionado)
+        moment(filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss), ClienteSeleccionado.toString())
         .then((response) => {
           //asignamos la informcion consultada 
           setData(response.data);
@@ -374,6 +375,7 @@ setRowCount(ArrayMovil.length); // actualizamos la informacion de las filas
     return (
       <Form.Select className=" mb-3 " onChange={(e) => {
                 setClienteSeleccionado(Number.parseInt(e.currentTarget.value));
+                setisCallData(true)
       }} aria-label="Default select example" value={ClienteSeleccionado}>
 
         {

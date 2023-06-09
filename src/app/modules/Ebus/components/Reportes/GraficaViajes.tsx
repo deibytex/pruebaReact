@@ -129,7 +129,7 @@ export default function ReporteViaje() {
   const [filtros, setFiltros] = useState<FiltrosReportes>(Filtros);
   const [loader, setloader] = useState<boolean>(false);
   const [idxSeleccionado, setidxSeleccionado] = useState<number>(-2);
-  const [isCallData, setisCallData] = useState<boolean>(false);
+  const [isCallData, setisCallData] = useState<boolean>(true);
   const [data, setAlarmas] = useState<any[]>([]);
   const [dataFiltrada, setDataFiltrada] = useState<any[]>([]);
 
@@ -219,7 +219,7 @@ export default function ReporteViaje() {
     () => {
       GetClientesEsomos().then((response: AxiosResponse<any>) => {
         setClientes(response.data);
-        setClienteSeleccionado(response.data[0])
+        setClienteSeleccionado(response.data[0].clienteIdS)
 
       }).catch((error) => {
         console.log(error);
@@ -364,11 +364,16 @@ export default function ReporteViaje() {
     setOpciones(defaultopciones)
     return function cleanUp() {
       //SE DEBE DESTRUIR EL OBJETO CHART
+      setDataFiltrada([])
+      setAlarmas([])
+      setEventsSelected(defaultEventsSelected);
     };
   }, [ClienteSeleccionado]);
 
 
   useEffect(() => {
+
+    console.log("lstSeleccionados, filtros, eventsSelected",ClienteSeleccionado,lstSeleccionados,isCallData)
 
     // consulta la informacion de las alarmas cuando 
     // cambia el ciente seleecionado y las fechas 
@@ -383,7 +388,7 @@ export default function ReporteViaje() {
   // metodo qeu consulta los datos de las alarmasg
   let ConsultarData = () => {
 
-    if (data.length == 0 || isCallData) {
+    if (isCallData) {
       setIsError(false)
       setIsLoading(true)
       setIsRefetching(true)
@@ -540,18 +545,27 @@ export default function ReporteViaje() {
 
   function ConsultaVehiculosClienteSeleccionado(clienteids: number | undefined) {
 
+
     getVehiculosCliente((clienteids ?? ClienteSeleccionado).toString(), 'Available')
       .then((response: AxiosResponse<any>) => {
 
         let listadoVehiculos = response.data.map((v: any) => {
           return v.description;
         })
-
+        setEventsSelected(defaultEventsSelected);
+        setisCallData(true);
         setlstVehiculos(listadoVehiculos);
         setSeleccionados([listadoVehiculos[0]])
+    
 
+       
         // llenamos la información
-      })
+      }).catch((error) => {
+
+      }).finally(()=> {
+
+
+      });
   }
   function CargaListadoClientes() {
     return (

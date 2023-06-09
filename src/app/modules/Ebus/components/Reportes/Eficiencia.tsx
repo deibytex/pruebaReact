@@ -214,10 +214,10 @@ export default function ReporteEficiencia() {
       setIsLoading(true);
       GetClientesEsomos().then((response: AxiosResponse<any>) => {
         setClientes(response.data);
-        setClienteSeleccionado(response.data[0])
+        setClienteSeleccionado(response.data[0].clienteIdS)
         setIsLoading(false);
       }).catch((error) => {
-        console.log(error);
+        
         errorDialog("<i>Eror al consultar los clientes</i>", "")
       })
 
@@ -687,6 +687,7 @@ export default function ReporteEficiencia() {
         // buscamos el objeto completo para tenerlo en el sistema
    
           setClienteSeleccionado(Number.parseInt(e.currentTarget.value));
+          setTipoReporte(TipoReporteBase)
       }} aria-label="Default select example" value={ClienteSeleccionado}>
 
         {
