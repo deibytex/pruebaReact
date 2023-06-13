@@ -34,7 +34,6 @@ export function MapTab() {
                 setcenterLatitud(Number.parseFloat(DataDetalladoFiltrado[0].Latitud))
                 setcenterLongitud(Number.parseFloat(DataDetalladoFiltrado[0].Longitud))
                 setloader(false);
-                setisClustering(false);
                 setzoom(16);
                 setshowp(true);
             }
@@ -44,7 +43,6 @@ export function MapTab() {
                 setcenterLatitud(Number.parseFloat(DataDetallado[0].Latitud))
                 setcenterLongitud(Number.parseFloat(DataDetallado[0].Longitud))
                 setloader(false);
-                setisClustering(false);
                 setzoom(16);
                 setshowp(true);
             }
@@ -140,10 +138,8 @@ export function MapTab() {
                     <RenderPopUp />
                     {/**  si son todos aplicamos el clustering, si se filtra lo desagregamos*/}
                     {
-                        (!isClustering) && 
-                        (
-                            <Puntos />
-                        )
+                        <Puntos />
+                      
                     }
                 </MapContainer>
             )}

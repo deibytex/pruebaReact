@@ -169,7 +169,6 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
                 setalertas(response.data);
                 setloader(false);
             }
-
         ).catch((error) => {
             setError({ accion: "alertas", error });
             setloader(false);
