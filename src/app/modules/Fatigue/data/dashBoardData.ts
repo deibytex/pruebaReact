@@ -72,8 +72,8 @@ export  function getEventosActivosPorDia(props: ParamsEndPointDynamic , body: an
 
 export function GetAlarmas(clientesIds: string, FechaInicio: Date, FechaFinal: Date) {
   var params: { [id: string]: string | null | undefined; } = {};
-  params['FechaInicial'] = moment(FechaInicio).format(formatViewHoraMinuto);
-  params['FechaFinal'] = moment(FechaFinal).format(formatViewHoraMinuto);
+  params['FechaInicial'] = moment(FechaInicio).format("YYYY-MM-DD HH:mm");
+  params['FechaFinal'] = moment(FechaFinal).format("YYYY-MM-DD HH:mm");
   return Post_getDynamicValueProcedureDWHTabla({
       NombreConsulta: "GetAlertasTimeLine", Clase: "FATGQueryHelper",
       tabla: clientesIds
