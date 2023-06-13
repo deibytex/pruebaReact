@@ -1,13 +1,8 @@
 import { useEffect, useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer, Tooltip, useMap } from "react-leaflet";
 import { Icon } from "leaflet";
-
 import { useDataFatigue } from "../core/provider";
 import { EventoActivo } from "../models/EventosActivos";
-import { toAbsoluteUrl } from "../../../../_start/helpers";
-import L from "leaflet";
-import { Box, Typography } from "@mui/material";
-import MarkerClusterGroup from "react-leaflet-markercluster";
 export function MapTab() {
     const [show, setshowp] = useState<boolean>(false);
     const { DataDetallado, Filtrado, DataDetalladoFiltrado, setloader } = useDataFatigue();
@@ -40,7 +35,7 @@ export function MapTab() {
                 setcenterLongitud(Number.parseFloat(DataDetalladoFiltrado[0].Longitud))
                 setloader(false);
                 setisClustering(false);
-                setzoom(8);
+                setzoom(16);
                 setshowp(true);
             }
         }else{
@@ -50,7 +45,7 @@ export function MapTab() {
                 setcenterLongitud(Number.parseFloat(DataDetallado[0].Longitud))
                 setloader(false);
                 setisClustering(false);
-                setzoom(8);
+                setzoom(16);
                 setshowp(true);
             }
         }
@@ -129,9 +124,6 @@ export function MapTab() {
             )}
         </>)
     }
-
-
-
     return (
         <>
             {(show) && (
@@ -147,12 +139,12 @@ export function MapTab() {
                     />
                     <RenderPopUp />
                     {/**  si son todos aplicamos el clustering, si se filtra lo desagregamos*/}
-                    {(isClustering) && (<MarkerClusterGroup>
-                        <Puntos />
-                    </MarkerClusterGroup>)}
-                    {(!isClustering) && (
-                        <Puntos />
-                    )}
+                    {
+                        (!isClustering) && 
+                        (
+                            <Puntos />
+                        )
+                    }
                 </MapContainer>
             )}
         </>

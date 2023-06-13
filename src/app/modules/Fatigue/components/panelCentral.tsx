@@ -18,10 +18,7 @@ type Props = {
   innerPadding?: string;
 };
 
-
-
 const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => {
-
   const [width, setWidth] = useState("80px")
   const [activeTab, setActiveTab] = useState("#tab1");
   const [activeChart, setActiveChart] = useState<ApexCharts | undefined>();
@@ -142,9 +139,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
 // SI EXISTE SE PASA LOS DATOS ALMACENADOS EN EL SISTEMA
 let PintarGrafica = (datos: any[]) => {
     // agrupa los elementos para ser mostrado por la grafica
-    
     let datosFiltrados: any[] = datos;
-
     let Datos= new Array();
     let dataTransformada = new Array()
     // agrupamos por fechas la informacion
@@ -197,9 +192,6 @@ useEffect(() =>{
   useEffect(() =>{
     if(tabGlobal == `#tab2`)
         setTab(2);
-
-
-    
   },[tabGlobal])
 
   useEffect(() =>{
@@ -237,7 +229,6 @@ useEffect(() =>{
         </div>
       </div>
       {/* end::Header */}
-
       {/* begin::Body */}
       <div className="card-body pt-0">
         <div className=" flex-wrap flex-xxl-nowrap justify-content-center justify-content-md-start pt-4">
@@ -319,7 +310,7 @@ useEffect(() =>{
             >
                 <div className="card">
                   <div className="card-body">
-                     {(DataDetallado?.length != 0) &&(Map) && (<MapTab></MapTab>)}
+                     {(DataDetallado?.length != 0) &&(Map) && (activeTab == "#tab2" ) && (<MapTab></MapTab>)}
                   </div>
                 </div>
             </div>
@@ -366,90 +357,3 @@ useEffect(() =>{
 };
 
 export { FAG_PanelCentral };
-
-function getChartOptions(
-  tabNumber: number,
-  height: string | number | undefined
-): ApexOptions {
-  return {
-    series: [{
-      name: "Critico",
-      data: [
-        [1, 3087998871497481258]
-      ]
-    },
-    {
-      name: "Elevado",
-      data: [
-      ]
-    }, {
-      name: "Normal",
-      data:
-        [
-        ]
-    }],
-    chart: {
-      fontFamily: "inherit",
-      type: "scatter",
-      height: height,
-      zoom: {
-        enabled: true,
-        type: 'xy'
-      }
-    },
-
-    xaxis: {
-      tickAmount: 10,
-      labels: {
-        formatter: function (val) {
-          return parseFloat(val).toFixed(1)
-        }
-      }
-    },
-    yaxis: {
-      tickAmount: 7
-    },
-    fill: {
-      opacity: 1,
-    },
-
-    tooltip: {
-      style: {
-        fontSize: "12px",
-      },
-      y: {
-        formatter: function (val: number) {
-          return `$${val} thousands`;
-        },
-      },
-    },
-    colors: [
-      getCSSVariableValue("--bs-danger"),
-      getCSSVariableValue("--bs-warning"),
-      getCSSVariableValue("--bs-primary"),
-    ],
-    grid: {
-      borderColor: getCSSVariableValue("--bs-gray-200"),
-      strokeDashArray: 4,
-      yaxis: {
-        lines: {
-          show: true,
-        },
-      },
-    },
-  };
-}
-
-
-
-function getCss(el: HTMLElement, styleProp: string) {
-  const defaultView = (el.ownerDocument || document).defaultView;
-  if (!defaultView) {
-    return "";
-  }
-
-  // sanitize property name to css notation
-  // (hyphen separated words eg. font-Size)
-  styleProp = styleProp.replace(/([A-Z])/g, "-$1").toLowerCase();
-  return defaultView.getComputedStyle(el, null).getPropertyValue(styleProp);
-}
