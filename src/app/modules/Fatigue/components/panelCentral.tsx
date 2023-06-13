@@ -26,9 +26,9 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
   const [activeTab, setActiveTab] = useState("#tab1");
   const [activeChart, setActiveChart] = useState<ApexCharts | undefined>();
   const [activeEvents, setactiveEvents] = useState<EventoActivo[]>([]);
-
+  const [Map, setMap] = useState<boolean>(false);
   const { listadoEventosActivos, DataAlertas, DataDetallado, tabGlobal, setTabGlobal, loader } = useDataFatigue();
-
+  let idinterval: number = 0;
   const [opciones, setOpciones] = useState<any>(null);
 
   useEffect(() => {
@@ -177,7 +177,6 @@ useEffect(() =>{
 
   // TRAE LA INFORMACION DE EVENTOS ACTIVOS POR DIA
   useEffect(() => {
-
     setTab(parseInt(activeTab.replace('#tab', '')));
     setactiveEvents(listadoEventosActivos ?? []);
 
@@ -191,22 +190,6 @@ useEffect(() =>{
   const setTab = (tabNumber: number) => {
     setActiveTab(`#tab${tabNumber}`);
     setTabGlobal(`#tab${tabNumber}`);
-    // if (activeChart) {
-    //   activeChart.destroy();
-    // }
-
-    // const element = document.querySelector(
-    //   `#tab${tabNumber}_chart`
-    // ) as HTMLElement;
-    // if (!element) {
-    //   return;
-    // }
-
-    // const height = parseInt(getCss(element, "height"));
-    // const chart = new ApexCharts(element, getChartOptions(tabNumber, height));
-    // chart.render();
-    // setActiveChart(chart);
-
     if (tabNumber == 2)
       setWidth("100px");
   };
@@ -214,8 +197,18 @@ useEffect(() =>{
   useEffect(() =>{
     if(tabGlobal == `#tab2`)
         setTab(2);
+
+
+    
   },[tabGlobal])
 
+  useEffect(() =>{
+    if (idinterval === 0) {
+      idinterval = window.setInterval(() => {
+          setMap(true);
+      }, 2000)
+  }
+  },[DataDetallado])
   return (
     <div className={`card ${className}`}>
           <BlockUi tag="div" keepInView blocking={loader ?? false}  >
@@ -326,7 +319,7 @@ useEffect(() =>{
             >
                 <div className="card">
                   <div className="card-body">
-                     {(DataDetallado?.length != 0) && (<MapTab></MapTab>)}
+                     {(DataDetallado?.length != 0) &&(Map) && (<MapTab></MapTab>)}
                   </div>
                 </div>
             </div>

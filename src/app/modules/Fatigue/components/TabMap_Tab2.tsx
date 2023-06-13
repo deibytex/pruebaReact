@@ -39,9 +39,9 @@ export function MapTab() {
                 setcenterLatitud(Number.parseFloat(DataDetalladoFiltrado[0].Latitud))
                 setcenterLongitud(Number.parseFloat(DataDetalladoFiltrado[0].Longitud))
                 setloader(false);
-                setisClustering(false)
-                setzoom(8)
-                setshowp(true)
+                setisClustering(false);
+                setzoom(8);
+                setshowp(true);
             }
         }else{
             if (DataDetallado != undefined && DataDetallado.length > 0) {
@@ -49,9 +49,9 @@ export function MapTab() {
                 setcenterLatitud(Number.parseFloat(DataDetallado[0].Latitud))
                 setcenterLongitud(Number.parseFloat(DataDetallado[0].Longitud))
                 setloader(false);
-                setisClustering(false)
-                setzoom(8)
-                setshowp(true)
+                setisClustering(false);
+                setzoom(8);
+                setshowp(true);
             }
         }
        
@@ -59,17 +59,13 @@ export function MapTab() {
 
     function Puntos() {
         const mapa = useMap();
-        return (<>
+        return (
+        <>
             {map != undefined && map.length > 0 &&
                 map.map((park: any, index:any) => {
                     return (
                         <Marker
                             title={(park.evento == ""|| park.evento == null ?  park.EventTypeId : park.evento)}
-                            // icon={L.icon({
-                            //     iconUrl: toAbsoluteUrl('/media/syscaf/iconbus.png'),
-                            //     iconSize: [40, 40]
-
-                            // })}
                             key={index}
                             position={[
                                 Number.parseFloat(park.Latitud),
@@ -80,16 +76,13 @@ export function MapTab() {
                                     setActivePark(park);
                                 },
                             }}>
-
                             <Tooltip className="bg-transparent border-0  text-white fs-8" direction="right" offset={[13, 0]} opacity={1} permanent>
-                                {park.EventId}
+                                {(park.evento == ""|| park.evento == null ?  park.EventId: park.evento)}
                             </Tooltip>
-
                         </Marker>
                     );
                 })}
         </>
-
         );
     }
     function RenderPopUp() {
@@ -110,11 +103,9 @@ export function MapTab() {
                             ],
                             zoom
                         );
-
                         setisClustering(true)
                     }}
                     onOpen={() => {
-
                         mapa.setView(
                             [
                                 activePark.Latitud,
@@ -125,25 +116,12 @@ export function MapTab() {
                     }}
                 >
                     <div className="card shadow-sm  border">
-                        <div className="card-title fs-2 bg-secondary border "> <p className="text-center">{(activePark.evento == ""|| activePark.evento == null ?  activePark.EventId : activePark.evento)}</p></div>
-                        <div className="card-body">
-                            <Box
-                                sx={{
-                                    display: 'grid',
-                                    margin: 'auto',
-                                    gridTemplateColumns: '1fr 1fr ',
-                                    gridTemplateRows: '10px',
-
-                                }}
-                            >
-                                <Typography >Evento:{activePark.evento}</Typography>
-                                {/* <Typography >{getIconSoc(activePark.soc)}</Typography>
-                                <Typography>Operador:</Typography>
-                                <Typography >{activePark.driver}</Typography> */}
-                            </Box>
-
+                        {/* <div className="card-header">
+                            <div className="card-title "> <p className="text-center">EVENTO</p></div>
+                        </div> */}
+                        <div className="card-body fs-2 bg-secondary border">
+                           {activePark.evento}
                         </div>
-
                     </div>
                 </Popup>
 
