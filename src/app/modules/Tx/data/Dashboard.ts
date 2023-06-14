@@ -51,3 +51,9 @@ export function SetActualizaUnidadesActivas(Fecha:string){
     params['Fecha'] = Fecha;
     return  Post_getconsultadinamicas({ Clase : "TXQueryHelper",  NombreConsulta: "SetSnapshotUnidadesActivasFecha", Pagina :null, RecordsPorPagina :null}, params);
 }
+export  function GetUnidadesActivasAcumulado(Fecha:string|null, ClienteId:string | null| undefined) {
+    var params: { [id: string]: string | null| undefined; } = {};
+    params['Fecha'] = Fecha;
+    params['ClienteId'] = (ClienteId == "0" ? null : ClienteId);
+    return  Post_getconsultadinamicasUser({ Clase : "TXQueryHelper",  NombreConsulta: "GetSnapshotUnidadesActivas3", Pagina :null, RecordsPorPagina :null}, params);
+}

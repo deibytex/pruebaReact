@@ -7,8 +7,9 @@ import ReactApexChart from "react-apexcharts";
 
 type Props = {
   className: string;
+  OBC:string
 }
-const OtrasUnidadesChart: React.FC<Props> = ({ className }) => {
+const OtrasUnidadesChart: React.FC<Props> = ({ className, OBC }) => {
 
   //Se importan los datos
   const { Data, DataFiltrada, Filtrado } = useDataDashboard();
@@ -109,7 +110,7 @@ const OtrasUnidadesChart: React.FC<Props> = ({ className }) => {
     if (Filtrado) {
       (DataFiltrada != undefined && DataFiltrada != undefined ? ActualizarGraficas(
         DataFiltrada.filter(function (item: any) {
-            if (item.ClasificacionId != 'Si'){
+            if (item.ClasificacionId != 'Si' && item.OBCSyscaf == OBC){
               return item.Vertical;
             }
         })
@@ -117,7 +118,7 @@ const OtrasUnidadesChart: React.FC<Props> = ({ className }) => {
     }
     else {
       let data = Data != undefined && Data["Unidades"] != undefined ?  Data["Unidades"].filter(function (item: any) {
-        if (item.ClasificacionId != 'Si')
+        if (item.ClasificacionId != 'Si' && item.OBCSyscaf == OBC)
           return item.Vertical;
       }): [];
       

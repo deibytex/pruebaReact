@@ -3,7 +3,7 @@ import moment from "moment"
 import { useEffect, useState } from "react"
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog"
 import {  useDataDashboard } from "../../core/DashboardProvider"
-import {  GetSnapShotTickets2, GetSnapShotTransmision, GetUnidadesActivas } from "../../data/Dashboard"
+import {  GetSnapShotTickets2, GetSnapShotTransmision, GetUnidadesActivas, GetUnidadesActivasAcumulado } from "../../data/Dashboard"
 import { Tickets } from "./Tickets"
 import { Transmision } from "./Transmision"
 import { UnidadesActivas } from "./UnidadesActivas"
@@ -18,7 +18,7 @@ export default function  DashboardPrincipal (){
      function ConsultarUnidades() {
         setCargando(true);
         let Fecha = (SemanaSeleccionada != undefined ? SemanaSeleccionada['fecha'] : moment().format("DD/MM/YYYY").toString())
-         GetUnidadesActivas(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
+        GetUnidadesActivasAcumulado(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
             setData({"Unidades":response.data});
             setCargando(false);
         }).catch((error:AxiosError<any>) =>{
