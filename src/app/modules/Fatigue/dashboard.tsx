@@ -62,7 +62,7 @@ export default function FatigueDashboard() {
                 })
                 if (lstClientes)
                     setclienteSeleccionado(cliente[0])
-            }} aria-label="Default select example" defaultValue={clienteSeleccionado?.ClienteIdS} >
+            }} defaultValue={clienteSeleccionado?.ClienteIdS} >
                 <option>Seleccione</option>
                 {
                     lstClientes.map((element) => {
@@ -77,12 +77,12 @@ export default function FatigueDashboard() {
         return (
             <Form.Select className=" mb-3 " onChange={(e) => {
                 settipoSeguimiento(Number.parseInt(e.currentTarget.value))
-            }} aria-label="Default select example">
+            }} >
 
                 {
                     TiposSeguimientos.map((element) => {
                         let flag = (element.TipoId === tipoSeguimiento)
-                        return (<option key={`opcion${element.TipoId}`} selected={flag} value={element.TipoId}>{element.Tipo}</option>)
+                        return (<option key={`opcion${element.TipoId}`}  value={element.TipoId}>{element.Tipo}</option>)
                     })
                 }
             </Form.Select>
@@ -133,7 +133,7 @@ export default function FatigueDashboard() {
                     <div className="col-xl-3">
                         <BaseIndicador className={"card-stretch mb-1 mb-xxl-2"} titulo={""} subtitulo={""}  >
                             {/*Contenido que quiero mostar dentro del indicador*/}
-                            <IndicadorPanelGeneral className={""} />
+                            {/* <IndicadorPanelGeneral className={""} /> */}
                         </BaseIndicador>
                     </div>
                     <div className="col-xl-3">
@@ -151,10 +151,6 @@ export default function FatigueDashboard() {
                     </div>
                 </div>
                 </div>
-
-             
-
-               
 
                 {/* end::Row */}
             </FatigueProvider>

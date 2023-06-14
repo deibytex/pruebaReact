@@ -153,7 +153,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
 
                 {
                   // verificamos que exista datos para poder ingresar los datos en el contenedor 
-                  (activeEvents.length > 0) && (<CardContainerEventos isActive={true} isDetails={false} />)
+                   (<CardContainerEventos isActive={true} isDetails={false} />)
                 }
               </div>
 
