@@ -32,12 +32,12 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   const [FechaApertura, setFechaApertura] = useState("");
   const [FechaGestion, setFechaGestion] = useState("");
 
-  const [show, setShow] = useState(false);  
+  const [show, setShow] = useState(false);
   const handleClose = () => {
     setShow(false);
-  };  
+  };
   const showModal = () => {
-  setShow(true);
+    setShow(true);
   }
   const [Data, setData] = useState<any[]>([]);
   const [esgestionado, setesgestionado] = useState(false);
@@ -158,7 +158,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
     ];
 
-    const columnasTablaDetalle: MRT_ColumnDef<any>[]
+  const columnasTablaDetalle: MRT_ColumnDef<any>[]
     = [
       {
         accessorKey: 'fecha',
@@ -179,7 +179,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
     ];
 
-    const columnasContacto: MRT_ColumnDef<any>[]
+  const columnasContacto: MRT_ColumnDef<any>[]
     = [
       {
         accessorKey: 'tipo',
@@ -204,44 +204,44 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
     ];
 
-    let listadoCampos: MRT_ColumnDef<any>[] =
+  let listadoCampos: MRT_ColumnDef<any>[] =
 
     [
-        {
-            accessorKey: 'fecha',
-            header: 'Fecha',
-            size: 100
-        },
-        {
-            accessorKey: 'value',
-            header: 'Observaciones',
-            size: 100
-        }
+      {
+        accessorKey: 'fecha',
+        header: 'Fecha',
+        size: 100
+      },
+      {
+        accessorKey: 'value',
+        header: 'Observaciones',
+        size: 100
+      }
 
     ];
 
   function FechaAperturaControl() {
-      return (
-          <Form.Control className=" mb-3 " value={FechaApertura} type="date" name="fechaini" placeholder="Seleccione una fecha" disabled />
-      )
+    return (
+      <Form.Control className=" mb-3 " value={FechaApertura} type="date" name="fechaini" placeholder="Seleccione una fecha" disabled />
+    )
   }
 
   function FechaGestionControl() {
     return (
-        <Form.Control className=" mb-3 " value={FechaGestion} type="date" name="fechaini" placeholder="Seleccione una fecha" disabled />
+      <Form.Control className=" mb-3 " value={FechaGestion} type="date" name="fechaini" placeholder="Seleccione una fecha" disabled />
     )
-}
+  }
 
   const getobservacion = (e: any) => {
     setobervacionGestion(e.target.value)
   };
   //revisar
-  const setObservacion = (observacion: string, escerrado?: string) => {};
+  const setObservacion = (observacion: string, escerrado?: string) => { };
 
 
   const modalObervaciones = () => {
     showModal();
-}
+  }
   return (
 
     <>
@@ -258,15 +258,15 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         columns={columnasTabla}
         data={alertas}
         muiTableBodyRowProps={({ row }) => ({
-          
+
           sx: {
-           
+
             backgroundColor:
-              row.original.Criticidad === 'Riesgo alto' ? 'rgba(248, 215, 218, 1)' : 
-              row.original.Criticidad === 'Riesgo moderado' ? 'rgba(255, 243, 205, 1)' : 
-              row.original.Criticidad === 'Riesgo bajo'  ? 'rgba(212, 237, 218, 1)' :  
-              'rgba(255, 243, 205, 1)'               
-         }
+              row.original.Criticidad === 'Riesgo alto' ? 'rgba(248, 215, 218, 1)' :
+                row.original.Criticidad === 'Riesgo moderado' ? 'rgba(255, 243, 205, 1)' :
+                  row.original.Criticidad === 'Riesgo bajo' ? 'rgba(212, 237, 218, 1)' :
+                    'rgba(255, 243, 205, 1)'
+          }
         })}
         //editingMode="modal" //default         
         enableTopToolbar
@@ -295,8 +295,8 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
             <Tooltip arrow placement="left" title="Editar">
               <IconButton onClick={() => {
-                                                        modalObervaciones();
-                                                    }}>
+                modalObervaciones();
+              }}>
                 <ManageSearch />
               </IconButton>
             </Tooltip>
@@ -331,16 +331,16 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
                       <div className="mb-3 row">
                         <div className="col-3">
                           <FechaAperturaControl />
-                        </div>                        
-                      </div>                     
+                        </div>
+                      </div>
                     </Card.Text>
                     <Card.Text>
                       <span>Ultima Gestión:</span>
                       <div className="mb-3 row">
                         <div className="col-3">
                           <FechaGestionControl />
-                        </div>                        
-                      </div>        
+                        </div>
+                      </div>
                     </Card.Text>
                     <Card.Text>
                       <textarea className="form-control  input input-sm " id={'obervacion'} onChange={getobservacion} rows={3} value={obervacionGestion}></textarea>
@@ -351,7 +351,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
               </Box>
             </Tab>
             <Tab eventKey="DetalleGestion" title="Detalle Gestión">
-            <Box
+              <Box
                 sx={{
                   display: 'grid',
                   margin: 'auto',
@@ -359,39 +359,39 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
                   width: '140%'
                 }}
               >
-                    <span><MaterialReactTable
-                localization={MRT_Localization_ES}
-                displayColumnDefOptions={{
+                <span><MaterialReactTable
+                  localization={MRT_Localization_ES}
+                  displayColumnDefOptions={{
                     'mrt-row-actions': {
-                        muiTableHeadCellProps: {
-                            align: 'center',
-                        },
-                        size: 120,
+                      muiTableHeadCellProps: {
+                        align: 'center',
+                      },
+                      size: 120,
                     },
-                }}
-                columns={columnasTablaDetalle}
-                data={dataDetalleGestion}
-                // editingMode="modal" //default         
-                enableTopToolbar={false}
-                enableColumnOrdering
-                // enableEditing
-                /* onEditingRowSave={handleSaveRowEdits}
-                    onEditingRowCancel={handleCancelRowEdits}*/
-                muiToolbarAlertBannerProps={
+                  }}
+                  columns={columnasTablaDetalle}
+                  data={dataDetalleGestion}
+                  // editingMode="modal" //default         
+                  enableTopToolbar={false}
+                  enableColumnOrdering
+                  // enableEditing
+                  /* onEditingRowSave={handleSaveRowEdits}
+                      onEditingRowCancel={handleCancelRowEdits}*/
+                  muiToolbarAlertBannerProps={
                     isError
-                        ? {
-                            color: 'error',
-                            children: 'Error al cargar información',
-                        }
-                        : undefined
-                }
-                onColumnFiltersChange={setColumnFilters}
-                onGlobalFilterChange={setGlobalFilter}
-                onPaginationChange={setPagination}
-                onSortingChange={setSorting}
-                rowCount={rowCount}
+                      ? {
+                        color: 'error',
+                        children: 'Error al cargar información',
+                      }
+                      : undefined
+                  }
+                  onColumnFiltersChange={setColumnFilters}
+                  onGlobalFilterChange={setGlobalFilter}
+                  onPaginationChange={setPagination}
+                  onSortingChange={setSorting}
+                  rowCount={rowCount}
 
-                state={{
+                  state={{
                     columnFilters,
                     globalFilter,
                     isLoading,
@@ -399,12 +399,12 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
                     showAlertBanner: isError,
                     showProgressBars: isRefetching,
                     sorting,
-                }}
-            /></span>
+                  }}
+                /></span>
               </Box>
             </Tab>
             <Tab eventKey="Contacto" title={`Información de contacto`}>
-            <Box
+              <Box
                 sx={{
                   display: 'grid',
                   margin: 'auto',
@@ -412,39 +412,39 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
                   width: '140%'
                 }}
               >
-                    <span><MaterialReactTable
-                localization={MRT_Localization_ES}
-                displayColumnDefOptions={{
+                <span><MaterialReactTable
+                  localization={MRT_Localization_ES}
+                  displayColumnDefOptions={{
                     'mrt-row-actions': {
-                        muiTableHeadCellProps: {
-                            align: 'center',
-                        },
-                        size: 120,
+                      muiTableHeadCellProps: {
+                        align: 'center',
+                      },
+                      size: 120,
                     },
-                }}
-                columns={columnasContacto}
-                data={dataDetalleGestion}
-                // editingMode="modal" //default         
-                enableTopToolbar={false}
-                enableColumnOrdering
-                // enableEditing
-                /* onEditingRowSave={handleSaveRowEdits}
-                    onEditingRowCancel={handleCancelRowEdits}*/
-                muiToolbarAlertBannerProps={
+                  }}
+                  columns={columnasContacto}
+                  data={dataDetalleGestion}
+                  // editingMode="modal" //default         
+                  enableTopToolbar={false}
+                  enableColumnOrdering
+                  // enableEditing
+                  /* onEditingRowSave={handleSaveRowEdits}
+                      onEditingRowCancel={handleCancelRowEdits}*/
+                  muiToolbarAlertBannerProps={
                     isError
-                        ? {
-                            color: 'error',
-                            children: 'Error al cargar información',
-                        }
-                        : undefined
-                }
-                onColumnFiltersChange={setColumnFilters}
-                onGlobalFilterChange={setGlobalFilter}
-                onPaginationChange={setPagination}
-                onSortingChange={setSorting}
-                rowCount={rowCount}
+                      ? {
+                        color: 'error',
+                        children: 'Error al cargar información',
+                      }
+                      : undefined
+                  }
+                  onColumnFiltersChange={setColumnFilters}
+                  onGlobalFilterChange={setGlobalFilter}
+                  onPaginationChange={setPagination}
+                  onSortingChange={setSorting}
+                  rowCount={rowCount}
 
-                state={{
+                  state={{
                     columnFilters,
                     globalFilter,
                     isLoading,
@@ -452,8 +452,8 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
                     showAlertBanner: isError,
                     showProgressBars: isRefetching,
                     sorting,
-                }}
-            /></span>
+                  }}
+                /></span>
               </Box>
             </Tab>
           </Tabs>
@@ -470,92 +470,92 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         }}
       />
 
-<Modal
-                show={show}
-                onHide={handleClose}
-                size="lg">
-                <Modal.Header closeButton>
-                    <Modal.Title>{'Gestionar'}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <div className="row">
-                        <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
-                            <div className="">
-                                <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Adicionar Comentario:</label>
-                                <textarea className="form-control  input input-sm " id={'obervacionueva'} onChange={getobservacion} rows={3} value={obervacionGestion}></textarea>
-                            </div>
-                        </div>
-                    </div>
-                    <p></p>
-                    <div className="row">
-                        <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
-                            <Button type="button" variant="primary" onClick={() => {
-                                setObservacion(obervacionGestion, 'false');
-                            }}>
-                                Guardar
-                            </Button>
-                        </div>
-                        <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
-                            {esgestionado == false ? <Button type="button" variant="danger" onClick={() => {
-                                setObservacion('Cierre Gestión', 'true');
-                            }}>
-                                Cerrar Gestion
-                            </Button> : <></>}
-                        </div>
-                    </div>
+      <Modal
+        show={show}
+        onHide={handleClose}
+        size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>{'Gestionar'}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="row">
+            <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+              <div className="">
+                <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Adicionar Comentario:</label>
+                <textarea className="form-control  input input-sm " id={'obervacionueva'} onChange={getobservacion} rows={3} value={obervacionGestion}></textarea>
+              </div>
+            </div>
+          </div>
+          <p></p>
+          <div className="row">
+            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+              <Button type="button" variant="primary" onClick={() => {
+                setObservacion(obervacionGestion, 'false');
+              }}>
+                Guardar
+              </Button>
+            </div>
+            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+              {esgestionado == false ? <Button type="button" variant="danger" onClick={() => {
+                setObservacion('Cierre Gestión', 'true');
+              }}>
+                Cerrar Gestion
+              </Button> : <></>}
+            </div>
+          </div>
 
-                </Modal.Body>
-                <Modal.Body>
-                    <MaterialReactTable
-                        localization={MRT_Localization_ES}
-                        displayColumnDefOptions={{
-                            'mrt-row-actions': {
-                                muiTableHeadCellProps: {
-                                    align: 'center',
-                                },
-                                size: 120,
-                            },
-                        }}
-                        columns={listadoCampos}
-                        data={Data}
-                        // editingMode="modal" //default         
-                        enableTopToolbar={false}
-                        enableColumnOrdering
-                        // enableEditing
-                        /* onEditingRowSave={handleSaveRowEdits}
-                            onEditingRowCancel={handleCancelRowEdits}*/
-                        muiToolbarAlertBannerProps={
-                            isError
-                                ? {
-                                    color: 'error',
-                                    children: 'Error al cargar información',
-                                }
-                                : undefined
-                        }
-                        onColumnFiltersChange={setColumnFilters}
-                        onGlobalFilterChange={setGlobalFilter}
-                        onPaginationChange={setPagination}
-                        onSortingChange={setSorting}
-                        rowCount={rowCount}
+        </Modal.Body>
+        <Modal.Body>
+          <MaterialReactTable
+            localization={MRT_Localization_ES}
+            displayColumnDefOptions={{
+              'mrt-row-actions': {
+                muiTableHeadCellProps: {
+                  align: 'center',
+                },
+                size: 120,
+              },
+            }}
+            columns={listadoCampos}
+            data={Data}
+            // editingMode="modal" //default         
+            enableTopToolbar={false}
+            enableColumnOrdering
+            // enableEditing
+            /* onEditingRowSave={handleSaveRowEdits}
+                onEditingRowCancel={handleCancelRowEdits}*/
+            muiToolbarAlertBannerProps={
+              isError
+                ? {
+                  color: 'error',
+                  children: 'Error al cargar información',
+                }
+                : undefined
+            }
+            onColumnFiltersChange={setColumnFilters}
+            onGlobalFilterChange={setGlobalFilter}
+            onPaginationChange={setPagination}
+            onSortingChange={setSorting}
+            rowCount={rowCount}
 
-                        state={{
-                            columnFilters,
-                            globalFilter,
-                            isLoading,
-                            pagination,
-                            showAlertBanner: isError,
-                            showProgressBars: isRefetching,
-                            sorting,
-                        }}
+            state={{
+              columnFilters,
+              globalFilter,
+              isLoading,
+              pagination,
+              showAlertBanner: isError,
+              showProgressBars: isRefetching,
+              sorting,
+            }}
 
-                    />
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button type="button" variant="secondary" onClick={handleClose}>
-                        Cancelar
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button type="button" variant="secondary" onClick={handleClose}>
+            Cancelar
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }

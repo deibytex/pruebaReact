@@ -178,24 +178,6 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
             </div>
             {/* end::Tab Pane 2 */}
 
-            {/* begin::Tab Pane 3 */}
-            <div
-              className={`tab-pane fade ${activeTab === "#tab3" ? "show active" : ""
-                }`}
-              id="tab3_content"
-            >
-
-
-              {/* begin::Cards */}
-              <div className="overflow-auto">
-
-                <div style={{ height: width }}></div>
-              </div>
-
-              {/* end::Cards      */}
-            </div>
-            {/* end::Tab Pane 3 */}
-
           </div>
           {/* end::Tab Content */}
         </div>
