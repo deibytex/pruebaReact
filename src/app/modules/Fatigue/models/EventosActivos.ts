@@ -9,7 +9,7 @@ export interface EventoActivo {
     EventDateTime: Date ;
     Latitud : number;
     Longitud: number;
-
+    evento:string;
 }
 
 export interface ClientesFatiga 
