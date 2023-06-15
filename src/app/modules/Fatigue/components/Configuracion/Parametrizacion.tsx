@@ -1,7 +1,6 @@
 
 import { useEffect, useState } from "react";
 import confirmarDialog, { errorDialog, successDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
-
 import { ClientesFatiga, EventoActivo } from "../../models/EventosActivos";
 import { AxiosResponse } from "axios";
 import { Button, Form, Modal } from "react-bootstrap-v5";
@@ -10,14 +9,15 @@ import BlockUi from "@availity/block-ui";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
-import { GetEventos, getConfiguraciones, setConfiguraciones } from "../../data/Configuracion";
+import { GetClientesFatiga, GetEventos, getConfiguraciones, setConfiguraciones } from "../../data/Configuracion";
 import { Check, Edit } from "@mui/icons-material";
 import { Box, IconButton, Tooltip } from "@mui/material";
-import { GetClientesFatiga } from "../../data/dashBoardData";
+
 
 export default function Parametrizacion() {
     const [show, setShow] = useState(false);
     const [ValorSelectEvent, setValorSelectEvent] = useState("");
+    const [NombreSelectEvent, setNombreSelectEvent] = useState("");
     const [NombeCondicion, setNombreCondicionEvent] = useState("");
     const [lstClientes, setLstClientes] = useState<ClientesFatiga[]>([]);
     const [clienteSeleccionado, setclienteSeleccionado] = useState<ClientesFatiga>();
@@ -29,6 +29,7 @@ export default function Parametrizacion() {
     const [DataFilltrada, setDataFilltrada] = useState<any[]>([]);
     const [Filtrado, setFiltrado] = useState<boolean>(false);
     const [EventosActivos, setEventosActivos] = useState<any[]>([]);
+    const [EventosActivosNombres, setEventosActivosNombres] = useState<any[]>([]);
     const [Clave, setClave] = useState("1");
     const [Cargar, setcargar] = useState(false);
     const [configuracionAlertaId, setconfiguracionAlertaId] = useState(null);
@@ -108,20 +109,20 @@ export default function Parametrizacion() {
     }, [])
     useEffect(() => {
         //ObtenerEventos(clienteSeleccionado?.ClienteIdS)
-        let _data = {};
-        _data["clienteId"] = clienteSeleccionado?.ClienteId.toString();
-        GetConfiguracionAlerta(_data);
+        GetConfiguracionAlerta([]);
     }, [Cargar == true])
 
     function GetConfiguracionAlerta(data: any) {
         data.nombre = null;
         data.esActivo = null;
+        data.ClienteId = null;
         setLoader(true);
         setIsLoading(true)
         setIsRefetching(true)
         getConfiguraciones(data).then((response: AxiosResponse<any>) => {
             let Datos = response.data.data;
             setData(Datos);
+            setFiltrado(false);
             setRowCount(response.data.data.length);
             setLoader(false);
             setIsLoading(false);
@@ -138,7 +139,7 @@ export default function Parametrizacion() {
     }
     function CargaListadoClientes() {
         return (
-            <Form.Select className=" mb-3 " onChange={(e) => {
+            <Form.Select defaultValue={0} className=" mb-3 " onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
                 let cliente = lstClientes.filter((value, index) => {
                     return value.ClienteIdS === Number.parseInt(e.currentTarget.value)
@@ -146,7 +147,6 @@ export default function Parametrizacion() {
                 })
                 setclienteSeleccionado(cliente[0]);
                 if(cliente[0] != undefined){
-                    console.log(cliente[0]);
                     let _dt = Data.filter((D) =>{
                         if(D.clienteId == cliente[0].ClienteId)
                         return D;
@@ -155,7 +155,6 @@ export default function Parametrizacion() {
                     setDataFilltrada(_dt);
                 }else
                 setFiltrado(false);
-               
                 setCliente((cliente[0] == undefined ? "" : cliente[0].ClienteId.toString()));
                 ObtenerEventos((cliente[0] == undefined ? "" : cliente[0].ClienteId.toString()));
             }} aria-label="Default select example">
@@ -172,23 +171,28 @@ export default function Parametrizacion() {
 
     const AgregarEventos = (Evento: any) => {
         let Event = [...EventosActivos];
+        let EventNombres = [...EventosActivosNombres];
         let esta = EventosActivos?.includes(ValorSelectEvent);
+        let nesta = EventosActivosNombres.includes(NombreSelectEvent);
         if (esta)
             errorDialog("El evento ya se encuentra agregado.", "");
         else {
             Event.push(ValorSelectEvent);
+            EventNombres.push(NombreSelectEvent);
             setEventosActivos(Event);
+            setEventosActivosNombres(EventNombres);
         }
     };
 
     function CargaListadoEventos() {
         return (
-            <Form.Select className=" mb-3 " onChange={(e) => {
+            <Form.Select defaultValue={0} className=" mb-3 " onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
                 let evento = tempEventos.filter((value, index) => {
                     return value.EventId === e.currentTarget.value//Number.parseInt(e.currentTarget.value)
                 })
                 setValorSelectEvent(evento[0].EventId);
+                setNombreSelectEvent(evento[0].descriptionevent);
                 seteventoSeleccionado(evento[0])
             }} aria-label="Default select example">
                 <option>Seleccione</option>
@@ -240,7 +244,7 @@ export default function Parametrizacion() {
         if (Validar()) {
             confirmarDialog(() => {
                 setConfiguraciones(Datos).then((response: AxiosResponse<any>) => {
-                    successDialog("Opeación Éxitosa.", "");
+                    (response.data.exitoso == true ? successDialog("Opeación Éxitosa.",""): errorDialog(response.data.mensaje, ""));
                     setShow(false);
                     setcargar(true);
                 }).catch(({ error }) => {
@@ -255,6 +259,7 @@ export default function Parametrizacion() {
         setTitulo(`Edicion de configuración para ${row.original.clienteNombre}`)
         setNombreCondicionEvent(row.original.nombre);
         setEventosActivos(row.original.condicion.split(","))
+        setEventosActivosNombres(row.original.columna.split(","));
         setTiempo(row.original.tiempo);
         setCliente(row.original.clienteId);
         setconfiguracionAlertaId(row.original.configuracionAlertaId);
@@ -265,6 +270,8 @@ export default function Parametrizacion() {
     const CamposNuevos = () => {
         setTitulo(`Nueva configuración`)
         setNombreCondicionEvent("");
+        setEventosActivos([]);
+        setEventosActivosNombres([]);
         setTiempo("");
         setClave("1");
         setCliente((clienteSeleccionado == undefined ? "" : clienteSeleccionado?.ClienteId.toString()));
@@ -325,18 +332,16 @@ export default function Parametrizacion() {
                             </div>
                         </div>
                     </div>
-                    <div className="card">
-                        <div className="card-header">
-                            <div style={{ paddingTop: '10px' }} className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
-                                <div className="" style={{ display: 'inline-block', float: 'left' }}>
-                                    <CargaListadoClientes></CargaListadoClientes>
-                                </div>
-                                <div className="form-group" style={{ display: 'inline-block', float: 'right' }}>
-                                    <button className="btn btn-sm btn-primary" onClick={CamposNuevos}>Nuevo</button>
-                                </div>
+                    <div className="card d-flex justify-content-start">
+                            <div className="bg-secondary d-flex flex-row  justify-content-between">
+                                    <div className="form-group d-flex justify-content-start pt-2" style={{ display: 'inline-block', float: 'left' }}>
+                                        <button className="btn btn-sm btn-primary mb-4 ms-2" onClick={CamposNuevos}>Nuevo</button>
+                                    </div>
+                                    <div className="pt-2 me-2" style={{ display: 'inline-block', float: 'right' }}>
+                                        <CargaListadoClientes></CargaListadoClientes>
+                                    </div>
                             </div>
-                        </div>
-                        <div className="card-body">
+                        <div className="card-body mt-5">
                             {(Data != undefined) && (<MaterialReactTable
                                 localization={MRT_Localization_ES}
                                 displayColumnDefOptions={{
@@ -469,7 +474,8 @@ export default function Parametrizacion() {
                                                 </thead>
                                                 <tbody>
                                                     {
-                                                        EventosActivos.map((e: any, index: any) => {
+                                                        
+                                                        EventosActivosNombres.map((e: any, index: any) => {
                                                             return (
                                                                 <tr key={e + index}>
                                                                     <td key={e}>{e}</td>
