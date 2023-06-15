@@ -6,8 +6,9 @@ import { getCSSVariableValue } from "../../../../../_start/assets/ts/_utils";
 import ReactApexChart from "react-apexcharts";
 type Props = {
     className: string;
+    OBC:string;
 }
-const SemanasChart :React.FC<Props> = ({className}) =>{
+const SemanasChart :React.FC<Props> = ({className, OBC}) =>{
 //Se importan los datos
 const { Data, DataFiltrada, Filtrado } = useDataDashboard();
 const [Semanas, setSemanas] = useState<any>(null);
@@ -28,7 +29,7 @@ useEffect(() => {
     return function cleanUp() {
       //SE DEBE DESTRUIR EL OBJETO CHART
     };
-  }, [])
+  }, [OBC])
 
 
 const RetornarSerie = (data:any[]) => {
@@ -37,16 +38,17 @@ const RetornarSerie = (data:any[]) => {
     let Datos = new Array();
     //Agrupador por color.
     let agrupadorData = dataChart.map((item) => {
-        return item.Administrador;
+        if(item.OBCSyscaf ==  OBC)
+            return item.Administrador;
     }).filter((value, index, self:any) =>{
         return self.indexOf(value) === index;
     });
 
     agrupadorData.map((item) =>{
         if(item != null){
-            let totalAdmon = data.filter(function (data, index) {
-                if (data.Administrador == item)
-                    return data.Descripcion
+            let totalAdmon = data.filter(function (val, index) {
+                if (val.Administrador == item && val.OBCSyscaf == OBC)
+                    return val.Descripcion
             }).length;
             Datos.push(totalAdmon);
         }
@@ -85,6 +87,7 @@ const RetornarSerie = (data:any[]) => {
     if(Data)
         if(Data['Unidades'] != undefined){
             RetornarSerie(Data['Unidades'].filter(function (item:any) {
+                if(item.OBCSyscaf == OBC)
                     return item.Vertical;
             }))
         }
