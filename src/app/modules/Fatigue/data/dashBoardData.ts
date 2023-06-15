@@ -3,8 +3,10 @@ import moment from "moment";
 
 import {  DWH_getconsultadinamicasprocedure, DWH_GetConsultasDinamicas } from "../../../../apiurlstore";
 import { ParamsEndPointDynamic } from "../../../../_start/helpers/Models/paramsConsultasDinamicas";
-import { Post_GetConsultasDinamicas, Post_getDynamicValueProcedureDWHTabla } from "../../../../_start/helpers/Axios/DWHService";
-import { formatViewHoraMinuto } from "../../../../_start/helpers/Helper";
+import { Post_GetConsultasDinamicas } from "../../../../_start/helpers/Axios/DWHService";
+
+
+
 export  function getEventosActivosPorDia(props: ParamsEndPointDynamic , body: any) {
     return  axios({
       method: 'post',
@@ -68,23 +70,33 @@ export  function getEventosActivosPorDia(props: ParamsEndPointDynamic , body: an
     });
   }
 
-  
+  export  function setGestor(UserId: string, Observaciones: string, EstadoGestion: boolean, alertaId: number, gestor: string){
+    var params: { [id: string]: string | null; } = {};
+    params["UserId"] = UserId;
+    params["Observaciones"] = Observaciones;
+    params["EsGestionado"] = EstadoGestion.toString();
+    params["AlertaId"] = alertaId.toString();
+    params["gestor"] = gestor;
+    
+    // hacemos la consulta 
+  return  Post_GetConsultasDinamicas({    
+    Clase : "FATGQueryHelper",  
+    NombreConsulta: "setGestor", 
+    Pagina :null, 
+    RecordsPorPagina :null}, 
+    params);
+  };
 
-export function GetAlarmas(clientesIds: string, FechaInicio: Date, FechaFinal: Date) {
-  var params: { [id: string]: string | null | undefined; } = {};
-  params['FechaInicial'] = moment(FechaInicio).format("YYYY-MM-DD HH:mm");
-  params['FechaFinal'] = moment(FechaFinal).format("YYYY-MM-DD HH:mm");
-  return Post_getDynamicValueProcedureDWHTabla({
-      NombreConsulta: "GetAlertasTimeLine", Clase: "FATGQueryHelper",
-      tabla: clientesIds
-  }, params);
-}
+  export  function setObservaciones(Observaciones: string){
+    var params: { [id: string]: string | null; } = {};
+    params["data"] = Observaciones;
+    
+    // hacemos la consulta 
+    return  Post_GetConsultasDinamicas({    
+      Clase : "FATGQueryHelper",  
+      NombreConsulta: "setObervaciones", 
+      Pagina :null, 
+      RecordsPorPagina :null}, 
+      params);
+  };
 
-export function GetDetalladoEventos(clientesIds: string, FechaInicio: Date) {
-  var params: { [id: string]: string | null | undefined; } = {};
-  params['Fecha'] = moment(FechaInicio).format("YYYYMMDD");
-  return Post_getDynamicValueProcedureDWHTabla({
-      NombreConsulta: "GetDetalladosAlertas", Clase: "FATGQueryHelper",
-      tabla: clientesIds
-  }, params);
-}

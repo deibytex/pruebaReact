@@ -14,7 +14,6 @@ import { Form } from "react-bootstrap-v5";
 import { Console } from "console";
 
 import React from "react";
-import BlockUi from "@availity/block-ui";
 
 
 export default function FatigueDashboard() {
@@ -29,13 +28,13 @@ export default function FatigueDashboard() {
 
     let arrayTotal: [] = [];
     let arrayTotalSinGestionar: any[] = [];
-    let dataConAlertas = datosFatigue.getTimeLine();
-    dataConAlertas.filter((m) => {
-        return (m.Estado == "Operando" && m["Alertas"].length > 0);
-    }).map((m) => {
-        Array.prototype.push.apply(arrayTotal, m["Alertas"]);
-        return m["Alertas"];
-    });
+    // let dataConAlertas = datosFatigue.getTimeLine();
+    // dataConAlertas.filter((m) => {
+    //     return (m.Estado == "Operando" && m["Alertas"].length > 0);
+    // }).map((m) => {
+    //     Array.prototype.push.apply(arrayTotal, m["Alertas"]);
+    //     return m["Alertas"];
+    // });
 
     arrayTotalSinGestionar = arrayTotal.filter((m) => {
         return (m["EsGestionado"] != 1);
@@ -63,8 +62,8 @@ export default function FatigueDashboard() {
                 })
                 if (lstClientes)
                     setclienteSeleccionado(cliente[0])
-            }} aria-label="Default select example" defaultValue={clienteSeleccionado?.ClienteIdS} >
-                <option >Seleccione</option>
+            }} defaultValue={clienteSeleccionado?.ClienteIdS} >
+                <option>Seleccione</option>
                 {
                     lstClientes.map((element) => {
 
@@ -78,12 +77,12 @@ export default function FatigueDashboard() {
         return (
             <Form.Select className=" mb-3 " onChange={(e) => {
                 settipoSeguimiento(Number.parseInt(e.currentTarget.value))
-            }} aria-label="Default select example">
+            }} >
 
                 {
                     TiposSeguimientos.map((element) => {
                         let flag = (element.TipoId === tipoSeguimiento)
-                        return (<option key={`opcion${element.TipoId}`} selected={flag} value={element.TipoId}>{element.Tipo}</option>)
+                        return (<option key={`opcion${element.TipoId}`}  value={element.TipoId}>{element.Tipo}</option>)
                     })
                 }
             </Form.Select>
@@ -96,10 +95,9 @@ export default function FatigueDashboard() {
              * nos garantiza que todos los datos que se obtengan sus hijos tengan acceso a consultarlo sin necesidad de pasarlo
              * con parametros o sesiones
             */}
-          
+
 
             <FatigueProvider>
-        
                 <PageTitle >Fatigue App </PageTitle>
                 <DataVehiculoOperando>{clienteSeleccionado?.ClienteIdS}</DataVehiculoOperando>
                 {/* begin::Row */}
@@ -135,7 +133,7 @@ export default function FatigueDashboard() {
                     <div className="col-xl-3">
                         <BaseIndicador className={"card-stretch mb-1 mb-xxl-2"} titulo={""} subtitulo={""}  >
                             {/*Contenido que quiero mostar dentro del indicador*/}
-                            {/* <IndicadorPanelGeneral className={"card"} /> */}
+                            {/* <IndicadorPanelGeneral className={""} /> */}
                         </BaseIndicador>
                     </div>
                     <div className="col-xl-3">
@@ -154,13 +152,8 @@ export default function FatigueDashboard() {
                 </div>
                 </div>
 
-             
-
-               
-             
                 {/* end::Row */}
             </FatigueProvider>
-          
         </>
     )
 }

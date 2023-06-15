@@ -290,7 +290,7 @@ useEffect(() =>{
 
                 {
                   // verificamos que exista datos para poder ingresar los datos en el contenedor 
-                  (activeEvents.length > 0) && (<CardContainerEventos isActive={true} isDetails={false} />)
+                   (<CardContainerEventos isActive={true} isDetails={false} />)
                 }
               </div>
 
@@ -315,36 +315,6 @@ useEffect(() =>{
                 </div>
             </div>
             {/* end::Tab Pane 2 */}
-
-            {/* begin::Tab Pane 3 */}
-            <div
-              className={`tab-pane fade ${activeTab === "#tab3" ? "show active" : ""
-                }`}
-              id="tab3_content"
-            >
-
-
-              {/* begin::Cards */}
-              <div className="overflow-auto">
-
-                <div style={{ height: 400 }}>
-                  {/* // verificamos que exista datos para poder ingresar los datos en el contenedor  */}
-                  <div className="card">
-                    <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
-                      {(opciones != null) && (
-                        <ReactApexChart
-                          options={opciones.options}
-                          series={opciones.series}
-                          height={400} type="area" />)}
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-              {/* end::Cards      */}
-            </div>
-            {/* end::Tab Pane 3 */}
 
           </div>
           {/* end::Tab Content */}
