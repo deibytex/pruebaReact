@@ -7,28 +7,8 @@ import { VerticalChart } from "./VerticalChart";
 import { Checkbox, CheckboxGroup } from "rsuite";
 
 const UnidadesActivas: React.FC = () => {
-    const defaultEventsSelected: any[] = [
-        {
-            name: 'Es Equipo Syscaf',
-            data: [],
-            isSelected: true,
-            getData: (EsEquipoSyscaf: any, f: any) => {
-                return {
-                    "x": EsEquipoSyscaf
-                }
-            }
-        },
-        {
-            name: 'Cliente',
-            data: [],
-            isSelected: true,
-            getData: (EsEquipoSyscaf: any, f: any) => {
-                return {
-                    "x": EsEquipoSyscaf
-                }
-            }
-        }
-    ]
+    const [MontarOBC, SetMontarOBC] = useState<boolean>(true);
+    const [MontarMX, SetMontarMX] = useState<boolean>(false);
     const defaultPriopios: any[] = [
         {
             name: 'Propios',
@@ -52,8 +32,8 @@ const UnidadesActivas: React.FC = () => {
         }
     ]
     const { Data, DataFiltrada, setDataFiltrada, Filtrado, setFiltrado, Cargando, setCargando } = useDataDashboard();
-    let preSeleccionados = defaultEventsSelected.filter(x => x.isSelected).map(x => x.name);
-    const [eventsSelected, setEventsSelected] = useState(defaultEventsSelected);
+    let preSeleccionados = defaultPriopios.filter(x => x.isSelected).map(x => x.name);
+    const [eventsSelected, setEventsSelected] = useState(defaultPriopios);
     const [value, setValue] = useState<any[]>(preSeleccionados);
 
     let AdminsUnidadesActivas: { usuarioIds: string, nombre: string }[] = [];
@@ -96,7 +76,7 @@ const UnidadesActivas: React.FC = () => {
         )
     });
     const handleChange = (value: any[]) => {
-        let aux = defaultEventsSelected.map((x: any) => {
+        let aux = defaultPriopios.map((x: any) => {
             x.isSelected = value.includes(x.name);
             return x;
         });
@@ -154,7 +134,13 @@ const UnidadesActivas: React.FC = () => {
 
 
 
-
+const FiltrarPestañas = (row:any) =>{
+    let Tab = row.target.attributes.id.value;
+    
+    setFiltrado(true);
+    console.log();
+    // setDataFiltrada
+};
 
 
 
@@ -178,11 +164,11 @@ const UnidadesActivas: React.FC = () => {
             <div className="tab-content" id="pills-tabContent">
                 <div className="tab-pane fade show active border" id={`rep_assets_lst_admon_detalle`} role="tabpanel" aria-labelledby="pills-home-tab">
                     <div className="container">
-                        <ul className="nav nav-tabs mb-3" id="pills-tab" role="tablist">
-                            <li className="nav-item" role="presentation">
+                        <ul className="nav nav-tabs mb-3" id="pills-tab"  role="tablist">
+                            <li className="nav-item" role="presentation" onClick={FiltrarPestañas}>
                                 <button className={`nav-link text-success active fw-bolder`} id="pills-propios-tab" data-bs-toggle="pill" data-bs-target={`#pill-propios`} type="button" role="tab" aria-controls="pills-propios" aria-selected="false">OBC</button>
                             </li>
-                            <li className="nav-item" role="presentation">
+                            <li className="nav-item" role="presentation"  onClick={FiltrarPestañas}>
                                 <button className={`nav-link text-success fw-bolder`} id="pills-arrendado-tab" data-bs-toggle="pill" data-bs-target={`#pill-alquilado`} type="button" role="tab" aria-controls="pills-alquilado" aria-selected="false">Mix Visión</button>
                             </li>
                         </ul>
@@ -205,19 +191,19 @@ const UnidadesActivas: React.FC = () => {
                                                 </div>
                                             </div>
                                             <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-10">
-                                                {(Data != undefined) && (<SemanasChart className={"shadow-lg"}></SemanasChart>)}
+                                                {(Data != undefined) && (MontarOBC) && (<SemanasChart className={"shadow-lg"}></SemanasChart>)}
 
                                             </div>
                                             <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-10">
-                                                {(Data != undefined) && (<VerticalChart className={"shadow-lg"}></VerticalChart>)}
+                                                {(Data != undefined) &&  (MontarOBC) && (<VerticalChart className={"shadow-lg"}></VerticalChart>)}
 
                                             </div>
                                             <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-10">
-                                                {(Data != undefined) && (<UnidadesActivasChart className={"shadow-lg"}></UnidadesActivasChart>)}
+                                                {(Data != undefined) &&  (MontarOBC) && (<UnidadesActivasChart className={"shadow-lg"}></UnidadesActivasChart>)}
 
                                             </div>
                                             <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-10">
-                                                {(Data != undefined) && (<OtrasUnidadesChart  className={"shadow-lg"} OBC={"Si"}></OtrasUnidadesChart>)}
+                                                {(Data != undefined) &&  (MontarOBC) && (<OtrasUnidadesChart  className={"shadow-lg"} OBC={"Si"}></OtrasUnidadesChart>)}
 
                                             </div>
                                         </div>
@@ -243,19 +229,19 @@ const UnidadesActivas: React.FC = () => {
                                                 </div>
                                             </div>
                                             <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-10">
-                                                {(Data != undefined) && (<SemanasChart className={"shadow-lg"}></SemanasChart>)}
+                                                {(Data != undefined) &&   (MontarMX) && (<SemanasChart className={"shadow-lg"}></SemanasChart>)}
 
                                             </div>
                                             <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-10">
-                                                {(Data != undefined) && (<VerticalChart className={"shadow-lg"}></VerticalChart>)}
+                                                {(Data != undefined) &&  (MontarMX) &&  (<VerticalChart className={"shadow-lg"}></VerticalChart>)}
 
                                             </div>
                                             <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-10">
-                                                {(Data != undefined) && (<UnidadesActivasChart className={"shadow-lg"}></UnidadesActivasChart>)}
+                                                {(Data != undefined) &&  (MontarMX) &&  (<UnidadesActivasChart className={"shadow-lg"}></UnidadesActivasChart>)}
 
                                             </div>
                                             <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-10">
-                                                {(Data != undefined) && (<OtrasUnidadesChart  OBC={"No"} className={"shadow-lg"}></OtrasUnidadesChart>)}
+                                                {(Data != undefined) &&  (MontarMX) &&  (<OtrasUnidadesChart  OBC={"No"} className={"shadow-lg"}></OtrasUnidadesChart>)}
 
                                             </div>
                                         </div>
