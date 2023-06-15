@@ -18,20 +18,22 @@ export interface FatigueContextModel {
     setalertas: (lstalertas: any[]) => void;
     iserror?: any;
     setError: (error: any) => void;
-    DataAlertas?:any;
-    setDataAlertas:(DataAlertas:any) =>void;
-    DataDetallado?:any;
-    DataDetalladoFiltrado?:any;
-    Filtrado?:any
-    setDataDetallado:(DataAlertas:any) =>void;
-    setDataDetalladoFiltrado:(DataAlertas:any) =>void;
-    setFiltrado:(Filtrado:boolean) => void;
-    tabGlobal?:string;
-    setTabGlobal:(tabGlobal:string) =>void;
-    loader?:boolean;
-    setloader:(loader:boolean) => void;
-  
- 
+    DataAlertas?: any;
+    setDataAlertas: (DataAlertas: any) => void;
+    DataDetallado?: any;
+    DataDetalladoFiltrado?: any;
+    Filtrado?: any
+    setDataDetallado: (DataAlertas: any) => void;
+    setDataDetalladoFiltrado: (DataAlertas: any) => void;
+    setFiltrado: (Filtrado: boolean) => void;
+    tabGlobal?: string;
+    setTabGlobal: (tabGlobal: string) => void;
+    loader?: boolean;
+    setloader: (loader: boolean) => void;
+    UserId?: string;
+    setUserId: (id: string) => void;
+
+
 }
 
 const FatigueContext = createContext<FatigueContextModel>({
@@ -42,10 +44,11 @@ const FatigueContext = createContext<FatigueContextModel>({
     setError: (error: any) => { },
     setDataAlertas: (DataAlertas: any) => { },
     setDataDetallado: (DataDetallado: any) => { },
-    setFiltrado:(Filtrado:boolean)  =>{},
-    setDataDetalladoFiltrado:(DataAlertas:any) =>{},
-    setTabGlobal:(tabGlobal:string) =>{},
-    setloader:(loader:boolean) => {}
+    setFiltrado: (Filtrado: boolean) => { },
+    setDataDetalladoFiltrado: (DataAlertas: any) => { },
+    setTabGlobal: (tabGlobal: string) => { },
+    setUserId: (id: string) => "",
+    setloader: (loader: boolean) => { }
 });
 
 
@@ -61,6 +64,7 @@ const FatigueProvider: React.FC = ({ children }) => {
     const [Filtrado, setFiltrado] = useState<boolean>(false);
     const [tabGlobal, setTabGlobal] = useState<string>("#tab0");
     const [loader, setloader] = useState<boolean>(false);
+    const [UserId, setUserId] = useState("");
     const value: FatigueContextModel = {
         vehiculosOperacion,
         setvehiculosOperacion,
@@ -68,23 +72,24 @@ const FatigueProvider: React.FC = ({ children }) => {
         setlistadoEventosActivos,
         ListadoVehiculoSinOperacion,
         setListadoVehiculoSinOperacion,
-        alertas, 
+        alertas,
         setalertas,
         iserror,
         setError,
-        DataAlertas, 
+        DataAlertas,
         setDataAlertas,
         DataDetallado,
         setDataDetallado,
         setDataDetalladoFiltrado,
-        DataDetalladoFiltrado, 
-        setFiltrado, 
-        Filtrado, 
-        tabGlobal, 
+        DataDetalladoFiltrado,
+        setFiltrado,
+        Filtrado,
+        tabGlobal,
         setTabGlobal,
         loader,
-        setloader
-        , iserror, setError, DataAlertas, setDataAlertas,DataDetallado,setDataDetallado
+        setloader ,UserId,
+        setUserId
+
     };
     return (
         <FatigueContext.Provider value={value}>
@@ -102,9 +107,9 @@ function useDataFatigue() {
 // segun parametrización que debe realizarse
 
 const DataVehiculoOperando: React.FC = ({ children }) => {
-    const { setvehiculosOperacion, setlistadoEventosActivos, setListadoVehiculoSinOperacion, setalertas, setError, iserror , setDataAlertas,  setDataDetallado, loader, setloader} = useDataFatigue();
-   let idinterval: number = 0;
- 
+    const { setvehiculosOperacion, setlistadoEventosActivos, setListadoVehiculoSinOperacion, setalertas, setError, iserror, setDataAlertas, setDataDetallado, loader, setloader } = useDataFatigue();
+    let idinterval: number = 0;
+
     //CONSULTA VEHICULOS OPERANDO
     let consulta = (children: string) => {
         // consultamos en la base de datos la informacion de vehiculos operando
@@ -122,20 +127,20 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
         ).catch((error) => {
             setError({ accion: "DataVehiculoOperando", error });
         });
-         //  let datetemp = moment("2023-06-06 09:19:05.990").toDate()
-         GetAlarmas(children, FechaServidor, moment(FechaServidor).add("8", "hours").toDate()).then((response:AxiosResponse<any>) =>{
+        //  let datetemp = moment("2023-06-06 09:19:05.990").toDate()
+        GetAlarmas(children, FechaServidor, moment(FechaServidor).add("8", "hours").toDate()).then((response: AxiosResponse<any>) => {
             setDataAlertas(response.data);
-        }).catch((error:any) =>{
+        }).catch((error: any) => {
             console.log("Error : ", error);
         });
-      
-        GetDetalladoEventos(children,FechaServidor ).then((response:AxiosResponse<any>) =>{
-            let Data  = new Array()
-            response.data.map((e:any) =>{
+
+        GetDetalladoEventos(children, FechaServidor).then((response: AxiosResponse<any>) => {
+            let Data = new Array()
+            response.data.map((e: any) => {
                 Data = [...Data, ...JSON.parse(e.DetalladoEventos)]
             })
             setDataDetallado(Data);
-        }).catch((error:any) =>{
+        }).catch((error: any) => {
             console.log("Error detallado de evento: ", error);
         });
 
@@ -163,8 +168,8 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
 
     }
 
-     // CONSULTA EVENTOS ACTIVOS POR MINUTO
-     let consultaAlertas = () => {
+    // CONSULTA EVENTOS ACTIVOS POR MINUTO
+    let consultaAlertas = () => {
         setloader(true);
         // consultamos en la base de datos la informacion de vehiculos operando
         getAlertas().then(
@@ -182,7 +187,7 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
     useEffect(() => {
 
         if (children) {
-        
+
             consulta(children.toString());
             consultaEventsActivos(children.toString());
             consultaAlertas();
