@@ -3,7 +3,7 @@ import moment from "moment";
 
 import {  DWH_getconsultadinamicasprocedure, DWH_GetConsultasDinamicas } from "../../../../apiurlstore";
 import { ParamsEndPointDynamic } from "../../../../_start/helpers/Models/paramsConsultasDinamicas";
-import { Post_GetConsultasDinamicas } from "../../../../_start/helpers/Axios/DWHService";
+import { Post_GetConsultasDinamicas, Post_getDynamicValueProcedureDWHTabla } from "../../../../_start/helpers/Axios/DWHService";
 
 
 
@@ -100,3 +100,21 @@ export  function getEventosActivosPorDia(props: ParamsEndPointDynamic , body: an
       params);
   };
 
+  export function GetAlarmas(clientesIds: string, FechaInicio: Date, FechaFinal: Date) {
+    var params: { [id: string]: string | null | undefined; } = {};
+    params['FechaInicial'] = moment(FechaInicio).format("YYYY-MM-DD HH:mm");
+    params['FechaFinal'] = moment(FechaFinal).format("YYYY-MM-DD HH:mm");
+    return Post_getDynamicValueProcedureDWHTabla({
+        NombreConsulta: "GetAlertasTimeLine", Clase: "FATGQueryHelper",
+        tabla: clientesIds
+    }, params);
+  }
+  
+  export function GetDetalladoEventos(clientesIds: string, FechaInicio: Date) {
+    var params: { [id: string]: string | null | undefined; } = {};
+    params['Fecha'] = moment(FechaInicio).format("YYYYMMDD");
+    return Post_getDynamicValueProcedureDWHTabla({
+        NombreConsulta: "GetDetalladosAlertas", Clase: "FATGQueryHelper",
+        tabla: clientesIds
+    }, params);
+  }

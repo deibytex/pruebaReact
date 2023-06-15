@@ -1,6 +1,5 @@
 import ApexCharts, { ApexOptions } from "apexcharts";
 import { useEffect, useState } from "react";
-import { getCSSVariableValue } from "../../../../_start/assets/ts/_utils";
 import { KTSVG, toAbsoluteUrl } from "../../../../_start/helpers";
 import { useDataFatigue } from "../core/provider";
 import { listTabs } from "../data/tabListPanelCentral";
