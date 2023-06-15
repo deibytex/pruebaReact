@@ -67,7 +67,7 @@ export default function ReporteSafety() {
                     accessorKey: 'Score',
                     header: 'Score',
                     Cell({ cell, column, row, table, }) {
-                        return (locateFormatNumberNDijitos(isNaN(row.original.Score) ? 0 : row.original.distancia ?? 0, 2))
+                        return (locateFormatNumberNDijitos(isNaN(row.original.Score) ? 0 : row.original.Score , 2))
                     },
                     muiTableBodyCellProps: ({
                         cell
@@ -283,7 +283,7 @@ export default function ReporteSafety() {
             setIsLoading(true);
             GetClientesEsomos().then((response: AxiosResponse<any>) => {
                 setClientes(response.data);
-                setClienteSeleccionado(response.data[0])
+                setClienteSeleccionado(response.data[0].clienteIdS)
                 setIsLoading(false);
             }).catch((error) => {
                 console.log(error);

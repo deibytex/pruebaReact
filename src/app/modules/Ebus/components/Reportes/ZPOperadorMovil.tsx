@@ -5,13 +5,13 @@ import moment from 'moment-timezone';
 import { useEffect, useState } from "react";
 import { Form, Modal, Button, Card } from "react-bootstrap-v5";
 import { DateRangePicker, useToaster } from "rsuite";
-import { formatFechasView, formatSimple } from "../../../../../_start/helpers/Helper"
+import { formatFechasView, locateFormatPercentNDijitos } from "../../../../../_start/helpers/Helper"
 import { AxiosResponse } from 'axios';
 import { GetReporteOperadorMovil, fncReporteOperadorMovil, listTabs } from '../../data/ReportesData';
 import { MRT_Localization_ES } from 'material-react-table/locales/es';
 import { ColumnFiltersState, PaginationState, SortingState } from '@tanstack/react-table';
 import { GetClientesEsomos } from "../../data/NivelCarga";
-import { ClienteDTO, InicioCliente } from '../../../../../_start/helpers/Models/ClienteDTO';
+import { ClienteDTO } from '../../../../../_start/helpers/Models/ClienteDTO';
 import { errorDialog } from '../../../../../_start/helpers/components/ConfirmDialog';
 import { FiltrosReportesZp } from "../../models/eBus";
 import { FormatoColombiaDDMMYYY, FormatoSerializacionYYYY_MM_DD_HHmmss } from '../../../../../_start/helpers/Constants';
@@ -20,12 +20,11 @@ import { dualList } from '../../../../../_start/helpers/Models/DualListDTO';
 import BlockUi from 'react-block-ui';
 import { DescargarExcelPersonalizado } from '../../../../../_start/helpers/components/DescargarExcel';
 import ReactApexChart from 'react-apexcharts';
-import { toAbsoluteUrl } from '../../../../../_start/helpers';
 import { Totales } from '../../models/ZpOperadorMovilModels'
-import ProgressBar from '@ramonak/react-progress-bar';
 import { DrawDynamicIconMuiMaterial } from "../../../../../_start/helpers/components/IconsMuiDynamic";
 import { Box } from "@mui/material";
-import ErrorBoundaryComponent from "../../../../../_start/helpers/components/Error";
+import { ColumnasGraficaZonaOperador, ColumnasTablas } from "../../data/ReporteZp";
+import { set } from "rsuite/esm/utils/dateUtils";
 
 export default function ZPOperadorMovil() {
     let filtrosBase: FiltrosReportesZp = {
@@ -40,36 +39,33 @@ export default function ZPOperadorMovil() {
         limitdate: 180,
         consultar: true
     }
-    moment.tz.setDefault("America/Bogota");
     // variable que contiene los filtros del sistema
     const TipoReporteBase = [
-        { reporte: "tblmovildia", tabla: "tblmovildia", filtros: { ...filtrosBase, MaxDay: 30 }, Data: [], tipo: 1 },
-        { reporte: "tbloperadordia", tabla: "tbloperadordia", filtros: { ...filtrosBase, MaxDay: 30 }, Data: [], tipo: 2 },
-        { reporte: "tbloperadorgrafica", tabla: "tbloperadorgrafica", filtros: { ...filtrosBase, MaxDay: 7 }, Data: [], tipo: 3 },
+        { reporte: "tblmovildia", tabla: "tblmovildia", tipoConsulta: "Movil", tituloFiltro : "Vehículos", filtros: { ...filtrosBase, MaxDay: 30 }, Data: [], tipo: 1 },
+        { reporte: "tbloperadordia", tabla: "tbloperadordia", tipoConsulta: "Operador", tituloFiltro : "Operadores", filtros: { ...filtrosBase, MaxDay: 30 }, Data: [], tipo: 2 },
+        { reporte: "tbloperadorgrafica", tabla: "tbloperadorgrafica", tipoConsulta: "Operador", tituloFiltro : "Operadores", filtros: { ...filtrosBase, MaxDay: 7 }, Data: [], tipo: 3 },
     ]
-    // filtros para los que son diarios, maximo 30 dias
+    moment.tz.setDefault("America/Bogota");
+
+    // filtros para los que son diarios, maximo 30 dias 
+    // vienen del archivo data/reportezp
     TipoReporteBase[1].filtros.FechaInicial = moment().startOf('day').startOf('day').add(-5, 'days').toDate();
     TipoReporteBase[1].filtros.FechaFinal = moment().startOf('day').toDate();
     TipoReporteBase[1].filtros.limitdate = 30;
     const [TipoReporte, setTipoReporte] = useState(TipoReporteBase);
     const [idxSeleccionado, setidxSeleccionado] = useState<number>(-2);
+    const [columnasTabla, setColumnasTablas] = useState<any[]>([]);
     const [loader, setloader] = useState<boolean>(false);
     const [tabSel, settabSel] = useState<number>(0);
     const [opciones, setOpciones] = useState<any>(null);
     const [OpcionesAcumulado, setAcumulado] = useState<any>(null);
     const [DateTableMovil, setDateTableMovil] = useState<any[]>([]);
-    const [DateTableOperador, setDateTableOperador] = useState<any[]>([]);
     const [isCallData, setisCallData] = useState<boolean>(false); // permite validar 
-    const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente);
+    const [ClienteSeleccionado, setClienteSeleccionado] = useState<number>(0);
     const [Clientes, setClientes] = useState<ClienteDTO[]>([]);
-    const [lablesAxisx, setlablesAxisx] = useState<string[]>([]);
     const [showModal, setShowModal] = useState<boolean>(false);
-    const [showModalOperadores, setShowModalOperadores] = useState<boolean>(false);
     const [lstVehiculos, setlstVehiculos] = useState<dualList[]>([]);
-    const [lstOperadores, setlstOperadores] = useState<dualList[]>([]);
     const [lstSeleccionados, setSeleccionados] = useState<string[]>([]);
-    const [lstSeleccionadosOperadores, setSeleccionadosOperadores] = useState<string[]>([]);
-    const [lstSeleccionadosOperadoresTab3, setSeleccionadosOperadoresTab3] = useState<string[]>([]);
     //para las fechas
     const { allowedMaxDays, allowedRange, combine } = DateRangePicker;
 
@@ -78,7 +74,6 @@ export default function ZPOperadorMovil() {
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
     const [globalFilter, setGlobalFilter] = useState('');
     const [sorting, setSorting] = useState<SortingState>([]);
-    const [sortingC, setSortingC] = useState<SortingState>([]);
     const [sortingG, setSortingG] = useState<SortingState>([]);
     const [sortingf, setSortingf] = useState<SortingState>([]);
     const [pagination, setPagination] = useState<PaginationState>({
@@ -86,19 +81,17 @@ export default function ZPOperadorMovil() {
         pageSize: 10,
     });
     const [rowCountMovil, setRowCountMovil] = useState(0);
-    const [rowCountOperador, setRowCountOperador] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [isRefetching, setIsRefetching] = useState(false);
     const [isError, setIsError] = useState(false);
     //TABLES
-    const toaster = useToaster();
     const [Totales, setTotales] = useState<Totales[]>([]);
     const [TotalesV5, setTotalesV5] = useState<Totales[]>([]);
     useEffect(
         () => {
             GetClientesEsomos().then((response: AxiosResponse<any>) => {
                 setClientes(response.data);
-                setClienteSeleccionado(response.data[0])
+                setClienteSeleccionado(response.data[0].clienteIdS)
 
             }).catch((error) => {
                 console.log(error);
@@ -111,7 +104,7 @@ export default function ZPOperadorMovil() {
     useEffect(() => {
         // consulta la informacion de las alarmas cuando 
         // cambia el ciente seleecionado y las fechas 
-        if (ClienteSeleccionado.clienteIdS != 0)
+        if (ClienteSeleccionado != 0)
             Consultar(tabSel);
 
         // WARNING --  HAY QUE TENER PRESENTE QUE LOS USESTATE
@@ -135,12 +128,33 @@ export default function ZPOperadorMovil() {
                 },
                 xaxis: {
                     categories: [],
+                }, yaxis: {
+                    showAlways: true,
+                    max:1,
+                    // seriesName: 'Energía [kWh]',
+                    labels: {
+                        formatter: function (val: number, index: any) {
+                            return locateFormatPercentNDijitos(val, 2)
+                        }
+                    }
+
+                },
+                dataLabels: {
+                    enabled: true,
+                    enabledOnSeries: true,
+                    style: {
+                        colors: ['#424249']
+                    },
+                    formatter: function (value: any, { seriesIndex, dataPointIndex, w }: any) {
+
+                        return locateFormatPercentNDijitos(value, 2)
+                    },
+
+
                 }
             },
-            series: [],
-            dataLabels: {
-                enabled: true
-            }
+            series: []
+
         }
         let defaultopcionesAcumulado = {
             options: {
@@ -150,12 +164,31 @@ export default function ZPOperadorMovil() {
                 },
                 xaxis: {
                     categories: [],
+                }, yaxis: {
+                    showAlways: true,
+                     
+                    // seriesName: 'Energía [kWh]',
+                    labels: {
+                        formatter: function (val: number, index: any) {
+                            return locateFormatPercentNDijitos(val, 2)
+                        }
+                    }
+
+                },
+                dataLabels: {
+                    enabled: true,
+                    enabledOnSeries: true,
+                    style: {
+                        colors: ['#424249']
+                    },
+                    formatter: function (value: any, { seriesIndex, dataPointIndex, w }: any) {
+
+                        return locateFormatPercentNDijitos(value, 2)
+                    },
+
                 }
             },
-            series: [],
-            dataLabels: {
-                enabled: true
-            }
+            series: []
         }
 
         // asingamos las opciones
@@ -163,9 +196,23 @@ export default function ZPOperadorMovil() {
         setAcumulado(defaultopcionesAcumulado);
         return function cleanUp() {
             //SE DEBE DESTRUIR EL OBJETO CHART
+            setTipoReporte(TipoReporte);
+            setDateTableMovil([]);
         };
 
-    }, [ClienteSeleccionado, tabSel]);
+    }, [ClienteSeleccionado]);
+
+    useEffect(() => {
+        // consulta la informacion de las alarmas cuando 
+        // cambia el ciente seleecionado y las fechas 
+        if (ClienteSeleccionado != 0)
+            Consultar(tabSel);
+
+        return function cleanUp() {
+            //SE DEBE DESTRUIR EL OBJETO CHART
+        };
+
+    }, [tabSel, TipoReporte]);
 
     const Consultar = (Tab: any) => {
         if (TipoReporte[Tab].filtros.consultar == true || isCallData) {
@@ -174,221 +221,30 @@ export default function ZPOperadorMovil() {
         else
             filtarDatosSistema(Tab);
     }
-    let ColumnasGraficaZonaOperador: MRT_ColumnDef<Totales>[] = [{
-        accessorKey: 'Operador',
-        header: 'Operador',
-        Header: ({ column, header, table }) => {
-            return "";
-        },
-        Cell: ({ cell, column, row, table }) => {
-            return <span className="fw-bolder" style={{ fontSize: '10px' }}>{row.original.Operador}</span>
-        },
-        size: 200,
-        maxSize: 200,
-        minSize: 200,
-    }, {
-        accessorKey: 'Total',
-        header: 'Total',
-        Header: ({ column, header, table }) => {
-            return "";
-        },
-        size: 150,
-        maxSize: 150,
-        minSize: 150,
-        Cell: ({ cell, column, row, table }) => {
-            let Total = (row.original.Total == null ? 0 : row.original.Total)
-            return <span title={`${row.original.Completo?.toString()} : ${Total}`}>
-                <ProgressBar
-                    className='text-center fw-bolder'
-                    baseBgColor='transparent'
-                    bgColor={`${(row.original.Id == "4.Pot 150<P<175" ? '#ebba09' : '#F44336')}`}
-                    labelSize={`10px`}
-                    width='200px'
-                    customLabel={`${Total} %`}
-                    completed={`${(Number(Total) * 100 + 50)}`}
-                    maxCompleted={500}>
-                </ProgressBar>
-            </span>
-        }
-    }];
 
-    let ColumnasTablas: any[] = [{
-        "movil": [
-            {
-                accessorKey: 'Movil',
-                header: 'Movil',
-                Header: 'Móvil',
-                Cell(row: any) {
-                    return (row.row.original.Movil)
-                },
-                size: 400
-            },
-            {
-                accessorKey: 'Fecha',
-                header: 'Fecha',
-                Header: 'Fecha',
-                Cell(row: any) {
-                    return (moment(row.row.original.Fecha).format("DD/MM/YYYY"))
-                }
-            },
-            {
-                accessorKey: 'EV0Regeneracion0P',
-                header: '0. Reg 0<P %',
-                Header: '0. Reg 0<P',
-                Cell(row: any) {
-                    return (RetornarLabel(`${(row.row.original.EV0Regeneracion0P != 0 ? row.row.original.EV0Regeneracion0P / row.row.original.Total * 100 : 0).toFixed(2).toString().replace(".", ",")}%`))
-                }
-            },
-            {
-                accessorKey: 'EV1Potencia0P50',
-                header: '1.Pot 0<P<50 %',
-                Header: "1.Pot 0<P<50",
-                Cell(row: any) {
-                    return (RetornarLabel(`${(row.row.original.EV1Potencia0P50 != 0 ? row.row.original.EV1Potencia0P50 / row.row.original.Total * 100 : 0).toFixed(2).toString().replace(".", ",")}%`))
-                }
-            },
-            {
-                accessorKey: 'EV2Potencia50P100',
-                header: '2.Pot 50<P<100 %',
-                Header: '2.Pot 50<P<100',
-                Cell(row: any) {
-                    return (RetornarLabel(`${(row.row.original.EV2Potencia50P100 != 0 ? row.row.original.EV2Potencia50P100 / row.row.original.Total * 100 : 0).toFixed(2).toString().replace(".", ",")}%`))
-                }
-            },
-            {
-                accessorKey: 'EV3Potencia100P150',
-                header: '3.Pot 100<P<150 %',
-                Header: "3.Pot 100<P<150",
-                Cell(row: any) {
-                    return (RetornarLabel(`${(row.row.original.EV3Potencia100P150 != 0 ? row.row.original.EV3Potencia100P150 / row.row.original.Total * 100 : 0).toFixed(2).toString().replace(".", ",")}%`))
-                }
-            },
-            {
-                accessorKey: 'EV4Potencia150P175',
-                header: '4.Pot 150<P<175 %',
-                Header: "4.Pot 150<P<175",
-                Cell(row: any) {
-                    return (RetornarLabel(`${(row.row.original.EV4Potencia150P175 != 0 ? row.row.original.EV4Potencia150P175 / row.row.original.Total * 100 : 0).toFixed(2).toString().replace(".", ",")}%`))
-                }
-            },
-            {
-                accessorKey: 'EV5Potencia175',
-                header: '5.Pot P>175 %',
-                Header: "5.Pot P>175",
-                Cell(row: any) {
-                    return (RetornarLabel(`${(row.row.original.EV5Potencia175 != 0 ? row.row.original.EV5Potencia175 / row.row.original.Total * 100 : 0).toFixed(2).toString().replace(".", ",")}%`))
-                }
-            }]
-    }, {
-        "operador": [
-            {
-                accessorKey: 'Operador',
-                header: 'Operador',
-                Header: 'Operador',
-                Cell(row: any) {
-                    return (row.row.original.Operador)
-                },
-                size: 400
-            },
-            {
-                accessorKey: 'Fecha',
-                header: 'Fecha',
-                Header: "Fecha",
-                Cell(row: any) {
-                    return (moment(row.row.original.Fecha).format("DD/MM/YYYY"))
-                }
-            },
-            {
-                accessorKey: 'EV0Regeneracion0P',
-                header: '0. Reg 0<P %',
-                Header: "0. Reg 0<P",
-                Cell(row: any) {
-                    return (RetornarLabel(`${(row.row.original.EV0Regeneracion0P != 0 ? row.row.original.EV0Regeneracion0P / row.row.original.Total * 100 : 0).toFixed(2).toString().replace(".", ",")}%`))
-                }
-            },
-            {
-                accessorKey: 'EV1Potencia0P50',
-                header: '1.Pot 0<P<50 %',
-                Header: "1.Pot 0<P<50",
-                Cell(row: any) {
-                    return (RetornarLabel(`${(row.row.original.EV1Potencia0P50 != 0 ? row.row.original.EV1Potencia0P50 / row.row.original.Total * 100 : 0).toFixed(2).toString().replace(".", ",")}%`))
-                }
-            },
-            {
-                accessorKey: 'EV2Potencia50P100',
-                header: '2.Pot 50<P<100 %',
-                Header: "2.Pot 50<P<100",
-                Cell(row: any) {
-                    return (RetornarLabel(`${(row.row.original.EV2Potencia50P100 != 0 ? row.row.original.EV2Potencia50P100 / row.row.original.Total * 100 : 0).toFixed(2).toString().replace(".", ",")}%`))
-                }
-            },
-            {
-                accessorKey: 'EV3Potencia100P150',
-                header: '3.Pot 100<P<150 %',
-                Header: "3.Pot 100<P<150",
-                Cell(row: any) {
-                    return (RetornarLabel(`${(row.row.original.EV3Potencia100P150 != 0 ? row.row.original.EV3Potencia100P150 / row.row.original.Total * 100 : 0).toFixed(2).toString().replace(".", ",")}%`))
-                }
-            },
-            {
-                accessorKey: 'EV4Potencia150P175',
-                header: '4.Pot 150<P<175 %',
-                Header: "4.Pot 150<P<175",
-                Cell(row: any) {
-                    return (RetornarLabel(`${(row.row.original.EV4Potencia150P175 != 0 ? row.row.original.EV4Potencia150P175 / row.row.original.Total * 100 : 0).toFixed(2).toString().replace(".", ",")}%`))
-                }
-            },
-            {
-                accessorKey: 'EV5Potencia175',
-                header: '5.Pot P>175 %',
-                Header: "5.Pot P>175",
-                Cell(row: any) {
-                    return (RetornarLabel(`${(row.row.original.EV5Potencia175 != 0 ? row.row.original.EV5Potencia175 / row.row.original.Total * 100 : 0).toFixed(2).toString().replace(".", ",")}%`))
-                }
-            }
-        ]
-    }];
-    const RetornarLabel = (Data: any) => {
-        return <span >{Data}</span>;
-    };
     function ObtenerDatos(key: any | null | undefined) {
         setIsError(false)
         setIsLoading(true)
         setIsRefetching(true)
         setloader(true)
         let Tab = (key == null || key == undefined ? "0" : key.toString());
+        let keyAgrupadorReporte = TipoReporte[key].tipoConsulta;
         GetReporteOperadorMovil(moment(TipoReporte[key].filtros.FechaInicial).format(FormatoSerializacionYYYY_MM_DD_HHmmss)
-            , moment(TipoReporte[key].filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss), Tab).then((response: AxiosResponse<any>) => {
+            , moment(TipoReporte[key].filtros.FechaFinal).format(FormatoSerializacionYYYY_MM_DD_HHmmss), keyAgrupadorReporte, ClienteSeleccionado).then((response: AxiosResponse<any>) => {
                 let Tiporeporte = [...TipoReporte];
                 Tiporeporte[Tab].Data = response.data;
                 setTipoReporte(Tiporeporte);
-                switch (Number(key)) {
-                    case 1:
-                    case 2:
-                        //Vamos a llenar la informacion de conductores 
-                        let lstoperadores = (response.data as any[]).reduce((p, c) => {
-                            let operador = c["Operador"];
-                            let isExists = p.filter((f: any) => f["value"] === operador);
-                            if (isExists.length == 0)
-                                p.push({ "value": operador, "label": operador })
-                            return p;
-                        }, []);
-                        //listado de operadores que trajimos
-                        setlstOperadores(lstoperadores)
-                        break;
-                    default:
-                        // vamos a llenar la informacion de los movils
-                        let lstVehiculos = (response.data as any[]).reduce((p, c) => {
-                            let movil = c["Movil"];
-                            let isExists = p.filter((f: any) => f["value"] === movil);
-                            if (isExists.length == 0)
-                                p.push({ "value": movil, "label": movil })
-                            return p;
-                        }, []);
-                        // listados de vehiculos de los datos que traemos
-                        setlstVehiculos(lstVehiculos);
-                        break;
-                }
+
+                let lstdataFiltroReporte = (response.data as any[]).reduce((p, c) => {
+                    let operador = c[keyAgrupadorReporte]; // usamos el key con el que consultamos para poder extraer la informacion de la consulta dinamica
+                    let isExists = p.filter((f: any) => f["value"] === operador);
+                    if (isExists.length == 0)
+                        p.push({ "value": operador, "label": operador })
+                    return p;
+                }, []);
+
+                setlstVehiculos(lstdataFiltroReporte);// seteamos un solo valor ya que se dinamiza la informacion 
+
                 // setModales();
                 filtarDatosSistema(Tab);
                 setIsLoading(false)
@@ -398,7 +254,6 @@ export default function ZPOperadorMovil() {
 
                 setloader(false)
             }).catch((error) => {
-                console.log("Error");
                 setIsError(true);
                 setloader(false);
                 setIsLoading(false)
@@ -440,6 +295,7 @@ export default function ZPOperadorMovil() {
     const filtarDatosSistema = (key: any | null | undefined) => {
         setloader(true)
         let Tab = parseInt(key);
+        let keyAgrupadorReporte = TipoReporte[key].tipoConsulta;
         const tabla = TipoReporte[Tab].tabla;
         let filtros = TipoReporte[Tab].filtros;
         let fechaGraficaActual = filtros.FechaGrafica;
@@ -453,17 +309,12 @@ export default function ZPOperadorMovil() {
         }
         // filtramos por las fechas
         datosfiltrados = datosfiltrados.
-                filter((f: any) => moment(f.Fecha).toDate() >= FechaInicial && moment(f.Fecha).toDate() <= FechaFinal);
+            filter((f: any) => moment(f.Fecha).toDate() >= FechaInicial && moment(f.Fecha).toDate() <= FechaFinal);
         // filtramos por los vehivulos
         if (filtros.Vehiculos.length > 0) {
-            datosfiltrados = datosfiltrados.filter((f: any) => filtros.Vehiculos.indexOf(f.Movil) > -1);
+            datosfiltrados = datosfiltrados.filter((f: any) => filtros.Vehiculos.indexOf(f[keyAgrupadorReporte]) > -1); // filtra segun tipo cpnsulta
+            // si es Operador o Movil en la cofiguracion inicial
         }
-        // filtra por operadores a los reportes que se necesiten
-        if (filtros.Operadores != null && filtros.Operadores.length > 0) {
-            datosfiltrados = datosfiltrados.filter(function (o) {
-                return (filtros.Operadores != null) ? filtros.Operadores.indexOf(o['Operador']) > -1 : [];
-            });
-        };
         // para la grafica filtra por el rango total
         // agrupamos los datos para la grafica
         let agrupadofecha = datosfiltrados
@@ -474,178 +325,157 @@ export default function ZPOperadorMovil() {
                 return p;
             }, {});
 
-
         //Agrupamos por operador
         let agrupadoOperador: any[] = [];
-        if (Tab == 1 || Tab == 2){
+        if (Tab == 1 || Tab == 2) {
             agrupadoOperador = datosfiltrados
-            .reduce((p: any, c: any) => {
-                let name = c.Operador;
-                p[name] = p[name] ?? [];
-                p[name].push(c);
-                return p;
-            }, {});
-           
+                .reduce((p: any, c: any) => {
+                    let name = c.Operador;
+                    p[name] = p[name] ?? [];
+                    p[name].push(c);
+                    return p;
+                }, {});
+
         }
-           
+
+        // sacamos la informacion de los campos que vamos a mostrar en la grafica principal
+
+        // retorna los campos que vamos a utilizar para imprimir la informacion Ej
+        // {
+        //     "Movil": "Z66-7001",
+        //     "Fecha": "2023-06-04T00:00:00",
+        //     "EV0Regeneracion0P": 28,
+        //     "EV1Potencia0P50": 11565,
+        //     "EV2Potencia50P100": 2,
+        //     "EV3Potencia100P150": 0,
+        //     "EV4Potencia150P175": 0,
+        //     "EV5Potencia175": 0,
+        //     "Total": 11595
+        // }
+        // Devuelve  ["Movil","Fecha","EV0Regeneracion0P","EV1Potencia0P50","EV2Potencia50P100","EV3Potencia100P150","EV4Potencia150P175","EV5Potencia175","Total"]
+        const listadoCampos = Object.entries(datosfiltrados[0]).map(
+            m => {
+                const result: any[] = [];
+                const result1: any[] = [];
+                return { "Campo": m[0], "Data": 0, "TotalFecha": result, "DetalladoOperador": result1 }
+            }
+        )
+
+        // debe existir el listado de campos para poder mostrar informacion dinamicamente
         let labels = new Array();
-        let labelsConductores = new Array();
-        // agrupa los elementos para ser mostrado por la grafica
-        let Ev0 = new Array();
-        let Ev1 = new Array();
-        let Ev2 = new Array();
-        let Ev3 = new Array();
-        let Ev4 = new Array();
-        let Ev5 = new Array();
-        let PorEV0Regeneracion0P = 0;
-        let PorEV1Potencia0P50 = 0;
-        let PorEV2Potencia50P100 = 0;
-        let PorEV3Potencia100P150 = 0;
-        let PorEV4Potencia150P175 = 0;
-        let PorEV5Potencia175 = 0;
+        if (listadoCampos.length > 0) {
+            // setListadoCampos(listadoCampos)
 
-        //Agrupados
-        let Ev0Agrupado = new Array();
-        let Ev1Agrupado = new Array();
-        let Ev2Agrupado = new Array();
-        let Ev3Agrupado = new Array();
-        let Ev4Agrupado = new Array();
-        let Ev5Agrupado = new Array();
-        //Agrupados
-        let PorEV0Agrupado = 0;
-        let PorEV1Agrupado = 0;
-        let PorEV2Agrupado = 0;
-        let PorEV3Agrupado = 0;
-        let PorEV4Agrupado = 0;
-        let PorEV5Agrupado = 0;
-
-
-        let LabelPeriodo = ["Periodo"];
-        if (Tab < 2) {
+            // grafica totalizada
             datosfiltrados.map((item: any) => {
-                PorEV0Agrupado = PorEV0Agrupado + item.EV0Regeneracion0P;
-                PorEV1Agrupado = PorEV1Agrupado + item.EV1Potencia0P50;
-                PorEV2Agrupado = PorEV2Agrupado + item.EV2Potencia50P100;
-                PorEV3Agrupado = PorEV3Agrupado + item.EV3Potencia100P150;
-                PorEV4Agrupado = PorEV4Agrupado + item.EV4Potencia150P175;
-                PorEV5Agrupado = PorEV5Agrupado + item.EV5Potencia175;
+                // realizamos la sumatoria total de los campos para graficar    
+                listadoCampos.forEach(f => {
+                    if (!isNaN(item[f.Campo])) // validamos que sea un numero para que totalize la informacion
+                        f.Data = f.Data + item[f.Campo]
+                });
             });
-
+            // datos para las graficas agrupadas por fecha 
             Object.entries(agrupadofecha).map((elem: any) => {
                 labels.push(moment(elem[0]).format(formatFechasView));
-                // totalizamos por propiedad que se necesite
-                // totalizamos por propiedad que se necesite
-                let EV0Regeneracion0P = (elem[1].map((m: any) => { return m.EV0Regeneracion0P }).reduce((a: any, b: any) => a + b, 0));
-                let EV1Potencia0P50 = (elem[1].map((m: any) => { return m.EV1Potencia0P50 }).reduce((a: any, b: any) => a + b, 0));
-                let EV2Potencia50P100 = (elem[1].map((m: any) => { return m.EV2Potencia50P100 }).reduce((a: any, b: any) => a + b, 0));
-                let EV3Potencia100P150 = (elem[1].map((m: any) => { return m.EV3Potencia100P150 }).reduce((a: any, b: any) => a + b, 0));
-                let EV4Potencia150P175 = (elem[1].map((m: any) => { return m.EV4Potencia150P175 }).reduce((a: any, b: any) => a + b, 0));
-                let EV5Potencia175 = (elem[1].map((m: any) => { return m.EV5Potencia175 }).reduce((a: any, b: any) => a + b, 0));
+
                 let EVTotal = (
                     elem[1].map((m: any) => {
                         return (m.Total)
                     }).reduce((a: any, b: any) => a + b, 0));
-                PorEV0Regeneracion0P = (EV0Regeneracion0P / EVTotal * 100)
-                PorEV1Potencia0P50 = (EV1Potencia0P50 / EVTotal * 100)
-                PorEV2Potencia50P100 = (EV2Potencia50P100 / EVTotal * 100)
-                PorEV3Potencia100P150 = (EV3Potencia100P150 / EVTotal * 100)
-                PorEV4Potencia150P175 = (EV4Potencia150P175 / EVTotal * 100)
-                PorEV5Potencia175 = (EV5Potencia175 / EVTotal * 100)
-                // sumamos los indicadores por fecha 
-                Ev0.push(PorEV0Regeneracion0P.toFixed(1));
-                Ev1.push(PorEV1Potencia0P50.toFixed(1));
-                Ev2.push(PorEV2Potencia50P100.toFixed(1));
-                Ev3.push(PorEV3Potencia100P150.toFixed(1));
-                Ev4.push(PorEV4Potencia150P175.toFixed(1));
-                Ev5.push(PorEV5Potencia175.toFixed(1));
-            });
-            //para sacar el total de los valores del agrupado.
-            let TotalAgrupado = PorEV0Agrupado + PorEV1Agrupado + PorEV2Agrupado + PorEV3Agrupado + PorEV4Agrupado + PorEV5Agrupado;
-            //Agrego lo valores agrupados a los array
-            Ev0Agrupado.push((PorEV0Agrupado / TotalAgrupado * 100).toFixed(1));
-            Ev1Agrupado.push((PorEV1Agrupado / TotalAgrupado * 100).toFixed(1));
-            Ev2Agrupado.push((PorEV2Agrupado / TotalAgrupado * 100).toFixed(1));
-            Ev3Agrupado.push((PorEV3Agrupado / TotalAgrupado * 100).toFixed(1));
-            Ev4Agrupado.push((PorEV4Agrupado / TotalAgrupado * 100).toFixed(1));
-            Ev5Agrupado.push((PorEV5Agrupado / TotalAgrupado * 100).toFixed(1));
-            //Fin agrupado
-            setlablesAxisx(labels)
-        }
-        let totalesV5 = 0;
-        let totales = 0;
-        let EV;
-        let EV5;
-        if (tabla == "tbloperadorgrafica") {
-            let TotalTemp: any[] = [];
-            let TotalesV5Temp: any[] = [];
-            Object.entries(agrupadoOperador).map((elem) => {
-                EV5 = (elem[1].map((m: any) => {
-                    return (m.Descripcion == "EV: 5. Potencia >175" ? m.Total : 0)
-                }).reduce((a: any, b: any) => a + b, 0));
-                EV = (elem[1].map((m: any) => {
-                    return (m.Descripcion == "EV: 4. Potencia 150<P<175" ? m.Total : 0)
-                }).reduce((a: any, b: any) => a + b, 0));
-                totalesV5 = totalesV5 + EV5;
-                totales = totales + EV;
-            });
 
-            Object.entries(agrupadoOperador).map((elem: any) => {
-                let TotalesConductor = 0;
-                let TotalesConductorV5 = 0;
-                elem[1].map((m: any) => {
-                    if (m.Descripcion == "EV: 4. Potencia 150<P<175") {
-                        TotalesConductor = TotalesConductor + m.Total;
-                    } else if (m.Descripcion == "EV: 5. Potencia >175") {
-                        TotalesConductorV5 = TotalesConductorV5 + m.Total;
+                listadoCampos.forEach(f => {
+                    if (f.Data > 0) // validamos que sea un numero para que totalize la informacion
+                    {
+                        const totalPorFecha: number = (elem[1].map((m: any) => { return m[f.Campo] }).reduce((a: any, b: any) => a + b, 0));
+                        f.TotalFecha.push((totalPorFecha / EVTotal ));
                     }
-
-                });
-                TotalTemp.push({
-                    Id: "4.Pot 150<P<175",
-                    Completo: elem[0],
-                    Operador: (elem[0] != undefined ? `${elem[0].substring(0, 25)}..` : ""), Total: Number((TotalesConductor / totales * 100).toFixed(2))
-                });
-                TotalesV5Temp.push({
-                    Id: "5.Pot P>175",
-                    Completo: elem[0],
-                    Operador: (elem[0] != undefined ? `${elem[0].substring(0, 25)}..` : ""), Total: Number((TotalesConductorV5 / totalesV5 * 100).toFixed(2))
                 });
             });
 
-            setTotales(TotalTemp.sort((a: any, b: any) => {
-                return b.Total - a.Total
-            }));
-            setTotalesV5(TotalesV5Temp.sort((a: any, b: any) => {
-                return b.Total - a.Total
-            }));
-            //Esto es para la grafica uso datos ya previamente consultados
-            //aplico filtros y hago los calculos
 
-            let datos = (TipoReporte[1].Data.length == 0 ? TipoReporte[0].Data : TipoReporte[1].Data)
-            // filtra por operadores a los reportes que se necesiten
-            if (filtros.Operadores != null && filtros.Operadores.length > 0) {
-                datos = datos.filter(function (o) {
-                    return (filtros.Operadores != null) ? filtros.Operadores.indexOf(o['Operador']) > -1 : [];
+            if (tabla == "tbloperadorgrafica") {
+                let agrupadoOperador = datosfiltrados
+                    .reduce((p: any, c: any) => {
+                        let name = c.Operador;
+                        p[name] = p[name] ?? [];
+                        p[name].push(c);
+                        return p;
+                    }, {});
+
+                  
+                Object.entries(agrupadoOperador).map((elem: any) => {
+
+                    let EVTotal = (
+                        elem[1].map((m: any) => {
+                            return (m.Total)
+                        }).reduce((a: any, b: any) => a + b, 0));
+
+                    listadoCampos.forEach(f => {
+                        if (f.Data > 0) // validamos que sea un numero para que totalize la informacion
+                        {
+                            const totalPorFecha: number = (elem[1].map((m: any) => { return m[f.Campo] }).reduce((a: any, b: any) => a + b, 0));
+                            f.DetalladoOperador.push({ Id:f.Campo,  Operador: elem[0], Total: (totalPorFecha / EVTotal ) });
+                        }
+                    });      
                 });
-            };
-            datos.map((item: any) => {
-                PorEV0Agrupado = PorEV0Agrupado + item.EV0Regeneracion0P;
-                PorEV1Agrupado = PorEV1Agrupado + item.EV1Potencia0P50;
-                PorEV2Agrupado = PorEV2Agrupado + item.EV2Potencia50P100;
-                PorEV3Agrupado = PorEV3Agrupado + item.EV3Potencia100P150;
-                PorEV4Agrupado = PorEV4Agrupado + item.EV4Potencia150P175;
-                PorEV5Agrupado = PorEV5Agrupado + item.EV5Potencia175;
-            });
-            let TotalAgrupado = PorEV0Agrupado + PorEV1Agrupado + PorEV2Agrupado + PorEV3Agrupado + PorEV4Agrupado + PorEV5Agrupado;
-            //Agrego lo valores agrupados a los array
-            Ev0Agrupado.push((PorEV0Agrupado / TotalAgrupado * 100).toFixed(1));
-            Ev1Agrupado.push((PorEV1Agrupado / TotalAgrupado * 100).toFixed(1));
-            Ev2Agrupado.push((PorEV2Agrupado / TotalAgrupado * 100).toFixed(1));
-            Ev3Agrupado.push((PorEV3Agrupado / TotalAgrupado * 100).toFixed(1));
-            Ev4Agrupado.push((PorEV4Agrupado / TotalAgrupado * 100).toFixed(1));
-            Ev5Agrupado.push((PorEV5Agrupado / TotalAgrupado * 100).toFixed(1));
+                setTotales(listadoCampos[6].DetalladoOperador.sort((a: any, b: any) => {
+                    return b.Total - a.Total
+                }));
+                setTotalesV5(listadoCampos[7].DetalladoOperador.sort((a: any, b: any) => {
+                    return b.Total - a.Total
+                }));
+            }
+
         }
 
+        // escogemos la información consolidada de las graficas para armar los campos que necesitamos para poder armar las columnas
+        // 
+        let ColumnasTablas: MRT_ColumnDef<any>[] = []; // variable que va a contener dinamicamente los campos en el orden que llegan al sistema
+        listadoCampos.forEach((e) => {
+
+            // si el campo es fecha 
+            if (e.Campo == "Fecha")
+                ColumnasTablas.push({
+                    accessorKey: e.Campo,
+                    header: e.Campo,
+                    Cell({ cell, column, row, table, }) {
+                        return (moment(row.original[e.Campo]).format("DD/MM/YYYY"))
+                    }
+                })
+            else {
+                // si el campo tiene como propiedad Data mayor a 0 quiere decir que es un numero con totalizador
+                if (e.Data > 0 && e.Campo != "Total")
+                    ColumnasTablas.push({
+                        accessorKey: e.Campo,
+                        header: e.Campo,
+                        Cell({ cell, column, row, table, }) {
+                            return locateFormatPercentNDijitos(
+                                row.original[e.Campo] / row.original["Total"], 2);
+                        }
+                    })
+                else // cualquier otro campo se trata como texto no tiene tratamiento
+                    if (e.Campo != "Total")
+                        ColumnasTablas.push({
+                            accessorKey: e.Campo,
+                            header: e.Campo,
+
+                        })
+            }
+
+        })
+
+        setColumnasTablas(ColumnasTablas); // seteamos los campos de las tablas
+        setSorting([]); // seteamos el ordenamiento para que no se reviente la aplicacion
+        setPagination({
+            pageIndex: 0,
+            pageSize: 10,
+        });
+        setGlobalFilter('');
+        setColumnFilters([]);
+
+        setDateTableMovil(datosfiltrados);
+        setRowCountMovil(datosfiltrados.length);
+        // fin de resetear los datos de las tablas
         ApexCharts.exec('apexchart-example', 'updateOptions', {
             chart: {
                 fill: {
@@ -685,7 +515,7 @@ export default function ZPOperadorMovil() {
                 }
             },
             xaxis: {
-                categories: LabelPeriodo
+                categories: ["Periodo"]
             },
             colors: ['#118DFF', '#00B050', '#92D050', '#CCED63', '#FFC000', '#FF0000']
 
@@ -694,75 +524,38 @@ export default function ZPOperadorMovil() {
         // funcion que actualiza los datos de las series
         // se debe pasar el id configurado al momento de su creaci'on para poder
         // actializar los datos
-        ApexCharts.exec('apexchart-example', 'updateSeries', [{
-            name: '0. Reg 0&lt;P',
-            data: Ev0
-        }, {
-            name: '1.Pot 0&lt;P&lt;50',
-            data: Ev1
-        }, {
-            name: '2.Pot 50&lt;P&lt;100',
-            data: Ev2
-        }, {
-            name: '3.Pot 100&lt;P&lt;150',
-            data: Ev3
-        }, {
-            name: '4.Pot 150&lt;P&lt;175',
-            data: Ev4
-        }, {
-            name: '5.Pot P>175',
-            data: Ev5
-        }]);
+        const total = listadoCampos.pop(); // obtenemos el ultio elemento y lo eliminamos del array para poder calcular los porcentajes de las graficas
+        const totalt = (total) ? total.Data : 0;
+        ApexCharts.exec('apexchart-example', 'updateSeries', listadoCampos.filter(f => f.Data > 0).map(
+            m => {
+                return { "name": m.Campo, "data": m.TotalFecha }
+            }
+        ));
         //Agrupado
-        ApexCharts.exec('apexchart-acumulado', 'updateSeries', [{
-            name: '0. Reg 0&lt;P',
-            data: Ev0Agrupado
-        }, {
-            name: '1.Pot 0&lt;P&lt;50',
-            data: Ev1Agrupado
-        }, {
-            name: '2.Pot 50&lt;P&lt;100',
-            data: Ev2Agrupado
-        }, {
-            name: '3.Pot 100&lt;P&lt;150',
-            data: Ev3Agrupado
-        }, {
-            name: '4.Pot 150&lt;P&lt;175',
-            data: Ev4Agrupado
-        }, {
-            name: '5.Pot P>175',
-            data: Ev5Agrupado
-        }]);
-        if(Tab == 0){
-            setDateTableMovil(datosfiltrados);
-            setRowCountMovil(datosfiltrados.length);
-        }else if(Tab == 1){
-            setDateTableOperador(datosfiltrados);
-            setRowCountOperador(datosfiltrados.length);
-        }
+        ApexCharts.exec('apexchart-acumulado', 'updateSeries', listadoCampos.filter(f => f.Data > 0).map(
+            m => {
+                return { "name": m.Campo, "data": [m.Data / totalt ] }
+            }
+        ));
+
         setloader(false)
     };
     const OnClickTabs = (Tab: number) => {
-        // setidxSeleccionado(-1);
+
         let data = TipoReporte[Tab].Data
-        if (TipoReporte[Tab].filtros.consultar == true) {
-            settabSel(Tab);
-            // Consultar(Tab);
-        } else {
-            settabSel(Tab);
+        settabSel(Tab);
+        setSeleccionados([])
+        if (!TipoReporte[Tab].filtros.consultar) {
             filtarDatosSistema(Tab);
         }
     }
     function CargaListadoClientes() {
         return (
-            <Form.Select className="mb-3 " onChange={(e) => {
-                // buscamos el objeto completo para tenerlo en el sistema
-                let lstClientes = Clientes?.filter((value: any, index: any) => {
-                    return value.clienteIdS === Number.parseInt(e.currentTarget.value)
-                })
-                if (lstClientes !== undefined && lstClientes.length > 0)
-                    setClienteSeleccionado(lstClientes[0]);
-            }} aria-label="Default select example" defaultValue={ClienteSeleccionado?.clienteIdS}>
+            <Form.Select  onChange={(e) => {
+                setClienteSeleccionado(Number.parseInt(e.currentTarget.value))
+                setTipoReporte(TipoReporteBase);
+
+            }} aria-label="Default select example" value={ClienteSeleccionado}>
                 {
                     Clientes?.map((element: any, i: any) => {
                         return (<option key={element.clienteIdS} value={(element.clienteIdS != null ? element.clienteIdS : 0)}>{element.clienteNombre}</option>)
@@ -772,7 +565,7 @@ export default function ZPOperadorMovil() {
         );
     }
     // seleccion de vehiculos
-    function SelectVehiculos() {
+    function SelectFiltroVehiculoOperador() {
         return (
             <DualListBox className=" mb-3 " canFilter
                 options={lstVehiculos}
@@ -782,44 +575,14 @@ export default function ZPOperadorMovil() {
                     setSeleccionados(selected)
                     // modificacion de filtros
                     let tiporeporte = [...TipoReporte];
-                    tiporeporte[tabSel].filtros = { ...TipoReporte[0].filtros, Vehiculos: selected };
+                        tiporeporte[tabSel].filtros = { ...TipoReporte[tabSel].filtros, Vehiculos: selected };
                     setTipoReporte(tiporeporte)
+                  
                 }}
             />
         );
     }
-    function SelectOperadoresTab3() {
-        return (
-            <DualListBox className=" mb-3 " canFilter
-                options={lstOperadores}
-                selected={lstSeleccionadosOperadoresTab3}
-                onChange={(selected: any) => {
-                    // dejamos los seleccionados
-                    setSeleccionadosOperadoresTab3(selected)
-                    // modificacion de filtros
-                    let tiporeporte = [...TipoReporte];
-                    tiporeporte[2].filtros = { ...TipoReporte[2].filtros, Operadores: selected }
-                    setTipoReporte(tiporeporte)
-                }}
-            />
-        );
-    }
-    function SelectOperadores() {
-        return (
-            <DualListBox className=" mb-3 " canFilter
-                options={lstOperadores}
-                selected={lstSeleccionadosOperadores}
-                onChange={(selected: any) => {
-                    // dejamos los seleccionados
-                    setSeleccionadosOperadores(selected)
-                    // modificacion de filtros
-                    let tiporeporte = [...TipoReporte];
-                    tiporeporte[1].filtros = { ...TipoReporte[1].filtros, Operadores: selected }
-                    setTipoReporte(tiporeporte)
-                }}
-            />
-        );
-    }
+  
 
 
     return (
@@ -829,13 +592,7 @@ export default function ZPOperadorMovil() {
                 <BlockUi tag="div" keepInView blocking={loader ?? false}  >
 
                     <div className="card">
-                        <div className='card-header'>
-                            <div className="w-100 ">
-                                <div className='mt-5 float-end float-sm-end float-md-end float-lg-end float-xl-end float-xxl-end'>
-                                    <CargaListadoClientes></CargaListadoClientes>
-                                </div>
-                            </div>
-                        </div>
+                       
                         <div className="d-flex justify-content-between mb-2">
                             <div className="mx-auto">
                                 <div className="ms-3 text-center">
@@ -864,12 +621,15 @@ export default function ZPOperadorMovil() {
                                         }} />
                                 )}
 
-                                <Button style={{ display: (tabSel == 0) ? "inline-block" : "none" }} className="ms-2 btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}><i className="bi-car-front-fill"></i></Button>
-                                <Button style={{ display: (tabSel != 0) ? "inline-block" : "none" }} className=" ms-2 btn btn-sm btn-primary" onClick={() => { setShowModalOperadores(true) }}><i className="bi-person"></i></Button>
-                                <Button className="ms-2 btn btn-sm btn-primary" onClick={() => { Consultar(tabSel) }}><i className="bi-search"></i></Button>
+                                <Button className=" mb-2 ms-2 btn btn-sm btn-primary" onClick={() => { 
+                                    setShowModal(true) }}><i className={`${
+                                    (tabSel == 0) ? "bi-car-front-fill" : "bi-person" 
+                                }`}></i></Button>
+                                 <Button className="ms-2 mb-2 btn btn-sm btn-primary" onClick={() => { Consultar(tabSel) }}><i className="bi-search"></i></Button>
                             </div>
                             <div className=" d-flex justify-content-end m-1">
-
+                                   <CargaListadoClientes></CargaListadoClientes>
+                              
                             </div>
 
                         </div>
@@ -932,14 +692,10 @@ export default function ZPOperadorMovil() {
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div className={`tab-pane fade ${tabSel === 0 ? "show active" : ""}`} id="tab0_content" >
-                                        {/* begin::Cards */}
-                                        <div className="overflow-auto">
+                                        <div className="overflow-auto" style={{ display: (tabSel != 2) ? "block" : "none"}}>
 
 
-                                            {(DateTableMovil.length != 0) && (ColumnasTablas[0]['movil'] != undefined) && (<MaterialReactTable
-                                                tableInstanceRef={ColumnasTablas[0]['movil']}
+                                            <MaterialReactTable
                                                 localization={MRT_Localization_ES}
                                                 displayColumnDefOptions={{
                                                     'mrt-row-actions': {
@@ -956,7 +712,7 @@ export default function ZPOperadorMovil() {
                                                         color: 'rgb(27, 66, 94)'
                                                     }),
                                                 }}
-                                                columns={ColumnasTablas[0]['movil']}
+                                                columns={columnasTabla}
                                                 data={DateTableMovil}
                                                 // editingMode="modal" //default         
                                                 // enableTopToolbar={false}
@@ -1022,110 +778,20 @@ export default function ZPOperadorMovil() {
 
                                                     </Box>
                                                 )}
-                                            />)}
+                                            />
 
 
                                         </div>
-                                        {/* end::Cards      */}
+                                    </div>
+                                    <div className={`tab-pane fade ${tabSel === 0 ? "show active" : ""}`} id="tab0_content" >
+                                     
                                     </div>
                                     {/* end::Tab Pane 1 */}
 
                                     {/* begin::Tab Pane 2 */}
                                     <div className={`tab-pane fade ${tabSel === 1 ? "show active" : ""}`} id="tab1_content">
-                                        {/* begin::Cards */}
-                                        <div className="overflow-auto">
-                                            <ErrorBoundaryComponent>
-                                                {/*Tabla de los operadores */}
-                                                {
-                                                (DateTableOperador.length != 0) && (tabSel == 1) && (ColumnasTablas[1]['operador'] != undefined) && (<MaterialReactTable
-                                                    tableInstanceRef={ColumnasTablas[1]['operador']}
-                                                    localization={MRT_Localization_ES}
-                                                    displayColumnDefOptions={{
-                                                        'mrt-row-actions': {
-                                                            muiTableHeadCellProps: {
-                                                                align: 'center',
-                                                            },
-                                                            size: 120,
-                                                        },
-                                                    }}
-                                                    muiTableHeadCellProps={{
-                                                        sx: (theme) => ({
-                                                            fontSize: 14,
-                                                            fontStyle: 'bold',
-                                                            color: 'rgb(27, 66, 94)'
-
-                                                        }),
-                                                    }}
-                                                    columns={ColumnasTablas[1]['operador']}
-                                                    data={DateTableOperador}
-                                                    // editingMode="modal" //default         
-                                                    // enableTopToolbar={false}
-                                                    enableColumnOrdering
-                                                    // enableEditing
-                                                    /* onEditingRowSave={handleSaveRowEdits}
-                                                        onEditingRowCancel={handleCancelRowEdits}*/
-                                                    muiToolbarAlertBannerProps={
-                                                        isError
-                                                            ? {
-                                                                color: 'error',
-                                                                children: 'Error al cargar información',
-                                                            }
-                                                            : undefined
-                                                    }
-                                                    onColumnFiltersChange={setColumnFilters}
-                                                    onGlobalFilterChange={setGlobalFilter}
-                                                    onPaginationChange={setPagination}
-                                                    onSortingChange={setSortingC}
-                                                    rowCount={rowCountOperador}
-                                                    enableStickyHeader
-                                                    enableDensityToggle={false}
-                                                    enableRowVirtualization
-                                                    enablePagination={false}
-                                                    defaultColumn={{
-                                                        minSize: 150, //allow columns to get smaller than default
-                                                        maxSize: 400, //allow columns to get larger than default
-                                                        size: 150, //make columns wider by default
-                                                    }}
-                                                    muiTableContainerProps={{
-                                                        sx: { maxHeight: '400px' }, //give the table a max height
-                                                    }}
-                                                    initialState={{ density: 'compact' }}
-                                                    state={{
-                                                        columnFilters,
-                                                        globalFilter,
-                                                        isLoading,
-                                                        pagination,
-                                                        showAlertBanner: isError,
-                                                        showProgressBars: isRefetching,
-                                                        sorting: sortingC,
-                                                    }}
-                                                    renderTopToolbarCustomActions={({ table }) => (
-                                                        <Box
-                                                            sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
-                                                        >
-                                                            <button style={{ display: (tabSel <= 1) ? "inline-block" : "none" }} className="  btn btn-sm btn-primary" type="button" onClick={() => {
-                                                                DescargarExcelPersonalizado(DateTableOperador.map((e: any) => {
-                                                                    let val = {};
-                                                                    val['Movil'] = e.Movil
-                                                                    val['Fecha'] = e.Fecha;
-                                                                    val['EV0Regeneracion0P'] = (e.EV0Regeneracion0P != 0 ? e.EV0Regeneracion0P / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
-                                                                    val['EV1Potencia0P50'] = (e.EV1Potencia0P50 != 0 ? e.EV1Potencia0P50 / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
-                                                                    val['EV2Potencia50P100'] = (e.EV2Potencia50P100 != 0 ? e.EV2Potencia50P100 / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
-                                                                    val['EV3Potencia100P150'] = (e.EV3Potencia100P150 != 0 ? e.EV3Potencia100P150 / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
-                                                                    val['EV4Potencia150P175'] = (e.EV4Potencia150P175 != 0 ? e.EV4Potencia150P175 / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
-                                                                    val['EV5Potencia175'] = (e.EV5Potencia175 != 0 ? e.EV5Potencia175 / e.Total * 100 : 0).toFixed(2).toString().replace(".", ",")
-                                                                    val['Operador'] = e.Operador;
-                                                                    return val;
-                                                                }), (ColumnasTablas[1]['operador']), "Reporte ZP", fncReporteOperadorMovil)
-                                                            }}>
-                                                                <i className="bi-file-earmark-excel"></i></button>
-
-                                                        </Box>
-                                                    )}
-                                                />)}
-                                            </ErrorBoundaryComponent>
-                                        </div>
-                                        {/* end::Cards      */}
+                                        
+                                       
                                     </div>
                                     {/* end::Tab Pane 2 */}
                                     {/* begin::Tab Pane 3 */}
@@ -1141,7 +807,8 @@ export default function ZPOperadorMovil() {
                                                                     <div className="text-center"><label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px' }}>
                                                                         Zonas: 4.Pot [150&lt;P&lt;175]
                                                                     </label></div>
-                                                                    {(Totales.length != 0) && (<MaterialReactTable
+                                                                    {(Totales.length != 0) && (
+                                                                    <MaterialReactTable
                                                                         // tableInstanceRef={ColumnasTablas['movil']}
                                                                         displayColumnDefOptions={{
                                                                             'mrt-row-actions': {
@@ -1262,14 +929,16 @@ export default function ZPOperadorMovil() {
                     </div>
 
                 </BlockUi>
-                <Modal show={showModal} onHide={setShowModal} size="lg">
+                <Modal show={showModal} onHide={setShowModal} size="lg"
+                 
+                >
                     <Modal.Header closeButton>
-                        <Modal.Title> Filtro por vehiculos</Modal.Title>
+                        <Modal.Title> Filtro por {TipoReporte[tabSel].tituloFiltro} </Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <div className="row">
                             <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
-                                <SelectVehiculos />
+                                <SelectFiltroVehiculoOperador />
                             </div>
                         </div>
                     </Modal.Body>
@@ -1278,7 +947,7 @@ export default function ZPOperadorMovil() {
                             setSeleccionados([]);
                             /*/actualizamos los filtros/ */
                             let tiporeporte = [...TipoReporte];
-                            tiporeporte[tabSel].filtros = { ...TipoReporte[0].filtros, Vehiculos: [], Operadores: [] };
+                            tiporeporte[tabSel].filtros = { ...TipoReporte[tabSel].filtros, Vehiculos: [], Operadores: [] };
                             setTipoReporte(tiporeporte)
                         }}>
                             Limpiar
@@ -1288,34 +957,7 @@ export default function ZPOperadorMovil() {
                         </Button>
                     </Modal.Footer>
                 </Modal>
-                {/* <ZPOperadorMovilPrincipal></ZPOperadorMovilPrincipal> */}
-                {/*Operadores MODAL*/}
-                <Modal show={showModalOperadores} onHide={setShowModalOperadores} size="lg">
-                    <Modal.Header closeButton>
-                        <Modal.Title> Filtro por conductores</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <div className="row">
-                            <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
-                                {(tabSel > 1 ? <SelectOperadoresTab3 /> : <SelectOperadores />)}
-                            </div>
-                        </div>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button type="button" variant="secondary" onClick={() => {
-                            (tabSel > 1) ? setSeleccionadosOperadoresTab3([]) : setSeleccionadosOperadores([]);
-                            /*/actualizamos los filtros/ */
-                            let tiporeporte = [...TipoReporte];
-                            (tabSel > 1) ? tiporeporte[tabSel].filtros = { ...TipoReporte[tabSel].filtros, Vehiculos: [], Operadores: [] } : tiporeporte[tabSel].filtros = { ...TipoReporte[tabSel].filtros, Vehiculos: [], Operadores: [] };
-                            setTipoReporte(tiporeporte)
-                        }}>
-                            Limpiar
-                        </Button>
-                        <Button type="button" variant="primary" onClick={() => { setShowModalOperadores(false); }}>
-                            Cerrar
-                        </Button>
-                    </Modal.Footer>
-                </Modal>
+         
             </div>
         </>
     )

@@ -1,6 +1,6 @@
 import moment from "moment";
 import { Post_getDynamicValueProcedureDWHTabla, Post_GetConsultasDinamicas } from "../../../../_start/helpers/Axios/DWHService";
-import {  GetPeriodoByFecha, locateFormatNumberNDijitos, msToTimeSeconds } from "../../../../_start/helpers/Helper";
+import {  locateFormatNumberNDijitos, msToTimeSeconds } from "../../../../_start/helpers/Helper";
 
 import { FormatoColombiaDDMMYYY } from "../../../../_start/helpers/Constants";
 
@@ -42,12 +42,13 @@ export function GetReporteEficiencia(FechaInicial: string, FechaFinal: string, c
         RecordsPorPagina: null
     }, params);
 }
-export function GetReporteOperadorMovil(FechaInicial: string, FechaFinal: string, tipo: string) {
+export function GetReporteOperadorMovil(FechaInicial: string, FechaFinal: string, tipo: string, clientesIds: number) {
     var params: { [id: string]: string | null | boolean; } = {};
     params["FechaInicial"] = FechaInicial;
     params["FechaFinal"] = FechaFinal;
-    const NombreConsulta = (tipo == "0" ? "GetReporteOperadorMovil" : (tipo == "1" ? "GetReporteOperador" : "GetReporteOperadorZonas"))
-    return Post_GetConsultasDinamicas({ Clase: "EbusQueryHelper", NombreConsulta: NombreConsulta, Pagina: null, RecordsPorPagina: null }, params);
+    params['Tipo'] = `${tipo}`;
+    params['ClienteIds'] = `${clientesIds}`;
+    return Post_GetConsultasDinamicas({ Clase: "EbusQueryHelper", NombreConsulta: 'GetReporteZpPorCliente', Pagina: null, RecordsPorPagina: null }, params);
 }
 
 const tab1 = { icon: 'CarRental', titulo: "Móvil", subtitulo: "" }

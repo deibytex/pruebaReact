@@ -1,17 +1,17 @@
 import moment from "moment";
-import { useEffect, useRef, useState} from "react";
-import { GetDataEficiencia,  fncReporteEficiencia,  listTabsEficiencia } from "../../data/ReportesData";
+import { useEffect, useRef, useState } from "react";
+import { GetDataEficiencia, fncReporteEficiencia, listTabsEficiencia } from "../../data/ReportesData";
 import { PageTitle } from "../../../../../_start/layout/core";
 import { DateRangePicker, Notification, Placeholder, useToaster } from "rsuite";
 import BlockUi from "@availity/block-ui";
 import { DescargarExcelPersonalizado } from "../../../../../_start/helpers/components/DescargarExcel";
 import MaterialReactTable, { MRT_ColumnDef, MRT_TableInstance } from "material-react-table";
-import { FormatoColombiaDDMMYYY,  FormatoSerializacionYYYY_MM_DD_HHmmss } from "../../../../../_start/helpers/Constants";
+import { FormatoColombiaDDMMYYY, FormatoSerializacionYYYY_MM_DD_HHmmss } from "../../../../../_start/helpers/Constants";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import DualListBox from "react-dual-listbox";
 import { dualList } from "../../../CorreosTx/models/dataModels";
-import { Button,  Form, Modal } from "react-bootstrap-v5";
+import { Button, Form, Modal } from "react-bootstrap-v5";
 import ReactApexChart from "react-apexcharts";
 import { FiltrosReportes } from "../../models/eBus";
 import { ClienteDTO } from "../../models/NivelcargaModels";
@@ -67,9 +67,9 @@ export default function ReporteEficiencia() {
         },
         {
           accessorKey: 'Duracion',
-          header: 'Dur',
+          header: 'Dur[h]',
           Cell({ cell, column, row, table, }) {
-            return  msToTimeSeconds ((row.original.Duracion *3600 ?? 0))
+            return row.original.Duracion ?? 0
           }
         },
         {
@@ -217,13 +217,13 @@ export default function ReporteEficiencia() {
         setClienteSeleccionado(response.data[0].clienteIdS)
         setIsLoading(false);
       }).catch((error) => {
-        
+
         errorDialog("<i>Eror al consultar los clientes</i>", "")
       })
 
-  return ()=>{
-    setTipoReporte(TipoReporteBase)
-  }
+      return () => {
+        setTipoReporte(TipoReporteBase)
+      }
     }, []
   )
 
@@ -292,7 +292,7 @@ export default function ReporteEficiencia() {
           show: false, labels: {
             formatter: function (val: number, index: any) {
               return locateFormatPercentNDijitos(val, 2)
-            
+
             }
           }
         }
@@ -344,8 +344,8 @@ export default function ReporteEficiencia() {
         ],
         dataLabels: {
           enabled: true,
-         
-         
+
+
           enabledOnSeries: true,
           formatter: function (value: any, { seriesIndex, dataPointIndex, w }: any) {
             return formatNumberChart(value)
@@ -367,7 +367,7 @@ export default function ReporteEficiencia() {
     setOpciones(defaultopciones)
     setAcumulado(defaultopcionesDistancia)
 
-    
+
   }, [ClienteSeleccionado]);
 
 
@@ -383,7 +383,7 @@ export default function ReporteEficiencia() {
     }
 
 
-   
+
   }, [idxSeleccionado])
 
 
@@ -413,7 +413,7 @@ export default function ReporteEficiencia() {
           Tiporeporte[tabSel].consultar = false;
           setisCallData(false);
           setTipoReporte(Tiporeporte);
-         
+
           setisCallData(false)
           // vamos a llenar la informacion de los movils
           let lstVehiculos = (response.data as any[]).reduce((p, c) => {
@@ -464,9 +464,9 @@ export default function ReporteEficiencia() {
     let datosFiltrados: any[] = datos;
     if (filtros.IndGrafica != -1) {
       let fecha = filtros.FechaGrafica
-      if(!EsDiario ){
-        let mensual : string[] = filtros.FechaGrafica?.split('-') ?? ['2023','01'];
-        fecha = `01/${mensual[1].padStart(2,'0')}/${mensual[0]}`;
+      if (!EsDiario) {
+        let mensual: string[] = filtros.FechaGrafica?.split('-') ?? ['2023', '01'];
+        fecha = `01/${mensual[1].padStart(2, '0')}/${mensual[0]}`;
       }
       FechaInicial = moment(fecha, FormatoColombiaDDMMYYY).toDate();
       FechaFinal = moment(fecha, FormatoColombiaDDMMYYY).toDate();
@@ -476,8 +476,8 @@ export default function ReporteEficiencia() {
     // filtramos por las fechas
     datosFiltrados = datosFiltrados.
       filter(f =>
-        (EsDiario ? moment(f.Fecha).toDate() : moment(`01/${f.mes.toString().padStart(2,'0')}/${f.anio.toString()}`, FormatoColombiaDDMMYYY).toDate()) >= FechaInicial
-          && (EsDiario ? moment(f.Fecha).toDate() : moment(`01/${f.mes.toString().padStart(2,'0')}/${f.anio.toString()}`, FormatoColombiaDDMMYYY).toDate()) <= FechaFinal);
+        (EsDiario ? moment(f.Fecha).toDate() : moment(`01/${f.mes.toString().padStart(2, '0')}/${f.anio.toString()}`, FormatoColombiaDDMMYYY).toDate()) >= FechaInicial
+        && (EsDiario ? moment(f.Fecha).toDate() : moment(`01/${f.mes.toString().padStart(2, '0')}/${f.anio.toString()}`, FormatoColombiaDDMMYYY).toDate()) <= FechaFinal);
 
     // filtramos por los vehivulos
 
@@ -527,9 +527,9 @@ export default function ReporteEficiencia() {
       // sumamos los indicadores por fecha 
 
       let energia = totalDescarga - totalCarga;
-      let porcRegeneracion = totalCarga / totalDescarga;
-      let eficiencia = totalDistancia / energia;
-      let velPromedio = totalDistancia / totalDuracion;
+      let porcRegeneracion = totalDescarga == 0 ? 0 :  totalCarga / totalDescarga;
+      let eficiencia = energia == 0 ? 0 : totalDistancia / energia;
+      let velPromedio = totalDuracion == 0 ? 0 : totalDistancia / totalDuracion;
 
       // para la grafica de eficiencia
       totalEficiencia.push(eficiencia);
@@ -574,7 +574,7 @@ export default function ReporteEficiencia() {
           }
         }
       },
-      xaxis: { 
+      xaxis: {
         categories: labels
       }
     });
@@ -586,7 +586,7 @@ export default function ReporteEficiencia() {
             let labelSeleccionado = labels[config.dataPointIndex];
             // si la informacion del label seleccionado es igual al label que se encuentra en los filtros
             // asginamos  -1 y limpiamos la grafica para que muestre todos los datos
-          
+
             setidxSeleccionado((labelSeleccionado === fechaGraficaActual) ? -1 : config.dataPointIndex);
           }
         }
@@ -615,13 +615,13 @@ export default function ReporteEficiencia() {
         color: '#99C2A2'
       }]);
 
-      ApexCharts.exec('totalDistancia', 'updateSeries', [
-        {
-          name: 'Distancia [km]',
-          data: totalDistanciaA
-        }]);
+    ApexCharts.exec('totalDistancia', 'updateSeries', [
+      {
+        name: 'Distancia [km]',
+        data: totalDistanciaA
+      }]);
 
-//totalDistancia
+    //totalDistancia
 
 
 
@@ -675,7 +675,7 @@ export default function ReporteEficiencia() {
           setSeleccionados(selected)
           // modificacion de filtros
           let tiporeporte = [...TipoReporte];
-          tiporeporte[tabSel].filtros = { ...TipoReporte[0].filtros, Vehiculos: selected };
+          tiporeporte[tabSel].filtros = { ...TipoReporte[tabSel].filtros, Vehiculos: selected };
           setTipoReporte(tiporeporte)
         }}
       />
@@ -685,9 +685,9 @@ export default function ReporteEficiencia() {
     return (
       <Form.Select className=" m-2 " onChange={(e) => {
         // buscamos el objeto completo para tenerlo en el sistema
-   
-          setClienteSeleccionado(Number.parseInt(e.currentTarget.value));
-          setTipoReporte(TipoReporteBase)
+
+        setClienteSeleccionado(Number.parseInt(e.currentTarget.value));
+        setTipoReporte(TipoReporteBase)
       }} aria-label="Default select example" value={ClienteSeleccionado}>
 
         {
@@ -700,13 +700,13 @@ export default function ReporteEficiencia() {
     );
   }
 
- 
+
   return (<>
     <PageTitle>Reporte Eficiencia</PageTitle>
     <BlockUi tag="div" keepInView blocking={loader ?? false}  >
       <div className="card card-rounded shadow mt-2 text-primary" style={{ width: '100%' }}  >
 
-     
+
         <div className="d-flex justify-content-between mb-2">
           <div className="d-flex justify-content-between mx-auto">
             <div className="ms-9 text-center">
@@ -719,37 +719,37 @@ export default function ReporteEficiencia() {
         <div className="row">
           <div className="row col-sm-12 col-md-12 col-xs-12 mx-auto">  {
 
-              Object.entries(lstIndicadores).map((element: any) => {
+            Object.entries(lstIndicadores).map((element: any) => {
 
-                return (
-                  <div key={`indicadores_${element[0]}`} className="row card shadow m-2 col-sm-3 col-md-3 col-xs-3 mx-auto">
-                    <div className="ms-3 text-center m-4">
-                      <h2 className="mb-0"><span id={element[0]}>{element[1]}</span></h2>
-                      <span className="text-muted">{element[0]}</span>
-                    </div>
+              return (
+                <div key={`indicadores_${element[0]}`} className="row card shadow m-2 col-sm-3 col-md-3 col-xs-3 mx-auto">
+                  <div className="ms-3 text-center m-4">
+                    <h2 className="mb-0"><span id={element[0]}>{element[1]}</span></h2>
+                    <span className="text-muted">{element[0]}</span>
                   </div>
-                )
+                </div>
+              )
 
-              })
-            }
+            })
+          }
 
           </div>
         </div>
         <div className="card bg-secondary d-flex flex-row  justify-content-between m-1">
 
-        <div className="d-flex justify-content-start ">
+          <div className="d-flex justify-content-start ">
             <label className="control-label label  label-sm m-2 mt-4" style={{ fontWeight: 'bold' }}>Fechas: </label>
             {(combine && allowedRange && allowedMaxDays) && (
               <DateRangePicker size="lg" className="mt-2" format="dd/MM/yyyy" value={[TipoReporte[tabSel].filtros.FechaInicial, TipoReporte[tabSel].filtros.FechaFinal]}
-              hoverRange={
-                TipoReporte[tabSel].tipo == 1  ? `month` : undefined //date =>  [subDays(date, 3), addDays(date,3)]
-              }
-              disabledDate={combine( allowedRange(
-              ( TipoReporte[tabSel].tipo == 1 ) ? moment().add(-6, 'months').startOf('month').toDate() : moment().add(-6, 'months').toDate(),
-              ( TipoReporte[tabSel].tipo == 1 ) ? moment().endOf('month').toDate() : moment().toDate()
-              ) ,
-              allowedMaxDays(31)
-              )}
+                hoverRange={
+                  TipoReporte[tabSel].tipo == 1 ? `month` : undefined //date =>  [subDays(date, 3), addDays(date,3)]
+                }
+                disabledDate={combine(allowedRange(
+                  (TipoReporte[tabSel].tipo == 1) ? moment().add(-6, 'months').startOf('month').toDate() : moment().add(-6, 'months').toDate(),
+                  (TipoReporte[tabSel].tipo == 1) ? moment().endOf('month').toDate() : moment().toDate()
+                ),
+                  allowedMaxDays(31)
+                )}
                 onChange={(value, e) => {
                   if (value !== null) {
                     ValidarFechas(
@@ -766,10 +766,10 @@ export default function ReporteEficiencia() {
             <Button className="m-2  btn btn-sm btn-primary" onClick={() => { ConsultarData() }}><i className="bi-search"></i></Button>
           </div>
           <div className="d-flex justify-content-end ">
-          
+
             <CargaListadoClientes />
-          
-        </div>
+
+          </div>
         </div>
       </div>
       {/* begin::Chart */}
@@ -780,14 +780,14 @@ export default function ReporteEficiencia() {
             {listTabsEficiencia.map((tab, idx) => {
               return (<li className="nav-item mb-3" key={`tabenc_${idx}`}>
                 <a
-                  onClick={() => settabSel(idx)}
+                  onClick={() => {settabSel(idx) ; setSeleccionados([]) }}
                   className={`nav-link w-225px h-70px ${tabSel === idx ? "active btn-active-light" : ""
                     } fw-bolder me-2`}
                   id={`tab${idx}`}
                 >
                   <div className="nav-icon me-3">
-                  <DrawDynamicIconMuiMaterial name={tab.icon} isactive={(tabSel === idx)}/>
-                   
+                    <DrawDynamicIconMuiMaterial name={tab.icon} isactive={(tabSel === idx)} />
+
                   </div>
                   <div className="ps-1">
                     <span className="nav-text text-gray-600 fw-bolder fs-6">
@@ -812,21 +812,21 @@ export default function ReporteEficiencia() {
 
 
           <div className="card" >
-              {(OpcionesAcumulado != null) && (
-                <ReactApexChart
-                  options={OpcionesAcumulado.options}
-                  series={OpcionesAcumulado.series}
-                  height={200} />)}
-     
+            {(OpcionesAcumulado != null) && (
+              <ReactApexChart
+                options={OpcionesAcumulado.options}
+                series={OpcionesAcumulado.series}
+                height={200} />)}
+
           </div>
           <div className="card" >
-           
-                  {(opciones != null) && (
-                    <ReactApexChart
-                      options={opciones.options}
-                      series={opciones.series}
-                      height={300} />)}
-               
+
+            {(opciones != null) && (
+              <ReactApexChart
+                options={opciones.options}
+                series={opciones.series}
+                height={300} />)}
+
           </div>
           <MaterialReactTable
             enableColumnFilters={false}
