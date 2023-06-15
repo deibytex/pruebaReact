@@ -7,20 +7,21 @@ import { IndicadorPanelGeneral } from "./components/indicadorPanelGeneral_Pc";
 import { datosFatigue } from "./dataFatigue";
 import { DataVehiculoOperando, FatigueProvider, useDataFatigue } from "./core/provider";
 import { useEffect, useState } from "react";
-import { GetClientesFatiga } from "./data/dashBoardData";
+import { GetAlarmas, GetClientesFatiga } from "./data/dashBoardData";
 import { ClientesFatiga } from "./models/EventosActivos";
 import { errorDialog } from "../../../_start/helpers/components/ConfirmDialog";
 import { Form } from "react-bootstrap-v5";
 import { Console } from "console";
 
 import React from "react";
+import { AxiosResponse } from "axios";
 
 
 export default function FatigueDashboard() {
     const [lstClientes, setLstClientes] = useState<ClientesFatiga[]>([]);
     const [clienteSeleccionado, setclienteSeleccionado] = useState<ClientesFatiga>();
     const [tipoSeguimiento, settipoSeguimiento] = useState<number>(0);
-
+    const {setDataAlertas} = useDataFatigue();
     let TiposSeguimientos: any[] = [];
     TiposSeguimientos.push({ TipoId: 1, Tipo: "Eventos" });
     // TiposSeguimientos.push({ TipoId: 2, Tipo : "Alarmas"});
@@ -50,8 +51,12 @@ export default function FatigueDashboard() {
         ).catch((error) => {
             errorDialog("Consultar Clientes", "Error al consultar clientes, no se puede desplegar informacion");
         })
+       
     }, [])
 
+  
+
+    
     function CargaListadoClientes() {
         return (
             <Form.Select className=" mb-3 " onChange={(e) => {

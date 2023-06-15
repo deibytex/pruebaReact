@@ -112,10 +112,10 @@ const FAG_TablaPanelRiesgo: React.FC<Props> = ({ className, innerPadding = "" })
                   className={`tab-pane fade active ${(index == 0) && "show"}`}
                 >
 
-                  <div className="table-responsive">
-                    <table className="table table-borderless align-middle">
+                  <div  key={index+1} className="table-responsive">
+                    <table key={index+2} className="table table-borderless align-middle">
                       <thead>
-                        <tr>
+                        <tr key={index+3}>
                           <th className="p-0 min-w-50px"></th>
                           <th className="p-0 min-w-50px"></th>
                           <th className="p-0 min-w-50px"></th>
@@ -128,10 +128,8 @@ const FAG_TablaPanelRiesgo: React.FC<Props> = ({ className, innerPadding = "" })
                         {
                           Array.from({ length: dividido }, (v, k) => k + 1).map((element) => {
                             let inicio = (element == 1) ? 0 : 6 * (element - 1);
-
                             return (
-                              <tr key={`tr_tabpanel_${element}`}>                                  {
-
+                              <tr key={`tr_tabpanel_${element}`}>{
                                 elementosPorNivel.slice(inicio, 6 * element).map((m) => {
                                   let totalEventos = (m.TotalEventos == undefined) ? '' : `(${m.TotalEventos})`;
                                   return (

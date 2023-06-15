@@ -4,7 +4,7 @@ import moment from "moment";
 import {  DWH_getconsultadinamicasprocedure, DWH_GetConsultasDinamicas } from "../../../../apiurlstore";
 import { ParamsEndPointDynamic } from "../../../../_start/helpers/Models/paramsConsultasDinamicas";
 import { Post_GetConsultasDinamicas, Post_getDynamicValueProcedureDWHTabla } from "../../../../_start/helpers/Axios/DWHService";
-
+import { formatViewHoraMinuto } from "../../../../_start/helpers/Helper";
 
 
 export  function getEventosActivosPorDia(props: ParamsEndPointDynamic , body: any) {
@@ -118,3 +118,4 @@ export  function getEventosActivosPorDia(props: ParamsEndPointDynamic , body: an
         tabla: clientesIds
     }, params);
   }
+  

@@ -30,6 +30,8 @@ export interface FatigueContextModel {
     setTabGlobal:(tabGlobal:string) =>void;
     loader?:boolean;
     setloader:(loader:boolean) => void;
+  
+ 
 }
 
 const FatigueContext = createContext<FatigueContextModel>({
@@ -82,6 +84,7 @@ const FatigueProvider: React.FC = ({ children }) => {
         setTabGlobal,
         loader,
         setloader
+        , iserror, setError, DataAlertas, setDataAlertas,DataDetallado,setDataDetallado
     };
     return (
         <FatigueContext.Provider value={value}>
@@ -100,7 +103,7 @@ function useDataFatigue() {
 
 const DataVehiculoOperando: React.FC = ({ children }) => {
     const { setvehiculosOperacion, setlistadoEventosActivos, setListadoVehiculoSinOperacion, setalertas, setError, iserror , setDataAlertas,  setDataDetallado, loader, setloader} = useDataFatigue();
-    let idinterval: number = 0;
+   let idinterval: number = 0;
  
     //CONSULTA VEHICULOS OPERANDO
     let consulta = (children: string) => {
