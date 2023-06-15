@@ -11,13 +11,13 @@ dataGeneral.map((element) => {
     let tipoAlerta = "";
     let color = "";
     if (element.TotalAlertas >= 0 && element.TotalAlertas <= 2) {
-        tipoAlerta = "Normal"; color = "primary";
+        tipoAlerta = "Riesgo bajo"; color = "primary";
     }
     else if (element.TotalAlertas > 2 && element.TotalAlertas <= 5) {
-        tipoAlerta = "Elevado"; color = "warning";
+        tipoAlerta = "Riesgo moderado"; color = "warning";
     }
     else {
-        tipoAlerta = "Critico"; color = "danger";
+        tipoAlerta = "Riesgo alto"; color = "danger";
     }
 
     element["Alerta"] = tipoAlerta;
@@ -66,7 +66,7 @@ const datosFatigue = {
 
         // agrupamos los que opera y no
         let counts = dataGeneral.reduce((p, c) => {
-            let name = c.Estado;
+            let name = c.Criticidad;
             if (!p.hasOwnProperty(name)) {
                 p[name] = 0;
             }
@@ -92,16 +92,16 @@ const datosFatigue = {
         let VehiculosOperando  = vehiculosFiltrados.filter( (f) => f.Estado == 'Operando' );
 
         let arrayVehiculos: any[] = [];
-        let arrayCriticidad: any[] = [{ nivel: 'Normal' }, { nivel: 'Elevado' }, { nivel: 'Critico' }]
+        let arrayCriticidad: any[] = [{ nivel: 'Riesgo bajo' }, { nivel: 'Riesgo moderado' }, { nivel: 'Riesgo alto' }]
 
         let getCriticidad = (TotalEventos: number) => {
             let tipoAlerta = "";
             if (TotalEventos >= 0 && TotalEventos <= 2)
-                tipoAlerta = "Normal";
+                tipoAlerta = "Riesgo bajo";
             else if (TotalEventos > 2 && TotalEventos <= 5)
-                tipoAlerta = "Elevado";
+                tipoAlerta = "Riesgo moderado";
             else
-                tipoAlerta = "Critico";
+                tipoAlerta = "Riesgo alto";
             return tipoAlerta;
         };
         Object.entries(grouped).map((element, index) => {

@@ -33,8 +33,8 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "", tipo
   let colorsArray: string[] = [];
   let colorsArrayLabels: string[] = [];
 
-  const {vehiculosOperacion,listadoEventosActivos, ListadoVehiculoSinOperacion} = useDataFatigue() ;   
-  let objectdata = (tipoData == 1) ? vehiculosOperacion : datosFatigue.getTotalPorCriticidad(listadoEventosActivos ?? [],ListadoVehiculoSinOperacion, true);
+  const {vehiculosOperacion,alertas, ListadoVehiculoSinOperacion} = useDataFatigue() ;   
+  let objectdata = (tipoData == 1) ? vehiculosOperacion : datosFatigue.getTotalPorCriticidad(alertas ?? [],ListadoVehiculoSinOperacion, true);
 
   // segun el tipo se determina que informacion se necesita
   if(tipoData == 1)
@@ -81,7 +81,7 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "", tipo
         myDoughnut.destroy();
       }
     };
-  }, [vehiculosOperacion,listadoEventosActivos, ListadoVehiculoSinOperacion]);
+  }, [vehiculosOperacion,alertas, ListadoVehiculoSinOperacion]);
 
   return (
     <div className={`card ${className}`}>
