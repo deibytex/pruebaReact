@@ -28,13 +28,13 @@ export default function FatigueDashboard() {
 
     let arrayTotal: [] = [];
     let arrayTotalSinGestionar: any[] = [];
-    let dataConAlertas = datosFatigue.getTimeLine();
-    dataConAlertas.filter((m) => {
-        return (m.Estado == "Operando" && m["Alertas"].length > 0);
-    }).map((m) => {
-        Array.prototype.push.apply(arrayTotal, m["Alertas"]);
-        return m["Alertas"];
-    });
+    // let dataConAlertas = datosFatigue.getTimeLine();
+    // dataConAlertas.filter((m) => {
+    //     return (m.Estado == "Operando" && m["Alertas"].length > 0);
+    // }).map((m) => {
+    //     Array.prototype.push.apply(arrayTotal, m["Alertas"]);
+    //     return m["Alertas"];
+    // });
 
     arrayTotalSinGestionar = arrayTotal.filter((m) => {
         return (m["EsGestionado"] != 1);

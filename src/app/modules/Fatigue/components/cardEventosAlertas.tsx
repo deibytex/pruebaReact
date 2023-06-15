@@ -13,7 +13,14 @@ import type {
 } from '@tanstack/react-table';
 
 import { Box, IconButton, Tooltip, Typography } from "@mui/material";
-import { ManageSearch } from "@mui/icons-material";
+import { ManageSearch, Message, VerifiedUser } from "@mui/icons-material";
+import { FechaServidor } from "../../../../_start/helpers/Helper";
+import { getAlertas, setGestor, setObservaciones } from "../data/dashBoardData";
+import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/helpers/components/ConfirmDialog";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../setup";
+import { UserModelSyscaf } from "../../auth/models/UserModel";
+import moment from "moment";
 type Props = {
 
   isActive: boolean;
@@ -23,7 +30,14 @@ type Props = {
 
 const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
-  const { alertas } = useDataFatigue();
+  const isAuthorized = useSelector<RootState>(
+    ({ auth }) => auth.user
+);
+
+  const model = (isAuthorized as UserModelSyscaf);
+
+
+  const { alertas, setalertas, setUserId, UserId } = useDataFatigue();
 
   const [dataAlertas, setDataAlertas] = useState([]);
   const [dataDetalleGestion, setdataDetalleGestion] = useState([]);
@@ -32,6 +46,9 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   const [FechaApertura, setFechaApertura] = useState("");
   const [FechaGestion, setFechaGestion] = useState("");
 
+  const [observaciones, setobservaciones] = useState("");
+  const [alertaId, setalertaId] = useState(0);
+
   const [show, setShow] = useState(false);
   const handleClose = () => {
     setShow(false);
@@ -39,8 +56,11 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   const showModal = () => {
     setShow(true);
   }
+
   const [Data, setData] = useState<any[]>([]);
   const [esgestionado, setesgestionado] = useState(false);
+
+  const [DataLastGestion, setDataLastGestion] = useState<any[]>([]);
 
 
   const [isError, setIsError] = useState(false);
@@ -67,6 +87,13 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
     console.log(alertas);
   }, [alertas])
 
+  useEffect(() => {
+    setUserId(model.Id?.toString())
+  }, [])
+
+
+
+  console.log(document.querySelectorAll("p > div"));
   // funcion para cambiar el estado
   // de ver detalles para que se renderice el tab de ver mas
   function setDetails(id: number) {
@@ -141,18 +168,21 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
           )
         },
       }, {
-        accessorKey: 'estado',
+        accessorKey: 'EstadoGestion',
         header: 'Estado',
         size: 80,
         Cell({ cell, column, row, table, }) {
-          return (cell.getValue() == null) ? <span className="badge bg-danger">No Gestionado</span> : <span>{row.original.EstadoGestion}</span>
+          return (cell.getValue() == null) ? <span className="badge bg-danger">No Gestionado</span> 
+          : (cell.getValue() == true) ? <span className="badge bg-primary">Gestionado</span> 
+          : (cell.getValue() == false) ? <span className="badge bg-primary">En gestion</span>
+          : <span>{row.original.EstadoGestion}</span>
         },
       }, {
-        accessorKey: 'analista',
+        accessorKey: 'gestor',
         header: 'Analista',
         size: 80,
         Cell({ cell, column, row, table, }) {
-          return (cell.getValue() == null) ? <span>Sin Analista</span> : <span>{row.original.UserId}</span>
+          return (cell.getValue() == null) ? <span>Sin Analista</span> : <span>{row.original.gestor}</span>
         },
       }
 
@@ -208,9 +238,12 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
     [
       {
-        accessorKey: 'fecha',
+        accessorKey: 'fechagestion',
         header: 'Fecha',
-        size: 100
+        size: 100,
+        Cell({ cell, column, row, table, }) {
+            return (moment(cell.getValue() as Date).format('DD/MM/YYYY HH:mm:ss'))
+        }
       },
       {
         accessorKey: 'value',
@@ -222,26 +255,106 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
   function FechaAperturaControl() {
     return (
-      <Form.Control className=" mb-3 " value={FechaApertura} type="date" name="fechaini" placeholder="Seleccione una fecha" disabled />
+
+      <Form.Control className=" mb-3 col-3" value={FechaApertura} type="date" name="fechaini" placeholder="Seleccione una fecha" disabled />
+
     )
   }
 
   function FechaGestionControl() {
     return (
-      <Form.Control className=" mb-3 " value={FechaGestion} type="date" name="fechaini" placeholder="Seleccione una fecha" disabled />
+      <Form.Control className=" mb-3 sm" value={FechaGestion} type="date" name="fechaini" placeholder="Seleccione una fecha" disabled />
     )
   }
+
+  useEffect(() => {
+
+    if (observaciones != "" && observaciones != null) {
+        let json = JSON.parse(observaciones);
+        setData(json);
+        setRowCount(json.length);
+    }
+    else {
+        setData([]);
+        setRowCount(0);
+    }
+}, [observaciones])
 
   const getobservacion = (e: any) => {
     setobervacionGestion(e.target.value)
   };
+
+
   //revisar
-  const setObservacion = (observacion: string, escerrado?: string) => { };
+  const setObservacion = (observacion: string, escerrado?: string) => {
+
+    let GestorObervaciones: any = {};
+
+    GestorObervaciones = {
+        AlertaId: alertaId,
+        fechaapertura: Data[0].fechaapertura,
+        fechagestion: FechaServidor, 
+        value: observacion,
+        EsCerrado: escerrado?.toString()
+
+    };
+
+    
+    confirmarDialog(() => {
+        setObservaciones(JSON.stringify(GestorObervaciones)).then((response) => {
+            successDialog("Operación Éxitosa", "");
+            setData([...Data, JSON.parse(JSON.stringify(GestorObervaciones))] as any[]);
+            setobervacionGestion("");
+            if (escerrado == "true") {
+                getAlertas().then( (response) => {
+                      setalertas(response.data);
+                        handleClose();
+                    });
+            }
 
 
-  const modalObervaciones = () => {
+
+        }).catch((error) => {
+            errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
+        });
+    }, escerrado == "false" ? `Esta seguro que desea agregar el comentario` : `Esta seguro que terminar la gestión`
+        , escerrado == "false" ? "Guardar" : "Terminar")
+}
+
+  const setGestorPreoperacional = (alertaId: number) => {
+
+    let GestorObervaciones: any = {};
+    GestorObervaciones = {
+        fechaapertura: FechaServidor,
+        fechagestion: FechaServidor,
+        value: "Gestor Asignado",
+        EsCerrado: null
+    };
+
+    confirmarDialog(() => {
+
+        setGestor(UserId as string, '[' + JSON.stringify(GestorObervaciones) + ']', false, alertaId, model.Nombres).then(() => {
+          getAlertas().then(
+                (response) => {
+
+                  setalertas(response.data)
+
+                });
+            successDialog("Operación Éxitosa.", "");
+        }).catch(() => {
+            errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
+        });
+    }, `Desea usted gestionar esta alerta`, "Sí");
+}
+
+
+  const modalObervaciones = (Obervaciones: string, alertaId: number, EsGestionado: boolean) => {
+    setobservaciones(Obervaciones);
+    setalertaId(alertaId);
+    setesgestionado(EsGestionado);
     showModal();
   }
+
   return (
 
     <>
@@ -295,19 +408,34 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
             <Tooltip arrow placement="left" title="Editar">
               <IconButton onClick={() => {
-                modalObervaciones();
+                modalObervaciones(row.original.Observaciones, row.original.AlertaId, row.original.EstadoGestion);
               }}>
-                <ManageSearch />
+                <Message />
               </IconButton>
             </Tooltip>
 
+            {(row.original.EstadoGestion == null) ?
+
+              <Tooltip arrow placement="left" title="Gestionar">
+                <IconButton
+                  onClick={() => {
+                    setGestorPreoperacional(row.original.AlertaId);
+                  }}
+                >
+                  <VerifiedUser />
+                </IconButton>
+              </Tooltip>
+              : <></>
+            }
 
           </Box>
         )
         }
 
-        renderDetailPanel={({ row }) => (
 
+
+        renderDetailPanel={({ row }) => (
+          
           <Tabs
             defaultActiveKey="gestion"
             className="mb-3 border"
@@ -327,20 +455,25 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
                   <Card.Body>
                     <Card.Title>Información Gestión</Card.Title>
                     <Card.Text>
-                      <span>Fecha Apertura: <b></b></span> <br />
-                      <div className="mb-3 row">
-                        <div className="col-3">
-                          <FechaAperturaControl />
-                        </div>
-                      </div>
+
+                      <span>Fecha Apertura:</span>
+                      {/* <div className="mb-3 row">
+                        <div className="col-3"> */}
+                        
+                      <FechaAperturaControl />
+                      {/* </div>
+                      </div> */}
+
                     </Card.Text>
                     <Card.Text>
+
                       <span>Ultima Gestión:</span>
-                      <div className="mb-3 row">
-                        <div className="col-3">
-                          <FechaGestionControl />
-                        </div>
-                      </div>
+                      {/* <div className="mb-3 row">
+                        <div className="col-3"> */}
+                      <FechaGestionControl />
+                      {/* </div>
+                      </div> */}
+
                     </Card.Text>
                     <Card.Text>
                       <textarea className="form-control  input input-sm " id={'obervacion'} onChange={getobservacion} rows={3} value={obervacionGestion}></textarea>
@@ -359,48 +492,50 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
                   width: '140%'
                 }}
               >
-                <span><MaterialReactTable
-                  localization={MRT_Localization_ES}
-                  displayColumnDefOptions={{
-                    'mrt-row-actions': {
-                      muiTableHeadCellProps: {
-                        align: 'center',
+                <div>
+                  <MaterialReactTable
+                    localization={MRT_Localization_ES}
+                    displayColumnDefOptions={{
+                      'mrt-row-actions': {
+                        muiTableHeadCellProps: {
+                          align: 'center',
+                        },
+                        size: 120,
                       },
-                      size: 120,
-                    },
-                  }}
-                  columns={columnasTablaDetalle}
-                  data={dataDetalleGestion}
-                  // editingMode="modal" //default         
-                  enableTopToolbar={false}
-                  enableColumnOrdering
-                  // enableEditing
-                  /* onEditingRowSave={handleSaveRowEdits}
-                      onEditingRowCancel={handleCancelRowEdits}*/
-                  muiToolbarAlertBannerProps={
-                    isError
-                      ? {
-                        color: 'error',
-                        children: 'Error al cargar información',
-                      }
-                      : undefined
-                  }
-                  onColumnFiltersChange={setColumnFilters}
-                  onGlobalFilterChange={setGlobalFilter}
-                  onPaginationChange={setPagination}
-                  onSortingChange={setSorting}
-                  rowCount={rowCount}
+                    }}
+                    columns={columnasTablaDetalle}
+                    data={dataDetalleGestion}
+                    // editingMode="modal" //default         
+                    enableTopToolbar={false}
+                    enableColumnOrdering
+                    // enableEditing
+                    /* onEditingRowSave={handleSaveRowEdits}
+                        onEditingRowCancel={handleCancelRowEdits}*/
+                    muiToolbarAlertBannerProps={
+                      isError
+                        ? {
+                          color: 'error',
+                          children: 'Error al cargar información',
+                        }
+                        : undefined
+                    }
+                    onColumnFiltersChange={setColumnFilters}
+                    onGlobalFilterChange={setGlobalFilter}
+                    onPaginationChange={setPagination}
+                    onSortingChange={setSorting}
+                    rowCount={rowCount}
 
-                  state={{
-                    columnFilters,
-                    globalFilter,
-                    isLoading,
-                    pagination,
-                    showAlertBanner: isError,
-                    showProgressBars: isRefetching,
-                    sorting,
-                  }}
-                /></span>
+                    state={{
+                      columnFilters,
+                      globalFilter,
+                      isLoading,
+                      pagination,
+                      showAlertBanner: isError,
+                      showProgressBars: isRefetching,
+                      sorting,
+                    }}
+                  />
+                </div>
               </Box>
             </Tab>
             <Tab eventKey="Contacto" title={`Información de contacto`}>
@@ -411,49 +546,54 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
                   gridTemplateColumns: '1fr 1fr',
                   width: '140%'
                 }}
-              >
-                <span><MaterialReactTable
-                  localization={MRT_Localization_ES}
-                  displayColumnDefOptions={{
-                    'mrt-row-actions': {
-                      muiTableHeadCellProps: {
-                        align: 'center',
-                      },
-                      size: 120,
-                    },
-                  }}
-                  columns={columnasContacto}
-                  data={dataDetalleGestion}
-                  // editingMode="modal" //default         
-                  enableTopToolbar={false}
-                  enableColumnOrdering
-                  // enableEditing
-                  /* onEditingRowSave={handleSaveRowEdits}
-                      onEditingRowCancel={handleCancelRowEdits}*/
-                  muiToolbarAlertBannerProps={
-                    isError
-                      ? {
-                        color: 'error',
-                        children: 'Error al cargar información',
-                      }
-                      : undefined
-                  }
-                  onColumnFiltersChange={setColumnFilters}
-                  onGlobalFilterChange={setGlobalFilter}
-                  onPaginationChange={setPagination}
-                  onSortingChange={setSorting}
-                  rowCount={rowCount}
 
-                  state={{
-                    columnFilters,
-                    globalFilter,
-                    isLoading,
-                    pagination,
-                    showAlertBanner: isError,
-                    showProgressBars: isRefetching,
-                    sorting,
-                  }}
-                /></span>
+              >
+                <div>
+
+                  <MaterialReactTable
+                    localization={MRT_Localization_ES}
+                    displayColumnDefOptions={{
+                      'mrt-row-actions': {
+                        muiTableHeadCellProps: {
+                          align: 'center',
+                        },
+                        size: 120,
+                      },
+                    }}
+                    columns={columnasContacto}
+                    data={dataDetalleGestion}
+                    // editingMode="modal" //default         
+                    enableTopToolbar={false}
+                    enableColumnOrdering
+                    // enableEditing
+                    /* onEditingRowSave={handleSaveRowEdits}
+                        onEditingRowCancel={handleCancelRowEdits}*/
+                    muiToolbarAlertBannerProps={
+                      isError
+                        ? {
+                          color: 'error',
+                          children: 'Error al cargar información',
+                        }
+                        : undefined
+                    }
+                    onColumnFiltersChange={setColumnFilters}
+                    onGlobalFilterChange={setGlobalFilter}
+                    onPaginationChange={setPagination}
+                    onSortingChange={setSorting}
+                    rowCount={rowCount}
+
+                    state={{
+                      columnFilters,
+                      globalFilter,
+                      isLoading,
+                      pagination,
+                      showAlertBanner: isError,
+                      showProgressBars: isRefetching,
+                      sorting,
+                    }}
+                  />
+                </div>
+
               </Box>
             </Tab>
           </Tabs>
@@ -506,49 +646,50 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
         </Modal.Body>
         <Modal.Body>
-          <MaterialReactTable
-            localization={MRT_Localization_ES}
-            displayColumnDefOptions={{
-              'mrt-row-actions': {
-                muiTableHeadCellProps: {
-                  align: 'center',
+          <div>
+            <MaterialReactTable
+              localization={MRT_Localization_ES}
+              displayColumnDefOptions={{
+                'mrt-row-actions': {
+                  muiTableHeadCellProps: {
+                    align: 'center',
+                  },
+                  size: 120,
                 },
-                size: 120,
-              },
-            }}
-            columns={listadoCampos}
-            data={Data}
-            // editingMode="modal" //default         
-            enableTopToolbar={false}
-            enableColumnOrdering
-            // enableEditing
-            /* onEditingRowSave={handleSaveRowEdits}
-                onEditingRowCancel={handleCancelRowEdits}*/
-            muiToolbarAlertBannerProps={
-              isError
-                ? {
-                  color: 'error',
-                  children: 'Error al cargar información',
-                }
-                : undefined
-            }
-            onColumnFiltersChange={setColumnFilters}
-            onGlobalFilterChange={setGlobalFilter}
-            onPaginationChange={setPagination}
-            onSortingChange={setSorting}
-            rowCount={rowCount}
+              }}
+              columns={listadoCampos}
+              data={Data}
+              // editingMode="modal" //default         
+              enableTopToolbar={false}
+              enableColumnOrdering
+              // enableEditing
+              /* onEditingRowSave={handleSaveRowEdits}
+                  onEditingRowCancel={handleCancelRowEdits}*/
+              muiToolbarAlertBannerProps={
+                isError
+                  ? {
+                    color: 'error',
+                    children: 'Error al cargar información',
+                  }
+                  : undefined
+              }
+              onColumnFiltersChange={setColumnFilters}
+              onGlobalFilterChange={setGlobalFilter}
+              onPaginationChange={setPagination}
+              onSortingChange={setSorting}
+              rowCount={rowCount}
 
-            state={{
-              columnFilters,
-              globalFilter,
-              isLoading,
-              pagination,
-              showAlertBanner: isError,
-              showProgressBars: isRefetching,
-              sorting,
-            }}
-
-          />
+              state={{
+                columnFilters,
+                globalFilter,
+                isLoading,
+                pagination,
+                showAlertBanner: isError,
+                showProgressBars: isRefetching,
+                sorting,
+              }}
+            />
+          </div>
         </Modal.Body>
         <Modal.Footer>
           <Button type="button" variant="secondary" onClick={handleClose}>

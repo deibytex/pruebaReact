@@ -15,6 +15,8 @@ export interface FatigueContextModel {
     setListadoVehiculoSinOperacion: (lstvehiculos: any[]) => void;
     alertas?: any;
     setalertas: (lstalertas: any[]) => void;
+    UserId?: string;
+    setUserId: (id: string) => void;
     iserror?: any;
     setError: (error: any) => void;
  
@@ -25,6 +27,7 @@ const FatigueContext = createContext<FatigueContextModel>({
     setlistadoEventosActivos: (eventos: EventoActivo[]) => { },
     setListadoVehiculoSinOperacion: (lstvehiculos: any[]) => { },
     setalertas: (lstalertas: any[]) => { },
+    setUserId: (id: string) => "",
     setError: (error: any) => { }
 });
 
@@ -34,6 +37,7 @@ const FatigueProvider: React.FC = ({ children }) => {
     const [listadoEventosActivos, setlistadoEventosActivos] = useState<EventoActivo[]>([]);
     const [ListadoVehiculoSinOperacion, setListadoVehiculoSinOperacion] = useState<any[]>([]);
     const [alertas, setalertas] = useState<any[]>([]);
+    const [UserId, setUserId] = useState("");
     const [iserror, setError] = useState<any>({});
     const value: FatigueContextModel = {
         vehiculosOperacion,
@@ -44,7 +48,10 @@ const FatigueProvider: React.FC = ({ children }) => {
         setListadoVehiculoSinOperacion,
         alertas, 
         setalertas,
-        iserror, setError
+        UserId,
+        setUserId,
+        iserror, 
+        setError
     };
     return (
         <FatigueContext.Provider value={value}>
@@ -62,7 +69,7 @@ function useDataFatigue() {
 // segun parametrización que debe realizarse
 
 const DataVehiculoOperando: React.FC = ({ children }) => {
-    const { setvehiculosOperacion, setlistadoEventosActivos, setListadoVehiculoSinOperacion, setalertas, setError, iserror } = useDataFatigue();
+    const { setvehiculosOperacion, setlistadoEventosActivos, setListadoVehiculoSinOperacion, setalertas, setUserId, setError, iserror } = useDataFatigue();
     let idinterval: number = 0;
 
 

@@ -3,6 +3,8 @@ import moment from "moment";
 
 import {  DWH_getconsultadinamicasprocedure, DWH_GetConsultasDinamicas } from "../../../../apiurlstore";
 import { ParamsEndPointDynamic } from "../../../../_start/helpers/Models/paramsConsultasDinamicas";
+import { Post_GetConsultasDinamicas } from "../../../../_start/helpers/Axios/DWHService";
+
 
 
 export  function getEventosActivosPorDia(props: ParamsEndPointDynamic , body: any) {
@@ -67,3 +69,34 @@ export  function getEventosActivosPorDia(props: ParamsEndPointDynamic , body: an
       params : { Clase: "FATGQueryHelper" , NombreConsulta : "getAlertas" }
     });
   }
+
+  export  function setGestor(UserId: string, Observaciones: string, EstadoGestion: boolean, alertaId: number, gestor: string){
+    var params: { [id: string]: string | null; } = {};
+    params["UserId"] = UserId;
+    params["Observaciones"] = Observaciones;
+    params["EsGestionado"] = EstadoGestion.toString();
+    params["AlertaId"] = alertaId.toString();
+    params["gestor"] = gestor;
+    
+    // hacemos la consulta 
+  return  Post_GetConsultasDinamicas({    
+    Clase : "FATGQueryHelper",  
+    NombreConsulta: "setGestor", 
+    Pagina :null, 
+    RecordsPorPagina :null}, 
+    params);
+  };
+
+  export  function setObservaciones(Observaciones: string){
+    var params: { [id: string]: string | null; } = {};
+    params["data"] = Observaciones;
+    
+    // hacemos la consulta 
+    return  Post_GetConsultasDinamicas({    
+      Clase : "FATGQueryHelper",  
+      NombreConsulta: "setObervaciones", 
+      Pagina :null, 
+      RecordsPorPagina :null}, 
+      params);
+  };
+
