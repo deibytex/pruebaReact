@@ -5,6 +5,8 @@ import { SemanasChart } from "./SemanasChart";
 import { UnidadesActivasChart } from "./UnidadesActivasChart";
 import { VerticalChart } from "./VerticalChart";
 import { Checkbox, CheckboxGroup } from "rsuite";
+import { UnidadesActivasOBC } from "./UnidadesActivasOBC";
+import { UnidadesActivasMIX } from "./UnidadesActivasMIX";
 
 const UnidadesActivas: React.FC = () => {
     const [MontarOBC, SetMontarOBC] = useState<boolean>(true);
@@ -133,8 +135,6 @@ const UnidadesActivas: React.FC = () => {
             });
     };
 
-
-
 const FiltrarPestañas = (row:any) =>{
     let Tab = row.target.attributes.id.value;
     if(Tab == "pills-propios-tab"){
@@ -147,23 +147,8 @@ const FiltrarPestañas = (row:any) =>{
         SetMontarOBC(false);
         SetMontarMX(true);
     }
-
-
     // setDataFiltrada
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
     return (
         <>
             <ul className="nav nav-pills mb-3" id="pills-tab" role="tablist">
@@ -186,75 +171,16 @@ const FiltrarPestañas = (row:any) =>{
                             <div className="tab-pane fade show active" id="pill-propios" role="tabpanel" aria-labelledby="home-tab">
                                 <div className="row">
                                     <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 pt-12">
-                                        {/* Para los que son alquilados */}
-                                        <div className="row">
-                                            <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 pt-12">
-                                                <div className="d-flex justify-content-start  ">
-                                                    {(Data !== undefined) && (Data['Unidades'] != undefined) && (<>
-                                                        <CheckboxGroup inline name="checkboxList" value={value} onChange={handleChange}>
-                                                            {defaultPriopios.map(item => (
-                                                                <Checkbox key={item.name} value={item.name}>
-                                                                    {item.name}
-                                                                </Checkbox>
-                                                            ))}
-                                                        </CheckboxGroup></>)}
-                                                </div>
-                                            </div>
-                                            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-10">
-                                                {(Data != undefined) && (MontarOBC) && (tab == "#tab1") && (<SemanasChart OBC={"Si"} className={"shadow-lg"}></SemanasChart>)}
-
-                                            </div>
-                                            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-10">
-                                                {(Data != undefined) &&  (MontarOBC) && (tab == "#tab1") &&  (<VerticalChart className={"shadow-lg"}></VerticalChart>)}
-
-                                            </div>
-                                            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-10">
-                                                {(Data != undefined) &&  (MontarOBC) && (tab == "#tab1") && (<UnidadesActivasChart OBC={"Si"} className={"shadow-lg"}></UnidadesActivasChart>)}
-
-                                            </div>
-                                            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-10">
-                                                {(Data != undefined) &&  (MontarOBC) && (tab == "#tab1") && (<OtrasUnidadesChart  className={"shadow-lg"} OBC={"Si"}></OtrasUnidadesChart>)}
-
-                                            </div>
-                                        </div>
-
+                                        {/* Para los OBC */}
+                                        {(tab == "#tab1") && (MontarOBC) && (<UnidadesActivasOBC tab={tab}></UnidadesActivasOBC>)}  
                                     </div>
                                 </div>
                             </div>
                             <div className="tab-pane fade" id="pill-alquilado" role="tabpanel" aria-labelledby="profile-tab">
                                 <div className="row">
                                     <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 pt-12">
-                                        {/* Para los que son propios de Syscaf */}
-                                        <div className="row">
-                                            <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 pt-12">
-                                                <div className="d-flex justify-content-start  ">
-                                                    {(Data !== undefined) && (Data['Unidades'] != undefined) && (<>
-                                                        <CheckboxGroup inline name="checkboxList" value={value} onChange={handleChange}>
-                                                            {defaultPriopios.map(item => (
-                                                                <Checkbox key={item.name} value={item.name}>
-                                                                    {item.name}
-                                                                </Checkbox>
-                                                            ))}
-                                                        </CheckboxGroup></>)}
-                                                </div>
-                                            </div>
-                                            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-10">
-                                                {(Data != undefined) &&   (MontarMX) && (tab == "#tab2") && (<SemanasChart  OBC={"No"}  className={"shadow-lg"}></SemanasChart>)}
-
-                                            </div>
-                                            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-10">
-                                                {(Data != undefined) &&  (MontarMX) && (tab == "#tab2") && (<VerticalChart className={"shadow-lg"}></VerticalChart>)}
-
-                                            </div>
-                                            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-10">
-                                                {(Data != undefined) &&  (MontarMX) &&  (tab == "#tab2") &&(<UnidadesActivasChart OBC={"No"}  className={"shadow-lg"}></UnidadesActivasChart>)}
-
-                                            </div>
-                                            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-10">
-                                                {(Data != undefined) &&  (MontarMX) &&(tab == "#tab2") &&  (<OtrasUnidadesChart  OBC={"No"} className={"shadow-lg"}></OtrasUnidadesChart>)}
-
-                                            </div>
-                                        </div>
+                                        {/* Para los MIX */}
+                                      {(tab == "#tab2") && (MontarMX) && (<UnidadesActivasMIX tab={tab}></UnidadesActivasMIX>)}  
                                     </div>
                                 </div>
                             </div>

@@ -5,8 +5,9 @@ import ReactApexChart from "react-apexcharts";
 
 type Props = {
   className: string;
+  OBC:string;  
 }
-const UnidadesActivasChart: React.FC<Props> = ({ className }) => {
+const UnidadesActivasChart: React.FC<Props> = ({ className, OBC }) => {
   const { Data, DataFiltrada, Filtrado } = useDataDashboard();
   const [UnidadesActivas, setUnidadesActivas] = useState<any>(null);
   useEffect(() => {
