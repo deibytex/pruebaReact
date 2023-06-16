@@ -159,7 +159,7 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
 
         //Vertical
         let agrupadorGeneral = VerticalData.map((item) => {
-            if(item.OBCSyscaf != "Si")
+            if(item.OBCSyscaf != "Si" && item.ClasificacionId == "Si")
                 return item.Vertical;
         }).filter((value, index, self: any) => {
             return self.indexOf(value) === index;
@@ -240,7 +240,7 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
             let cantidadUnidadesActivas = 0;
             nombreSeries = data.map((item: any) => {
               if (item.OBCSyscaf != 'Si')
-                if(item.ClasificacionId != "No Definido" && item.ClasificacionId != "No")
+                if(item.ClasificacionId != "No Definido" && item.ClasificacionId != 'Si' || item.ClasificacionId  ? item.Vertical:undefined)
                     return item.ClasificacionId;
             }).filter((value: any, index: any, self: any) => {
               return self.indexOf(value) === index;
@@ -248,7 +248,7 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
         
             let datosUnidadesActivas: any[] = [];
             nombreSeries.map((item: any) => {
-              if (item != undefined) {
+              if (item != undefined && item != "No Definido") {
                 let prefiterdata = data.filter(function (val: any) {
                   if (val.ClasificacionId == item && val.OBCSyscaf != "Si")
                     return val.ClienteId
@@ -259,7 +259,7 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
             })
         
             let labels = nombreSeries.map((e) => {
-              if(e != undefined )
+              if(e != undefined  && e != "No Definido")
                 return (e == "Si"  ? "Activa" :  "No Activa" )
             }).filter((f) => f );
             
