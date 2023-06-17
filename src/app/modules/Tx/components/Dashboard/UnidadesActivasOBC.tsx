@@ -109,7 +109,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
         return function cleanUp() {
             //SE DEBE DESTRUIR EL OBJETO CHART
         };
-    }, [tab])
+    }, [])
 
     const RetornarSerie = (data: any[], VerticalData:any[] ) => {
         var dataChart = data.filter((e:any) =>{
@@ -391,7 +391,6 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
             // actializar los datos
             ApexCharts.exec('apexchart-otrasunidades', 'updateSeries', datos);
     };
-
     useEffect(() => {
         if (Filtrado) {
             if (DataFiltrada){
@@ -402,13 +401,18 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
             }
         }
         else {
+          //Toco ponerle un timeuot porque no renderizaba cuando debia
+          let timerId = setTimeout(() => {
             if(Data)
             if (Data["Unidades"] != undefined){
                 let VerticalData:any = Data["Unidades"].filter(function (item: any) {
                         return item.Vertical;
                     });
                RetornarSerie(Data["Unidades"],VerticalData);
-            }
+            };
+            clearTimeout(timerId);
+          }, 1000);
+          // clearTimeout(timerId);
         }
     }, [Data, Filtrado, DataFiltrada])
 

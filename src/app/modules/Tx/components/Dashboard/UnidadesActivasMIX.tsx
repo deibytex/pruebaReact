@@ -105,7 +105,7 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
         return function cleanUp() {
             //SE DEBE DESTRUIR EL OBJETO CHART
         };
-    }, [tab])
+    }, [])
 
     const RetornarSerie = (data: any[], VerticalData:any[] ) => {
         var dataChart = data.filter((e:any) =>{
@@ -386,17 +386,7 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
             });
             // actializar los datos
             ApexCharts.exec('apexchart-otrasunidadesMIX', 'updateSeries', datos);
-
-
-
-
-
-
-
-
-
     };
-
     useEffect(() => {
         if (Filtrado) {
             if (DataFiltrada){
@@ -407,13 +397,17 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
             }
         }
         else {
+          //Toco ponerle un timeuot porque no renderizaba cuando debia
+          let timerId = setTimeout(() => {
             if(Data)
             if (Data["Unidades"] != undefined){
                 let VerticalData:any = Data["Unidades"].filter(function (item: any) {
                         return item.Vertical;
                     });
                RetornarSerie(Data["Unidades"],VerticalData);
-            }
+            };
+            clearTimeout(timerId);
+          }, 1000);
         }
     }, [Data, Filtrado, DataFiltrada])
 
@@ -479,7 +473,6 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
                   }
                 </div>
                 )}
-
             </div>
         </div>
     )
