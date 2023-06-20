@@ -13,7 +13,7 @@ import type {
 } from '@tanstack/react-table';
 
 import { Box, IconButton, Tooltip, Typography } from "@mui/material";
-import { ManageSearch, Message, VerifiedUser } from "@mui/icons-material";
+import { ManageSearch, Message, VerifiedUser, Map } from "@mui/icons-material";
 import { FechaServidor } from "../../../../_start/helpers/Helper";
 import { getAlertas, setGestor, setObservaciones } from "../data/dashBoardData";
 import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/helpers/components/ConfirmDialog";
@@ -32,12 +32,12 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
   const isAuthorized = useSelector<RootState>(
     ({ auth }) => auth.user
-);
+  );
 
   const model = (isAuthorized as UserModelSyscaf);
 
 
-  const { alertas, setalertas, setUserId, UserId } = useDataFatigue();
+  const { alertas, setalertas, setUserId, UserId,setDataDetalladoFiltrado, setFiltrado, setActiveTab, activeTab,  loader, setloader  } = useDataFatigue();
 
   const [dataAlertas, setDataAlertas] = useState([]);
   const [dataDetalleGestion, setdataDetalleGestion] = useState([]);
@@ -172,10 +172,10 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         header: 'Estado',
         size: 80,
         Cell({ cell, column, row, table, }) {
-          return (cell.getValue() == null) ? <span className="badge bg-danger">No Gestionado</span> 
-          : (cell.getValue() == true) ? <span className="badge bg-primary">Gestionado</span> 
-          : (cell.getValue() == false) ? <span className="badge bg-primary">En gestion</span>
-          : <span>{row.original.EstadoGestion}</span>
+          return (cell.getValue() == null) ? <span className="badge bg-danger">No Gestionado</span>
+            : (cell.getValue() == true) ? <span className="badge bg-primary">Gestionado</span>
+              : (cell.getValue() == false) ? <span className="badge bg-primary">En gestion</span>
+                : <span>{row.original.EstadoGestion}</span>
         },
       }, {
         accessorKey: 'gestor',
@@ -242,7 +242,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         header: 'Fecha',
         size: 100,
         Cell({ cell, column, row, table, }) {
-            return (moment(cell.getValue() as Date).format('DD/MM/YYYY HH:mm:ss'))
+          return (moment(cell.getValue() as Date).format('DD/MM/YYYY HH:mm:ss'))
         }
       },
       {
@@ -270,15 +270,15 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   useEffect(() => {
 
     if (observaciones != "" && observaciones != null) {
-        let json = JSON.parse(observaciones);
-        setData(json);
-        setRowCount(json.length);
+      let json = JSON.parse(observaciones);
+      setData(json);
+      setRowCount(json.length);
     }
     else {
-        setData([]);
-        setRowCount(0);
+      setData([]);
+      setRowCount(0);
     }
-}, [observaciones])
+  }, [observaciones])
 
   const getobservacion = (e: any) => {
     setobervacionGestion(e.target.value)
@@ -291,61 +291,61 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
     let GestorObervaciones: any = {};
 
     GestorObervaciones = {
-        AlertaId: alertaId,
-        fechaapertura: Data[0].fechaapertura,
-        fechagestion: FechaServidor, 
-        value: observacion,
-        EsCerrado: escerrado?.toString()
+      AlertaId: alertaId,
+      fechaapertura: Data[0].fechaapertura,
+      fechagestion: FechaServidor,
+      value: observacion,
+      EsCerrado: escerrado?.toString()
 
     };
 
-    
+
     confirmarDialog(() => {
-        setObservaciones(JSON.stringify(GestorObervaciones)).then((response) => {
-            successDialog("Operación Éxitosa", "");
-            setData([...Data, JSON.parse(JSON.stringify(GestorObervaciones))] as any[]);
-            setobervacionGestion("");
-            if (escerrado == "true") {
-                getAlertas().then( (response) => {
-                      setalertas(response.data);
-                        handleClose();
-                    });
-            }
+      setObservaciones(JSON.stringify(GestorObervaciones)).then((response) => {
+        successDialog("Operación Éxitosa", "");
+        setData([...Data, JSON.parse(JSON.stringify(GestorObervaciones))] as any[]);
+        setobervacionGestion("");
+        if (escerrado == "true") {
+          getAlertas().then((response) => {
+            setalertas(response.data);
+            handleClose();
+          });
+        }
 
 
 
-        }).catch((error) => {
-            errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
-        });
+      }).catch((error) => {
+        errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
+      });
     }, escerrado == "false" ? `Esta seguro que desea agregar el comentario` : `Esta seguro que terminar la gestión`
-        , escerrado == "false" ? "Guardar" : "Terminar")
-}
+      , escerrado == "false" ? "Guardar" : "Terminar")
+  }
 
   const setGestorPreoperacional = (alertaId: number) => {
 
     let GestorObervaciones: any = {};
     GestorObervaciones = {
-        fechaapertura: FechaServidor,
-        fechagestion: FechaServidor,
-        value: "Gestor Asignado",
-        EsCerrado: null
+      fechaapertura: FechaServidor,
+      fechagestion: FechaServidor,
+      value: "Gestor Asignado",
+      EsCerrado: null
     };
 
     confirmarDialog(() => {
 
-        setGestor(UserId as string, '[' + JSON.stringify(GestorObervaciones) + ']', false, alertaId, model.Nombres).then(() => {
-          getAlertas().then(
-                (response) => {
+      setGestor(UserId as string, '[' + JSON.stringify(GestorObervaciones) + ']', false, alertaId, model.Nombres).then(() => {
+        getAlertas().then(
+          (response) => {
 
-                  setalertas(response.data)
+            setalertas(response.data)
 
-                });
-            successDialog("Operación Éxitosa.", "");
-        }).catch(() => {
-            errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
-        });
+          });
+        successDialog("Operación Éxitosa.", "");
+      }).catch(() => {
+        errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
+      });
     }, `Desea usted gestionar esta alerta`, "Sí");
-}
+  }
 
 
   const modalObervaciones = (Obervaciones: string, alertaId: number, EsGestionado: boolean) => {
@@ -354,6 +354,16 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
     setesgestionado(EsGestionado);
     showModal();
   }
+
+  const IrToMap = (row: any) => {
+    setloader(true);
+      let Data  = new Array()
+      Data = [...Data, ...JSON.parse(row.original.DetalladoEventos)]
+      setDataDetalladoFiltrado(Data);
+      setFiltrado(true)
+      console.log(row);
+      setActiveTab('#tab2');
+  };
 
   return (
 
@@ -427,7 +437,14 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
               </Tooltip>
               : <></>
             }
-
+            {/* Para el mapa  Marcial*/}
+            <Tooltip arrow placement="top" title="Ver en el mapa">
+              <IconButton onClick={(e: any) => {
+                IrToMap(row);
+              }} >
+                <Map />
+              </IconButton>
+            </Tooltip>
           </Box>
         )
         }
@@ -435,13 +452,54 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
 
         renderDetailPanel={({ row }) => (
-          
           <Tabs
             defaultActiveKey="gestion"
             className="mb-3 border"
             justify
           >
-             <Tab eventKey="DetalleGestion" title="Detalle Eventos">
+            <Tab eventKey="gestion" title={`Informacion Básica`}>
+
+              <Box
+                sx={{
+                  display: 'grid',
+                  margin: 'auto',
+                  gridTemplateColumns: '1fr 1fr',
+                  width: '120%',
+                }}
+              >
+                <Card>
+                  <Card.Body>
+                    <Card.Title>Información Gestión</Card.Title>
+                    <Card.Text>
+
+                      <span>Fecha Apertura:</span>
+                      {/* <div className="mb-3 row">
+                        <div className="col-3"> */}
+
+                      <FechaAperturaControl />
+                      {/* </div>
+                      </div> */}
+
+                    </Card.Text>
+                    <Card.Text>
+
+                      <span>Ultima Gestión:</span>
+                      {/* <div className="mb-3 row">
+                        <div className="col-3"> */}
+                      <FechaGestionControl />
+                      {/* </div>
+                      </div> */}
+
+                    </Card.Text>
+                    <Card.Text>
+                      <textarea className="form-control  input input-sm " id={'obervacion'} onChange={getobservacion} rows={3} value={obervacionGestion}></textarea>
+                    </Card.Text>
+                    {/* <Button variant="primary">Adicionar Gestión</Button> */}
+                  </Card.Body>
+                </Card>
+              </Box>
+            </Tab>
+            <Tab eventKey="DetalleGestion" title="Detalle Gestión">
               <Box
                 sx={{
                   display: 'grid',

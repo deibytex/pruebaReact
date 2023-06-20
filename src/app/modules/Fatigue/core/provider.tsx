@@ -26,8 +26,8 @@ export interface FatigueContextModel {
     setDataDetallado: (DataAlertas: any) => void;
     setDataDetalladoFiltrado: (DataAlertas: any) => void;
     setFiltrado: (Filtrado: boolean) => void;
-    tabGlobal?: string;
-    setTabGlobal: (tabGlobal: string) => void;
+    activeTab?: string;
+    setActiveTab: (tabGlobal: string) => void;
     loader?: boolean;
     setloader: (loader: boolean) => void;
     UserId?: string;
@@ -46,7 +46,7 @@ const FatigueContext = createContext<FatigueContextModel>({
     setDataDetallado: (DataDetallado: any) => { },
     setFiltrado: (Filtrado: boolean) => { },
     setDataDetalladoFiltrado: (DataAlertas: any) => { },
-    setTabGlobal: (tabGlobal: string) => { },
+    setActiveTab: (tabGlobal: string) => { },
     setUserId: (id: string) => "",
     setloader: (loader: boolean) => { }
 });
@@ -62,7 +62,7 @@ const FatigueProvider: React.FC = ({ children }) => {
     const [DataDetallado, setDataDetallado] = useState<any[]>([]);
     const [DataDetalladoFiltrado, setDataDetalladoFiltrado] = useState<any[]>([]);
     const [Filtrado, setFiltrado] = useState<boolean>(false);
-    const [tabGlobal, setTabGlobal] = useState<string>("#tab0");
+    const [activeTab, setActiveTab] = useState<string>("#tab1");
     const [loader, setloader] = useState<boolean>(false);
     const [UserId, setUserId] = useState("");
     const value: FatigueContextModel = {
@@ -84,8 +84,8 @@ const FatigueProvider: React.FC = ({ children }) => {
         DataDetalladoFiltrado,
         setFiltrado,
         Filtrado,
-        tabGlobal,
-        setTabGlobal,
+        activeTab,
+        setActiveTab,
         loader,
         setloader ,UserId,
         setUserId
@@ -127,7 +127,7 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
         ).catch((error) => {
             setError({ accion: "DataVehiculoOperando", error });
         });
-        //  let datetemp = moment("2023-06-06 09:19:05.990").toDate()
+         //let datetemp = moment("2023-06-06 09:19:05.990").toDate()
         GetAlarmas(children, FechaServidor, moment(FechaServidor).add("8", "hours").toDate()).then((response: AxiosResponse<any>) => {
             setDataAlertas(response.data);
         }).catch((error: any) => {

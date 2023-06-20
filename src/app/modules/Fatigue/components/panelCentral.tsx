@@ -21,14 +21,14 @@ type Props = {
 const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => {
   let idinterval: number = 0;
   const [width, setWidth] = useState("80px")
-  const [activeTab, setActiveTab] = useState("#tab1");
-  const [tabGlobal, setTabGlobal] = useState("#tab1");
+  // const [activeTab, setActiveTab] = useState("#tab1");
+ 
   const [Map, setMap] = useState<boolean>(false);
   const [activeChart, setActiveChart] = useState<ApexCharts | undefined>();
   const [activeEvents, setactiveEvents] = useState<EventoActivo[]>([]);
   const [opciones, setOpciones] = useState<any>(null);
   const refChart = useRef<ReactApexChart>(null);
-  const { listadoEventosActivos, DataAlertas, DataDetallado, loader } = useDataFatigue();
+  const { listadoEventosActivos, DataAlertas, DataDetallado, loader , activeTab , setActiveTab} = useDataFatigue();
 
   // useefet que se ejecuta la primera vez, cuando el cliente es seleccionado 
   useEffect(() => {
@@ -181,7 +181,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
   // TRAE LA INFORMACION DE EVENTOS ACTIVOS POR DIA
   useEffect(() => {
 
-    setTab(parseInt(activeTab.replace('#tab', '')));
+    setTab(parseInt((activeTab != undefined ?activeTab?.replace('#tab', '') : '1' )));
     setactiveEvents(listadoEventosActivos ?? []);
 
     return function cleanUp() {
@@ -193,7 +193,6 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
 
   const setTab = (tabNumber: number) => {
     setActiveTab(`#tab${tabNumber}`);
-    setTabGlobal(`#tab${tabNumber}`);
     if (activeChart) {
       activeChart.destroy();
     }
@@ -215,9 +214,9 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
   };
 
   useEffect(() => {
-    if (tabGlobal == `#tab2`)
+    if (activeTab == `#tab2`)
       setTab(2);
-  }, [tabGlobal])
+  }, [activeTab])
 
   useEffect(() => {
     if (idinterval === 0) {
@@ -317,7 +316,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
                     (<CardContainerEventos isActive={true} isDetails={false} />)
                   }
                 </div>
-
+                </div>
                 <div
                   className={`tab-pane fade ${activeTab === "#tab2" ? "show active" : ""
                     }`}
@@ -360,7 +359,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
 
 
 
-              </div>
+             
 
 
             </div>

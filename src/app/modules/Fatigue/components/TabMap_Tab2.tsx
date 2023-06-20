@@ -1,16 +1,11 @@
 import { useEffect, useState } from "react";
 import { MapContainer, Marker, Popup, TileLayer, Tooltip, useMap } from "react-leaflet";
 import { Icon } from "leaflet";
-
 import { useDataFatigue } from "../core/provider";
 import { EventoActivo } from "../models/EventosActivos";
-import { toAbsoluteUrl } from "../../../../_start/helpers";
-import L from "leaflet";
-import { Box, Typography } from "@mui/material";
-import MarkerClusterGroup from "react-leaflet-markercluster";
 export function MapTab() {
     const [show, setshowp] = useState<boolean>(false);
-    const { DataDetallado } = useDataFatigue();
+    const { DataDetallado, Filtrado, DataDetalladoFiltrado, setloader } = useDataFatigue();
     const [zoom, setzoom] = useState<number>(13);
     const [map, setMap] = useState<EventoActivo[]>([]);
     const [activePark, setActivePark] = useState<EventoActivo>();
@@ -33,34 +28,37 @@ export function MapTab() {
     });
 
     useEffect(() => {
-        setTimeout(function () {
-           // setisClustering(false)
-            setzoom(16)
-            setshowp(true)
-        }, 3000);
-    }, [])
-
-    useEffect(() => {
-        if (DataDetallado != undefined && DataDetallado.length > 0) {
-            setMap(DataDetallado);
-            setcenterLatitud(Number.parseFloat(DataDetallado[0].Latitud))
-            setcenterLongitud(Number.parseFloat(DataDetallado[0].Longitud))
+        if(Filtrado){
+            if (DataDetalladoFiltrado != undefined && DataDetalladoFiltrado.length > 0) {
+                setMap(DataDetalladoFiltrado);
+                setcenterLatitud(Number.parseFloat(DataDetalladoFiltrado[0].Latitud))
+                setcenterLongitud(Number.parseFloat(DataDetalladoFiltrado[0].Longitud))
+                setloader(false);
+                setzoom(16);
+                setshowp(true);
+            }
+        }else{
+            if (DataDetallado != undefined && DataDetallado.length > 0) {
+                setMap(DataDetallado);
+                setcenterLatitud(Number.parseFloat(DataDetallado[0].Latitud))
+                setcenterLongitud(Number.parseFloat(DataDetallado[0].Longitud))
+                setloader(false);
+                setzoom(16);
+                setshowp(true);
+            }
         }
-    }, [DataDetallado])
+       
+    }, [DataDetallado, Filtrado, DataDetalladoFiltrado])
 
     function Puntos() {
         const mapa = useMap();
-        return (<>
+        return (
+        <>
             {map != undefined && map.length > 0 &&
                 map.map((park: any, index:any) => {
                     return (
                         <Marker
-                            title={park.EventId}
-                            icon={L.icon({
-                                iconUrl: toAbsoluteUrl('/media/syscaf/iconbus.png'),
-                                iconSize: [40, 40]
-
-                            })}
+                            title={(park.evento == ""|| park.evento == null ?  park.EventTypeId : park.evento)}
                             key={index}
                             position={[
                                 Number.parseFloat(park.Latitud),
@@ -71,11 +69,9 @@ export function MapTab() {
                                     setActivePark(park);
                                 },
                             }}>
-
                             <Tooltip className="bg-transparent border-0  text-white fs-8" direction="right" offset={[13, 0]} opacity={1} permanent>
-                                {park.EventId}
+                                {(park.evento == ""|| park.evento == null ?  park.EventId: park.evento)}
                             </Tooltip>
-
                         </Marker>
                     );
                 })}
@@ -100,11 +96,9 @@ export function MapTab() {
                             ],
                             zoom
                         );
-
                         setisClustering(true)
                     }}
                     onOpen={() => {
-
                         mapa.setView(
                             [
                                 activePark.Latitud,
@@ -115,25 +109,12 @@ export function MapTab() {
                     }}
                 >
                     <div className="card shadow-sm  border">
-                        <div className="card-title fs-2 bg-secondary border "> <p className="text-center">{activePark.EventId}</p></div>
-                        <div className="card-body">
-                            <Box
-                                sx={{
-                                    display: 'grid',
-                                    margin: 'auto',
-                                    gridTemplateColumns: '1fr 1fr ',
-                                    gridTemplateRows: '30px',
-
-                                }}
-                            >
-                                <Typography >Evento:</Typography>
-                                {/* <Typography >{getIconSoc(activePark.soc)}</Typography>
-                                <Typography>Operador:</Typography>
-                                <Typography >{activePark.driver}</Typography> */}
-                            </Box>
-
+                        {/* <div className="card-header">
+                            <div className="card-title "> <p className="text-center">EVENTO</p></div>
+                        </div> */}
+                        <div className="card-body fs-2 bg-secondary border">
+                           {activePark.evento}
                         </div>
-
                     </div>
                 </Popup>
 
@@ -141,9 +122,6 @@ export function MapTab() {
             )}
         </>)
     }
-
-
-
     return (
         <>
             {(show) && (
@@ -153,19 +131,16 @@ export function MapTab() {
                     zoom={zoom}
                     className=" ml-4"
                     style={{ height: 700 }}
-                // whenCreated={setMap}
                 >
                     <TileLayer
                         url={CapaBasicNight}
                     />
                     <RenderPopUp />
                     {/**  si son todos aplicamos el clustering, si se filtra lo desagregamos*/}
-                    {(isClustering) && (<MarkerClusterGroup>
+                    {
                         <Puntos />
-                    </MarkerClusterGroup>)}
-                    {(!isClustering) && (
-                        <Puntos />
-                    )}
+                      
+                    }
                 </MapContainer>
             )}
         </>
