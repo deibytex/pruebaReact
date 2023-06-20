@@ -19,7 +19,12 @@ export default function FormGroupImagen(props: formGroupImagen){
                 .catch(error => console.error(error))*/
                 setImagenURL('');
            values[props.campo] = archivo;
-        
+           values['Extension'] =`.${e.currentTarget.files[0].name.split('.').pop()}`;
+           values['Tipo'] =e.currentTarget.files[0].type ?? '';
+           values['Peso'] = e.currentTarget.files[0].size;
+           values['NombreArchivo'] = e.currentTarget.files[0].name;
+           
+           
         }
     }
 

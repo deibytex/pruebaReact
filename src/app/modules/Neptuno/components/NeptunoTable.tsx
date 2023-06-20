@@ -384,7 +384,7 @@ const {containerNeptuno, setcontainerNeptuno} = useDataNeptuno();
     (row: MRT_Row<any>) => {
 
       confirmarDialog(() => {
-        UpdateEstadoArchivo(row.original['ArchivoId'].toString()).then(() => {
+        UpdateEstadoArchivo(row.original['ArchivoId'].toString(),model.Id, configArea['AreaId']).then(() => {
           //Quito esta parte de aqui, para reconsultar los datos ya que se necesita saber si tiene acceso o no
           //a los archivos que estan inactivos, esto se maneja segun el perfil
 

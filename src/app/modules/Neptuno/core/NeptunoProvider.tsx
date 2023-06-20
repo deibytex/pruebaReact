@@ -5,17 +5,29 @@ import { createContext, useContext, useEffect, useState } from "react";
 export interface NeptunoContextModel {
     containerNeptuno?: string;
     setcontainerNeptuno: (container: string) => void;
+    loader: boolean;
+    setLoader:(container: boolean) => void;
+    EsModificado: boolean;
+    setEsModificado:(container: boolean) => void;
 }
 
 const NeptunoContext = createContext<NeptunoContextModel>({
-    setcontainerNeptuno: (container: string) => { }
+    setcontainerNeptuno: (container: string) => { },
+    setLoader: (container: boolean) => { },
+    loader: false,
+    EsModificado: false,
+    setEsModificado:  (container: boolean)  => { }
 });
 
 const NeptunoProvider: React.FC = ({ children }) => {
     const [containerNeptuno, setcontainerNeptuno] = useState<string>();
+    const [loader, setLoader] = useState<boolean>(false);
+    const [EsModificado, setEsModificado] = useState<boolean>(false);
     const value: NeptunoContextModel = {
         containerNeptuno,
-        setcontainerNeptuno
+        setcontainerNeptuno, loader, setLoader,
+        EsModificado: false,
+        setEsModificado
     };
     return (
         <NeptunoContext.Provider value={value}>

@@ -1,8 +1,9 @@
 import axios from 'axios'
-import { CORE_getconsultadinamicasUser, NEP_DownloadFile, NEP_GetDirectory, NEP_UploadFile } from '../../../../apiurlstore';
+import { CORE_getconsultadinamicasUser, NEP_DownloadFile, NEP_DownloadFileBase64, NEP_GetDirectory, NEP_InsertaArchivo, NEP_UploadFile } from '../../../../apiurlstore';
 import { Post_ExecProcedureByTipoConsulta, Post_getconsultadinamicasUser, Post_getconsultadinamicas } from '../../../../_start/helpers/Axios/CoreService';
 import confirmarDialog, { errorDialog, successDialog } from '../../../../_start/helpers/components/ConfirmDialog';
 import {  neptunoDirectory } from '../models/neptunoDirectory';
+import { FechaMomentUtc, FechaServidor, FechaServidorString } from '../../../../_start/helpers/Helper';
 
 // descarga la informacion del nodo del tree view
 // debe pasarle la ruta tal cual como se encuentra en el blog storgare no es caseSensitive
@@ -22,42 +23,76 @@ export async function DescargarArchivo(nombrearchivo: string, container: string,
         
     });
 }
+export async function DescargarFile(nombrearchivo: string, container: string) {
+    return axios({
+        method: 'get',
+        url: NEP_DownloadFile,
+        params: { nombrearchivo, container }
+       
+    })
+   
+}
+export async function DescargarFileBase64(nombrearchivo: string, container: string) {
+    return axios({
+        method: 'get',
+        url: NEP_DownloadFileBase64,
+        params: { nombrearchivo, container }
+       
+    })
+   
+}
+
+
+
 // DESCARGA EL DIRECTORIO COMPLETO DEL BLOBSTORAGE
-export async function DescargarDirectorio(container: string, filter: string) {
-    const response = await axios.get(NEP_GetDirectory, { params: { container, filter } });
-    return (response.data as Array<neptunoDirectory>);
+export async function DescargarDirectorio(contenedor: string, Nombre: string) {
+    const response = await axios.get(NEP_GetDirectory, { params: { contenedor, Nombre } });
+    return (response.data.data as Array<neptunoDirectory>);
 }
 
 export async function cargarArchivo(archivo: any, 
     handleshowFileLoad: ((arg0: boolean) => void), 
     srcFileLoad: string, contenedor: string, 
-    handlesdatosNeptuno: React.Dispatch<React.SetStateAction<neptunoDirectory[]>>) {
-
+    handlesdatosNeptuno: React.Dispatch<React.SetStateAction<neptunoDirectory[]>>, 
+    usuario: string, Extension:string,    
+    Tipo: string,
+    Peso : string) {
     const formData = new FormData();
     formData.append("archivo", archivo);
     formData.append("src", `${srcFileLoad}`);
-    formData.append("nombre", "desde el blob");
-    formData.append("contenedor", contenedor);
-    await axios({
-        method: 'post',
-        url: NEP_UploadFile,
-        data: formData,
-        headers: { 'Content-Type': 'multipart/form-data' }
+   
+    formData.append('NombreArchivo', `${srcFileLoad}`);
+    formData.append('Descripcion', 'Contenedor Servicio Tecnico');
+    formData.append('DatosAdicionales', '');
+    formData.append('UsuarioId', usuario);
+    formData.append('AreaId','3');
+    formData.append('Tipo', `${Tipo}`);
+    formData.append('Peso', Peso);
+    formData.append('Orden', "0");
+    formData.append('Extension', Extension);
+    formData.append('MovimientoId', "1");
+    formData.append('DescripcionLog', 'Creación del documento');
+         
+    axios({
+      method: 'post',
+      url: NEP_InsertaArchivo,
+      data: formData,
+      headers: { 'Content-Type': 'multipart/form-data' },
+      params: { contenedor }
     }).then(
-        t => {            
-            handleshowFileLoad(false);
-            
-            if(t.data == "Ok")
-            successDialog("Guardar Archivo", "Guardado Satisfactoriamente.");
-            else
-            errorDialog("Guardar Archivo",t.data);
-            (async () => {
-                handlesdatosNeptuno(await DescargarDirectorio(contenedor, ""));
-            })()
-            // actualizar la data tree
-            // colocar un mensaje de ok
-        }
-    );
+      t => {
+   
+        (async () => {
+            handleshowFileLoad(false)
+            handlesdatosNeptuno(await DescargarDirectorio(contenedor, ""));
+        })()
+        successDialog("Datos guardados exitosamente!", "");
+      }
+    ).catch((e) => {
+      errorDialog(e, "<i>Favor comunicarse con su administrador.</i>");
+
+    });
+ 
 }
 
 // DESCARGA EL DIRECTORIO COMPLETO DEL BLOBSTORAGE
@@ -83,9 +118,12 @@ export  function GetArchivosPorCuenta(container: string,Pagina: number, RecordsP
    
 }
 
-export  function UpdateEstadoArchivo(ArchivoId: string) {
+export  function UpdateEstadoArchivo(ArchivoId: string, UsuarioId: string, AreaId: number) {
     var params: { [id: string]: string | null; } = {};
     params["ArchivoId"] =ArchivoId;
+    params["UsuarioId"] =UsuarioId;
+    params["AreaId"] =`${AreaId}`;
+    params["FechaSistema"] =FechaMomentUtc.format("YYYY-MM-DD HH:mm:ss");
     // hacemos la consulta 
     return  Post_ExecProcedureByTipoConsulta({    Clase : "NEPQueryHelper",  NombreConsulta: "UpdateEstadoArchivo", Pagina :null, RecordsPorPagina :null}, params);
    

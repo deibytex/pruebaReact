@@ -6,7 +6,7 @@ export interface neptunoDirectory {
     src: string;
     peso: number;
     hijos: Array<neptunoDirectory> | null;
-
+    contentType : string | null;
 };
 
 export interface NuevoArchivoDTO

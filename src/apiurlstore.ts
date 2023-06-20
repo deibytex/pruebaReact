@@ -30,9 +30,12 @@ export const NEP_InsertaArchivo = `${apiURL}/Archivos/SetArchivo`
 export const NEP_EditarArchivo = `${apiURL}/Archivos/SetArchivo`
 
 export const NEP_ConsutlaListado = `${apiURL}/Archivos/GetArchivos`
-export const NEP_GetDirectory = `${apiURL}/archivos/getDirectorio`
+export const NEP_GetDirectory = `${apiURL}/archivos/GetArchivosDatabase`
 export const NEP_UploadFile = `${apiURL}/archivos/blobservice`
 export const NEP_DownloadFile = `${apiURL}/archivos/DownloadFileFromBlob`
+export const NEP_DownloadFileBase64 = `${apiURL}/archivos/DownloadFileFromBlobBase64`
+
+
 
 /* CLIENTES */
 

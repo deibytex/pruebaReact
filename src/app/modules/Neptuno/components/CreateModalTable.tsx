@@ -122,7 +122,7 @@ export const CreateFileModal: React.FC<Props> = ({ show, handleClose, camposAdic
         
         formData.append('UsuarioId', model.Id);    
         formData.append('AreaId', `${AreaId}`);     
-        console.log(containerNeptuno);
+        
 
         confirmarDialog(() => {
             axios({

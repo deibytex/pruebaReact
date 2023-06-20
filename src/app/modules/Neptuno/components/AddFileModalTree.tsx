@@ -3,6 +3,9 @@ import { ErrorMessage, Field, Form, Formik } from "formik";
 import { KTSVG } from "../../../../_start/helpers";
 import { cargarArchivo } from "../data/dataNeptuno";
 import FormGroupImagen from "../../../../_start/helpers/components/FormGroupFileUpload";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../setup";
+import { UserModelSyscaf } from "../../auth/models/UserModel";
 type modalProps = {
  handleshowFileLoad: ((arg0: boolean) => void);
  showFileLoad : boolean;
@@ -12,7 +15,13 @@ type modalProps = {
 }
 export const  ModalAddFile: React.FC<modalProps> = ({showFileLoad, handleshowFileLoad, srcFileLoad, contenedor, handlesdatosNeptuno}) =>{
 
+   // informacion del usuario almacenado en el sistema
+   const isAuthorized = useSelector<RootState>(
+    ({ auth }) => auth.user
+);
 
+// convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
+const model = (isAuthorized as UserModelSyscaf);
 return (<> <Modal
     className="bg-transparent "
     id="kt_mega_menu_modal"
@@ -46,13 +55,14 @@ return (<> <Modal
             <Formik
                 initialValues={{
                     upload: '',
-                    carpeta: ''
+                    carpeta: '', Extension : '', Tipo : '', Peso :0, NombreArchivo: ''
                 }}
                 onSubmit={
                     values => {
 
-                        let src =  `${srcFileLoad}${(values.carpeta != "") ? `/${values.carpeta}` : ""}`;                     
-                        cargarArchivo(values.upload, handleshowFileLoad, src, contenedor, handlesdatosNeptuno);
+                        let src =  `${srcFileLoad}${(values.carpeta != "") ? `/${values.carpeta}` : ""}/${values.NombreArchivo}`;                     
+                        cargarArchivo(values.upload, handleshowFileLoad, src, contenedor, handlesdatosNeptuno, model.Id, 
+                            values.Extension, values.Tipo, `${values.Peso }`);
                     }
                 }
             >
@@ -70,7 +80,7 @@ return (<> <Modal
                         </div>
 
                         <div className="row col-xs-12 col-md-12 col-lg-12 mt-2">
-                        <FormGroupImagen label={'Archivo:'} campo={'upload'} />
+                        <FormGroupImagen label={'Archivo:'} campo={'upload'}  />
                         </div>
                         <div className="row col-xs-12 col-md-12 col-lg-12 mt-2">
                         <ErrorMessage name="upload">

@@ -68,7 +68,7 @@ export const LogTable: React.FC<Props> = () => {
             },
             {
                 accessorKey: 'NombreMovimiento',
-                header: 'Tipo movimiento',
+                header: 'Tipo',
                 size: 80
             },
             {
@@ -78,7 +78,7 @@ export const LogTable: React.FC<Props> = () => {
             },
             {
                 accessorKey: 'FechaSistema',
-                header: 'Fecha Creación',
+                header: 'Fecha',
                 size: 80,
                 Cell({ cell, column, row, table, }) {
                     return (moment(row.original.FechaSistema).format('DD/MM/YYYY HH:mm:ss'))
@@ -99,6 +99,7 @@ export const LogTable: React.FC<Props> = () => {
 
     useEffect(() => {
         //cambiar contenedor
+        
         ConsultarUsuarios(contenedor).then(
             (response) => {
                 // traemos data principal
@@ -146,7 +147,9 @@ export const LogTable: React.FC<Props> = () => {
 
     const ConsultarLog = () => {
         if (validarcampos()) {
-           
+           setIsLoading(true)
+           setIsError(false)
+           setIsRefetching(true)
             ConsultarLogs(fi, ff, (UsuarioSeleccionado != undefined ? UsuarioSeleccionado.UsuarioId : null), contenedor).then((respuesta: AxiosResponse<LogDTO[]>) => {
                 setData(respuesta.data);
                 //se agrupa por movimientos
@@ -156,7 +159,10 @@ export const LogTable: React.FC<Props> = () => {
                 (Indicadores['Descarga'] != undefined ? setDownload(Indicadores['Descarga']['Indicadores'].length) : setDownload(0));
                 (Indicadores['Modificacion'] != undefined ? setModificado(Indicadores['Modificacion']['Indicadores'].length) : setModificado(0));
                 setRowCount(respuesta.data.length);
+                setIsLoading(false)
+                setIsRefetching(false)
             }).catch((error) => {
+                setIsError(true)
                 errorDialog("<i>Ha ocurrido un error<i/>", "");
             })
 

@@ -82,7 +82,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   }>({});
 
   useEffect(() => {
-    setDataAlertas(alertas);
+    setDataAlertas(alertas.sort( function (a: any, b: any) { return a.EventDateTime - b.EventDateTime} ));
     setRowCount(alertas.length);
     console.log(alertas);
   }, [alertas])
@@ -103,7 +103,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         return { ...item, esVisibleTabs: !item["esVisibleTabs"] };
       return item;
     });
-    setDataAlertas(datafiltrada as any);
+    setDataAlertas(datafiltrada.sort( function (a: { EventDateTime: number; }, b: { EventDateTime: number; }) { return a.EventDateTime - b.EventDateTime} ) as any);
 
   }
 
@@ -125,13 +125,13 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
       {
         accessorKey: 'TipoAlerta',
         header: 'Alarma',
-        size: 250
+        size: 80
       },
       {
         accessorKey: 'vehiculo',
         header: 'Vehículo',
 
-        size: 250
+        size: 80
       },
       {
         accessorKey: 'conductor',
@@ -154,8 +154,8 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         size: 80
       }, {
         accessorKey: 'DetalladoEventos',
-        header: 'Cantidad eventos',
-        size: 80,
+        header: 'Cantidad',
+        size: 50,
         Cell({ cell, column, row, table, }) {
 
           return (
@@ -441,49 +441,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
             className="mb-3 border"
             justify
           >
-            <Tab eventKey="gestion" title={`Informacion Básica`}>
-
-              <Box
-                sx={{
-                  display: 'grid',
-                  margin: 'auto',
-                  gridTemplateColumns: '1fr 1fr',
-                  width: '120%',
-                }}
-              >
-                <Card>
-                  <Card.Body>
-                    <Card.Title>Información Gestión</Card.Title>
-                    <Card.Text>
-
-                      <span>Fecha Apertura:</span>
-                      {/* <div className="mb-3 row">
-                        <div className="col-3"> */}
-                        
-                      <FechaAperturaControl />
-                      {/* </div>
-                      </div> */}
-
-                    </Card.Text>
-                    <Card.Text>
-
-                      <span>Ultima Gestión:</span>
-                      {/* <div className="mb-3 row">
-                        <div className="col-3"> */}
-                      <FechaGestionControl />
-                      {/* </div>
-                      </div> */}
-
-                    </Card.Text>
-                    <Card.Text>
-                      <textarea className="form-control  input input-sm " id={'obervacion'} onChange={getobservacion} rows={3} value={obervacionGestion}></textarea>
-                    </Card.Text>
-                    {/* <Button variant="primary">Adicionar Gestión</Button> */}
-                  </Card.Body>
-                </Card>
-              </Box>
-            </Tab>
-            <Tab eventKey="DetalleGestion" title="Detalle Gestión">
+             <Tab eventKey="DetalleGestion" title="Detalle Eventos">
               <Box
                 sx={{
                   display: 'grid',
@@ -538,6 +496,49 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
                 </div>
               </Box>
             </Tab>
+            <Tab eventKey="gestion" title={`Informacion Básica`}>
+
+              <Box
+                sx={{
+                  display: 'grid',
+                  margin: 'auto',
+                  gridTemplateColumns: '1fr 1fr',
+                  width: '120%',
+                }}
+              >
+                <Card>
+                  <Card.Body>
+                    <Card.Title>Información Gestión</Card.Title>
+                    <Card.Text>
+
+                      <span>Fecha Apertura:</span>
+                      {/* <div className="mb-3 row">
+                        <div className="col-3"> */}
+                        
+                      <FechaAperturaControl />
+                      {/* </div>
+                      </div> */}
+
+                    </Card.Text>
+                    <Card.Text>
+
+                      <span>Ultima Gestión:</span>
+                      {/* <div className="mb-3 row">
+                        <div className="col-3"> */}
+                      <FechaGestionControl />
+                      {/* </div>
+                      </div> */}
+
+                    </Card.Text>
+                    <Card.Text>
+                      <textarea className="form-control  input input-sm " id={'obervacion'} onChange={getobservacion} rows={3} value={obervacionGestion}></textarea>
+                    </Card.Text>
+                    {/* <Button variant="primary">Adicionar Gestión</Button> */}
+                  </Card.Body>
+                </Card>
+              </Box>
+            </Tab>
+           
             <Tab eventKey="Contacto" title={`Información de contacto`}>
               <Box
                 sx={{
