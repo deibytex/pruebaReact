@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react";
 import { useDataDashboard } from "../../core/DashboardProvider"
-import { OtrasUnidadesChart } from "./OtrasUnidadesChart";
-import { SemanasChart } from "./SemanasChart";
-import { UnidadesActivasChart } from "./UnidadesActivasChart";
-import { VerticalChart } from "./VerticalChart";
-import { Checkbox, CheckboxGroup } from "rsuite";
 import { UnidadesActivasOBC } from "./UnidadesActivasOBC";
 import { UnidadesActivasMIX } from "./UnidadesActivasMIX";
 
@@ -159,7 +154,7 @@ const FiltrarPestañas = (row:any) =>{
             <div className="tab-content" id="pills-tabContent">
                 <div className="tab-pane fade show active border" id={`rep_assets_lst_admon_detalle`} role="tabpanel" aria-labelledby="pills-home-tab">
                     <div className="container">
-                        <ul className="nav nav-tabs mb-3" id="pills-tab"  role="tablist">
+                        <ul className="nav nav-tabs" id="pills-tab"  role="tablist">
                             <li className="nav-item" role="presentation" onClick={FiltrarPestañas}>
                                 <button className={`nav-link text-success active fw-bolder`} id="pills-propios-tab" data-bs-toggle="pill" data-bs-target={`#pill-propios`} type="button" role="tab" aria-controls="pills-propios" aria-selected="false">OBC</button>
                             </li>
@@ -169,20 +164,12 @@ const FiltrarPestañas = (row:any) =>{
                         </ul>
                         <div className="tab-content" id="myTabContent">
                             <div className="tab-pane fade show active" id="pill-propios" role="tabpanel" aria-labelledby="home-tab">
-                                <div className="row">
-                                    <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 pt-12">
-                                        {/* Para los OBC */}
-                                        {(tab == "#tab1") && (MontarOBC) && (<UnidadesActivasOBC tab={tab}></UnidadesActivasOBC>)}  
-                                    </div>
-                                </div>
+                                    {/* Para los OBC */}
+                                    {(tab == "#tab1") && (MontarOBC) && (<UnidadesActivasOBC tab={tab}></UnidadesActivasOBC>)}  
                             </div>
                             <div className="tab-pane fade" id="pill-alquilado" role="tabpanel" aria-labelledby="profile-tab">
-                                <div className="row">
-                                    <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 pt-12">
-                                        {/* Para los MIX */}
-                                      {(tab == "#tab2") && (MontarMX) && (<UnidadesActivasMIX tab={tab}></UnidadesActivasMIX>)}  
-                                    </div>
-                                </div>
+                                    {/* Para los MIX */}
+                                    {(tab == "#tab2") && (MontarMX) && (<UnidadesActivasMIX tab={tab}></UnidadesActivasMIX>)}  
                             </div>
                         </div>
                     </div>

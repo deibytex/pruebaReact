@@ -6,10 +6,10 @@ type Props = {
     tab: string;
 }
 const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
-    const { Data, DataFiltrada, Filtrado } = useDataDashboard();
+    const { Data, DataFiltrada, Filtrado, setFiltrado, setDataFiltrada, setCargando } = useDataDashboard();
     const defaultPriopios: any[] = [
         {
-            name: 'Propios',
+            name: 'Syscaf',
             data: [],
             isSelected: true,
             getData: (MVSyscaf: any, f: any) => {
@@ -19,7 +19,7 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
             }
         },
         {
-            name: 'Arrendados',
+            name: 'Cliente',
             data: [],
             isSelected: true,
             getData: (MVSyscaf: any, f: any) => {
@@ -109,7 +109,7 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
 
     const RetornarSerie = (data: any[], VerticalData:any[] ) => {
         var dataChart = data.filter((e:any) =>{
-            if(e.OBCSyscaf != "Si")
+            if(e.MixVision == "Si")
             return e;
         });
         //Para los datos de la grafica principal
@@ -124,7 +124,7 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
         agrupadorData.map((item) => {
             if (item != null) {
                 let totalAdmon = data.filter(function (val, index) {
-                    if (val.Administrador == item && val.OBCSyscaf != "Si")
+                    if (val.Administrador == item && val.MixVision == "Si")
                         return val.Descripcion
                 }).length;
                 Datos.push(totalAdmon);
@@ -159,7 +159,8 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
 
         //Vertical
         let agrupadorGeneral = VerticalData.map((item) => {
-            if(item.OBCSyscaf != "Si" && item.ClasificacionId == "Si")
+          let a = (item.ClasificacionId == "No Definido" ? item.ActivoFacturable :item.ClasificacionId );
+            if(item.MixVision == "Si" && a == "Si")
                 return item.Vertical;
         }).filter((value, index, self: any) => {
             return self.indexOf(value) === index;
@@ -177,7 +178,7 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
              if(item != undefined){
                  Semana.map(function (itemSemana) {
                      let filtroEstado = data.filter(function (val, index) {
-                         return (val.Fecha == itemSemana && val.Vertical == item && val.OBCSyscaf != "Si");
+                         return (val.Fecha == itemSemana && val.Vertical == item && val.MixVision == "Si");
                      });
                      arrayEstados.push([{
                          x: item,
@@ -239,9 +240,9 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
             let nombreSeries: any[] = []
             let cantidadUnidadesActivas = 0;
             nombreSeries = data.map((item: any) => {
-              if (item.OBCSyscaf != 'Si')
-                if(item.ClasificacionId != "No Definido" && item.ClasificacionId != 'Si' || item.ClasificacionId  ? item.Vertical:undefined)
-                    return item.ClasificacionId;
+              let a = (item.ClasificacionId == "No Definido" ? item.ActivoFacturable :item.ClasificacionId );
+              if (item.MixVision == 'Si' && a != 'Si')
+                return (item.ClasificacionId == "No Definido" ? item.ActivoFacturable :item.ClasificacionId );
             }).filter((value: any, index: any, self: any) => {
               return self.indexOf(value) === index;
             });
@@ -250,7 +251,8 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
             nombreSeries.map((item: any) => {
               if (item != undefined && item != "No Definido") {
                 let prefiterdata = data.filter(function (val: any) {
-                  if (val.ClasificacionId == item && val.OBCSyscaf != "Si")
+                  let b = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable :val.ClasificacionId );
+                  if (b == item && val.MixVision == "Si")
                     return val.ClienteId
                 });
                 datosUnidadesActivas.push(Number.parseInt(prefiterdata.length.toString()));
@@ -259,7 +261,7 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
             })
         
             let labels = nombreSeries.map((e) => {
-              if(e != undefined  && e != "No Definido")
+              if(e != undefined)
                 return (e == "Si"  ? "Activa" :  "No Activa" )
             }).filter((f) => f );
             
@@ -318,9 +320,9 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
             let nombreSeriesOtrasUnidades: any[] = []
             let cantidadUnidadesActivasOtras = 0;
             nombreSeriesOtrasUnidades = data.map((item: any) => {
-                if(item.OBCSyscaf != 'Si')
-                    if(item.ClasificacionId != "Si")
-                         return (item.Vertical );
+              let a = (item.ClasificacionId == "No Definido" ? item.ActivoFacturable :item.ClasificacionId );
+                if(item.MixVision == 'Si' && a != "Si")
+                    return (item.Vertical );
             }).filter((value: any, index: any, self: any) => {
                 return  self.indexOf(value) === index;
             });
@@ -328,7 +330,7 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
             nombreSeriesOtrasUnidades.map((item: any) => {
               if (item != undefined ) {
                   let prefiterdata = data.filter(function (val: any) {
-                      if (val.Vertical == item && val.OBCSyscaf != "Si")
+                      if (val.Vertical == item && val.MixVision == "Si")
                           return val.ClienteId
                   });
                   datos.push(Number.parseInt(prefiterdata.length.toString()));
@@ -410,9 +412,68 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
           }, 1000);
         }
     }, [Data, Filtrado, DataFiltrada])
-
+    useEffect(() => {
+      FiltrarDatos();
+  }, [eventsSelected])
+  const FiltrarDatos = () => {
+    if (value.length == 2) {
+        setFiltrado(false);
+        setCargando(false);
+    } 
+    else if (value.length ==0){
+      if (Data != undefined && Data['Unidades'] != undefined) {
+        let __DataFiltrada = Data['Unidades'].filter(function (val: any, index: any) {
+            return (val.MVSyscaf ==  "N/A");
+        });
+        setFiltrado(true);
+        setDataFiltrada(__DataFiltrada);
+        setCargando(false);
+    }
+    }
+    else
+        value.map((item) => {
+            let Seleccionado = "";
+            switch (Filtrado) {
+                case true:
+                    if (DataFiltrada != undefined) {
+                        Seleccionado = (item == "Syscaf" ? "Si" : "No");
+                        let _data = (Data != undefined && Data['Unidades'] != undefined ? Data['Unidades']: [] ) ;
+                        let a = (DataFiltrada.length != 0 ? DataFiltrada :  _data)
+                        let _dataFiltrada = a.filter(function (val: any, index: any) {
+                            return (val.MVSyscaf == Seleccionado);
+                        });
+                        setFiltrado(true);
+                        setDataFiltrada(_dataFiltrada);
+                        setCargando(false);
+                    }
+                    break;
+                case false:
+                    if (Data != undefined && Data['Unidades'] != undefined) {
+                        Seleccionado = (item == "Syscaf" ? "Si" : "No");
+                        let DataFiltrada = Data['Unidades'].filter(function (val: any, index: any) {
+                            return (val.MVSyscaf == Seleccionado);
+                        });
+                        setFiltrado(true);
+                        setDataFiltrada(DataFiltrada);
+                        setCargando(false);
+                    }
+                    break;
+                default:
+                    if (Data != undefined && Data['Unidades'] != undefined) {
+                        Seleccionado = (item == "Syscaf" ? "Si" : "No");
+                        let DataFiltrada = Data['Unidades'].filter(function (val: any, index: any) {
+                            return (val.MVSyscaf == Seleccionado);
+                        });
+                        setFiltrado(true);
+                        setDataFiltrada(DataFiltrada);
+                        setCargando(false);
+                    }
+                    break;
+            }
+        });
+};
     return (
-        <div className="row">
+      <div className="row">
             <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 pt-12">
                 <div className="d-flex justify-content-start  ">
                     {(Data !== undefined) && (Data['Unidades'] != undefined) && (<>
@@ -474,7 +535,7 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
                 </div>
                 )}
             </div>
-        </div>
+            </div>
     )
 }
 export { UnidadesActivasMIX }
