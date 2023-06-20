@@ -134,7 +134,7 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
             console.log("Error : ", error);
         });
 
-        GetDetalladoEventos(children, FechaServidor).then((response: AxiosResponse<any>) => {
+      /*  GetDetalladoEventos(children, FechaServidor).then((response: AxiosResponse<any>) => {
             let Data = new Array()
             response.data.map((e: any) => {
                 Data = [...Data, ...JSON.parse(e.DetalladoEventos)]
@@ -142,7 +142,7 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
             setDataDetallado(Data);
         }).catch((error: any) => {
             console.log("Error detallado de evento: ", error);
-        });
+        });*/
 
     }
 
