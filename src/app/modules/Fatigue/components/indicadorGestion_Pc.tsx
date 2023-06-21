@@ -1,15 +1,28 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { KTSVG } from "../../../../_start/helpers";
+import { useDataFatigue } from "../core/provider";
 
 type Props = {
   className: string;
   innerPadding?: string;
-  alertas?: string;
 };
 
-const IndicadorGestion: React.FC<Props> = ({ className, innerPadding = "", alertas = "0/0" }) => {
+const IndicadorGestion: React.FC<Props> = ({ className, innerPadding = "" }) => {
+  const { alertas } = useDataFatigue();
+
+  const [totalAlertas, settotalAlertas] = useState(0);
+  const [totalAlertasSinGestion, settotalAlertasSinGestion] = useState(0);
+
+  useEffect(() => {
+    settotalAlertas(alertas.length);
+
+    let filtersingestion = (alertas).filter((est: any) => est.EstadoGestion == null);
+
+    settotalAlertasSinGestion(filtersingestion.length);
+  }, [alertas])
+
   return (
     <div className={`card ${className}`}>
       {/* begin::Body */}
@@ -49,7 +62,7 @@ const IndicadorGestion: React.FC<Props> = ({ className, innerPadding = "", alert
           data-kt-menu-trigger="click"
           data-kt-menu-placement="bottom-end"
         >
-          <span className="position-absolute fs-1">{alertas}</span>
+          <span className="position-absolute fs-1">{`${totalAlertasSinGestion}/${totalAlertas}`}</span>
           <span className="pulse-ring"></span>
         </div>
       

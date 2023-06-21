@@ -1,6 +1,6 @@
 import { Button, Card, Form, Modal, Tab, Tabs } from "react-bootstrap-v5";
 
-import Moment from 'moment';
+
 import { useEffect, useState } from "react";
 
 import { useDataFatigue } from "../core/provider";
@@ -12,8 +12,8 @@ import type {
   SortingState,
 } from '@tanstack/react-table';
 
-import { Box, IconButton, Tooltip, Typography } from "@mui/material";
-import { ManageSearch, Message, VerifiedUser, Map } from "@mui/icons-material";
+import { Box, IconButton, Tooltip } from "@mui/material";
+import { Message, VerifiedUser, Map } from "@mui/icons-material";
 import { FechaServidor } from "../../../../_start/helpers/Helper";
 import { getAlertas, setGestor, setObservaciones } from "../data/dashBoardData";
 import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/helpers/components/ConfirmDialog";
@@ -21,6 +21,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../../setup";
 import { UserModelSyscaf } from "../../auth/models/UserModel";
 import moment from "moment";
+import { CheckboxGroup, Checkbox } from "rsuite";
 type Props = {
 
   isActive: boolean;
@@ -37,14 +38,16 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   const model = (isAuthorized as UserModelSyscaf);
 
 
-  const { alertas, setalertas, setUserId, UserId,setDataDetalladoFiltrado, setFiltrado, setActiveTab, activeTab,  loader, setloader  } = useDataFatigue();
+  const { alertas, UserId, setalertas, setUserId, setDataDetalladoFiltrado, setFiltrado, setActiveTab, setloader } = useDataFatigue();
 
   const [dataAlertas, setDataAlertas] = useState([]);
-  const [dataDetalleGestion, setdataDetalleGestion] = useState([]);
+  const [dataAlertasfiltrada, setDataAlertasfiltrada] = useState([]);
+  const [dataContacto, setdataContacto] = useState([]);
   const [obervacionGestion, setobervacionGestion] = useState("");
+  const [obervacionGestionlast, setobervacionGestionlast] = useState("");
 
-  const [FechaApertura, setFechaApertura] = useState("");
-  const [FechaGestion, setFechaGestion] = useState("");
+  const [FechaApertura, setFechaApertura] = useState("dd/mm/aaaa");
+  const [FechaGestion, setFechaGestion] = useState("dd/mm/aaaa");
 
   const [observaciones, setobservaciones] = useState("");
   const [alertaId, setalertaId] = useState(0);
@@ -60,14 +63,11 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   const [Data, setData] = useState<any[]>([]);
   const [esgestionado, setesgestionado] = useState(false);
 
-  const [DataLastGestion, setDataLastGestion] = useState<any[]>([]);
-
 
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isRefetching, setIsRefetching] = useState(false);
   const [rowCount, setRowCount] = useState(0);
-  const [rowCount2, setRowCount2] = useState(0);
 
   //table state
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -77,61 +77,35 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
     pageIndex: 0,
     pageSize: 10,
   });
-  const [validationErrors, setValidationErrors] = useState<{
-    [cellId: string]: string;
-  }>({});
+
+  const [FiltroRiesgo, setFiltroRiesgo] = useState("");
+  const [FiltroGestion, setFiltroGestion] = useState("");
+  const [check, setcheck] = useState(true);
+  const [check2, setcheck2] = useState(true);
+  const [Orden, setOrden] = useState("");
+
 
   useEffect(() => {
-    setDataAlertas(alertas.sort( function (a: any, b: any) { return a.EventDateTime - b.EventDateTime} ));
+    setDataAlertas(alertas.sort(function (a: any, b: any) { return a.EventDateTime - b.EventDateTime }));
     setRowCount(alertas.length);
-    console.log(alertas);
   }, [alertas])
 
   useEffect(() => {
     setUserId(model.Id?.toString())
   }, [])
 
-
-
-  console.log(document.querySelectorAll("p > div"));
-  // funcion para cambiar el estado
-  // de ver detalles para que se renderice el tab de ver mas
-  function setDetails(id: number) {
-
-    let datafiltrada = dataAlertas.map((item: any) => {
-      if (item.AlertaId == id)
-        return { ...item, esVisibleTabs: !item["esVisibleTabs"] };
-      return item;
-    });
-    setDataAlertas(datafiltrada.sort( function (a: { EventDateTime: number; }, b: { EventDateTime: number; }) { return a.EventDateTime - b.EventDateTime} ) as any);
-
-  }
-
-  // gestiona las alertas generadas en el sistyema
-  // function setGestionar(id: number) {
-
-  //     // colocar su url axiox aqui
-  //     let datafiltrada = dataAlertas.map((item: any) => {
-  //         if (item.AlertaId == id)
-  //             return { ...item, EsGestionado: 1 };
-  //         return item;
-  //     });
-  //     setDataAlertas(datafiltrada);
-
-  // }
-
   const columnasTabla: MRT_ColumnDef<any>[]
     = [
       {
         accessorKey: 'TipoAlerta',
         header: 'Alarma',
-        size: 80
+        size: 250
       },
       {
         accessorKey: 'vehiculo',
         header: 'Vehículo',
 
-        size: 80
+        size: 250
       },
       {
         accessorKey: 'conductor',
@@ -145,7 +119,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
           return (
             <>
               {
-                Moment(row.original.EventDateTime).format('DD/MM/YYYY HH:mm:ss')
+                moment(row.original.EventDateTime).format('DD/MM/YYYY HH:mm:ss')
               }
             </>
 
@@ -154,8 +128,8 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         size: 80
       }, {
         accessorKey: 'DetalladoEventos',
-        header: 'Cantidad',
-        size: 50,
+        header: 'Cantidad eventos',
+        size: 80,
         Cell({ cell, column, row, table, }) {
 
           return (
@@ -184,27 +158,6 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         Cell({ cell, column, row, table, }) {
           return (cell.getValue() == null) ? <span>Sin Analista</span> : <span>{row.original.gestor}</span>
         },
-      }
-
-    ];
-
-  const columnasTablaDetalle: MRT_ColumnDef<any>[]
-    = [
-      {
-        accessorKey: 'fecha',
-        header: 'Fecha',
-        size: 250
-      },
-      {
-        accessorKey: 'descripcion',
-        header: 'Descripción',
-
-        size: 250
-      },
-      {
-        accessorKey: 'recursos',
-        header: 'Recursos',
-        size: 100
       }
 
     ];
@@ -249,6 +202,11 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         accessorKey: 'value',
         header: 'Observaciones',
         size: 100
+      },
+      {
+        accessorKey: 'recursos',
+        header: 'Recursos',
+        size: 100
       }
 
     ];
@@ -256,14 +214,14 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   function FechaAperturaControl() {
     return (
 
-      <Form.Control className=" mb-3 col-3" value={FechaApertura} type="date" name="fechaini" placeholder="Seleccione una fecha" disabled />
+      <Form.Control className=" mb-3" value={FechaApertura} type="text" name="fechaini" disabled />
 
     )
   }
 
   function FechaGestionControl() {
     return (
-      <Form.Control className=" mb-3 sm" value={FechaGestion} type="date" name="fechaini" placeholder="Seleccione una fecha" disabled />
+      <Form.Control className=" mb-3 " value={FechaGestion} type="text" name="fechafinal" disabled />
     )
   }
 
@@ -305,11 +263,12 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         successDialog("Operación Éxitosa", "");
         setData([...Data, JSON.parse(JSON.stringify(GestorObervaciones))] as any[]);
         setobervacionGestion("");
+        getAlertas().then((response) => {
+          setalertas(response.data);
+
+        });
         if (escerrado == "true") {
-          getAlertas().then((response) => {
-            setalertas(response.data);
-            handleClose();
-          });
+          handleClose();
         }
 
 
@@ -337,7 +296,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         getAlertas().then(
           (response) => {
 
-            setalertas(response.data)
+            setalertas(response.data);
 
           });
         successDialog("Operación Éxitosa.", "");
@@ -357,29 +316,164 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
   const IrToMap = (row: any) => {
     setloader(true);
-      let Data  = new Array()
-      Data = [...Data, ...JSON.parse(row.original.DetalladoEventos)]
-      setDataDetalladoFiltrado(Data);
-      setFiltrado(true)
-      console.log(row);
-      setActiveTab('#tab2');
+    let Data = new Array()
+    Data = [...Data, ...JSON.parse(row.original.DetalladoEventos)]
+    setDataDetalladoFiltrado(Data);
+    setFiltrado(true)
+    setActiveTab('#tab2');
   };
+
+  const infBasica = (row: any) => {
+    let datos = [JSON.parse(row.Observaciones)]
+
+
+    if (datos[0] != null) {
+      let last = datos[0].at(-1);
+      setFechaApertura(moment(last.fechaapertura as Date).format('DD/MM/YYYY'));
+      setFechaGestion(moment(last.fechagestion as Date).format('DD/MM/YYYY'));
+      setobervacionGestionlast(last.value);
+    } else {
+      setFechaApertura("dd/mm/aaaa");
+      setFechaGestion("dd/mm/aaaa");
+      setobervacionGestionlast("");
+    }
+
+
+  };
+
+  useEffect(() => {
+    if (FiltroGestion === "2" || FiltroGestion === "") {
+        setDataAlertasfiltrada(dataAlertas);
+        setRowCount((dataAlertas).length);
+    }
+    else if (FiltroGestion === "false") {
+        let filtergestion = (dataAlertas).filter((est: any) => est.EstadoGestion == false);
+        setDataAlertasfiltrada(filtergestion);
+        setRowCount(filtergestion.length);
+    }
+    else if (FiltroGestion === "true") {
+        let filtergestion = (dataAlertas).filter((est: any) => est.EstadoGestion == true);
+        setDataAlertasfiltrada(filtergestion);
+        setRowCount(filtergestion.length);
+    }else{
+      let filtergestion = (dataAlertas).filter((est: any) => est.EstadoGestion == null);
+      setDataAlertasfiltrada(filtergestion);
+        setRowCount(filtergestion.length);
+    }
+
+   
+}, [dataAlertas, FiltroGestion])
+
+useEffect(() => {
+  if (FiltroRiesgo === "2" || FiltroRiesgo === "") {
+      setDataAlertasfiltrada(dataAlertas);
+      setRowCount((dataAlertas).length);
+  }
+  else if (FiltroRiesgo === "Riesgo Bajo") {
+      let filterriesgo = (dataAlertas).filter((est: any) => est.Criticidad == FiltroRiesgo);
+      setDataAlertasfiltrada(filterriesgo);
+      setRowCount(filterriesgo.length);
+  }
+  else if (FiltroRiesgo === "Riesgo Moderado") {
+      let filterriesgo = (dataAlertas).filter((est: any) => est.Criticidad == FiltroRiesgo);
+      setDataAlertasfiltrada(filterriesgo);
+      setRowCount(filterriesgo.length);
+  }else{
+    let filterriesgo = (dataAlertas).filter((est: any) => est.Criticidad == FiltroRiesgo);
+      setDataAlertasfiltrada(filterriesgo);
+      setRowCount(filterriesgo.length);
+  }
+
+
+}, [dataAlertas, FiltroRiesgo])
+
+
+const ordenarData = (tipo: string) => {
+
+  
+
+  if (tipo == '1'){
+    let a = dataAlertas.sort(function (a: any, b: any) { return a.Criticidad - b.Criticidad });
+    
+    console.log(dataAlertas); 
+    setDataAlertasfiltrada(a);
+  }
+  else{
+    dataAlertas.sort(function (a: any, b: any) { return a.EventDateTime - b.EventDateTime });
+    setDataAlertas(dataAlertas);
+  }
+  
+}
+
 
   return (
 
     <>
+    <div className="row">
+    <div className="col-sm-4 col-md-4 col-xs-4">
+      <h6 className="m-1">Riesgo: </h6>
+      <label className="form-check form-switch form-check-reverse">
+                                    <input type="radio" name="tipofiltroriesgo" value={'Riesgo alto'} onChange={e => setFiltroRiesgo(e.target.value)} />
+                                    <span className="text-primary"> Alto</span>
+                                </label>
+                                <label className="form-check form-switch form-check-reverse">
+                                    <input type="radio" name="tipofiltroriesgo" value={'Riesgo moderado'} onChange={e => setFiltroRiesgo(e.target.value)} />
+                                    <span className="text-primary"> Moderado</span>
+                                </label>
+                                <label className="form-check form-switch form-check-reverse">
+                                    <input type="radio" name="tipofiltroriesgo" value={'Riesgo bajo'}  onChange={e => setFiltroRiesgo(e.target.value)} />
+                                    <span className="text-primary"> Bajo</span>
+                                </label>
+                                <label className="form-check form-switch form-check-reverse">
+                                    <input type="radio" name="tipofiltroriesgo" value={'2'}  defaultChecked={check} onChange={e => setFiltroRiesgo(e.target.value)} />
+                                    <span className="text-primary"> Todos</span>
+                                </label>
+      </div>
+      <div className="col-sm-4 col-md-4 col-xs-4">
+      <h6 className="m-1">Gestion: </h6>
+      <label className="form-check form-switch form-check-reverse">
+                                    <input type="radio" name="tipofiltro" value={'null'} onChange={e => setFiltroGestion(e.target.value)} />
+                                    <span className="text-primary"> No Gestionados</span>
+                                </label>
+                                <label className="form-check form-switch form-check-reverse">
+                                    <input type="radio" name="tipofiltro" value={'false'} onChange={e => setFiltroGestion(e.target.value)} />
+                                    <span className="text-primary"> Gestionados No Cerrados</span>
+                                </label>
+                                <label className="form-check form-switch form-check-reverse">
+                                    <input type="radio" name="tipofiltro" value={'true'} onChange={e => setFiltroGestion(e.target.value)} />
+                                    <span className="text-primary"> Gestionados</span>
+                                </label>
+                                <label className="form-check form-switch form-check-reverse">
+                                    <input type="radio" name="tipofiltro" value={'2'}  defaultChecked={check2} onChange={e => setFiltroGestion(e.target.value)} />
+                                    <span className="text-primary"> Todos</span>
+                                </label>
+      </div>
+      <div className="col-sm-4 col-md-4 col-xs-4">
+      <h6 className="m-1">Ordenar: </h6>
+      <Form.Select onChange={(e) => {
+                // buscamos el objeto completo para tenerlo en el sistema                  
+                ordenarData(e.currentTarget.value)
+
+            }}>
+            <option >Seleccione</option>
+            <option key={1} value={1}>Riesgo</option>
+            <option key={2} value={2}>Fecha</option>
+               
+      </Form.Select>
+      </div>
+    </div>
+   
       <MaterialReactTable
         localization={MRT_Localization_ES}
         displayColumnDefOptions={{
           'mrt-row-actions': {
             muiTableHeadCellProps: {
               align: 'center',
-            },
-            size: 120,
+            }
           },
         }}
         columns={columnasTabla}
-        data={alertas}
+        data={dataAlertasfiltrada}
         muiTableBodyRowProps={({ row }) => ({
 
           sx: {
@@ -391,13 +485,11 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
                     'rgba(255, 243, 205, 1)'
           }
         })}
-        //editingMode="modal" //default         
         enableTopToolbar
         enableColumnOrdering
         enableEditing
-        //  onEditingRowSave={handleSaveRowEdits}
-        // onEditingRowCancel={handleCancelRowEdits}
         enableFilters
+        enablePagination={false}
         enableColumnFilters={false}
         muiToolbarAlertBannerProps={
           isError
@@ -416,13 +508,16 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
           <Box sx={{ display: 'flex', gap: '1rem' }}>
 
-            <Tooltip arrow placement="left" title="Editar">
-              <IconButton onClick={() => {
-                modalObervaciones(row.original.Observaciones, row.original.AlertaId, row.original.EstadoGestion);
-              }}>
-                <Message />
-              </IconButton>
-            </Tooltip>
+            {(row.original.EstadoGestion != null || row.original.EstadoGestion == true) ?
+              <Tooltip arrow placement="left" title="Detalle Gestión">
+                <IconButton onClick={() => {
+                  modalObervaciones(row.original.Observaciones, row.original.AlertaId, row.original.EstadoGestion);
+                }}>
+                  <Message />
+                </IconButton>
+              </Tooltip>
+              :
+              <></>}
 
             {(row.original.EstadoGestion == null) ?
 
@@ -445,19 +540,30 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
                 <Map />
               </IconButton>
             </Tooltip>
+
           </Box>
         )
         }
 
-
-
+        muiExpandButtonProps={({ row }) => ({
+          onClick: () => {
+            //al expandir consulta el admin antes no
+            infBasica(row.original);
+          }
+        })
+        }
+        enableExpandAll={false}
         renderDetailPanel={({ row }) => (
+
           <Tabs
             defaultActiveKey="gestion"
             className="mb-3 border"
             justify
+          // onClick={() => {
+          //   console.log('hola', row);
+          // }} 
           >
-            <Tab eventKey="gestion" title={`Informacion Básica`}>
+            <Tab eventKey="gestion" title={`Informacion Básica`} >
 
               <Box
                 sx={{
@@ -473,130 +579,32 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
                     <Card.Text>
 
                       <span>Fecha Apertura:</span>
-                      {/* <div className="mb-3 row">
-                        <div className="col-3"> */}
+                      <span className="mb-3 row">
+                        <span className="col-3">
 
-                      <FechaAperturaControl />
-                      {/* </div>
-                      </div> */}
+                          <FechaAperturaControl />
+                        </span>
+                      </span>
 
                     </Card.Text>
                     <Card.Text>
 
                       <span>Ultima Gestión:</span>
-                      {/* <div className="mb-3 row">
-                        <div className="col-3"> */}
-                      <FechaGestionControl />
-                      {/* </div>
-                      </div> */}
+                      <span className="mb-3 row">
+                        <span className="col-3">
+                          <FechaGestionControl />
+                        </span>
+                      </span>
 
                     </Card.Text>
                     <Card.Text>
-                      <textarea className="form-control  input input-sm " id={'obervacion'} onChange={getobservacion} rows={3} value={obervacionGestion}></textarea>
+                      <textarea className="form-control  input input-sm " id={'obervacion'} rows={3} value={obervacionGestionlast} disabled></textarea>
                     </Card.Text>
                     {/* <Button variant="primary">Adicionar Gestión</Button> */}
                   </Card.Body>
                 </Card>
               </Box>
             </Tab>
-            <Tab eventKey="DetalleGestion" title="Detalle Gestión">
-              <Box
-                sx={{
-                  display: 'grid',
-                  margin: 'auto',
-                  gridTemplateColumns: '1fr 1fr',
-                  width: '140%'
-                }}
-              >
-                <div>
-                  <MaterialReactTable
-                    localization={MRT_Localization_ES}
-                    displayColumnDefOptions={{
-                      'mrt-row-actions': {
-                        muiTableHeadCellProps: {
-                          align: 'center',
-                        },
-                        size: 120,
-                      },
-                    }}
-                    columns={columnasTablaDetalle}
-                    data={dataDetalleGestion}
-                    // editingMode="modal" //default         
-                    enableTopToolbar={false}
-                    enableColumnOrdering
-                    // enableEditing
-                    /* onEditingRowSave={handleSaveRowEdits}
-                        onEditingRowCancel={handleCancelRowEdits}*/
-                    muiToolbarAlertBannerProps={
-                      isError
-                        ? {
-                          color: 'error',
-                          children: 'Error al cargar información',
-                        }
-                        : undefined
-                    }
-                    onColumnFiltersChange={setColumnFilters}
-                    onGlobalFilterChange={setGlobalFilter}
-                    onPaginationChange={setPagination}
-                    onSortingChange={setSorting}
-                    rowCount={rowCount}
-
-                    state={{
-                      columnFilters,
-                      globalFilter,
-                      isLoading,
-                      pagination,
-                      showAlertBanner: isError,
-                      showProgressBars: isRefetching,
-                      sorting,
-                    }}
-                  />
-                </div>
-              </Box>
-            </Tab>
-            <Tab eventKey="gestion" title={`Informacion Básica`}>
-
-              <Box
-                sx={{
-                  display: 'grid',
-                  margin: 'auto',
-                  gridTemplateColumns: '1fr 1fr',
-                  width: '120%',
-                }}
-              >
-                <Card>
-                  <Card.Body>
-                    <Card.Title>Información Gestión</Card.Title>
-                    <Card.Text>
-
-                      <span>Fecha Apertura:</span>
-                      {/* <div className="mb-3 row">
-                        <div className="col-3"> */}
-                        
-                      <FechaAperturaControl />
-                      {/* </div>
-                      </div> */}
-
-                    </Card.Text>
-                    <Card.Text>
-
-                      <span>Ultima Gestión:</span>
-                      {/* <div className="mb-3 row">
-                        <div className="col-3"> */}
-                      <FechaGestionControl />
-                      {/* </div>
-                      </div> */}
-
-                    </Card.Text>
-                    <Card.Text>
-                      <textarea className="form-control  input input-sm " id={'obervacion'} onChange={getobservacion} rows={3} value={obervacionGestion}></textarea>
-                    </Card.Text>
-                    {/* <Button variant="primary">Adicionar Gestión</Button> */}
-                  </Card.Body>
-                </Card>
-              </Box>
-            </Tab>
-           
             <Tab eventKey="Contacto" title={`Información de contacto`}>
               <Box
                 sx={{
@@ -616,11 +624,11 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
                         muiTableHeadCellProps: {
                           align: 'center',
                         },
-                        size: 120,
+                        size: 0,
                       },
                     }}
                     columns={columnasContacto}
-                    data={dataDetalleGestion}
+                    data={dataContacto}
                     // editingMode="modal" //default         
                     enableTopToolbar={false}
                     enableColumnOrdering
@@ -640,7 +648,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
                     onPaginationChange={setPagination}
                     onSortingChange={setSorting}
                     rowCount={rowCount}
-
+                    initialState={{ density: 'compact' }}
                     state={{
                       columnFilters,
                       globalFilter,
@@ -658,6 +666,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
           </Tabs>
 
         )}
+        initialState={{ density: 'compact' }}
         state={{
           columnFilters,
           globalFilter,
