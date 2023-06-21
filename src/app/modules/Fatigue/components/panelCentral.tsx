@@ -21,7 +21,6 @@ type Props = {
 const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => {
   let idinterval: number = 0;
   const [width, setWidth] = useState("80px")
-  // const [activeTab, setActiveTab] = useState("#tab1");
  
   const [Map, setMap] = useState<boolean>(false);
   const [activeChart, setActiveChart] = useState<ApexCharts | undefined>();
@@ -234,23 +233,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
             <span className="fw-bolder text-dark fs-3">Panel de Gestión de Riesgos</span>
             <span className="text-muted mt-2 fw-bold fs-6"></span>
           </h3>
-          <div className="card-toolbar">
-            {/* begin::Dropdown */}
-            <button
-              type="button"
-              className="btn btn-sm btn-icon btn-color-primary btn-active-light-primary"
-              data-kt-menu-trigger="click"
-              data-kt-menu-placement="bottom-end"
-              data-kt-menu-flip="top-end"
-            >
-              <KTSVG
-                className="svg-icon-1"
-                path="/media/icons/duotone/Layout/Layout-4-blocks-2.svg"
-              />
-            </button>
 
-            {/* end::Dropdown */}
-          </div>
         </div>
         {/* end::Header */}
         {/* begin::Body */}

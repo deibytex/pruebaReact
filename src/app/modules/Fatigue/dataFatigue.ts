@@ -147,7 +147,7 @@ const datosFatigue = {
 
         //  // agrupamos la informacion por los eventos para saber la cantidad de eventos que esta generando
         // agrupamos la informacion por el registration number del carro
-        var agrupadosPorNivel = _.mapValues(_.groupBy(arrayVehiculos, 'Criticidad'),
+        var agrupadosPorNivel = _.mapValues(_.groupBy(arrayCriticidad, 'Criticidad'),
             clist => clist.map(nivel => _.omit(nivel, 'Criticidad')));
         response.operandoDivididos = agrupadosPorNivel;
 
