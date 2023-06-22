@@ -10,7 +10,7 @@ export const LOGIN_URL = `${API_URL}/account/login`;
 export const REGISTER_URL = `${API_URL}/account/Crear`;
 export const REQUEST_PASSWORD_URL = `${API_URL}/account/SendTokenPassword`;
 export const USERLIST_URL = `${API_URL}/account/listadoUsuarios`;
-
+export const ResetPassWord = `${API_URL}/account/ResetPassWord`;
 // Server should return AuthModel
 export function login(username: string, password: string) {
 
@@ -74,5 +74,15 @@ export function getListUserByToken(PaginacionDTO: PaginacionDTO) {
     method: 'get',
     url: USERLIST_URL,
     params: PaginacionDTO
+  });
+}
+
+export function CambiarPasword(token: string, NewPassword : string, UserName: string) {
+  // Authorization head should be fulfilled in interceptor.
+  // Check common redux folder => setupAxios
+  return axios({
+    method: 'post',
+    url: ResetPassWord,
+    data: {token : atob(token), NewPassword , UserName }
   });
 }

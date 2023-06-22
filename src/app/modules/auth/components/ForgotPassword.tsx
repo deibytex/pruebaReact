@@ -18,6 +18,7 @@ const forgotPasswordSchema = Yup.object().shape({
 });
 
 export function ForgotPassword() {
+
   const [loading, setLoading] = useState(false);
   const [hasErrors, setHasErrors] = useState<boolean | undefined>(undefined);
   const formik = useFormik({

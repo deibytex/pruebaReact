@@ -57,12 +57,7 @@ export default function ReporteOdometro() {
         </Notification>)
     }
 
- const  infoMensaje = (mensaje: string) => {
-
-    return <Placeholder.Paragraph style={{ width: 320 }} rows={3} >
-        {mensaje}
-    </Placeholder.Paragraph>
- }
+ 
     // listado de campos a extraer
     let listadoCampos: MRT_ColumnDef<any>[] =
 

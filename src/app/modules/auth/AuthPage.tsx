@@ -3,7 +3,7 @@ import { Redirect, Route, Switch, Link } from "react-router-dom";
 import  Registration  from "./components/Registration";
 import { ForgotPassword } from "./components/ForgotPassword";
 import { Login } from "./components/Login";
-import { toAbsoluteUrl } from "../../../_start/helpers";
+import { CambiarPassword } from "./components/CambiarPassword";
 /*** style={{ 
       backgroundImage: `url(${toAbsoluteUrl("/media/syscaf/FondoAmarilloSyscaf.jpeg")})` 
       ,backgroundRepeat:"no-repeat" ,
@@ -38,7 +38,8 @@ export function AuthPage() {
           <Switch>
             <Route path="/auth/login" component={Login} />
             <Route path="/auth/registration" component={Registration} />
-            <Route path="/auth/forgot-password" component={ForgotPassword} />
+            <Route exact={true} path="/auth/forgot-password" component={ForgotPassword} />
+            <Route  exact={true} path="/auth/CambiarPassword/:token/:username" component={CambiarPassword} />
             <Redirect from="/auth" exact={true} to="/auth/login" />
             <Redirect to="/auth/login" />
           </Switch>
