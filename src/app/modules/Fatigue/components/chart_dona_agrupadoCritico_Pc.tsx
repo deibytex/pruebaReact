@@ -33,8 +33,8 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "", tipo
   let colorsArray: string[] = [];
   let colorsArrayLabels: string[] = [];
 
-  const {vehiculosOperacion,alertas, ListadoVehiculoSinOperacion} = useDataFatigue() ;   
-  let objectdata = (tipoData == 1) ? vehiculosOperacion : datosFatigue.getTotalPorCriticidad(alertas ?? [],ListadoVehiculoSinOperacion, true);
+  const {vehiculosOperacion,alertas, ListadoVehiculoSinOperacion, } = useDataFatigue() ;   
+  let objectdata = (tipoData == 1) ? vehiculosOperacion : alertas;
 
   // segun el tipo se determina que informacion se necesita
   if(tipoData == 1)
@@ -42,12 +42,14 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "", tipo
   else 
   // para la categorizacion por riesgo se usa el agrupado de los operando divididos 
   // para mostrar la informacion en la dona
-  arrayChart = Object.entries(objectdata.operandoDivididos).map((element) =>{
+  arrayChart = Object.entries(objectdata).map((element) =>{
       return (element[1] as any[]).length;
   });
+
+  console.log(arrayChart);
   
   // se determina de que tipo se necesita la informacion para mostrarla en los indicadores
-  labelsArray= Object.keys((tipoData == 1) ? objectdata : objectdata.operandoDivididos);
+  labelsArray= Object.keys((tipoData == 1) ? objectdata : objectdata);
   if (tipoData == 1) {
      colorsArray = [color1, color3];
     colorsArrayLabels = ["success", "primary"];    
@@ -107,7 +109,7 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "", tipo
         <div className="d-flex justify-content-around">
 
           {
-               Object.entries((tipoData==1) ? objectdata : objectdata.operandoDivididos).map((entry,index) => {
+               Object.entries((tipoData==1) ? objectdata : objectdata).map((entry,index) => {
                 let totalCategoria  = (tipoData == 1) ? entry[1] : (entry[1] as any[]).length;
                 return (
                   <div key={`chardonavehiculo_${totalCategoria}-${entry[0]} m-1`}>

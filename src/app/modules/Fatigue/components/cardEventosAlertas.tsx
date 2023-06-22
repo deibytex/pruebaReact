@@ -88,6 +88,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   useEffect(() => {
     setDataAlertas(alertas.sort(function (a: any, b: any) { return a.EventDateTime - b.EventDateTime }));
     setRowCount(alertas.length);
+    console.log(alertas);
   }, [alertas])
 
   useEffect(() => {
