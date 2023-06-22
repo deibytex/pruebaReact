@@ -22,6 +22,7 @@ import { RootState } from "../../../../setup";
 import { UserModelSyscaf } from "../../auth/models/UserModel";
 import moment from "moment";
 import { CheckboxGroup, Checkbox } from "rsuite";
+import { FormatoColombiaDDMMYYYHHmmss } from "../../../../_start/helpers/Constants";
 type Props = {
 
   isActive: boolean;
@@ -88,7 +89,6 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   useEffect(() => {
     setDataAlertas(alertas.sort(function (a: any, b: any) { return a.EventDateTime - b.EventDateTime }));
     setRowCount(alertas.length);
-    console.log(alertas);
   }, [alertas])
 
   useEffect(() => {
@@ -196,7 +196,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         header: 'Fecha',
         size: 100,
         Cell({ cell, column, row, table, }) {
-          return (moment(cell.getValue() as Date).format('DD/MM/YYYY HH:mm:ss'))
+          return (moment(cell.getValue() as Date).format(FormatoColombiaDDMMYYYHHmmss))
         }
       },
       {
@@ -574,36 +574,40 @@ const ordenarData = (tipo: string) => {
                   width: '120%',
                 }}
               >
-                <Card>
-                  <Card.Body>
-                    <Card.Title>Información Gestión</Card.Title>
-                    <Card.Text>
+                {/* <Card> */}
+                  {/* <Card.Body> */}
+                    {/* <Card.Title>Información Gestión</Card.Title> */}
+                    {/* <Card.Text> */}
 
-                      <span>Fecha Apertura:</span>
+                      
                       <span className="mb-3 row">
                         <span className="col-3">
-
+                          <span>Fecha Apertura:</span>
                           <FechaAperturaControl />
                         </span>
                       </span>
 
-                    </Card.Text>
-                    <Card.Text>
+                    {/* </Card.Text> */}
+                    {/* <Card.Text> */}
 
                       <span>Ultima Gestión:</span>
-                      <span className="mb-3 row">
-                        <span className="col-3">
+                      <div className="mb-3 row">
+                        <div className="col-3">
                           <FechaGestionControl />
-                        </span>
-                      </span>
-
-                    </Card.Text>
-                    <Card.Text>
+                          
+                        </div>
                       <textarea className="form-control  input input-sm " id={'obervacion'} rows={3} value={obervacionGestionlast} disabled></textarea>
-                    </Card.Text>
+
+                      </div>
+                      
+
+                    {/* </Card.Text> */}
+                    {/* <Card.Text> */}
+                      {/* <textarea className="form-control  input input-sm " id={'obervacion'} rows={3} value={obervacionGestionlast} disabled></textarea> */}
+                    {/* </Card.Text> */}
                     {/* <Button variant="primary">Adicionar Gestión</Button> */}
-                  </Card.Body>
-                </Card>
+                  {/* </Card.Body> */}
+                {/* </Card> */}
               </Box>
             </Tab>
             <Tab eventKey="Contacto" title={`Información de contacto`}>
