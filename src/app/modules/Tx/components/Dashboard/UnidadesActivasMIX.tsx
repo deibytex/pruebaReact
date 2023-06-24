@@ -2,11 +2,44 @@ import { Checkbox, CheckboxGroup } from "rsuite";
 import { useDataDashboard } from "../../core/DashboardProvider";
 import { useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
+import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
+import { MRT_Localization_ES } from "material-react-table/locales/es";
+import { Modal } from "react-bootstrap-v5";
 type Props = {
     tab: string;
 }
 const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
     const { Data, DataFiltrada, Filtrado, setFiltrado, setDataFiltrada, setCargando } = useDataDashboard();
+    const [baseO, SetBaseO] = useState<string>("");
+    const [baseU, SetBaseU] = useState<string>("");
+    const [BaseV, SetBaseV] = useState<string>("");
+    
+    const [showModal, setshowModal] = useState<boolean>(false);
+    const [DataTable, setDataTable] = useState<any[]>([])
+   
+    
+    let DatosColumnas: MRT_ColumnDef<any>[] = [
+      {
+          accessorKey: 'Base',
+          header: 'Cliente',
+          size: 150
+      },
+      {
+          accessorKey: 'Sitio',
+          header: 'Sitio',
+          size: 100
+      },
+      {
+          accessorKey: 'Vertical',
+          header: 'Vertical',
+          size: 100
+      },
+      {
+        accessorKey: 'Descripcion',
+        header: 'Descripcion',
+        size: 100
+    }
+    ]
     const defaultPriopios: any[] = [
         {
             name: 'Syscaf',
@@ -51,6 +84,7 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
             options: {
                 chart: {
                     id: 'apexchart-semanasMIX',
+                    
                 }
             },
             series: [],
@@ -64,6 +98,16 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
             options: {
                 chart: {
                     id: 'apexchart-verticalMIX',
+                    events: {
+                      click:(event:any, chartContext:any, config:any) =>{
+                        if(event.target.attributes.j != undefined){
+                          let Base = config.config.labels[event.target.attributes.j.value];
+                          SetBaseV(Base);
+                          setshowModal(true);
+                        }
+                       
+                      }
+                    },
                 }
             },
             series: [],
@@ -80,6 +124,17 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
             options: {
               chart: {
                 id: 'apexchart-unidadesMIX',
+                events: {
+                  click:(event:any, chartContext:any, config:any) =>{
+                    if(event.target.attributes.j != undefined){
+                      let Base = config.config.labels[event.target.attributes.j.value];
+                      SetBaseU(Base);
+                      setshowModal(true);
+                    }
+                   
+                  }
+                },
+               
               }
             },
             series: [],
@@ -94,6 +149,15 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
             options: {
               chart: {
                 id: 'apexchart-otrasunidadesMIX',
+                events: {
+                  click:(event:any, chartContext:any, config:any) =>{
+                    if(event.target.attributes.j != undefined){
+                      let Base = config.config.labels[event.target.attributes.j.value];
+                      SetBaseO(Base);
+                      setshowModal(true);
+                    }
+                  }
+                },
               }
             },
             series: [],
@@ -472,6 +536,111 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
             }
         });
 };
+
+
+const DatosdetalladoOtrasUnidades = () =>(
+  <MaterialReactTable
+    localization={MRT_Localization_ES}
+    displayColumnDefOptions={{
+      'mrt-row-actions': {
+          muiTableHeadCellProps: {
+              align: 'center',
+          },
+          size: 120,
+      },
+  }}
+  muiTableHeadCellProps={{
+      sx: (theme) => ({
+          fontSize: 14,
+          fontStyle: 'bold',
+          color: 'rgb(27, 66, 94)'
+      }),
+  }}
+    columns={DatosColumnas}
+    data={DataTable}
+    initialState={{ density: 'compact' }}
+    enableColumnOrdering
+    enableColumnDragging={false}
+    enablePagination={false}
+    enableStickyHeader
+    enableStickyFooter
+    enableDensityToggle={false}
+    enableRowVirtualization
+    // enableRowNumbers
+    enableTableFooter
+  />
+)
+ //Datos para el modal
+ useEffect(() => {
+  if (Filtrado) {
+    if (DataFiltrada != undefined) {
+      let _dataFiltrada = DataFiltrada.filter(function (val: any, index: any) {
+        let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable :val.ClasificacionId );
+        if(a == 'No' && val.MixVision == "Si")
+          return (val.Vertical == baseO)
+      }).filter((e:any) => e);
+      setDataTable(_dataFiltrada);
+    }
+  } else {
+    if (Data != undefined && Data['Unidades'] != undefined) {
+      let datafiltrada = Data['Unidades'].filter(function (val: any, index: any) {
+        let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable :val.ClasificacionId );
+        if(a == 'No' && val.MixVision == "Si")
+        return (val.Vertical == baseO);
+      }).filter((e:any) => e);
+      setDataTable(datafiltrada)
+    }
+  }
+}, [baseO])
+
+useEffect(() =>{
+  if (Filtrado) {
+    if (DataFiltrada != undefined) {
+      let _dataFiltrada = DataFiltrada.filter(function (val: any, index: any) {
+        let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable :val.ClasificacionId );
+        let respuesta = (baseU == "Activa" ? "Si":"No");
+        if(val.MixVision == "Si" && a == respuesta)
+          return (val)
+      }).filter((e:any) => e);
+      console.log(_dataFiltrada)
+      setDataTable(_dataFiltrada);
+    }
+  } else {
+    if (Data != undefined && Data['Unidades'] != undefined) {
+      let datafiltrada = Data['Unidades'].filter(function (val: any, index: any) {
+        let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable :val.ClasificacionId );
+        let respuesta = (baseU == "Activa" ? "Si":"No");
+        if( val.MixVision == "Si" && a == respuesta)
+        return (val);
+      }).filter((e:any) => e);
+      console.log(datafiltrada);
+      setDataTable(datafiltrada)
+    }
+  }
+},[baseU])
+//Para la grafica de vertical
+useEffect(() =>{
+  if (Filtrado) {
+    if (DataFiltrada != undefined) {
+      let _dataFiltrada = DataFiltrada.filter(function (val: any, index: any) {
+        let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable :val.ClasificacionId );
+        if(a == "Si" && val.Vertical == BaseV && val.MixVision == "Si")
+          return (val)
+      }).filter((e:any) => e);
+      setDataTable(_dataFiltrada);
+    }
+  } else {
+    if (Data != undefined && Data['Unidades'] != undefined) {
+      let datafiltrada = Data['Unidades'].filter(function (val: any, index: any) {
+        let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable :val.ClasificacionId );
+        if(a == "Si" && val.Vertical == BaseV && val.MixVision == "Si")
+          return (val)
+      }).filter((e:any) => e);
+      setDataTable(datafiltrada)
+    }
+  }
+},[BaseV])
+
     return (
       <div className="row">
             <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 pt-12">
@@ -535,6 +704,20 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
                 </div>
                 )}
             </div>
+            <Modal  show={showModal} onHide={setshowModal} size="lg">
+          <Modal.Header closeButton>
+              <Modal.Title>{"Detallado de graficas"}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div className="container">
+              <div className="row">
+                <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 pt-12">
+                    <DatosdetalladoOtrasUnidades></DatosdetalladoOtrasUnidades>
+                </div>
+              </div>
+            </div>
+          </Modal.Body>
+        </Modal>
             </div>
     )
 }

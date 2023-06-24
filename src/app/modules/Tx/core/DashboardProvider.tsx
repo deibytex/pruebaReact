@@ -41,6 +41,8 @@ export interface DashboardContextModel {
     setSemanaSeleccionada:(SemanaSeleccionada:any[]) => void;
     SemanaTipo ? : string;
     setSemanaTipo:(SemanaTipo:string) => void;
+    DataAcumulado?:any[],
+    setDataAcumulado:(DataAcumulado:any[]) => void;
 }
 const DashboardContext = createContext<DashboardContextModel>({
     setClientes: (Cliente: any) => {},
@@ -59,6 +61,7 @@ const DashboardContext = createContext<DashboardContextModel>({
     setSemanaSeleccionada:(SemanaSeleccionada:any[])  => {},
     setSemanaTipo:(SemanaTipo:string) =>  {},
     setTabActive:(Tab:string) =>  {},
+    setDataAcumulado:(DataAcumulado:any[]) => {},
 });
 const DashboardProvider: React.FC = ({ children }) => {
     const [Clientes, setClientes] = useState<ClienteDTO[]>([]);
@@ -77,6 +80,7 @@ const DashboardProvider: React.FC = ({ children }) => {
     const [SemanaSeleccionada, setSemanaSeleccionada] = useState<any[]>([]);
     const [SemanaTipo, setSemanaTipo] = useState<string>("1");
     const [TabActive, setTabActive] = useState<string>("Tab1");
+    const [DataAcumulado, setDataAcumulado] = useState<any[]>([]);
     const value: DashboardContextModel = {
         setClientes,
         setClienteSeleccionado,
@@ -109,7 +113,9 @@ const DashboardProvider: React.FC = ({ children }) => {
         DataTk,
         setDataTk,
         TabActive,
-        setTabActive
+        setTabActive,
+        DataAcumulado,
+        setDataAcumulado
     };
     return (
         <DashboardContext.Provider value={value}>
@@ -277,7 +283,7 @@ function ExportarExcel() {
                         ExportData.push(Objeto);
                     })
                     let NombreArchivo = "ReporteUnidadesActivas"
-                    const ws = XLSX.utils.json_to_sheet(ExportData);
+                    const ws = XLSX.utils.json_to_sheet(Data['Unidades']);
                     const wb = { Sheets: { 'data' :ws }, SheetNames:['data']};
                     const excelBuffer = XLSX.write(wb,{ bookType:'xlsx', type: 'array'});
                     const data = new Blob([excelBuffer],{type: fileType});

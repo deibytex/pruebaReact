@@ -7,9 +7,11 @@ import { useDataDashboard } from "../../core/DashboardProvider";
 import { TablaClientesTxDTO } from "../../models/DasboardModels";
 import { TransmisionScatterChart } from "./TransmisionScatterChart";
 import { TransmisionBarChart } from "./TransmisionBarChart";
+import ReactApexChart from "react-apexcharts";
+import moment from "moment";
 
 const Transmision: React.FC = () =>{
-    const {DataTx, Clientes, ClienteSeleccionado, setData, DataFiltradaTx, FiltradoTx, setFiltradoTx, setDataFiltradaTx} = useDataDashboard()
+    const {DataTx, Clientes, ClienteSeleccionado, setData, DataFiltradaTx, FiltradoTx,DataAcumulado, setFiltradoTx, setDataFiltradaTx} = useDataDashboard()
     const [DataTxAdmin, setDataTxAdmin] = useState<any[]>([]);
     const [PlacaSinTx, setPlacaSinTx] = useState<string>("0");
     const [ClienteSinTx, setClienteSinTx] = useState<string>("0");
@@ -29,7 +31,7 @@ const [rowCount2, setRowCount2] = useState(0);
 const [isLoading, setIsLoading] = useState(false);
 const [isRefetching, setIsRefetching] = useState(false);
 const [isError, setIsError] = useState(false);
-
+const [Scatter, setScatter] = useState<any>(null);
     //decimal de miles
     const format = (num:number) => {
         return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
@@ -184,14 +186,18 @@ const [isError, setIsError] = useState(false);
           },
           {
             accessorKey: 'DiasSinTx',
-            header: 'Dias sin Tx',
+            header: 'Cant sin Tx',
             id: 'DiasSinTx',
           }
      ]
      let listadoCamposTabla2: MRT_ColumnDef<any>[] =
 
      [
-            {
+        {
+            accessorKey: 'clientenNombre',
+            header: 'Cliente',
+            maxSize: 10,
+          },{
             accessorKey: 'registrationNumber',
             header: 'Placa',
             maxSize: 10,
@@ -203,6 +209,136 @@ const [isError, setIsError] = useState(false);
           }
      ]
     
+     useEffect(()=>{
+        let opcionScatter = {
+            options: {
+                chart: {
+                    id: 'apexchart-scatter',
+                    zoom: {
+                        enabled: true,
+                        type: 'xy'
+                      }
+                },
+                grid: {
+                    xaxis: {
+                      lines: {
+                        show: true
+                      }
+                    },
+                    yaxis: {
+                      lines: {
+                        show: true
+                      }
+                    },
+                  },
+                xaxis: {
+                    type: 'category',
+                  },
+                  yaxis: {
+                    tickAmount: 7
+                  }
+            },
+            series: [{"name":"","data":[{x:"0",y:0}]}],
+            dataLabels: {
+              enabled: false
+            }
+        }
+        setScatter(opcionScatter)
+     },[])
+
+
+     const RetornarSerie = (data:any[]) => {
+        var dataChart = data;
+        //Para los datos de la grafica principal
+        let Datos = new Array();
+        let retornarDatos = new Array();
+        //Agrupador por color.
+        let Usuarios = dataChart.map((item) => {
+            return item.Usuario;
+        }).filter((value, index, self:any) =>{
+            return self.indexOf(value) === index;
+        });
+        let Fechas =  data.map((item) => {
+            return item["Fecha"];
+        }).filter((value, index, self:any) =>{
+            return self.indexOf(value) === index;
+        });
+        let totalAdmon:any =[]
+        Usuarios.map((Usuario) =>{
+            Fechas.forEach(Fecha => {
+                if(Usuario != undefined){
+                    Datos.push({"name":Usuario,"data":[{x: moment(Fecha).format("DD/MM/YYYY").toString(),y:data.filter(function (val) {
+                        if (moment(val.Fecha).format("DD/MM/YYYY")  == moment(Fecha).format("DD/MM/YYYY") ){
+                            if(Usuario == val.Usuario )
+                            return val
+                        }
+                           
+                    }).length}]});
+                }
+            });
+         
+        })
+        let nuevoObjeto = {}
+        //Recorremos el arreglo 
+        Datos.forEach( x => {
+        //Si la ciudad no existe en nuevoObjeto entonces
+        //la creamos e inicializamos el arreglo de profesionales. 
+        if( !nuevoObjeto.hasOwnProperty(x.name)){
+            nuevoObjeto[x.name] = {
+            data: []
+            }
+        }
+        
+        //Agregamos los datos de profesionales. 
+            nuevoObjeto[x.name].data.push({
+            x: x.data[0].x,
+            y: x.data[0].y
+            })
+        
+        })
+        let Data:any = [];
+        Object.keys(nuevoObjeto).forEach((val, index) =>{
+            Object.values(nuevoObjeto).forEach((item:any, index) =>{
+                Data.push({"name":val,"data":item["data"]});
+            })
+        })
+        
+        var hash = {};
+        Data = Data.filter(function(current:any) {
+            var exists = !hash[current.name];
+            hash[current.name] = true;
+            return exists;
+          });
+        
+                // ApexCharts.exec('apexchart-scatter', 'updateOptions', {
+        //     // Para los nombres de la serie
+        //     //para que la lengenda me salga en la parte de abajo
+        //     labels: agrupadorData.filter((e) => e),
+        // });
+            // actializar los datos
+        ApexCharts.exec('apexchart-scatter', 'updateSeries', Data);
+
+    };
+    useEffect(() => {
+        if(FiltradoTx){
+            let dataFiltrada:any[] =[] 
+            if(DataFiltradaTx)
+                if(DataFiltradaTx != undefined){
+                       RetornarSerie(DataFiltradaTx.filter(function (item:any) {
+                            return item.Usuario;
+                    }))
+                }
+            }
+        else
+        {
+            if(DataAcumulado != undefined){
+                RetornarSerie(DataAcumulado.filter(function (item:any) {
+                    return item.Usuario;
+                }))
+            }
+        }
+    },[DataAcumulado, FiltradoTx,DataFiltradaTx ])
+
     return(
         <>
             <div className="row">
@@ -219,7 +355,10 @@ const [isError, setIsError] = useState(false);
                                     <div className="text-center"><span id="EstadoCantidad" style={{fontSize:'26px'}}></span></div>
                                 </div>
                                 <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                                    {(DataTx !=  undefined) &&(DataTx['Transmision'] !=  undefined) && (<TransmisionScatterChart className={"shadow-lg"}></TransmisionScatterChart>)}
+                                {
+                                    (Scatter != null) && (Scatter.options != undefined) && (<ReactApexChart options={Scatter.options} series={Scatter.series} type="scatter" height={300} />)
+                                }
+                                    {/* {(DataTx !=  undefined) &&(DataTx['Transmision'] !=  undefined) && (<TransmisionScatterChart className={"shadow-lg"}></TransmisionScatterChart>)} */}
                                     
                                 </div>
                                 <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">

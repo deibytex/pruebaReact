@@ -5,6 +5,8 @@ import ReactApexChart from "react-apexcharts";
 import { Modal } from "react-bootstrap-v5";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
+import { PaginationState } from "@tanstack/react-table";
+import ProgressBar from "@ramonak/react-progress-bar";
 type Props = {
     tab: string;
 }
@@ -12,13 +14,17 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
     const { Data, DataFiltrada, Filtrado, setFiltrado, setDataFiltrada, setCargando } = useDataDashboard();
     //constantes para las graficas en general.
     const [base, SetBase] = useState<string>("");
-    const [baseU, SetBaseU] = useState<string>("");
-    const [BaseV, SetBaseV] = useState<string>("");
+    const [baseE, SetBaseE] = useState<string>("");
+    const [BaseX, SetBaseX] = useState<string>("");
     
     const [showModal, setshowModal] = useState<boolean>(false);
+    const [showGraficaModal, setshowGraficaModal] = useState<boolean>(false);
     const [DataTable, setDataTable] = useState<any[]>([])
-   
-    
+    const [Total, setTotal] = useState<any[]>([])
+    const [pagination, setPagination] = useState<PaginationState>({
+      pageIndex: 0,
+      pageSize: 10,
+    });
     let DatosColumnas: MRT_ColumnDef<any>[] = [
       {
           accessorKey: 'Base',
@@ -70,7 +76,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
     const [Vertical, setVertical] = useState<any>(null);
     const [UnidadesActivas, setUnidadesActivas] = useState<any>(null);
     const [OtrasUnidadesActivas, setOtrasUnidadesActivas] = useState<any>(null);
-
+    const [VerticalCliente, setVerticalCliente] = useState<any>(null);
     const handleChange = (value: any[]) => {
         let aux = defaultPriopios.map((x: any) => {
             x.isSelected = value.includes(x.name);
@@ -101,8 +107,9 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
                       click:(event:any, chartContext:any, config:any) =>{
                         if(event.target.attributes.j != undefined){
                           let Base = config.config.labels[event.target.attributes.j.value];
-                          SetBaseV(Base);
+                          SetBaseX(Base);
                           setshowModal(true);
+                          setshowGraficaModal(false);
                         }
                        
                       }
@@ -127,10 +134,10 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
                   click:(event:any, chartContext:any, config:any) =>{
                     if(event.target.attributes.j != undefined){
                       let Base = config.config.labels[event.target.attributes.j.value];
-                      SetBaseU(Base);
-                      setshowModal(true);
+                      SetBaseE(Base);
+                      CargarModal();
+                      setshowGraficaModal(true);
                     }
-                   
                   }
                 },
               }
@@ -153,6 +160,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
                       let Base = config.config.labels[event.target.attributes.j.value];
                       SetBase(Base);
                       setshowModal(true);
+                      setshowGraficaModal(false);
                     }
                   }
                 },
@@ -164,6 +172,34 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
             }
           }
           setOtrasUnidadesActivas(opcionesOtrasUnidades);
+
+
+           //Para las verticales pero para el modal del cliente
+        let opcionesVerticalCliente = {
+          options: {
+              chart: {
+                  id: 'apexchart-verticalCliente',
+                  events: {
+                    click:(event:any, chartContext:any, config:any) =>{
+                      if(event.target.attributes.j != undefined){
+                        let Base = config.config.labels[event.target.attributes.j.value];
+                        SetBaseX(Base);
+                        setshowModal(true);
+                      }
+                     
+                    }
+                  },
+              }
+          },
+          series: [],
+          dataLabels: {
+              enabled: false
+          },
+          xaxis: {
+              type: 'category'
+          }
+      }
+      setVerticalCliente(opcionesVerticalCliente);
         return function cleanUp() {
             //SE DEBE DESTRUIR EL OBJETO CHART
         };
@@ -472,10 +508,16 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
           }, 1000);
           // clearTimeout(timerId);
         }
+        return function cleanUp() {
+          //SE DEBE DESTRUIR EL OBJETO CHART
+      };
     }, [Data, Filtrado, DataFiltrada])
 
   useEffect(() => {
       FiltrarDatos();
+      return function cleanUp() {
+        //SE DEBE DESTRUIR EL OBJETO CHART
+    };
   }, [eventsSelected])
 
 const DatosdetalladoOtrasUnidades = () =>(
@@ -508,8 +550,14 @@ const DatosdetalladoOtrasUnidades = () =>(
     enableRowVirtualization
     // enableRowNumbers
     enableTableFooter
+    muiTableContainerProps={{ sx: { maxHeight: '300px' } }}
   />
+ 
 )
+const CargarModal = () =>{
+
+  setshowModal(true);
+}
   const FiltrarDatos = () => {
     if (value.length == 2) {
         setFiltrado(false);
@@ -589,6 +637,9 @@ const DatosdetalladoOtrasUnidades = () =>(
         setDataTable(DataFiltrada)
       }
     }
+    return function cleanUp() {
+      //SE DEBE DESTRUIR EL OBJETO CHART
+  };
   }, [base])
 
   useEffect(() =>{
@@ -596,29 +647,34 @@ const DatosdetalladoOtrasUnidades = () =>(
       if (DataFiltrada != undefined) {
         let _dataFiltrada = DataFiltrada.filter(function (val: any, index: any) {
           let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable :val.ClasificacionId );
-          if(a == "Si" || a == "No" && (val.ClasificacionId == "No Definido" ? val.ActivoFacturable :val.ClasificacionId ) == (baseU == "Activa" ? "SI":"No"))
+          if(a == "Si" || a == "No" && (val.ClasificacionId == "No Definido" ? val.ActivoFacturable :val.ClasificacionId ) == (baseE == "Activa" ? "Si":"No"))
             return (val)
         }).filter((e:any) => e);
+        CargarSerieCliente(DataFiltrada)
         setDataTable(_dataFiltrada);
       }
     } else {
       if (Data != undefined && Data['Unidades'] != undefined) {
         let DataFiltrada = Data['Unidades'].filter(function (val: any, index: any) {
           let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable :val.ClasificacionId );
-          if(a == "Si" || a == "No" && (val.ClasificacionId == "No Definido" ? val.ActivoFacturable :val.ClasificacionId ) == (baseU == "Activa" ? "SI":"No"))
+          if(a == "Si" || a == "No" && (val.ClasificacionId == "No Definido" ? val.ActivoFacturable :val.ClasificacionId ) == (baseE == "Activa" ? "Si":"No"))
           return (val);
         }).filter((e:any) => e);
+        CargarSerieCliente(DataFiltrada)
         setDataTable(DataFiltrada)
       }
     }
-  },[baseU])
+    return function cleanUp() {
+      //SE DEBE DESTRUIR EL OBJETO CHART
+  };
+  },[baseE])
 //Para la grafica de vertical
   useEffect(() =>{
     if (Filtrado) {
       if (DataFiltrada != undefined) {
         let _dataFiltrada = DataFiltrada.filter(function (val: any, index: any) {
           let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable :val.ClasificacionId );
-          if(a == "Si" && val.Vertical == BaseV)
+          if(a == "Si" && val.Vertical == BaseX)
             return (val)
         }).filter((e:any) => e);
         setDataTable(_dataFiltrada);
@@ -627,14 +683,178 @@ const DatosdetalladoOtrasUnidades = () =>(
       if (Data != undefined && Data['Unidades'] != undefined) {
         let DataFiltrada = Data['Unidades'].filter(function (val: any, index: any) {
           let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable :val.ClasificacionId );
-          if(a == "Si" && val.Vertical == BaseV)
+          if(a == "Si" && val.Vertical == BaseX)
             return (val)
         }).filter((e:any) => e);
         setDataTable(DataFiltrada)
+      
       }
     }
-  },[BaseV])
+    return function cleanUp() {
+      //SE DEBE DESTRUIR EL OBJETO CHART
+  };
+  },[BaseX])
   
+
+const CargarSerieCliente = (Data:any[]) =>{
+  let agrupadorGeneral = Data.map((item) => {
+    let a = (item.ClasificacionId == "No Definido" ? item.ActivoFacturable :item.ClasificacionId );
+    if(a == "Si" || a == "No")
+        return item.Base;
+  }).filter((value, index, self: any) => {
+      return self.indexOf(value) === index;
+  });
+ 
+   //Agrupador por color.
+  //  let Semana = Data.map((item) => {
+  //      return item.Fecha;
+  //  }).filter((value, index, self: any) => {
+  //      return self.indexOf(value) === index;
+  //  });
+   let arrayEstados = new Array();
+   // filtramos por los clientes para obtener la agrupacion por  estado
+   agrupadorGeneral.map(function (item) {
+       if(item != undefined){
+          //  Semana.map(function (itemSemana) {
+               let filtroEstado = Data.filter(function (val, index) {
+                   return (val.Base == item);
+               });
+               arrayEstados.push([{
+                   x: item,
+                   y: filtroEstado.length
+               }]);
+          //  });
+       }
+   });
+   ApexCharts.exec('apexchart-verticalCliente', 'updateOptions', {
+      chart: {
+          fill: {
+              colors: ['#1f77b4', '#aec7e8']
+          },
+          toolbar: {
+              show: false
+          },
+
+      },
+      colors: ['#1f77b4', '#aec7e8'],
+  }
+  );
+  ApexCharts.exec('apexchart-verticalCliente', 'updateOptions', {
+      // Para los nombres de la serie
+      //para que la lengenda me salga en la parte de abajo
+      labels: agrupadorGeneral.filter((e) => e),
+      legend: {
+          show: true,
+          position: 'bottom'
+      },
+      tooltip: {
+          y: {
+              formatter: function (value: any, serie: any, index: any) {
+                  return `${serie.w.config.labels[serie.dataPointIndex]} : ${value}`
+              }
+          }
+      },
+      //para darle forma a los totales
+      plotOptions: {
+          bar: {
+              horizontal: false
+          }
+      }
+  });
+      // actializar los datos
+      ApexCharts.exec('apexchart-verticalCliente', 'updateSeries',
+          [
+              {
+                  name: [...agrupadorGeneral],
+                  data: arrayEstados.map((val) => {
+                      return val[0].y;
+                  })
+              }
+          ]
+      );
+
+      setTotal(arrayEstados);
+}
+let ColumnasGraficaCliente: MRT_ColumnDef<any>[] = [{
+  accessorKey: 'x',
+  header: 'Cliente',
+  Header: ({ column, header, table }) => {
+      return "Cliente";
+  },
+  Cell: ({ cell, column, row, table }) => {
+      return <span className="fw-bolder" style={{ fontSize: '10px' }}>{row.original[0].x}</span>
+  }
+}, {
+  accessorKey: 'y',
+  header: 'Total',
+  Header: ({ column, header, table }) => {
+      return "Total                                                                                                                                           ";
+  },
+  size: 200,
+  maxSize: 200,
+  minSize: 200,
+  Cell: ({ cell, column, row, table }) => {
+      let Total = (row.original[0].y == null ? 0 : row.original[0].y)
+      return <span title={`${row.original[0].x?.toString()} : ${Total}`}>
+          <ProgressBar
+              className='text-center fw-bolder'
+              baseBgColor='transparent'
+              bgColor={`#F44336`}
+              labelSize={`10px`}
+              width='200px'
+              customLabel={`${Total}`}
+              completed={`${(Number(Total) * 100)}`}
+              maxCompleted={500}>
+          </ProgressBar>
+      </span>
+  }
+}];
+
+const DatosClientes = () =>{
+  return(
+          <MaterialReactTable
+              // tableInstanceRef={ColumnasTablas['movil']}
+              // displayColumnDefOptions={{
+              //     'mrt-row-actions': {
+              //         muiTableHeadCellProps: {
+              //             align: 'center',
+              //         },
+              //         size: 0,
+              //     },
+              // }}
+              // muiTableBodyCellProps={{
+              //     sx: {
+              //         border: '0px solid #000',
+              //     },
+              // }}
+              localization={MRT_Localization_ES}
+              columns={ColumnasGraficaCliente}
+              data={Total}
+              enableColumnOrdering={false}
+              enableColumnActions={false}
+              enableSorting={true}
+              enableFilters={false}
+              manualSorting={false}
+              enableGlobalFilterRankedResults={false}
+              enableDensityToggle={false}
+              enableColumnDragging={false}
+              enablePagination={false}
+              enableHiding={false}
+              enableFullScreenToggle={false}
+              enableSortingRemoval={false}
+              enableStickyHeader
+              enableRowVirtualization
+              muiTableContainerProps={{ sx: { maxHeight: '200px' } }}
+              defaultColumn={{
+                  minSize: 150, //allow columns to get smaller than default
+                  maxSize: 400, //allow columns to get larger than default
+                  size: 150, //make columns wider by default
+              }}
+              initialState={{ density: 'compact' }}
+            />
+          )
+  
+}
     return (
       <div className="row">
             <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 pt-12">
@@ -699,15 +919,26 @@ const DatosdetalladoOtrasUnidades = () =>(
                 )}
 
             </div>
-        <Modal  show={showModal} onHide={setshowModal} size="lg">
+        <Modal  show={showModal} onHide={setshowModal} size={(showGraficaModal? "xl":"lg")}>
           <Modal.Header closeButton>
               <Modal.Title>{"Detallado de graficas"}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <div className="container">
               <div className="row">
+                <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3 pt-3" style={{display:(showGraficaModal? "inline":"none")}}>
+
+                </div>
+                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-6" style={{display:(showGraficaModal? "inline":"none")}}>
+                  {
+                    (VerticalCliente != null) &&(<DatosClientes></DatosClientes>)
+                  }
+                </div>
+               <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3 pt-3" style={{display:(showGraficaModal? "inline":"none")}}>
+                  
+                </div>
                 <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 pt-12">
-                    <DatosdetalladoOtrasUnidades></DatosdetalladoOtrasUnidades>
+                  {(DataTable.length != 0) && ( <DatosdetalladoOtrasUnidades></DatosdetalladoOtrasUnidades>)}
                 </div>
               </div>
             </div>
