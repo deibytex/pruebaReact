@@ -123,7 +123,7 @@ export  function UpdateEstadoArchivo(ArchivoId: string, UsuarioId: string, AreaI
     params["ArchivoId"] =ArchivoId;
     params["UsuarioId"] =UsuarioId;
     params["AreaId"] =`${AreaId}`;
-    params["FechaSistema"] =FechaMomentUtc.format("YYYY-MM-DD HH:mm:ss");
+    params["FechaSistema"] =FechaMomentUtc().format("YYYY-MM-DD HH:mm:ss");
     // hacemos la consulta 
     return  Post_ExecProcedureByTipoConsulta({    Clase : "NEPQueryHelper",  NombreConsulta: "UpdateEstadoArchivo", Pagina :null, RecordsPorPagina :null}, params);
    

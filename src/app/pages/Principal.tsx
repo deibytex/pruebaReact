@@ -19,7 +19,7 @@ export function Bienvenidos() {
             <div className=" d-flex align-items-center justify-content-center text-center m-10"
             >
                 <Stack>
-                    <span className="fs-5 text-muted">{FechaMomentUtc.format("dddd, DD [de] MMMM")}</span>
+                    <span className="fs-5 text-muted">{FechaMomentUtc().format("dddd, DD [de] MMMM")}</span>
                     <h1 className=" mx-4 fs-3 text-muted"> Hola! {vUser.Nombres} </h1>
                 </Stack>
 

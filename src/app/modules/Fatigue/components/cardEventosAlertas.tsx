@@ -14,7 +14,7 @@ import type {
 
 import { Box, IconButton, Tooltip } from "@mui/material";
 import { Message, VerifiedUser, Map } from "@mui/icons-material";
-import { FechaServidor, formatableJson } from "../../../../_start/helpers/Helper";
+import { FechaServidor } from "../../../../_start/helpers/Helper";
 import { getAlertas, setGestor, setObservaciones } from "../data/dashBoardData";
 import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/helpers/components/ConfirmDialog";
 import { useSelector } from "react-redux";
@@ -252,7 +252,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
     GestorObervaciones = {
       AlertaId: alertaId,
       fechaapertura: Data[0].fechaapertura,
-      fechagestion: moment(FechaServidor()).format(formatableJson),
+      fechagestion: FechaServidor(),
       value: observacion,
       EsCerrado: escerrado?.toString()
 
@@ -285,8 +285,8 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
     let GestorObervaciones: any = {};
     GestorObervaciones = {
-      fechaapertura: moment(FechaServidor()).format(formatableJson),
-      fechagestion: moment(FechaServidor()).format(formatableJson),
+      fechaapertura: FechaServidor(),
+      fechagestion: FechaServidor(),
       value: "Gestor Asignado",
       EsCerrado: null
     };
