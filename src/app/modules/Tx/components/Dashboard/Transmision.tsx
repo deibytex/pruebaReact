@@ -32,6 +32,7 @@ const [isLoading, setIsLoading] = useState(false);
 const [isRefetching, setIsRefetching] = useState(false);
 const [isError, setIsError] = useState(false);
 const [Scatter, setScatter] = useState<any>(null);
+const [VerticalTx, setVerticalTx] = useState<any>(null);
     //decimal de miles
     const format = (num:number) => {
         return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
@@ -244,6 +245,22 @@ const [Scatter, setScatter] = useState<any>(null);
             }
         }
         setScatter(opcionScatter)
+        //Para las verticales
+        let opcionesVertical = {
+            options: {
+                chart: {
+                    id: 'apexchart-verticalTX',
+                }
+            },
+            series: [],
+            dataLabels: {
+                enabled: false
+            },
+            xaxis: {
+                type: 'category'
+            }
+        }
+        setVerticalTx(opcionesVertical);
      },[])
 
 
@@ -318,6 +335,82 @@ const [Scatter, setScatter] = useState<any>(null);
             // actializar los datos
         ApexCharts.exec('apexchart-scatter', 'updateSeries', Data);
 
+
+        //BARRAS
+         //agrupador general o fecha.
+        let agrupadorGeneral = data.map((item) => {
+            return item.clientenNombre;
+        }).filter((value, index, self:any) =>{
+            return self.indexOf(value) === index;
+        });
+
+        //Agrupador por color.
+        let agrupadorData = data.map((item) => {
+            return item.Estado;
+        }).filter((value, index, self:any) =>{
+            return self.indexOf(value) === index;
+        });
+
+        let arrayEstados = new Array();
+        // filtramos por los clientes para obtener la agrupacion por  estado
+        agrupadorGeneral.map(function (item) {
+
+            agrupadorData.map(function (itemEstados) {
+                let filtroEstado = data.filter(function (data, index) {
+                    return (data.Estado == itemEstados && data.clientenNombre == item);
+                });
+
+                arrayEstados.push([itemEstados, filtroEstado.length]);
+            });
+
+        });
+
+        ApexCharts.exec('apexchart-verticalTX', 'updateOptions', {
+            chart: {
+                fill: {
+                    colors: ['#1f77b4', '#aec7e8']
+                },
+                toolbar: {
+                    show: false
+                },
+
+            },
+            colors: ['#1f77b4', '#aec7e8'],
+        }
+        );
+        ApexCharts.exec('apexchart-verticalTX', 'updateOptions', {
+            // Para los nombres de la serie
+            //para que la lengenda me salga en la parte de abajo
+            labels: agrupadorGeneral.filter((e) => e),
+            legend: {
+                show: true,
+                position: 'bottom'
+            },
+            tooltip: {
+                y: {
+                    formatter: function (value: any, serie: any, index: any) {
+                        return `${serie.w.config.labels[serie.dataPointIndex]} : ${value}`
+                    }
+                }
+            },
+            //para darle forma a los totales
+            // plotOptions: {
+            //     bar: {
+            //         horizontal: true
+            //     }
+            // }
+        });
+            // actializar los datos
+            ApexCharts.exec('apexchart-verticalTX', 'updateSeries',
+                [
+                    {
+                        name: [...agrupadorData],
+                        data: arrayEstados.map((val) => {
+                            return val[1];
+                        })
+                    }
+                ]
+            );
     };
     useEffect(() => {
         if(FiltradoTx){
@@ -362,7 +455,10 @@ const [Scatter, setScatter] = useState<any>(null);
                                     
                                 </div>
                                 <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                                    {(DataTx !=  undefined) &&(DataTx['Transmision'] !=  undefined) && (<TransmisionBarChart className={"shadow-lg"}></TransmisionBarChart>)}
+                                {
+                                    (VerticalTx != null) && (VerticalTx.options != undefined) && (<ReactApexChart options={VerticalTx.options} series={VerticalTx.series} type="bar" height={300} />)
+                                }
+                                    {/* {(DataTx !=  undefined) &&(DataTx['Transmision'] !=  undefined) && (<TransmisionBarChart className={"shadow-lg"}></TransmisionBarChart>)} */}
                                     
                                 </div>
                                 <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-5">
