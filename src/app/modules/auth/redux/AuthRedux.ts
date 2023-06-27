@@ -107,8 +107,9 @@ export function* saga() {
  
   yield takeLatest(actionTypes.UserRequested, function* userRequested() {
     const { data: user } = yield getMenuByUser();
+    console.log(JSON.parse(user[0].Menu));
     
-    yield put(actions.fulfillUser(user));
+    yield put(actions.fulfillUser(JSON.parse(user[0].Menu)));
   });
 
 /*
@@ -116,5 +117,7 @@ yield takeLatest(actionTypes.UserRequested, function* userRequested() {
      
   });*/
 }
+
+// funcion que tranforma los datos y los convierte en datos que se pueden leer para el menu
 
 

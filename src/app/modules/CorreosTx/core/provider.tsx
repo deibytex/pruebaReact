@@ -3,7 +3,7 @@ import { AxiosResponse } from "axios";
 import React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
 import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
-import { getDetalleListas } from "../../Sotramac/data/dataSotramac";
+import { getDetalleListas } from "../../Clientes/Sotramac/data/dataSotramac";
 import { getListadoCLientes, getListaClienteNotifacion, getSites, getSitesNotifacion, getCorreosTx} from "../data/dataCorreosTx";
 
 // clase con los funciones  y datos a utiilizar

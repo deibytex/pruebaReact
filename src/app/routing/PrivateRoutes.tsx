@@ -16,24 +16,23 @@ export function PrivateRoutes() {
   const menu = useSelector<RootState>(
     ({ auth }) => auth.menu
   );
+  const lstOpciones = (menu as Opciones[]);
 
   const [importedModules, setimportedModules] = useState<any[]>([]);
   useEffect(() => {
-    const lstOpciones = (menu as Opciones[]);
+
     setloader(true)
     if (lstOpciones !== undefined) {
-      let opcionesHijo = lstOpciones.filter((element) => element.controlador != null);
-
+      let opcionesHijo = lstOpciones.filter((element) => element.Controlador != null);     
       const componentPromises =
-        opcionesHijo.map(f => {
-          let modulo = f.accion.slice(3);
+        opcionesHijo.filter(f => !f.Controlador.includes('/reportes/pbi')).map(f => {
+          let modulo = f.Accion.slice(3);
           // importamos los compontes que el usuario necesita
           // los demas componentes quedan dormidos
           return import(`../${modulo}`).then(module => {
-            return <Route exact key={`${f.controlador}`} path={`${f.controlador}`} component={module.default} />
-          }).catch(() => {
-            
-            console.log(modulo) // importar pagina por defecto
+            return <Route exact key={`${f.Controlador}`} path={`${f.Controlador}`} component={module.default} />
+          }).catch((e) => {
+            console.log(modulo, e) // importar pagina por defecto
           }
           )
         });
@@ -45,7 +44,7 @@ export function PrivateRoutes() {
 
         }
       ).catch(
-        (error) => {setloader(false) ; console.log(error)}
+        (error) => { setloader(false); console.log(error) }
       );
     }
 
@@ -70,10 +69,13 @@ export function PrivateRoutes() {
             <>     {importedModules}</>
           )
           }
-          <Route path="/reportes/bat/viajes" render={() => ReportesIFrame("Viajes", url)} />
+         
+         <Route path="/reportes/pbi/mttobusetones/:titulo/:url" component={ReportesIFrame} />
         </Switch>
       </Suspense>
     </BlockUi>
 
   );
 }
+
+

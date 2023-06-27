@@ -1,4 +1,3 @@
-import React from "react";
 import ReactDOM from "react-dom";
 // Redux
 // https://github.com/rt2zz/redux-persist
@@ -13,6 +12,7 @@ import { App } from "./app/App";
 import "./_start/assets/sass/style.scss";
 import "../node_modules/@availity/block-ui/src/BlockUi.css"
 import "../node_modules/@availity/block-ui/src/Loader.css"
+import 'rsuite/dist/rsuite.min.css';
 
 /**
  * Base URL of the website.

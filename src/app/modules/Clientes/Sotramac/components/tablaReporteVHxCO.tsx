@@ -7,7 +7,7 @@ import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/rea
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import { getReporteSotramacVHxCO } from "../data/dataSotramac";
 import { AxiosResponse } from "axios";
-import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
+import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 
 type Props = {
     show: boolean;

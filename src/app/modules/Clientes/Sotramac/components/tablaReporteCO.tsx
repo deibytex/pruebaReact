@@ -5,22 +5,22 @@ import { Button,  Modal } from "react-bootstrap-v5";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
-import { getReporteSotramacVH } from "../data/dataSotramac";
+import { getReporteSotramacCO } from "../data/dataSotramac";
 import { AxiosResponse } from "axios";
-import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
+import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 
 type Props = {
     show: boolean;
     handleClose: () => void;
     title?: string;
-    consultaReporteVH: boolean;
+    consultaReporteCO: boolean;
 }
 
-export const ModalTablaReporteVH: React.FC<Props> = ({ show, handleClose, title, consultaReporteVH }) => {
+export const ModalTablaReporteCO: React.FC<Props> = ({ show, handleClose, title, consultaReporteCO }) => {
 
-    const { fechaInicial, fechaFinal, assetSelected, assetTypeId,loader, setloader } = useDataSotramac();
+    const { fechaInicial, fechaFinal, driverSelected, assetTypeId, loader, setloader } = useDataSotramac();
 
-    const [lstReporteSotramacVh, setlstReporteSotramacVh] = useState<ReporteSotramac[]>([]);
+    const [lstReporteSotramacCO, setlstReporteSotramacCO] = useState<ReporteSotramac[]>([]);
 
     //table state
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -41,14 +41,22 @@ export const ModalTablaReporteVH: React.FC<Props> = ({ show, handleClose, title,
             {
                 accessorKey: 'Posicion',
                 header: 'Posición',
-                size: 80,
+                size: 100,
                 Cell({ cell, column, row, table, }) {
                     return (cell.getValue() != null) ? cell.getValue() : "";
                 }
             },
             {
-                accessorKey: 'Vehiculo',
-                header: 'Vehículo',
+                accessorKey: 'Cedula',
+                header: 'Cédula',
+                size: 100,
+                Cell({ cell, column, row, table, }) {
+                    return (cell.getValue() != null) ? cell.getValue() : "";
+                }
+            },
+            {
+                accessorKey: 'Nombre',
+                header: 'Nombre conductor',
                 size: 80,
                 Cell({ cell, column, row, table, }) {
                     return (cell.getValue() != null) ? cell.getValue() : "";
@@ -56,23 +64,39 @@ export const ModalTablaReporteVH: React.FC<Props> = ({ show, handleClose, title,
             },
             {
                 accessorKey: 'DistanciaRecorridaAcumulada',
-                header: 'Distancia Recorrida Acumulada',
-                size: 100,
+                header: 'Distancia Recorrida Acumulada (km)',
+                size: 80,
                 Cell({ cell, column, row, table, }) {
                     return (cell.getValue() != null) ? cell.getValue() : "";
                 }
             },
             {
                 accessorKey: 'ConsumodeCombustibleAcumulado',
-                header: 'Consumo de Combustible Acumulado',
-                size: 100,
+                header: 'Consumo de combustible acumulado(M3)',
+                size: 80,
+                Cell({ cell, column, row, table, }) {
+                    return (cell.getValue() != null) ? cell.getValue() : "";
+                }
+            },
+            {
+                accessorKey: 'DistanciaRecorridaUltimoDia',
+                header: 'Distancia recorrida último dia (km)',
+                size: 80,
+                Cell({ cell, column, row, table, }) {
+                    return (cell.getValue() != null) ? cell.getValue() : "";
+                }
+            },
+            {
+                accessorKey: 'RendimientoCumbustibleAcumulado',
+                header: 'Rendimiento de combustible acumulado (km/kg)',
+                size: 80,
                 Cell({ cell, column, row, table, }) {
                     return (cell.getValue() != null) ? cell.getValue() : "";
                 }
             },
             {
                 accessorKey: 'UsoDelFreno',
-                header: 'Uso Del Freno',
+                header: 'Uso de freno (aplicaciones x cada 100 km)</',
                 size: 80,
                 Cell({ cell, column, row, table, }) {
                     return (cell.getValue() != null) ? cell.getValue() : "";
@@ -80,7 +104,7 @@ export const ModalTablaReporteVH: React.FC<Props> = ({ show, handleClose, title,
             },
             {
                 accessorKey: 'PorDeInercia',
-                header: '% De Inercia',
+                header: '% de inercia',
                 size: 80,
                 Cell({ cell, column, row, table, }) {
                     return (cell.getValue() != null) ? cell.getValue() : "";
@@ -88,55 +112,7 @@ export const ModalTablaReporteVH: React.FC<Props> = ({ show, handleClose, title,
             },
             {
                 accessorKey: 'PorDeRalenti',
-                header: '% De Ralentí',
-                size: 80,
-                Cell({ cell, column, row, table, }) {
-                    return (cell.getValue() != null) ? cell.getValue() : "";
-                }
-            },
-            {
-                accessorKey: 'Co2Equivalente',
-                header: 'CO2 Equivalente Ton/m3',
-                size: 100,
-                Cell({ cell, column, row, table, }) {
-                    return (cell.getValue() != null) ? cell.getValue() : "";
-                }
-            },
-            {
-                accessorKey: 'GalEquivalente',
-                header: 'Gal - equivalentes/año',
-                size: 100,
-                Cell({ cell, column, row, table, }) {
-                    return (cell.getValue() != null) ? cell.getValue() : "";
-                }
-            },
-            {
-                accessorKey: 'ConsumokWh',
-                header: 'Consumo (kWh)',
-                size: 80,
-                Cell({ cell, column, row, table, }) {
-                    return (cell.getValue() != null) ? cell.getValue() : "";
-                }
-            },
-            {
-                accessorKey: 'COmgkWh',
-                header: 'CO (mg/kWh)',
-                size: 80,
-                Cell({ cell, column, row, table, }) {
-                    return (cell.getValue() != null) ? cell.getValue() : "";
-                }
-            },
-            {
-                accessorKey: 'NOxmgkWh',
-                header: 'NOx(mg/kWh)',
-                size: 80,
-                Cell({ cell, column, row, table, }) {
-                    return (cell.getValue() != null) ? cell.getValue() : "";
-                }
-            },
-            {
-                accessorKey: 'PMMasamgkWh',
-                header: 'PM Masa (mg/kWh)',
+                header: '% de ralentí',
                 size: 80,
                 Cell({ cell, column, row, table, }) {
                     return (cell.getValue() != null) ? cell.getValue() : "";
@@ -153,26 +129,29 @@ export const ModalTablaReporteVH: React.FC<Props> = ({ show, handleClose, title,
         ];
 
         useEffect(() => {
-            if (consultaReporteVH)
-            {
+
+            if (consultaReporteCO) {
                 setloader(true);
                 setIsRefetching(true)
                 setIsLoading(true)
-            getReporteSotramacVH(fechaInicial, fechaFinal, assetSelected, assetTypeId.toString()).then((respuesta: AxiosResponse<ReporteSotramac[]>) => {
-                setlstReporteSotramacVh(respuesta.data);
-                setRowCount(respuesta.data.length);
-                setloader(false);
-                setIsRefetching(false)
-                setIsLoading(false)
-            }).catch( () => {
-                errorDialog("Visualizar Informe", "Error al recibir datos del servidor.")
-                setloader(false);
-                setIsRefetching(false)
-                setIsLoading(false)
-            }    
-            ); }
+                getReporteSotramacCO(fechaInicial, fechaFinal, driverSelected, assetTypeId.toString())
+                .then((respuesta: AxiosResponse<ReporteSotramac[]>) => {
+                    setlstReporteSotramacCO(respuesta.data);
+                    setRowCount(respuesta.data.length);
+                    setloader(false);
+                    setIsRefetching(false)
+                    setIsLoading(false)
+                }).catch( () => {
+                    errorDialog("Visualizar Informe", "Error al recibir datos del servidor.")
+                    setloader(false);
+                    setIsRefetching(false)
+                    setIsLoading(false)
+                }    
+                );
+            }
+          
     
-        }, [consultaReporteVH]) 
+        }, [consultaReporteCO]) 
 
     return (
         <>
@@ -184,7 +163,8 @@ export const ModalTablaReporteVH: React.FC<Props> = ({ show, handleClose, title,
                     <Modal.Title>{title}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-               
+                   
+                     
                         <MaterialReactTable
                             localization={MRT_Localization_ES}
                             displayColumnDefOptions={{
@@ -196,7 +176,7 @@ export const ModalTablaReporteVH: React.FC<Props> = ({ show, handleClose, title,
                                 },
                             }}
                             columns={listadoCampos}
-                            data={lstReporteSotramacVh}
+                            data={lstReporteSotramacCO}
                             // editingMode="modal" //default         
                             enableTopToolbar={false}
                             enableColumnOrdering
@@ -227,7 +207,8 @@ export const ModalTablaReporteVH: React.FC<Props> = ({ show, handleClose, title,
                                 sorting,
                             }}
                         />
-                   
+                        
+                    
                 </Modal.Body>
                 <Modal.Footer>
                     <Button type="button" variant="secondary" onClick={handleClose}>

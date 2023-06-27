@@ -9,7 +9,7 @@ import { ModalTablaReporteCO } from "./tablaReporteCO";
 import { ModalTablaReporteVHxCO } from "./tablaReporteVHxCO";
 import { getReporteExcelSotramac } from "../data/dataSotramac";
 import BlockUi from "@availity/block-ui";
-import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
+import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 type Props = {
 
 }

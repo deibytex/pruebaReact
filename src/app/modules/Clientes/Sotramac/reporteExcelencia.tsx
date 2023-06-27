@@ -1,4 +1,4 @@
-import { PageTitle } from "../../../_start/layout/core";
+import { PageTitle } from "../../../../_start/layout/core";
 import { ReporteExcelencia } from "./components/filtrosExcelencia";
 import { DataReportesSotramac, SotramacProvider } from "./core/provider";
 

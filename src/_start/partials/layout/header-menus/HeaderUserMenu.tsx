@@ -53,7 +53,7 @@ export function HeaderUserMenu() {
               </span>
             </div>
             <div className="">
-              <span className="text-white fw-bolder fs-4">{  model.Nombres} </span>
+              <span className="text-white fw-bolder fs-4">{ (model != undefined) ?  model.Nombres : 'Usuario'} </span>
               <span className="text-white fw-bold fs-7 d-block">
                 Syscaf
               </span>

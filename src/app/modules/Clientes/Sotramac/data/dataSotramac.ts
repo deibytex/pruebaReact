@@ -1,8 +1,8 @@
 
 import axios from "axios";
-import { DWH_getconsultadinamicasprocedure, PORTAL_getReporteSotramacMS, SOTRA_descargaReporte } from "../../../../apiurlstore";
-import { Post_getconsultadinamicas } from "../../../../_start/helpers/Axios/CoreService";
-import { getConductoresClienteId, getVehiculosClienteId } from "../../../../_start/helpers/Axios/DWHService";
+import { DWH_getconsultadinamicasprocedure, PORTAL_getReporteSotramacMS, SOTRA_descargaReporte } from "../../../../../apiurlstore";
+import { Post_getconsultadinamicas } from "../../../../../_start/helpers/Axios/CoreService";
+import { getConductoresClienteId, getVehiculosClienteId } from "../../../../../_start/helpers/Axios/DWHService";
 import { ParamsReporte } from "../models/dataModels";
 
 const ClienteId = "1546695255495533982";

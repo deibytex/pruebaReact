@@ -1,15 +1,15 @@
+import { useParams } from "react-router-dom";
 import { PageTitle } from "../../layout/core";
 
-interface propiedades {
 
-}
 
-export default function ReportesIFrame (titulo : string, url:string) {
+export default function ReportesIFrame () {
 
+    //const params : any = useParams();
     return (
         <>
-        <PageTitle>{titulo}</PageTitle>
-        <iframe src={url} height='100%' width='100%' ></iframe>
+        <PageTitle>mtto</PageTitle>
+      { /* <iframe src={url} height='100%' width='100%' ></iframe>*/}
         </>
     )
 }
