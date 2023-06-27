@@ -25,11 +25,16 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
     pageIndex: 0,
     pageSize: 10,
   });
+  const [titulo, setTitulo] = useState<string>("Detallado de graficas facturables")
   let DatosColumnas: MRT_ColumnDef<any>[] = [
     {
       accessorKey: 'Base',
       header: 'Cliente',
-      size: 150
+      size: 150,
+      Cell:({cell,column, row, table}) =>{
+        let dato = (<span title={""} className="">{row.original.Base}</span>)
+        return dato ;
+      }
     },
     {
       accessorKey: 'Sitio',
@@ -110,6 +115,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
                 SetBaseX(Base);
                 setshowModal(true);
                 setshowGraficaModal(false);
+                setTitulo(`Detallado ${Base} `)
               }
 
             }
@@ -135,8 +141,10 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
               if (event.target.attributes.j != undefined) {
                 let Base = config.config.labels[event.target.attributes.j.value];
                 SetBaseE(Base);
-                // CargarModal();
                 setshowGraficaModal(true);
+                setTimeout(() => {
+                  setshowModal(true);
+                }, 1000);
               }
             }
           },
@@ -159,6 +167,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
               if (event.target.attributes.j != undefined) {
                 let Base = config.config.labels[event.target.attributes.j.value];
                 SetBase(Base);
+                setTitulo(`Detallado ${Base} `)
                 setshowModal(true);
                 setshowGraficaModal(false);
               }
@@ -358,7 +367,7 @@ setVerticalCliente(opcionesVerticalCliente);
 
     let labels = nombreSeries.map((e) => {
       if (e != undefined)
-        return (e == "Si" ? "Activa" : "No Activa")
+        return (e == "Si" ? "Facturable" : "No Facturable")
     }).filter((f) => f);
 
     ApexCharts.exec('apexchart-unidades', 'updateOptions', {
@@ -518,11 +527,6 @@ setVerticalCliente(opcionesVerticalCliente);
       setDataTable([]); 
     };
   }, [eventsSelected])
-
- 
-  const CargarModal = () => {
-    setshowModal(true);
-  }
   const FiltrarDatos = () => {
     if (value.length == 2) {
       setFiltrado(false);
@@ -612,7 +616,7 @@ setVerticalCliente(opcionesVerticalCliente);
       if (DataFiltrada != undefined) {
         let _dataFiltrada = DataFiltrada.filter(function (val: any, index: any) {
           let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId);
-          if (a == "Si" || a == "No" && (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId) == (baseE == "Activa" ? "Si" : "No"))
+          if (a == "Si" || a == "No" && (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId) == (baseE == "Facturable" ? "Si" : "No"))
             return (val)
         }).filter((e: any) => e);
         CargarSerieCliente(DataFiltrada)
@@ -625,7 +629,7 @@ setVerticalCliente(opcionesVerticalCliente);
       if (Data != undefined && Data['Unidades'] != undefined) {
         let DataFiltrada = Data['Unidades'].filter(function (val: any, index: any) {
           let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId);
-          if (a == "Si" || a == "No" && (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId) == (baseE == "Activa" ? "Si" : "No"))
+          if (a == "Si" || a == "No" && (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId) == (baseE == "Facturable" ? "Si" : "No"))
             return (val);
         }).filter((e: any) => e);
         CargarSerieCliente(DataFiltrada)
@@ -657,8 +661,7 @@ setVerticalCliente(opcionesVerticalCliente);
           if (a == "Si" && val.Vertical == BaseX)
             return (val)
         }).filter((e: any) => e);
-       
-       
+        setDataTable(DataFiltrada);
       }
     }
     return function cleanUp() {
@@ -673,12 +676,6 @@ setVerticalCliente(opcionesVerticalCliente);
     }).filter((value, index, self: any) => {
       return self.indexOf(value) === index;
     });
-    //Agrupador por color.
-    //  let Semana = Data.map((item) => {
-    //      return item.Fecha;
-    //  }).filter((value, index, self: any) => {
-    //      return self.indexOf(value) === index;
-    //  });
     let arrayEstados = new Array();
     // filtramos por los clientes para obtener la agrupacion por  estado
     agrupadorGeneral.map(function (item) {
@@ -687,12 +684,7 @@ setVerticalCliente(opcionesVerticalCliente);
         let filtroEstado = Data.filter(function (val, index) {
           return (val.Base == item);
         });
-        // arrayEstados.push([{
-        //   x: item,
-        //   y: filtroEstado.length
-        // }]);
         arrayEstados.push((filtroEstado.length == null ? 0:filtroEstado.length));
-        //  });
       }
     });
     ApexCharts.exec('apexchart-verticalCliente', 'updateOptions', {
@@ -736,82 +728,48 @@ setVerticalCliente(opcionesVerticalCliente);
         {
           name: [...agrupadorGeneral],
           data:[...arrayEstados]
-          // data: arrayEstados.map((val) => {
-          //   return val[0].y;
-          // })
         }
       ]
     );
     setTotal(arrayEstados);
-    setshowModal(true);
     setRender(true);
+   
   }
-  let ColumnasGraficaCliente: MRT_ColumnDef<any>[] = [{
-    accessorKey: 'x',
-    header: 'Cliente',
-    Header: ({ column, header, table }) => {
-      return "Cliente";
-    },
-    Cell: ({ cell, column, row, table }) => {
-      return <span className="fw-bolder" style={{ fontSize: '10px' }}>{row.original[0].x}</span>
-    }
-  }, {
-    accessorKey: 'y',
-    header: 'Total',
-    Header: ({ column, header, table }) => {
-      return "Total                                                                                                                                           ";
-    },
-    size: 200,
-    maxSize: 200,
-    minSize: 200,
-    Cell: ({ cell, column, row, table }) => {
-      let Total = (row.original[0].y == null ? 0 : row.original[0].y)
-      return <span title={`${row.original[0].x?.toString()} : ${Total}`}>
-        <ProgressBar
-          className='text-center fw-bolder'
-          baseBgColor='transparent'
-          bgColor={`#F44336`}
-          labelSize={`10px`}
-          width='200px'
-          customLabel={`${Total}`}
-          completed={`${(Number(Total) * 100)}`}
-          maxCompleted={500}>
-        </ProgressBar>
-      </span>
-    }
-  }];
+  // let ColumnasGraficaCliente: MRT_ColumnDef<any>[] = [{
+  //   accessorKey: 'x',
+  //   header: 'Cliente',
+  //   Header: ({ column, header, table }) => {
+  //     return "Cliente";
+  //   },
+  //   Cell: ({ cell, column, row, table }) => {
+  //     return <span className="fw-bolder" style={{ fontSize: '10px' }}>{row.original[0].x}</span>
+  //   }
+  // }, {
+  //   accessorKey: 'y',
+  //   header: 'Total',
+  //   Header: ({ column, header, table }) => {
+  //     return "Total                                                                                                                                           ";
+  //   },
+  //   size: 200,
+  //   maxSize: 200,
+  //   minSize: 200,
+  //   Cell: ({ cell, column, row, table }) => {
+  //     let Total = (row.original[0].y == null ? 0 : row.original[0].y)
+  //     return <span title={`${row.original[0].x?.toString()} : ${Total}`}>
+  //       <ProgressBar
+  //         className='text-center fw-bolder'
+  //         baseBgColor='transparent'
+  //         bgColor={`#F44336`}
+  //         labelSize={`10px`}
+  //         width='200px'
+  //         customLabel={`${Total}`}
+  //         completed={`${(Number(Total) * 100)}`}
+  //         maxCompleted={500}>
+  //       </ProgressBar>
+  //     </span>
+  //   }
+  // }];
 
-  // const DatosClientes = () => {
-  //   return (
-  //     <MaterialReactTable
-  //       localization={MRT_Localization_ES}
-  //       columns={ColumnasGraficaCliente}
-  //       data={Total}
-  //       enableColumnOrdering={false}
-  //       enableColumnActions={false}
-  //       enableSorting={true}
-  //       enableFilters={false}
-  //       manualSorting={false}
-  //       enableGlobalFilterRankedResults={false}
-  //       enableDensityToggle={false}
-  //       enableColumnDragging={false}
-  //       enablePagination={false}
-  //       enableHiding={false}
-  //       enableFullScreenToggle={false}
-  //       enableSortingRemoval={false}
-  //       enableStickyHeader
-  //       enableRowVirtualization
-  //       muiTableContainerProps={{ sx: { maxHeight: '200px' } }}
-  //       defaultColumn={{
-  //         minSize: 150, //allow columns to get smaller than default
-  //         maxSize: 400, //allow columns to get larger than default
-  //         size: 150, //make columns wider by default
-  //       }}
-  //       initialState={{ density: 'compact' }}
-  //     />
-  //   )
-
-  // }
   return (
     <div className="row">
       <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 pt-12">
@@ -877,7 +835,7 @@ setVerticalCliente(opcionesVerticalCliente);
       </div>
       <Modal show={showModal} onHide={setshowModal} size={(showGraficaModal ? "xl" : "lg")}>
         <Modal.Header closeButton>
-          <Modal.Title>{"Detallado de graficas"}</Modal.Title>
+          <Modal.Title>{(showGraficaModal ?  "Detallado de graficas facturables" : titulo)}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className="container">

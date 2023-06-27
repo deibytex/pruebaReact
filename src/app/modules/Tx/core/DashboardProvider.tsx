@@ -274,12 +274,16 @@ function ExportarExcel() {
                         Objeto['Descripcion'] = item.Descripcion;
                         Objeto['Sitio'] = item.Sitio;
                         Objeto['Equipo'] = item.Equipo;
-                        Objeto['Imei'] = item.Imei;
-                        Objeto['Serial'] = item.SerialSim;
+                        Objeto['SerialSimOBC'] = item.SerialSimOBC;
+                        Objeto['SerialSimMV'] = item.SerialSimMV;
                         Objeto['Administrador'] = item.Administrador;
                         Objeto['ID Cliente'] = "'" + item.ClienteId;
-                        Objeto['Clasificacion'] = (item.ClasificacionId == "Si" ? "Activa": "No Activa");
-                        Objeto['Linea FM y MV'] = item.Linea;
+                        Objeto['ActivoFacturable'] = (item.ActivoFacturable);
+                        Objeto['LineaMV'] = item.LineaMV;
+                        Objeto['OBCSyscaf'] = item.OBCSyscaf;
+                        Objeto['MVSyscaf'] = item.MVSyscaf;
+                        Objeto['Paquete Comercial'] = item.PaqueteComercial;
+                        Objeto['MixVision'] = item.MixVision;
                         ExportData.push(Objeto);
                     })
                     let NombreArchivo = "ReporteUnidadesActivas"
