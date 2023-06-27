@@ -69,6 +69,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isRefetching, setIsRefetching] = useState(false);
   const [rowCount, setRowCount] = useState(0);
+  const [rowCount2, setRowCount2] = useState(0);
 
   //table state
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -148,8 +149,8 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         size: 80,
         Cell({ cell, column, row, table, }) {
           return (cell.getValue() == null) ? <span className="badge bg-danger">No Gestionado</span>
-            : (cell.getValue() == true) ? <span className="badge bg-primary">Gestionado</span>
-              : (cell.getValue() == false) ? <span className="badge bg-primary">En gestion</span>
+            : (cell.getValue() == true) ? <span className="badge bg-success">Gestionado</span>
+              : (cell.getValue() == false) ? <span className="badge bg-primary">En Gestion</span>
                 : <span>{row.original.EstadoGestion}</span>
         },
       }, {
@@ -214,15 +215,23 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
   function FechaAperturaControl() {
     return (
+      
 
-      <Form.Control className=" mb-3" value={FechaApertura} type="text" name="fechaini" disabled />
-
+      
+      <div className="d-inline-flex col-sm-4 mt-1">
+          <h6 className=" m-1">Fecha Apertura:</h6>
+          <input className=" mb-3 form-control" value={FechaApertura} type="text" name="fechaini" disabled />
+      </div>
+    
     )
   }
 
   function FechaGestionControl() {
     return (
-      <Form.Control className=" mb-3 " value={FechaGestion} type="text" name="fechafinal" disabled />
+      <div className="d-inline-flex col-sm-4 mt-1">
+          <h6 className=" m-1">Ultima Gestión:</h6>
+          <input className=" mb-3 form-control" value={FechaGestion} type="text" name="fechafinal" disabled />
+      </div>
     )
   }
 
@@ -558,8 +567,8 @@ const ordenarData = (tipo: string) => {
 
           <Tabs
             defaultActiveKey="gestion"
-            className="mb-3 border"
-            justify
+            className="mb-3"
+            // justify
           // onClick={() => {
           //   console.log('hola', row);
           // }} 
@@ -571,44 +580,19 @@ const ordenarData = (tipo: string) => {
                   display: 'grid',
                   margin: 'auto',
                   gridTemplateColumns: '1fr 1fr',
-                  width: '120%',
+                  width: '100%',
                 }}
               >
-                {/* <Card> */}
-                  {/* <Card.Body> */}
-                    {/* <Card.Title>Información Gestión</Card.Title> */}
-                    {/* <Card.Text> */}
+              <div className="row  col-sm-12 col-md-12 col-xs-12">
 
-                      
-                      <span className="mb-3 row">
-                        <span className="col-3">
-                          <span>Fecha Apertura:</span>
-                          <FechaAperturaControl />
-                        </span>
-                      </span>
+                <FechaAperturaControl />
 
-                    {/* </Card.Text> */}
-                    {/* <Card.Text> */}
+                <FechaGestionControl />
 
-                      <span>Ultima Gestión:</span>
-                      <div className="mb-3 row">
-                        <div className="col-3">
-                          <FechaGestionControl />
-                          
-                        </div>
-                      <textarea className="form-control  input input-sm " id={'obervacion'} rows={3} value={obervacionGestionlast} disabled></textarea>
-
-                      </div>
-                      
-
-                    {/* </Card.Text> */}
-                    {/* <Card.Text> */}
-                      {/* <textarea className="form-control  input input-sm " id={'obervacion'} rows={3} value={obervacionGestionlast} disabled></textarea> */}
-                    {/* </Card.Text> */}
-                    {/* <Button variant="primary">Adicionar Gestión</Button> */}
-                  {/* </Card.Body> */}
-                {/* </Card> */}
-              </Box>
+                <textarea className="form-control input m-2" id={'obervacion'} rows={3} value={obervacionGestionlast} disabled></textarea>
+              
+              </div>
+            </Box>
             </Tab>
             <Tab eventKey="Contacto" title={`Información de contacto`}>
               <Box
@@ -616,7 +600,7 @@ const ordenarData = (tipo: string) => {
                   display: 'grid',
                   margin: 'auto',
                   gridTemplateColumns: '1fr 1fr',
-                  width: '140%'
+                  width: '100%'
                 }}
 
               >
@@ -652,7 +636,7 @@ const ordenarData = (tipo: string) => {
                     onGlobalFilterChange={setGlobalFilter}
                     onPaginationChange={setPagination}
                     onSortingChange={setSorting}
-                    rowCount={rowCount}
+                    rowCount={rowCount2}
                     initialState={{ density: 'compact' }}
                     state={{
                       columnFilters,
