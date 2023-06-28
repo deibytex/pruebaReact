@@ -215,7 +215,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       //   }
       // },
       colors: ['#1f77b4', '#aec7e8'],
-     
+
     }
     setVerticalCliente(opcionesVerticalCliente);
     return function cleanUp() {
@@ -561,7 +561,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
               let _data = (Data != undefined && Data['Unidades'] != undefined ? Data['Unidades'] : []);
               let a = (DataFiltrada.length != 0 ? DataFiltrada : _data)
               let _dataFiltrada = a.filter(function (val: any, index: any) {
-                let obc =  (val.OBCSyscaf == null ? val.EsEquipoSyscaf : val.OBCSyscaf);
+                let obc = (val.OBCSyscaf == null ? val.EsEquipoSyscaf : val.OBCSyscaf);
                 return (obc == Seleccionado);
               });
               setFiltrado(true);
@@ -573,7 +573,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
             if (Data != undefined && Data['Unidades'] != undefined) {
               Seleccionado = (item == "Syscaf" ? "Si" : "No");
               let DataFiltrada = Data['Unidades'].filter(function (val: any, index: any) {
-                let obc =  (val.OBCSyscaf == null ? val.EsEquipoSyscaf : val.OBCSyscaf);
+                let obc = (val.OBCSyscaf == null ? val.EsEquipoSyscaf : val.OBCSyscaf);
                 return (obc == Seleccionado);
               });
               setFiltrado(true);
@@ -585,7 +585,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
             if (Data != undefined && Data['Unidades'] != undefined) {
               Seleccionado = (item == "Syscaf" ? "Si" : "No");
               let DataFiltrada = Data['Unidades'].filter(function (val: any, index: any) {
-                let obc =  (val.OBCSyscaf == null ? val.EsEquipoSyscaf : val.OBCSyscaf);
+                let obc = (val.OBCSyscaf == null ? val.EsEquipoSyscaf : val.OBCSyscaf);
                 return (obc == Seleccionado);
               });
               setFiltrado(true);
@@ -686,7 +686,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
             return (val)
         }).filter((e: any) => e);
         setDataTable(_dataFiltrada);
-        if(BaseVC != "")
+        if (BaseVC != "")
           setshowModal(true);
       }
     } else {
@@ -697,7 +697,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
             return (val)
         }).filter((e: any) => e);
         setDataTable(_DataFiltrada);
-        if(BaseVC != "")
+        if (BaseVC != "")
           setshowModal(true);
       }
     }
@@ -724,7 +724,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
         arrayEstados.push((filtroEstado.length == null ? 0 : filtroEstado.length));
       }
     });
-    ApexCharts.exec('apexchart-verticalCliente', 'updateOptions',{
+    ApexCharts.exec('apexchart-verticalCliente', 'updateOptions', {
       labels: agrupadorGeneral.filter((e) => e),
       legend: {
         show: true,
@@ -738,7 +738,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
         }
       },
       //para darle forma a los totales
-     });
+    });
     // actializar los datos
     ApexCharts.exec('apexchart-verticalCliente', 'updateSeries',
       [
@@ -748,45 +748,66 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
         }
       ]
     );
-  
+
   }
 
-  const PintarAcumulado2Semanas = (DataAcumulado:any[]) =>{
+  const PintarAcumulado2Semanas = (DataAcumulado: any[]) => {
     let nuevoObjeto = {}
     //Recorremos el arreglo 
-    DataAcumulado.forEach( x => {
-    //Si la ciudad no existe en nuevoObjeto entonces
-    //la creamos e inicializamos el arreglo de profesionales. 
-    if( !nuevoObjeto.hasOwnProperty(x.Fecha)){
+    DataAcumulado.forEach(x => {
+      //Si la ciudad no existe en nuevoObjeto entonces
+      //la creamos e inicializamos el arreglo de profesionales. 
+      if (!nuevoObjeto.hasOwnProperty(x.Fecha)) {
         nuevoObjeto[x.Fecha] = {
-        data: []
+          data: []
         }
-    }
-    
-    //Agregamos los datos de profesionales. 
-        nuevoObjeto[x.Fecha].data.push(
-          {
-          "ActivoFacturable" : x.ActivoFacturable,
-            "Base":x.Base,
-            "ClienteId":x.ClienteId,
-            "Fecha":x.Fecha,
-            "Matricula":x.Matricula,
-            "Vertical":x.Vertical
-          }
+      }
+
+      //Agregamos los datos de profesionales. 
+     if( x.ActivoFacturable == "Si" )
+      nuevoObjeto[x.Fecha].data.push(
+        {
+          "ActivoFacturable": x.ActivoFacturable,
+          "Base": x.Base,
+          "ClienteId": x.ClienteId,
+          "Fecha": x.Fecha,
+          "Matricula": x.Matricula,
+          "Vertical": x.Vertical
+        }
       )
     })
     let Semanas = Object.keys(nuevoObjeto);
-    let Semana = (Semanas.length != 0 ? Semanas[0]:"");
-    let SemanaDos =  (Semanas.length != 0 ? Semanas[1]:"");
-    let DatoSemana:any[] = nuevoObjeto[Semana].data;
-    let DatoSemanaDos:any[] = nuevoObjeto[SemanaDos].data;
+    let SemanaAnterior = (Semanas.length != 0 ? Semanas[0] : "");
+    let SemanaActual = (Semanas.length != 0 ? Semanas[1] : "");
+    let DatoSemanaAnterior: any[] = nuevoObjeto[SemanaAnterior].data;
+    let DatoSemanaActual: any[] = nuevoObjeto[SemanaActual].data;
+
+    // comparar los datos de las 2 semanas
+    const dif = DatoSemanaAnterior.length - DatoSemanaActual.length;
+    console.log( dif)
+
+
+    //Los que no estan en la semana actual respecto anterior
+    // los que entraron
+    let entradas = DatoSemanaActual.filter(function (el) {
+      return !(DatoSemanaAnterior.filter( (ff) =>  ff.Matricula === el.Matricula && ff.Base == el.Base ).length == 1) ;
+    });
+    //filtrar los datos de la semana anterior respecto a la actual
+    // los que salieron 
+    let salidas = DatoSemanaAnterior.filter(function (el) {
+      return !(DatoSemanaActual.filter( (ff) =>  ff.Matricula === el.Matricula && ff.Base == el.Base).length == 1) ;
+    });
+    console.log(entradas);
+
+    console.log(salidas);
+
   }
- 
-//para los acumulado o cruch
-  useEffect(() =>{
-    if(DataAcumulado != undefined && DataAcumulado.length != 0)
+
+  //para los acumulado o cruch
+  useEffect(() => {
+    if (DataAcumulado != undefined && DataAcumulado.length != 0)
       PintarAcumulado2Semanas(DataAcumulado);
-  },[DataAcumulado])
+  }, [DataAcumulado])
 
 
   return (
@@ -851,18 +872,18 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
           </div>
         )}
       </div>
-      <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 pt-12" style={{ display:(Detallado ? 'inline':'none')}}>
-            <div className="float-end">
-              <button title={"Ocultar grafica"} onClick={() =>{setDetallado((Detallado? false:true))}} className="btn btn-sm btn-primary "><i className="bi-archive"></i></button>
-            </div>
-            <div className="fw-bolder" style={{textAlign:'center'}} >
-              {tituloFacturable}
-            </div>
-            {(VerticalCliente  && VerticalCliente.options && VerticalCliente.series) && (<ReactApexChart
-              options={VerticalCliente.options}
-              series={VerticalCliente.series} type="bar"
-              height={300}
-            />)} 
+      <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 pt-12" style={{ display: (Detallado ? 'inline' : 'none') }}>
+        <div className="float-end">
+          <button title={"Ocultar grafica"} onClick={() => { setDetallado((Detallado ? false : true)) }} className="btn btn-sm btn-primary "><i className="bi-archive"></i></button>
+        </div>
+        <div className="fw-bolder" style={{ textAlign: 'center' }} >
+          {tituloFacturable}
+        </div>
+        {(VerticalCliente && VerticalCliente.options && VerticalCliente.series) && (<ReactApexChart
+          options={VerticalCliente.options}
+          series={VerticalCliente.series} type="bar"
+          height={300}
+        />)}
       </div>
       <Modal show={showModal} onHide={setshowModal} size={"lg"}>
         <Modal.Header closeButton>
