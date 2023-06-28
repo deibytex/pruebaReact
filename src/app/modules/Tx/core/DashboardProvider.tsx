@@ -43,6 +43,8 @@ export interface DashboardContextModel {
     setSemanaTipo:(SemanaTipo:string) => void;
     DataAcumulado?:any[],
     setDataAcumulado:(DataAcumulado:any[]) => void;
+    showChurn?:boolean;
+    setshowChurn:(showChurn:boolean) =>void;
 }
 const DashboardContext = createContext<DashboardContextModel>({
     setClientes: (Cliente: any) => {},
@@ -62,6 +64,7 @@ const DashboardContext = createContext<DashboardContextModel>({
     setSemanaTipo:(SemanaTipo:string) =>  {},
     setTabActive:(Tab:string) =>  {},
     setDataAcumulado:(DataAcumulado:any[]) => {},
+    setshowChurn:(showChurn:boolean) =>{}
 });
 const DashboardProvider: React.FC = ({ children }) => {
     const [Clientes, setClientes] = useState<ClienteDTO[]>([]);
@@ -81,6 +84,7 @@ const DashboardProvider: React.FC = ({ children }) => {
     const [SemanaTipo, setSemanaTipo] = useState<string>("1");
     const [TabActive, setTabActive] = useState<string>("Tab1");
     const [DataAcumulado, setDataAcumulado] = useState<any[]>([]);
+    const [showChurn, setshowChurn] = useState<boolean>(false);
     const value: DashboardContextModel = {
         setClientes,
         setClienteSeleccionado,
@@ -115,7 +119,9 @@ const DashboardProvider: React.FC = ({ children }) => {
         TabActive,
         setTabActive,
         DataAcumulado,
-        setDataAcumulado
+        setDataAcumulado,
+        showChurn,
+        setshowChurn
     };
     return (
         <DashboardContext.Provider value={value}>

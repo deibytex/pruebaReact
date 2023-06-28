@@ -5,13 +5,14 @@ import ReactApexChart from "react-apexcharts";
 import { Modal } from "react-bootstrap-v5";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
-import { PaginationState } from "@tanstack/react-table";
-import ProgressBar from "@ramonak/react-progress-bar";
+import { Churn } from "./churn";
+
+
 type Props = {
   tab: string;
 }
 const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
-  const { Data, DataFiltrada, Filtrado, setFiltrado, setDataFiltrada, setCargando, DataAcumulado } = useDataDashboard();
+  const { Data, DataFiltrada, Filtrado, setFiltrado, setDataFiltrada, setCargando, DataAcumulado, showChurn, setshowChurn } = useDataDashboard();
   //constantes para las graficas en general.
   const [base, SetBase] = useState<string>("");
   const [baseE, SetBaseE] = useState<string>("");
@@ -49,6 +50,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       size: 100
     }
   ]
+ 
   const defaultPriopios: any[] = [
     {
       name: 'Syscaf',
@@ -750,70 +752,14 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
     );
 
   }
-
-  const PintarAcumulado2Semanas = (DataAcumulado: any[]) => {
-    let nuevoObjeto = {}
-    //Recorremos el arreglo 
-    DataAcumulado.forEach(x => {
-      //Si la ciudad no existe en nuevoObjeto entonces
-      //la creamos e inicializamos el arreglo de profesionales. 
-      if (!nuevoObjeto.hasOwnProperty(x.Fecha)) {
-        nuevoObjeto[x.Fecha] = {
-          data: []
-        }
-      }
-
-      //Agregamos los datos de profesionales. 
-     if( x.ActivoFacturable == "Si" )
-      nuevoObjeto[x.Fecha].data.push(
-        {
-          "ActivoFacturable": x.ActivoFacturable,
-          "Base": x.Base,
-          "ClienteId": x.ClienteId,
-          "Fecha": x.Fecha,
-          "Matricula": x.Matricula,
-          "Vertical": x.Vertical
-        }
-      )
-    })
-    let Semanas = Object.keys(nuevoObjeto);
-    let SemanaAnterior = (Semanas.length != 0 ? Semanas[0] : "");
-    let SemanaActual = (Semanas.length != 0 ? Semanas[1] : "");
-    let DatoSemanaAnterior: any[] = nuevoObjeto[SemanaAnterior].data;
-    let DatoSemanaActual: any[] = nuevoObjeto[SemanaActual].data;
-
-    // comparar los datos de las 2 semanas
-    const dif = DatoSemanaAnterior.length - DatoSemanaActual.length;
-    console.log( dif)
-
-
-    //Los que no estan en la semana actual respecto anterior
-    // los que entraron
-    let entradas = DatoSemanaActual.filter(function (el) {
-      return !(DatoSemanaAnterior.filter( (ff) =>  ff.Matricula === el.Matricula && ff.Base == el.Base ).length == 1) ;
-    });
-    //filtrar los datos de la semana anterior respecto a la actual
-    // los que salieron 
-    let salidas = DatoSemanaAnterior.filter(function (el) {
-      return !(DatoSemanaActual.filter( (ff) =>  ff.Matricula === el.Matricula && ff.Base == el.Base).length == 1) ;
-    });
-    console.log(entradas);
-
-    console.log(salidas);
-
+  const [show, setshow] = useState<boolean>(false);
+  const cargarModal = () =>{
+    setshow(true);
   }
-
-  //para los acumulado o cruch
-  useEffect(() => {
-    if (DataAcumulado != undefined && DataAcumulado.length != 0)
-      PintarAcumulado2Semanas(DataAcumulado);
-  }, [DataAcumulado])
-
-
   return (
     <div className="row">
       <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 pt-12">
-        <div className="d-flex justify-content-start  ">
+        <div className="float-start">
           {(Data !== undefined) && (Data['Unidades'] != undefined) && (<>
             <CheckboxGroup inline name="checkboxList" value={value} onChange={handleChange}>
               {defaultPriopios.map(item => (
@@ -822,6 +768,9 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
                 </Checkbox>
               ))}
             </CheckboxGroup></>)}
+        </div>
+        <div className="float-end">
+            <button onClick={cargarModal} className="btn btn-sm btn-primary mt-8" title="Ver churn"><i className="bi-table"></i></button>
         </div>
       </div>
       <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-10">
@@ -931,6 +880,9 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
           </div>
         </Modal.Body>
       </Modal>
+
+      {/* Modal churn */}
+        <Churn SetShow={setshow} Show={show}></Churn>
     </div>
   )
 }
