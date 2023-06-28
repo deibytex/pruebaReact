@@ -3,14 +3,14 @@ import moment from "moment"
 import { useEffect, useState } from "react"
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog"
 import {  useDataDashboard } from "../../core/DashboardProvider"
-import {  GetSnapShotTickets2, GetSnapShotTransmision, GetUnidadesActivas } from "../../data/Dashboard"
+import {  GetSnapShotTickets2, GetSnapShotTransmision, GetSnapShotTransmisionAcumulado, GetSnapShotUnidadesActivasAcumulado, GetUnidadesActivas, GetUnidadesActivasAcumulado } from "../../data/Dashboard"
 import { Tickets } from "./Tickets"
 import { Transmision } from "./Transmision"
 import { UnidadesActivas } from "./UnidadesActivas"
 import BlockUi from "@availity/block-ui"
 
 export default function  DashboardPrincipal (){
-    const {ClienteSeleccionado, setData, setDataTx, setDataTk,TabActive, setTabActive, SemanaSeleccionada, Cargando, setCargando} = useDataDashboard()
+    const {ClienteSeleccionado, DataTx,  setData, setDataTx, setDataTk,TabActive, setTabActive, SemanaSeleccionada, Cargando, setCargando, setDataAcumulado} = useDataDashboard()
     const [montarTx, setmontarTx] = useState<boolean>(false);
     const [montarTicket, setMontarTicket] = useState<boolean>(false);
     const [montarUnidades, setmontarUnidades] = useState<boolean>(true);
@@ -18,11 +18,11 @@ export default function  DashboardPrincipal (){
      function ConsultarUnidades() {
         setCargando(true);
         let Fecha = (SemanaSeleccionada != undefined ? SemanaSeleccionada['fecha'] : moment().format("DD/MM/YYYY").toString())
-         GetUnidadesActivas(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
+        GetUnidadesActivasAcumulado(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
             setData({"Unidades":response.data});
             setCargando(false);
         }).catch((error:AxiosError<any>) =>{
-            errorDialog("Ha ocurrido un error al consular las unidades","");
+            errorDialog("Ha ocurrido un error al consultar las unidades","");
             setCargando(false);
         });
     };
@@ -30,6 +30,7 @@ export default function  DashboardPrincipal (){
         setCargando(true);
         let Fecha = (SemanaSeleccionada != undefined  ?  (SemanaSeleccionada?.length != 0 ?SemanaSeleccionada['fecha'] : moment().format("DD/MM/YYYY").toString()): moment().format("DD/MM/YYYY").toString());
             GetSnapShotTransmision(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
+            
                 setDataTx({"Transmision":response.data});
                 setCargando(false);
             }).catch((error:AxiosError<any>) =>{
@@ -47,10 +48,29 @@ export default function  DashboardPrincipal (){
             setCargando(false);
         });
     };
-
+    function ConsultarAcumuladoSemana (){
+        let Fecha = (SemanaSeleccionada != undefined ? SemanaSeleccionada['fecha'] : moment().format("DD/MM/YYYY").toString())
+        GetSnapShotTransmisionAcumulado(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
+            setDataAcumulado(response.data);
+            setCargando(false);
+        }).catch((error:AxiosError<any>) =>{
+            setCargando(false);
+        });
+    }
+    function ConsultarAcumuladoSnapShot (){
+        let Fecha = (SemanaSeleccionada != undefined ? SemanaSeleccionada['fecha'] : moment().format("DD/MM/YYYY").toString())
+        GetSnapShotUnidadesActivasAcumulado(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
+            setDataAcumulado(response.data);
+            setCargando(false);
+        }).catch((error:AxiosError<any>) =>{
+            setCargando(false);
+        });
+    }
     useEffect(() =>{
-        if(TabActive == "Tab1")
+        if(TabActive == "Tab1"){
             ConsultarUnidades();
+            ConsultarAcumuladoSnapShot();
+        }
         //ConsultarTickets();
         return () =>{
            setData([]);
@@ -59,8 +79,10 @@ export default function  DashboardPrincipal (){
     }, [SemanaSeleccionada, TabActive])
 
     useEffect(() =>{
-        if(TabActive == "Tab2")
+        if(TabActive == "Tab2"){
             ConsultarTransmision();
+            ConsultarAcumuladoSemana();
+        }
     },[SemanaSeleccionada, TabActive])
 
     useEffect(() =>{

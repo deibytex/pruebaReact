@@ -52,7 +52,6 @@ const Tickets: React.FC = () => {
             //SE DEBE DESTRUIR EL OBJETO CHART
         };
     }, [])
-
     const PintarGraficas = () => {
         if (DataTk != undefined) {
             let Datos = new Array();
@@ -87,7 +86,6 @@ const Tickets: React.FC = () => {
 
                 });
             });
-
             // Vertical po Tipo
             let ArupadorVertical = DataTk['Ticket'].map((item: any) => {
                 return (item.tipodeTicket == undefined) ? item.TipodeTicket : item.tipodeTicket;
@@ -99,7 +97,6 @@ const Tickets: React.FC = () => {
             }).filter((value: any, index: any, self: any) => {
                 return self.indexOf(value) === index;
             });
-
             ArupadorVertical.map(function (item: any) {
                 SemanaVertical.map(function (itemSemana: any) {
                     let filtroVertical = DataTk['Ticket'].filter(function (val: any) {
@@ -112,7 +109,6 @@ const Tickets: React.FC = () => {
 
                 });
             });
-
             ApexCharts.exec('apexchart-tipo', 'updateOptions', {
                 chart: {
                     fill: {
@@ -159,9 +155,7 @@ const Tickets: React.FC = () => {
                     }
                 ]
             );
-
             //Fin
-
             ApexCharts.exec('apexchart-base', 'updateOptions', {
                 chart: {
                     fill: {
@@ -209,9 +203,7 @@ const Tickets: React.FC = () => {
                         }
                     ]
                 );
-
             /*Admins */
-
             agrupadorGeneral?.map(function (item: any) {
                 let totalAdmon = DataTk['Ticket']?.filter(function (data: any, index: any) {
                     if (data.administrador == item)
@@ -253,14 +245,15 @@ const Tickets: React.FC = () => {
     if (DataTk)
         if (DataTk['Ticket'] != undefined) {
             DataTk['Ticket'].filter(function (item: any, index: any) {
-                var i = AdminsTk.findIndex(x => (x.usuarioIds == item.administrador && x.nombre == item.administrador));
+                var nombre:string  = (item.administrador != null || item.administrador != undefined ? (item.administrador.split(" - ")[1] == undefined ? item.administrador.split(" - ")[0] : item.administrador.split(" - ")[1]):item.administrador);
+                var id:string= (item.administrador != null || item.administrador != undefined ? item.administrador.split(" - ")[0]:item.administrador);
+                var i = AdminsTk.findIndex(x => x.usuarioIds ==id && x.nombre == nombre);
                 if (i <= -1) {
-                    AdminsTk.push({ "nombre": item.administrador, "usuarioIds": item.administrador });
+                    AdminsTk.push({ "nombre": nombre, "usuarioIds": id });
                 }
                 return null;
             });
         }
-
     MenuAdministradores = AdminsTk.map((val: any, index: any) => {
         return (
             <li key={val.nombre} className="nav-item" role="presentation">
@@ -274,7 +267,6 @@ const Tickets: React.FC = () => {
                 PintarGraficas()
             }
         }
-
     }, [DataTk, Filtrado, DataFiltradaTk]);
     return (
         <>
@@ -295,7 +287,6 @@ const Tickets: React.FC = () => {
                                     <div className="text-center pt-5">
                                         <label className="label label-sm fw-bolder">TICKET POR ADMINISTRADOR</label>
                                     </div>
-
                                     {
                                         (DataAdmin != null) && (DataAdmin.options != undefined) && (<ReactApexChart options={DataAdmin.options} series={DataAdmin.series} type="pie" height={350} />)
                                     }
@@ -304,8 +295,6 @@ const Tickets: React.FC = () => {
                                     <div className="text-center pt-5">
                                         <label className="label label-sm fw-bolder">TICKET POR BASE</label>
                                     </div>
-
-
                                     {
                                         (Database != null) && (Database.options != undefined) && (<ReactApexChart options={Database.options} series={Database.series} type="bar" height={300} />)
                                     }
@@ -314,12 +303,9 @@ const Tickets: React.FC = () => {
                                     <div className="text-center pt-5">
                                         <label className="label label-sm fw-bolder">TIPO TICKET</label>
                                     </div>
-
-
                                     {
                                         (Datatipo != null) && (Datatipo.options != undefined) && (<ReactApexChart options={Datatipo.options} series={Datatipo.series} type="bar" height={300} />)
                                     }
-
                                 </div>
                                 <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-5">
                                     <table id="tablaAdminstickets w-100" className="table datatable-responsive4">

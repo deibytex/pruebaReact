@@ -41,6 +41,8 @@ export interface DashboardContextModel {
     setSemanaSeleccionada:(SemanaSeleccionada:any[]) => void;
     SemanaTipo ? : string;
     setSemanaTipo:(SemanaTipo:string) => void;
+    DataAcumulado?:any[],
+    setDataAcumulado:(DataAcumulado:any[]) => void;
 }
 const DashboardContext = createContext<DashboardContextModel>({
     setClientes: (Cliente: any) => {},
@@ -59,6 +61,7 @@ const DashboardContext = createContext<DashboardContextModel>({
     setSemanaSeleccionada:(SemanaSeleccionada:any[])  => {},
     setSemanaTipo:(SemanaTipo:string) =>  {},
     setTabActive:(Tab:string) =>  {},
+    setDataAcumulado:(DataAcumulado:any[]) => {},
 });
 const DashboardProvider: React.FC = ({ children }) => {
     const [Clientes, setClientes] = useState<ClienteDTO[]>([]);
@@ -69,7 +72,7 @@ const DashboardProvider: React.FC = ({ children }) => {
     const [DataFiltrada, setDataFiltrada] = useState<any[]>([]);
     const [DataFiltradaTx, setDataFiltradaTx] = useState<any[]>([]);
     const [DataFiltradaTk, setDataFiltradaTk] = useState<any[]>([]);
-    const [Cargando, setCargando] = useState<boolean>(false);
+    const [Cargando, setCargando] = useState<boolean>(true);
     const [Filtrado, setFiltrado] = useState<boolean>(false);
     const [FiltradoTx, setFiltradoTx] = useState<boolean>(false);
     const [FiltradoTk, setFiltradoTk] = useState<boolean>(false);
@@ -77,6 +80,7 @@ const DashboardProvider: React.FC = ({ children }) => {
     const [SemanaSeleccionada, setSemanaSeleccionada] = useState<any[]>([]);
     const [SemanaTipo, setSemanaTipo] = useState<string>("1");
     const [TabActive, setTabActive] = useState<string>("Tab1");
+    const [DataAcumulado, setDataAcumulado] = useState<any[]>([]);
     const value: DashboardContextModel = {
         setClientes,
         setClienteSeleccionado,
@@ -109,7 +113,9 @@ const DashboardProvider: React.FC = ({ children }) => {
         DataTk,
         setDataTk,
         TabActive,
-        setTabActive
+        setTabActive,
+        DataAcumulado,
+        setDataAcumulado
     };
     return (
         <DashboardContext.Provider value={value}>
@@ -123,11 +129,9 @@ function useDataDashboard() {
 const CargaClientes: React.FC = ({children}) => {
     const { setClienteSeleccionado, setClientes, ClienteSeleccionado,setFiltradoTx, setDataFiltradaTx, DataTx,  Clientes, setCargando, setFiltrado, Filtrado, Data, setDataFiltrada, setData} = useDataDashboard();
     useEffect(() =>{
-        setCargando(true);
         ObtenerListadoCLientes().then((response:AxiosResponse<any>) => {
             setClientes(response.data);
             setClienteSeleccionado(InicioCliente);
-            setCargando(false);
         }
         ).catch((error) => {
             errorDialog("Consultar clientes", "Error al consultar los clientes, no se puede desplegar informacion");
@@ -230,6 +234,23 @@ function ExportarExcel() {
             case 'Tab2':
 
             if(DataTx != undefined && DataTx['Transmision'].length > 0){
+                let datosTemp:any[] = [];
+                   DataTx['Transmision'].map((value:any) =>{
+                    let Objeto = {};
+                    Objeto['Semana'] = value.Fecha;
+                    Objeto['Matricula'] = value.Matricula;
+                    Objeto['Base'] = value.Mase;
+                    Objeto['Vertical'] = value.Vertical;
+                    Objeto['Descripcion'] = value.Descripcion;
+                    Objeto['Sitio'] = value.Sitio;
+                    Objeto['Equipo'] = value.Equipo;
+                    Objeto['Imei'] = value.Imei;
+                    Objeto['Serial'] = value.SerialSim;
+                    Objeto['Administrador'] = value.Administrador;
+                    Objeto['ID Cliente'] = "'" + value.ClienteId;
+                    Objeto['Clasificacion'] = value.ClasificacionId;
+                    datosTemp.push(Objeto);
+                   }) 
                 let NombreArchivo = "ReporteTransmision"
                 const ws = XLSX.utils.json_to_sheet(DataTx['Transmision']);
                 const wb = { Sheets: { 'data' :ws }, SheetNames:['data']};
@@ -242,8 +263,31 @@ function ExportarExcel() {
             break;
             default:
                 if(Data != undefined && Data['Unidades'].length > 0){
+                    let ExportData:any = [];
+                    Data['Unidades'].map((item:any) =>{
+                        let Objeto = {};
+                        Objeto['Semana'] = item.Fecha;
+                        Objeto['Fecha'] = moment(item.FechaSnapShot).format("DD/MM/YYYY");
+                        Objeto['Matricula'] = item.Matricula;
+                        Objeto['Base'] = item.Base;
+                        Objeto['Vertical'] = item.Vertical;
+                        Objeto['Descripcion'] = item.Descripcion;
+                        Objeto['Sitio'] = item.Sitio;
+                        Objeto['Equipo'] = item.Equipo;
+                        Objeto['SerialSimOBC'] = item.SerialSimOBC;
+                        Objeto['SerialSimMV'] = item.SerialSimMV;
+                        Objeto['Administrador'] = item.Administrador;
+                        Objeto['ID Cliente'] = "'" + item.ClienteId;
+                        Objeto['ActivoFacturable'] = (item.ActivoFacturable);
+                        Objeto['LineaMV'] = item.LineaMV;
+                        Objeto['OBCSyscaf'] = item.OBCSyscaf;
+                        Objeto['MVSyscaf'] = item.MVSyscaf;
+                        Objeto['Paquete Comercial'] = item.PaqueteComercial;
+                        Objeto['MixVision'] = item.MixVision;
+                        ExportData.push(Objeto);
+                    })
                     let NombreArchivo = "ReporteUnidadesActivas"
-                    const ws = XLSX.utils.json_to_sheet(Data['Unidades']);
+                    const ws = XLSX.utils.json_to_sheet(ExportData);
                     const wb = { Sheets: { 'data' :ws }, SheetNames:['data']};
                     const excelBuffer = XLSX.write(wb,{ bookType:'xlsx', type: 'array'});
                     const data = new Blob([excelBuffer],{type: fileType});
@@ -259,13 +303,13 @@ function ExportarExcel() {
     )
 }
 function ActualizarUnidades() {
-    const { TabActive, SemanaSeleccionada } = useDataDashboard()
-   
+    const { TabActive, SemanaSeleccionada, setSemanaSeleccionada, setFiltrado } = useDataDashboard()
     const ActualizarUnidadesActivas = (e:any) =>{
         confirmarDialog(() => {
             let Fecha = (SemanaSeleccionada != undefined  ?  (SemanaSeleccionada?.length != 0 ?moment(SemanaSeleccionada['fecha'] ).format("YYYY/MM/DD").toString(): moment().format("YYYY/MM/DD").toString()): moment().format("YYYY/MM/DD").toString());
             SetActualizaUnidadesActivas(Fecha).then((response:AxiosResponse<any>) =>{
                 successDialog("Unidades actualizadas éxitosamente","");
+
             }).catch((error: AxiosError<any>) =>{
                 errorDialog("Ha ocurrido un error","");
             });
