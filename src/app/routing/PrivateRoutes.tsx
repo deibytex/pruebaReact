@@ -16,39 +16,41 @@ export function PrivateRoutes() {
   const menu = useSelector<RootState>(
     ({ auth }) => auth.menu
   );
-  const lstOpciones = (menu as Opciones[]);
-
+ 
   const [importedModules, setimportedModules] = useState<any[]>([]);
   useEffect(() => {
+    const lstOpciones = (menu as any[]);
+    let opciones: any[] = [];
+    
+    if (lstOpciones != undefined && lstOpciones != null) {
+      lstOpciones.map((m: any) => opciones.push(...m.opciones));
+      setloader(true)
+      if (opciones !== undefined) {
+        let opcionesHijo = opciones.filter((element) => element.Controlador != null);
+        const componentPromises =
+          opcionesHijo.filter(f => !f.Controlador.includes('/reportes/pbi')).map(f => {
+            let modulo = f.Accion.slice(3);
+            // importamos los compontes que el usuario necesita
+            // los demas componentes quedan dormidos
+            return import(`../${modulo}`).then(module => {
+              return <Route exact key={`${f.Controlador}`} path={`${f.Controlador}`} component={module.default} />
+            }).catch((e) => {
+              console.log(modulo, e) // importar pagina por defecto
+            }
+            )
+          });
 
-    setloader(true)
-    if (lstOpciones !== undefined) {
-      let opcionesHijo = lstOpciones.filter((element) => element.Controlador != null);     
-      const componentPromises =
-        opcionesHijo.filter(f => !f.Controlador.includes('/reportes/pbi')).map(f => {
-          let modulo = f.Accion.slice(3);
-          // importamos los compontes que el usuario necesita
-          // los demas componentes quedan dormidos
-          return import(`../${modulo}`).then(module => {
-            return <Route exact key={`${f.Controlador}`} path={`${f.Controlador}`} component={module.default} />
-          }).catch((e) => {
-            console.log(modulo, e) // importar pagina por defecto
+        Promise.all(componentPromises).then(
+          (values) => {
+            setloader(false);
+            setimportedModules(values)
+
           }
-          )
-        });
-
-      Promise.all(componentPromises).then(
-        (values) => {
-          setloader(false);
-          setimportedModules(values)
-
-        }
-      ).catch(
-        (error) => { setloader(false); console.log(error) }
-      );
+        ).catch(
+          (error) => { setloader(false); console.log(error) }
+        );
+      }
     }
-
-
     return () => {
       setimportedModules([])
     }
@@ -69,8 +71,8 @@ export function PrivateRoutes() {
             <>     {importedModules}</>
           )
           }
-         
-         <Route path="/reportes/pbi/mttobusetones/:titulo/:url" component={ReportesIFrame} />
+
+          <Route path="/reportes/pbi/mttobusetones/:titulo/:url" component={ReportesIFrame} />
         </Switch>
       </Suspense>
     </BlockUi>
