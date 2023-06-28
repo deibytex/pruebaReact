@@ -287,7 +287,7 @@ function ExportarExcel() {
                         ExportData.push(Objeto);
                     })
                     let NombreArchivo = "ReporteUnidadesActivas"
-                    const ws = XLSX.utils.json_to_sheet(Data['Unidades']);
+                    const ws = XLSX.utils.json_to_sheet(ExportData);
                     const wb = { Sheets: { 'data' :ws }, SheetNames:['data']};
                     const excelBuffer = XLSX.write(wb,{ bookType:'xlsx', type: 'array'});
                     const data = new Blob([excelBuffer],{type: fileType});

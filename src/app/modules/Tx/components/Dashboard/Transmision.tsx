@@ -334,10 +334,18 @@ const [VerticalTx, setVerticalTx] = useState<any>(null);
             colors: [ '#c49c94', '#f7b6d2', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5','#e377c2',],//,'#7f7f7f', '#c7c7c7',
         }
         );
+        let labels  = agrupadorGeneral.map((e) =>{ 
+            if(e.length > 15){
+                let cadena = `${e.substr(0,15)}...`
+                return cadena.trim()
+            }else
+            return e.trim();
+            
+        });
         ApexCharts.exec('apexchart-verticalTX', 'updateOptions', {
             // Para los nombres de la serie
             //para que la lengenda me salga en la parte de abajo
-            labels: agrupadorGeneral.filter((e) => e),
+            labels: labels,
             legend: {
                 show: true,
                 position: 'bottom'
@@ -388,7 +396,6 @@ const [VerticalTx, setVerticalTx] = useState<any>(null);
                             }
                         }
                     }).length;
-                    console.log(datamarter);
                     Datos.push({"name":Usuario,"data":[{x: moment(Fecha).format("DD/MM/YYYY").toString(),y:datamarter}]});
                 }
             });
@@ -538,11 +545,14 @@ const [VerticalTx, setVerticalTx] = useState<any>(null);
                                 
                                     <div className="container">
                                         <div className="row">
-                                            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                                            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
                                                 <span className="fw-bolder">Total</span>
                                             </div>
-                                            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                                                    <span className="fw-bolder text-rigth">{PlacaSinTx}</span>
+                                            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+
+                                            </div>
+                                            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                                    <span className="fw-bolder text-center">{PlacaSinTx}</span>
                                             </div>
                                         </div>
                                     </div>
