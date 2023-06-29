@@ -5,13 +5,14 @@ import ReactApexChart from "react-apexcharts";
 import { Modal } from "react-bootstrap-v5";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
-import { PaginationState } from "@tanstack/react-table";
-import ProgressBar from "@ramonak/react-progress-bar";
+import { Churn } from "./churn";
+
+
 type Props = {
   tab: string;
 }
 const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
-  const { Data, DataFiltrada, Filtrado, setFiltrado, setDataFiltrada, setCargando, DataAcumulado } = useDataDashboard();
+  const { Data, DataFiltrada, Filtrado, setFiltrado, setDataFiltrada, setCargando, DataAcumulado, showChurn, setshowChurn } = useDataDashboard();
   //constantes para las graficas en general.
   const [base, SetBase] = useState<string>("");
   const [baseE, SetBaseE] = useState<string>("");
@@ -49,6 +50,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       size: 100
     }
   ]
+ 
   const defaultPriopios: any[] = [
     {
       name: 'Syscaf',
@@ -92,11 +94,32 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       options: {
         chart: {
           id: 'apexchart-semanas',
+          fontFamily: 'Montserrat',
+          zoom: {
+            enabled: true,
+            type: 'x',
+            autoScaleYaxis: false,
+            zoomedArea: {
+              fill: {
+                color: '#90CAF9',
+                opacity: 0.4
+              },
+              stroke: {
+                color: '#0D47A1',
+                opacity: 0.4,
+                width: 1
+              }
+            }
+          },
         }
       },
       series: [],
       dataLabels: {
-        enabled: false
+        enabled: true,
+        enabledOnSeries: true,
+        style: {
+            colors: ['#424249']
+        }
       }
     }
     setSemanas(opciones);
@@ -105,6 +128,23 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       options: {
         chart: {
           id: 'apexchart-vertical',
+          fontFamily: 'Montserrat',
+          zoom: {
+            enabled: true,
+            type: 'x',
+            autoScaleYaxis: false,
+            zoomedArea: {
+              fill: {
+                color: '#90CAF9',
+                opacity: 0.4
+              },
+              stroke: {
+                color: '#0D47A1',
+                opacity: 0.4,
+                width: 1
+              }
+            }
+          },
           events: {
             click: (event: any, chartContext: any, config: any) => {
               if (event.target.attributes.j != undefined) {
@@ -121,7 +161,11 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       },
       series: [],
       dataLabels: {
-        enabled: false
+        enabled: true,
+        enabledOnSeries: true,
+        style: {
+            colors: ['#424249']
+        }
       },
       xaxis: {
         type: 'category'
@@ -133,6 +177,23 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       options: {
         chart: {
           id: 'apexchart-unidades',
+          fontFamily: 'Montserrat',
+          zoom: {
+            enabled: true,
+            type: 'x',
+            autoScaleYaxis: false,
+            zoomedArea: {
+              fill: {
+                color: '#90CAF9',
+                opacity: 0.4
+              },
+              stroke: {
+                color: '#0D47A1',
+                opacity: 0.4,
+                width: 1
+              }
+            }
+          },
           events: {
             click: (event: any, chartContext: any, config: any) => {
               if (event.target.attributes.j != undefined) {
@@ -148,7 +209,11 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       },
       series: [],
       dataLabels: {
-        enabled: false
+        enabled: true,
+        enabledOnSeries: true,
+        style: {
+            colors: ['#424249']
+        }
       }
     }
     setUnidadesActivas(opcionesUnidades);
@@ -157,6 +222,23 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       options: {
         chart: {
           id: 'apexchart-otrasunidades',
+          fontFamily: 'Montserrat',
+          zoom: {
+            enabled: true,
+            type: 'x',
+            autoScaleYaxis: false,
+            zoomedArea: {
+              fill: {
+                color: '#90CAF9',
+                opacity: 0.4
+              },
+              stroke: {
+                color: '#0D47A1',
+                opacity: 0.4,
+                width: 1
+              }
+            }
+          },
           events: {
             click: (event: any, chartContext: any, config: any) => {
               if (event.target.attributes.j != undefined) {
@@ -172,7 +254,11 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       },
       series: [],
       dataLabels: {
-        enabled: false
+        enabled: true,
+        enabledOnSeries: true,
+        style: {
+            colors: ['#424249']
+        }
       }
     }
     setOtrasUnidadesActivas(opcionesOtrasUnidades);
@@ -181,6 +267,23 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       options: {
         chart: {
           id: 'apexchart-verticalCliente',
+          fontFamily: 'Montserrat',
+          zoom: {
+            enabled: true,
+            type: 'x',
+            autoScaleYaxis: false,
+            zoomedArea: {
+              fill: {
+                color: '#90CAF9',
+                opacity: 0.4
+              },
+              stroke: {
+                color: '#0D47A1',
+                opacity: 0.4,
+                width: 1
+              }
+            }
+          },
           events: {
             click: (event: any, chartContext: any, config: any) => {
               if (event.target.attributes.j != undefined) {
@@ -192,7 +295,6 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
 
             }
           },
-          fontFamily: 'Montserrat',
           stacked: false,
           fill: {
             colors: ['#1f77b4', '#aec7e8']
@@ -207,7 +309,11 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       },
       series: [],
       dataLabels: {
-        enabled: true
+        enabled: true,
+        enabledOnSeries: true,
+        style: {
+            colors: ['#424249']
+        }
       },
       // plotOptions: {
       //   bar: {
@@ -627,18 +733,19 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       if (DataFiltrada != undefined) {
         let _dataFiltrada = DataFiltrada.filter(function (val: any, index: any) {
           let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId);
-          if (a == "Si" || a == "No" && (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId) == (baseE == "Facturable" ? "Si" : "No"))
+          let c = (baseE == "Facturable" ? "Si" : "No");
+          if (a == c)
             return (val)
         }).filter((e: any) => e);
-        CargarSerieCliente(DataFiltrada)
+        CargarSerieCliente(_dataFiltrada)
         setDataTable(_dataFiltrada);
-        setDataTable(_dataFiltrada)
       }
     } else {
       if (Data != undefined && Data['Unidades'] != undefined) {
         let _DataFiltrada = Data['Unidades'].filter(function (val: any, index: any) {
           let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId);
-          if (a == "Si" || a == "No" && (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId) == (baseE == "Facturable" ? "Si" : "No"))
+          let c = (baseE == "Facturable" ? "Si" : "No");
+          if (a == c)
             return (val);
         }).filter((e: any) => e);
         CargarSerieCliente(_DataFiltrada)
@@ -682,7 +789,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       if (DataFiltrada != undefined) {
         let _dataFiltrada = DataFiltrada.filter(function (val: any, index: any) {
           let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId);
-          if (a == "Si" && val.Base == BaseVC)
+          if (val.Base == BaseVC && a == "Si" || a == "No" && (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId) == (baseE == "Facturable" ? "Si" : "No"))
             return (val)
         }).filter((e: any) => e);
         setDataTable(_dataFiltrada);
@@ -693,8 +800,8 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       if (Data != undefined && Data['Unidades'] != undefined) {
         let _DataFiltrada = Data['Unidades'].filter(function (val: any, index: any) {
           let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId);
-          if (a == "Si" && val.Base == BaseVC)
-            return (val)
+          if (val.Base == BaseVC &&  a == "Si" || a == "No" && (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId) == (baseE == "Facturable" ? "Si" : "No"))
+            return (val);
         }).filter((e: any) => e);
         setDataTable(_DataFiltrada);
         if (BaseVC != "")
@@ -750,66 +857,14 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
     );
 
   }
-
-  const PintarAcumulado2Semanas = (DataAcumulado: any[]) => {
-    let nuevoObjeto = {}
-    //Recorremos el arreglo 
-    DataAcumulado.forEach(x => {
-      //Si la ciudad no existe en nuevoObjeto entonces
-      //la creamos e inicializamos el arreglo de profesionales. 
-      if (!nuevoObjeto.hasOwnProperty(x.Fecha)) {
-        nuevoObjeto[x.Fecha] = {
-          data: []
-        }
-      }
-
-      //Agregamos los datos de profesionales. 
-     if( x.ActivoFacturable == "Si" )
-      nuevoObjeto[x.Fecha].data.push(
-        {
-          "ActivoFacturable": x.ActivoFacturable,
-          "Base": x.Base,
-          "ClienteId": x.ClienteId,
-          "Fecha": x.Fecha,
-          "Matricula": x.Matricula,
-          "Vertical": x.Vertical
-        }
-      )
-    })
-    let Semanas = Object.keys(nuevoObjeto);
-    let SemanaAnterior = (Semanas.length != 0 ? Semanas[0] : "");
-    let SemanaActual = (Semanas.length != 0 ? Semanas[1] : "");
-    let DatoSemanaAnterior: any[] = nuevoObjeto[SemanaAnterior].data;
-    let DatoSemanaActual: any[] = nuevoObjeto[SemanaActual].data;
-
-
-    //Los que no estan en la semana actual respecto anterior
-    // los que entraron
-    let entradas = DatoSemanaActual.filter(function (el) {
-      return !(DatoSemanaAnterior.filter( (ff) =>  ff.Matricula === el.Matricula && ff.Base == el.Base ).length == 1) ;
-    });
-    //filtrar los datos de la semana anterior respecto a la actual
-    // los que salieron 
-    let salidas = DatoSemanaAnterior.filter(function (el) {
-      return !(DatoSemanaActual.filter( (ff) =>  ff.Matricula === el.Matricula && ff.Base == el.Base).length == 1) ;
-    });
-    console.log(entradas);
-
-    console.log(salidas);
-
+  const [show, setshow] = useState<boolean>(false);
+  const cargarModal = () =>{
+    setshow(true);
   }
-
-  //para los acumulado o cruch
-  useEffect(() => {
-    if (DataAcumulado != undefined && DataAcumulado.length != 0)
-      PintarAcumulado2Semanas(DataAcumulado);
-  }, [DataAcumulado])
-
-
   return (
     <div className="row">
       <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 pt-12">
-        <div className="d-flex justify-content-start  ">
+        <div className="float-start">
           {(Data !== undefined) && (Data['Unidades'] != undefined) && (<>
             <CheckboxGroup inline name="checkboxList" value={value} onChange={handleChange}>
               {defaultPriopios.map(item => (
@@ -818,6 +873,9 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
                 </Checkbox>
               ))}
             </CheckboxGroup></>)}
+        </div>
+        <div className="float-end">
+            <button onClick={cargarModal} className="btn btn-sm btn-primary mt-8" title="Ver churn"><i className="bi-table"></i></button>
         </div>
       </div>
       <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-10">
@@ -927,6 +985,9 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
           </div>
         </Modal.Body>
       </Modal>
+
+      {/* Modal churn */}
+        <Churn SetShow={setshow} Show={show}></Churn>
     </div>
   )
 }

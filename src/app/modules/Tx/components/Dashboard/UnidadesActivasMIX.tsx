@@ -20,6 +20,9 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
   const [VerticalCliente, setVerticalCliente] = useState<any>(null);
   const [render, setRender] = useState<boolean>(false);
   const [BaseX, SetBaseX] = useState<string>("");
+  const [BaseVC, SetBaseVC] = useState<string>("");
+  const [Detallado, setDetallado] = useState<boolean>(false)
+  const [tituloFacturable, setTituloFacturable] = useState<string>("FACTURABLES")
   let DatosColumnas: MRT_ColumnDef<any>[] = [
     {
       accessorKey: 'Base',
@@ -86,12 +89,33 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
       options: {
         chart: {
           id: 'apexchart-semanasMIX',
+          fontFamily: 'Montserrat',
+          zoom: {
+            enabled: true,
+            type: 'x',
+            autoScaleYaxis: false,
+            zoomedArea: {
+              fill: {
+                color: '#90CAF9',
+                opacity: 0.4
+              },
+              stroke: {
+                color: '#0D47A1',
+                opacity: 0.4,
+                width: 1
+              }
+            }
+          },
 
         }
       },
       series: [],
       dataLabels: {
-        enabled: false
+        enabled: true,
+                    enabledOnSeries: true,
+                    style: {
+                        colors: ['#424249']
+                    }
       }
     }
     setSemanas(opciones);
@@ -100,6 +124,23 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
       options: {
         chart: {
           id: 'apexchart-verticalMIX',
+          fontFamily: 'Montserrat',
+          zoom: {
+            enabled: true,
+            type: 'x',
+            autoScaleYaxis: false,
+            zoomedArea: {
+              fill: {
+                color: '#90CAF9',
+                opacity: 0.4
+              },
+              stroke: {
+                color: '#0D47A1',
+                opacity: 0.4,
+                width: 1
+              }
+            }
+          },
           events: {
             click: (event: any, chartContext: any, config: any) => {
               if (event.target.attributes.j != undefined) {
@@ -107,7 +148,7 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
                 SetBaseV(Base);
                 setshowModal(true);
                 setshowGraficaModal(false);
-                setTitulo(`Detallado ${Base} `)
+                setTitulo(`${Base} `)
               }
 
             }
@@ -116,7 +157,11 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
       },
       series: [],
       dataLabels: {
-        enabled: false
+        enabled: true,
+        enabledOnSeries: true,
+        style: {
+            colors: ['#424249']
+        }
       },
       xaxis: {
         type: 'category'
@@ -128,17 +173,33 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
       options: {
         chart: {
           id: 'apexchart-unidadesMIX',
+          fontFamily: 'Montserrat',
+          zoom: {
+            enabled: true,
+            type: 'x',
+            autoScaleYaxis: false,
+            zoomedArea: {
+              fill: {
+                color: '#90CAF9',
+                opacity: 0.4
+              },
+              stroke: {
+                color: '#0D47A1',
+                opacity: 0.4,
+                width: 1
+              }
+            }
+          },
           events: {
             click: (event: any, chartContext: any, config: any) => {
               if (event.target.attributes.j != undefined) {
                 let Base = config.config.labels[event.target.attributes.j.value];
                 SetBaseU(Base);
                 setshowGraficaModal(true);
-                setTimeout(() => {
-                  setshowModal(true);
-                }, 1000);
+                setshowGraficaModal(false);
+                setTituloFacturable(Base);
+                setDetallado(true);
               }
-
             }
           },
 
@@ -146,7 +207,11 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
       },
       series: [],
       dataLabels: {
-        enabled: false
+        enabled: true,
+                    enabledOnSeries: true,
+                    style: {
+                        colors: ['#424249']
+                    }
       }
     }
     setUnidadesActivas(opcionesUnidades);
@@ -156,13 +221,30 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
       options: {
         chart: {
           id: 'apexchart-otrasunidadesMIX',
+          fontFamily: 'Montserrat',
+          zoom: {
+            enabled: true,
+            type: 'x',
+            autoScaleYaxis: false,
+            zoomedArea: {
+              fill: {
+                color: '#90CAF9',
+                opacity: 0.4
+              },
+              stroke: {
+                color: '#0D47A1',
+                opacity: 0.4,
+                width: 1
+              }
+            }
+          },
           events: {
             click: (event: any, chartContext: any, config: any) => {
               if (event.target.attributes.j != undefined) {
                 let Base = config.config.labels[event.target.attributes.j.value];
                 SetBaseO(Base);
                 setshowModal(true);
-                setTitulo(`Detallado ${Base} `)
+                setTitulo(`${Base} `)
                 setshowGraficaModal(false);
               }
             }
@@ -175,6 +257,68 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
       }
     }
     setOtrasUnidadesActivas(opcionesOtrasUnidades);
+      //Para las verticales pero para el modal del cliente
+      let opcionesVerticalCliente = {
+        options: {
+          chart: {
+            id: 'apexchart-verticalCliente',
+            fontFamily: 'Montserrat',
+          zoom: {
+            enabled: true,
+            type: 'x',
+            autoScaleYaxis: false,
+            zoomedArea: {
+              fill: {
+                color: '#90CAF9',
+                opacity: 0.4
+              },
+              stroke: {
+                color: '#0D47A1',
+                opacity: 0.4,
+                width: 1
+              }
+            }
+          },
+            events: {
+              click: (event: any, chartContext: any, config: any) => {
+                if (event.target.attributes.j != undefined) {
+                  let Base = config.config.labels[event.target.attributes.j.value];
+                  setTitulo(`${Base} `)
+                  SetBaseVC(Base);
+                  setshowModal(true);
+                }
+  
+              }
+            },
+            stacked: false,
+            fill: {
+              colors: ['#1f77b4', '#aec7e8']
+            },
+            toolbar: {
+              show: false
+            },
+          },
+          xaxis: {
+            categories: [],
+          }
+        },
+        series: [],
+        dataLabels: {
+          enabled: true,
+          enabledOnSeries: true,
+          style: {
+              colors: ['#424249']
+          }
+        },
+        // plotOptions: {
+        //   bar: {
+        //     horizontal: false
+        //   }
+        // },
+        colors: ['#1f77b4', '#aec7e8'],
+  
+      }
+      setVerticalCliente(opcionesVerticalCliente);
     return function cleanUp() {
       //SE DEBE DESTRUIR EL OBJETO CHART
     };
@@ -545,40 +689,6 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
         }
       });
   };
-
-
-  const DatosdetalladoOtrasUnidades = () => (
-    <MaterialReactTable
-      localization={MRT_Localization_ES}
-      displayColumnDefOptions={{
-        'mrt-row-actions': {
-          muiTableHeadCellProps: {
-            align: 'center',
-          },
-          size: 120,
-        },
-      }}
-      muiTableHeadCellProps={{
-        sx: (theme) => ({
-          fontSize: 14,
-          fontStyle: 'bold',
-          color: 'rgb(27, 66, 94)'
-        }),
-      }}
-      columns={DatosColumnas}
-      data={DataTable}
-      initialState={{ density: 'compact' }}
-      enableColumnOrdering
-      enableColumnDragging={false}
-      enablePagination={false}
-      enableStickyHeader
-      enableStickyFooter
-      enableDensityToggle={false}
-      enableRowVirtualization
-      // enableRowNumbers
-      enableTableFooter
-    />
-  )
   //Datos para el modal
   useEffect(() => {
     if (Filtrado) {
@@ -652,31 +762,64 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
     }
   }, [BaseV])
 
-//para las grafica de los cllientes dentro del modal
-  useEffect(() =>{
-    //Para las verticales pero para el modal del cliente
-    let opcionesVerticalCliente = {
-     options: {
-       chart: {
-         id: 'apexchart-verticalCliente',
-           fontFamily: 'Montserrat',
-           stacked: false,
+// //para las grafica de los cllientes dentro del modal
+//   useEffect(() =>{
+//     //Para las verticales pero para el modal del cliente
+//     let opcionesVerticalCliente = {
+//      options: {
+//        chart: {
+//          id: 'apexchart-verticalCliente',
+//            fontFamily: 'Montserrat',
+//            stacked: false,
    
-       },
-       xaxis: {
-           categories: [],
-       }
-   },
-   series: [],
-   dataLabels: {
-       enabled: true
-   }
-   }
-   setVerticalCliente(opcionesVerticalCliente);
-     return function cleanUp() {
-       //SE DEBE DESTRUIR EL OBJETO CHART
-     };
-   },[render,BaseX])
+//        },
+//        xaxis: {
+//            categories: [],
+//        }
+//    },
+//    series: [],
+//    dataLabels: {
+//        enabled: true
+//    }
+//    }
+//    setVerticalCliente(opcionesVerticalCliente);
+//      return function cleanUp() {
+//        //SE DEBE DESTRUIR EL OBJETO CHART
+//      };
+//    },[render,BaseX])
+
+   //Vertical Cliente
+  useEffect(() => {
+    if (Filtrado) {
+      if (DataFiltrada != undefined) {
+        let _dataFiltrada = DataFiltrada.filter(function (val: any, index: any) {
+          let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId);
+          let respuesta = (baseU == "Facturable" ? "Si" : "No");
+          if (val.MixVision == "Si" && a == respuesta && val.Base == BaseVC)
+            return (val)
+        }).filter((e: any) => e);
+        setDataTable(_dataFiltrada);
+        if (BaseVC != "")
+          setshowModal(true);
+      }
+    } else {
+      if (Data != undefined && Data['Unidades'] != undefined) {
+        let datafiltrada = Data['Unidades'].filter(function (val: any, index: any) {
+          let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId);
+          let respuesta = (baseU == "Facturable" ? "Si" : "No");
+          if (val.MixVision == "Si" && a == respuesta && val.Base == BaseVC)
+            return (val);
+        }).filter((e: any) => e);
+        setDataTable(datafiltrada);
+        if (BaseVC != "")
+          setshowModal(true);
+      }
+    }
+    return function cleanUp() {
+      setDataTable([]);
+    };
+  }, [BaseVC])
+
    const CargarSerieCliente = (Data: any[]) => {
     let agrupadorGeneral = Data.map((item) => {
       let a = (item.ClasificacionId == "No Definido" ? item.ActivoFacturable : item.ClasificacionId);
@@ -740,7 +883,6 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
         }
       ]
     );
-    setRender(true);
   }
   return (
     <div className="row">
@@ -804,6 +946,19 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
             }
           </div>
         )}
+      </div>
+      <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 pt-12" style={{ display: (Detallado ? 'inline' : 'none') }}>
+        <div className="float-end">
+          <button title={"Ocultar grafica"} onClick={() => { setDetallado((Detallado ? false : true)) }} className="btn btn-sm btn-primary "><i className="bi-archive"></i></button>
+        </div>
+        <div className="fw-bolder" style={{ textAlign: 'center' }} >
+          {tituloFacturable}
+        </div>
+        {(VerticalCliente && VerticalCliente.options && VerticalCliente.series) && (<ReactApexChart
+          options={VerticalCliente.options}
+          series={VerticalCliente.series} type="bar"
+          height={300}
+        />)}
       </div>
       <Modal show={showModal} onHide={setshowModal} size={(showGraficaModal ? "xl" : "lg")}>
         <Modal.Header closeButton>
