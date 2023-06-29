@@ -782,10 +782,6 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
     let DatoSemanaAnterior: any[] = nuevoObjeto[SemanaAnterior].data;
     let DatoSemanaActual: any[] = nuevoObjeto[SemanaActual].data;
 
-    // comparar los datos de las 2 semanas
-    const dif = DatoSemanaAnterior.length - DatoSemanaActual.length;
-    console.log( dif)
-
 
     //Los que no estan en la semana actual respecto anterior
     // los que entraron
