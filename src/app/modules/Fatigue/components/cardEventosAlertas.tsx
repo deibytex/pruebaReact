@@ -47,8 +47,8 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   const [obervacionGestion, setobervacionGestion] = useState("");
   const [obervacionGestionlast, setobervacionGestionlast] = useState("");
 
-  const [FechaApertura, setFechaApertura] = useState("dd/mm/aaaa");
-  const [FechaGestion, setFechaGestion] = useState("dd/mm/aaaa");
+  const [FechaApertura, setFechaApertura] = useState("n/a");
+  const [FechaGestion, setFechaGestion] = useState("n/a");
 
   const [observaciones, setobservaciones] = useState("");
   const [alertaId, setalertaId] = useState(0);
@@ -101,13 +101,13 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
       {
         accessorKey: 'TipoAlerta',
         header: 'Alarma',
-        size: 250
+        size: 100
       },
       {
         accessorKey: 'vehiculo',
         header: 'Vehículo',
 
-        size: 250
+        size: 100
       },
       {
         accessorKey: 'conductor',
@@ -146,7 +146,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
       }, {
         accessorKey: 'EstadoGestion',
         header: 'Estado',
-        size: 80,
+        size: 50,
         Cell({ cell, column, row, table, }) {
           return (cell.getValue() == null) ? <span className="badge bg-danger">No Gestionado</span>
             : (cell.getValue() == true) ? <span className="badge bg-success">Gestionado</span>
@@ -172,19 +172,15 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
       },
       {
         accessorKey: 'nombre',
-        header: 'Nombre',
-
-        size: 250
+        header: 'Nombre'
       },
       {
         accessorKey: 'numerocontacto',
-        header: 'Número Contacto',
-        size: 100
+        header: 'Número Contacto'
       },
       {
         accessorKey: 'correocontacto',
-        header: 'Email',
-        size: 100
+        header: 'Email'
       }
 
     ];
@@ -213,27 +209,6 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
     ];
 
-  function FechaAperturaControl() {
-    return (
-      
-
-      
-      <div className="d-inline-flex col-sm-4 mt-1">
-          <h6 className=" m-1">Fecha Apertura:</h6>
-          <input className=" mb-3 form-control" value={FechaApertura} type="text" name="fechaini" disabled />
-      </div>
-    
-    )
-  }
-
-  function FechaGestionControl() {
-    return (
-      <div className="d-inline-flex col-sm-4 mt-1">
-          <h6 className=" m-1">Ultima Gestión:</h6>
-          <input className=" mb-3 form-control" value={FechaGestion} type="text" name="fechafinal" disabled />
-      </div>
-    )
-  }
 
   useEffect(() => {
 
@@ -343,8 +318,8 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
       setFechaGestion(moment(last.fechagestion as Date).format('DD/MM/YYYY'));
       setobervacionGestionlast(last.value);
     } else {
-      setFechaApertura("dd/mm/aaaa");
-      setFechaGestion("dd/mm/aaaa");
+      setFechaApertura("n/a");
+      setFechaGestion("n/a");
       setobervacionGestionlast("");
     }
 
@@ -478,7 +453,7 @@ const ordenarData = (tipo: string) => {
         displayColumnDefOptions={{
           'mrt-row-actions': {
             muiTableHeadCellProps: {
-              align: 'center',
+              align: 'center'
             }
           },
         }}
@@ -584,10 +559,14 @@ const ordenarData = (tipo: string) => {
                 }}
               >
               <div className="row  col-sm-12 col-md-12 col-xs-12">
-
-                <FechaAperturaControl />
-
-                <FechaGestionControl />
+                <div className="col-6">
+                  <h6 className=" text-primary m-1 "> Fecha Apertura: <span>{FechaApertura}</span></h6> 
+                </div>
+                <div className="col-6">
+                  <h6 className=" m-1 text-primary"> Ultima Gestión: {FechaGestion} </h6> 
+                </div>
+              
+      
 
                 <textarea className="form-control input m-2" id={'obervacion'} rows={3} value={obervacionGestionlast} disabled></textarea>
               
@@ -611,19 +590,17 @@ const ordenarData = (tipo: string) => {
                     displayColumnDefOptions={{
                       'mrt-row-actions': {
                         muiTableHeadCellProps: {
-                          align: 'center',
-                        },
-                        size: 0,
+                          align: 'center'
+                        }
                       },
                     }}
                     columns={columnasContacto}
                     data={dataContacto}
-                    // editingMode="modal" //default         
-                    enableTopToolbar={false}
+                    enableTopToolbar
                     enableColumnOrdering
-                    // enableEditing
-                    /* onEditingRowSave={handleSaveRowEdits}
-                        onEditingRowCancel={handleCancelRowEdits}*/
+                    enableFilters
+                    enablePagination={false}
+                    enableColumnFilters={false}
                     muiToolbarAlertBannerProps={
                       isError
                         ? {
