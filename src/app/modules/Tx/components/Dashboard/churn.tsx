@@ -51,9 +51,9 @@ const Churn: React.FC<Props> = ({ SetShow, Show }) => {
     })
     let Semanas = Object.keys(nuevoObjeto);
     let SemanaAnterior = (Semanas.length != 0 ? Semanas[0] : "");
-    let SemanaActual = (Semanas.length != 0 ? Semanas[1] : "");
+    let SemanaActual = (Semanas.length != 0 ? (Semanas[1] == undefined ? "":Semanas[1]) : "");
     let DatoSemanaAnterior: any[] = nuevoObjeto[SemanaAnterior].data;
-    let DatoSemanaActual: any[] = nuevoObjeto[SemanaActual].data;
+    let DatoSemanaActual: any[] = (nuevoObjeto[SemanaActual] == undefined ?  [] : nuevoObjeto[SemanaActual].data);
     setSemanaAnterior(SemanaAnterior);
     setSemanaActual(SemanaActual);
     // comparar los datos de las 2 semanas
