@@ -629,18 +629,19 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       if (DataFiltrada != undefined) {
         let _dataFiltrada = DataFiltrada.filter(function (val: any, index: any) {
           let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId);
-          if (a == "Si" || a == "No" && (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId) == (baseE == "Facturable" ? "Si" : "No"))
+          let c = (baseE == "Facturable" ? "Si" : "No");
+          if (a == c)
             return (val)
         }).filter((e: any) => e);
-        CargarSerieCliente(DataFiltrada)
+        CargarSerieCliente(_dataFiltrada)
         setDataTable(_dataFiltrada);
-        setDataTable(_dataFiltrada)
       }
     } else {
       if (Data != undefined && Data['Unidades'] != undefined) {
         let _DataFiltrada = Data['Unidades'].filter(function (val: any, index: any) {
           let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId);
-          if (a == "Si" || a == "No" && (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId) == (baseE == "Facturable" ? "Si" : "No"))
+          let c = (baseE == "Facturable" ? "Si" : "No");
+          if (a == c)
             return (val);
         }).filter((e: any) => e);
         CargarSerieCliente(_DataFiltrada)
@@ -684,7 +685,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       if (DataFiltrada != undefined) {
         let _dataFiltrada = DataFiltrada.filter(function (val: any, index: any) {
           let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId);
-          if (a == "Si" && val.Base == BaseVC)
+          if (val.Base == BaseVC && a == "Si" || a == "No" && (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId) == (baseE == "Facturable" ? "Si" : "No"))
             return (val)
         }).filter((e: any) => e);
         setDataTable(_dataFiltrada);
@@ -695,8 +696,8 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       if (Data != undefined && Data['Unidades'] != undefined) {
         let _DataFiltrada = Data['Unidades'].filter(function (val: any, index: any) {
           let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId);
-          if (a == "Si" && val.Base == BaseVC)
-            return (val)
+          if (val.Base == BaseVC &&  a == "Si" || a == "No" && (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId) == (baseE == "Facturable" ? "Si" : "No"))
+            return (val);
         }).filter((e: any) => e);
         setDataTable(_DataFiltrada);
         if (BaseVC != "")
