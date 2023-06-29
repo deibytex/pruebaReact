@@ -94,11 +94,32 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       options: {
         chart: {
           id: 'apexchart-semanas',
+          fontFamily: 'Montserrat',
+          zoom: {
+            enabled: true,
+            type: 'x',
+            autoScaleYaxis: false,
+            zoomedArea: {
+              fill: {
+                color: '#90CAF9',
+                opacity: 0.4
+              },
+              stroke: {
+                color: '#0D47A1',
+                opacity: 0.4,
+                width: 1
+              }
+            }
+          },
         }
       },
       series: [],
       dataLabels: {
-        enabled: false
+        enabled: true,
+        enabledOnSeries: true,
+        style: {
+            colors: ['#424249']
+        }
       }
     }
     setSemanas(opciones);
@@ -107,6 +128,23 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       options: {
         chart: {
           id: 'apexchart-vertical',
+          fontFamily: 'Montserrat',
+          zoom: {
+            enabled: true,
+            type: 'x',
+            autoScaleYaxis: false,
+            zoomedArea: {
+              fill: {
+                color: '#90CAF9',
+                opacity: 0.4
+              },
+              stroke: {
+                color: '#0D47A1',
+                opacity: 0.4,
+                width: 1
+              }
+            }
+          },
           events: {
             click: (event: any, chartContext: any, config: any) => {
               if (event.target.attributes.j != undefined) {
@@ -123,7 +161,11 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       },
       series: [],
       dataLabels: {
-        enabled: false
+        enabled: true,
+        enabledOnSeries: true,
+        style: {
+            colors: ['#424249']
+        }
       },
       xaxis: {
         type: 'category'
@@ -135,6 +177,23 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       options: {
         chart: {
           id: 'apexchart-unidades',
+          fontFamily: 'Montserrat',
+          zoom: {
+            enabled: true,
+            type: 'x',
+            autoScaleYaxis: false,
+            zoomedArea: {
+              fill: {
+                color: '#90CAF9',
+                opacity: 0.4
+              },
+              stroke: {
+                color: '#0D47A1',
+                opacity: 0.4,
+                width: 1
+              }
+            }
+          },
           events: {
             click: (event: any, chartContext: any, config: any) => {
               if (event.target.attributes.j != undefined) {
@@ -150,7 +209,11 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       },
       series: [],
       dataLabels: {
-        enabled: false
+        enabled: true,
+        enabledOnSeries: true,
+        style: {
+            colors: ['#424249']
+        }
       }
     }
     setUnidadesActivas(opcionesUnidades);
@@ -159,6 +222,23 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       options: {
         chart: {
           id: 'apexchart-otrasunidades',
+          fontFamily: 'Montserrat',
+          zoom: {
+            enabled: true,
+            type: 'x',
+            autoScaleYaxis: false,
+            zoomedArea: {
+              fill: {
+                color: '#90CAF9',
+                opacity: 0.4
+              },
+              stroke: {
+                color: '#0D47A1',
+                opacity: 0.4,
+                width: 1
+              }
+            }
+          },
           events: {
             click: (event: any, chartContext: any, config: any) => {
               if (event.target.attributes.j != undefined) {
@@ -174,7 +254,11 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       },
       series: [],
       dataLabels: {
-        enabled: false
+        enabled: true,
+        enabledOnSeries: true,
+        style: {
+            colors: ['#424249']
+        }
       }
     }
     setOtrasUnidadesActivas(opcionesOtrasUnidades);
@@ -183,6 +267,23 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       options: {
         chart: {
           id: 'apexchart-verticalCliente',
+          fontFamily: 'Montserrat',
+          zoom: {
+            enabled: true,
+            type: 'x',
+            autoScaleYaxis: false,
+            zoomedArea: {
+              fill: {
+                color: '#90CAF9',
+                opacity: 0.4
+              },
+              stroke: {
+                color: '#0D47A1',
+                opacity: 0.4,
+                width: 1
+              }
+            }
+          },
           events: {
             click: (event: any, chartContext: any, config: any) => {
               if (event.target.attributes.j != undefined) {
@@ -194,7 +295,6 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
 
             }
           },
-          fontFamily: 'Montserrat',
           stacked: false,
           fill: {
             colors: ['#1f77b4', '#aec7e8']
@@ -209,7 +309,11 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       },
       series: [],
       dataLabels: {
-        enabled: true
+        enabled: true,
+        enabledOnSeries: true,
+        style: {
+            colors: ['#424249']
+        }
       },
       // plotOptions: {
       //   bar: {
