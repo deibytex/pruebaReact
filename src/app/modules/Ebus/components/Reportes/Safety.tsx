@@ -27,9 +27,9 @@ import { array } from "yup";
 export default function ReporteSafety() {
 
     let filtrosBase: FiltrosReportes = {
-        FechaInicialInicial: moment().add(-180, 'days').startOf('day').toDate(),
+        FechaInicialInicial: moment().add(-60, 'days').startOf('day').toDate(),
         FechaFinalInicial: moment().startOf('day').toDate(),
-        FechaInicial: moment().startOf('day').add(-180, 'days').toDate(),
+        FechaInicial: moment().startOf('day').add(-60, 'days').toDate(),
         FechaFinal: moment().startOf('day').toDate(),
         IndGrafica: -1,
         FechaGrafica: "",
@@ -38,7 +38,7 @@ export default function ReporteSafety() {
         limitdate: 180
     }
 
-    const FechaInicialDiario = moment().add(-7, 'days').startOf('day').toDate();
+    const FechaInicialDiario = moment().add(-1, 'days').startOf('day').toDate();
 
     let getListadoCampoPorTipo = (EsDetallado: boolean, EsDiario: boolean) => {
         let listadoCamposOperador: MRT_ColumnDef<any>[] =

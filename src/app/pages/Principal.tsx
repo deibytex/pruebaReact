@@ -6,6 +6,7 @@ import { RootState } from "../../setup";
 import { UserModelSyscaf } from "../modules/auth/models/UserModel";
 import HomePostVenta from "../modules/SYSCAF/PostVenta/DashBoard/Dashboard";
 import { toAbsoluteUrl } from "../../_start/helpers";
+import MapTest from "../modules/Ebus/components/Reportes/HeatMap/HeatMap";
 
 
 
@@ -26,6 +27,7 @@ export function Bienvenidos() {
                     <span className="fs-5 text-muted">{FechaMomentUtc().format("dddd, DD [de] MMMM")}</span>
                     <h1 className=" mx-4 fs-3 text-muted"> Hola! {vUser.Nombres} </h1>
                     {/* <HomePostVenta/> */}
+                    <MapTest/>
                 </Stack>
 
 
