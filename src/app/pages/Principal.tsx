@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../setup";
 import { UserModelSyscaf } from "../modules/auth/models/UserModel";
 import HomePostVenta from "../modules/SYSCAF/PostVenta/DashBoard/Dashboard";
+import { toAbsoluteUrl } from "../../_start/helpers";
 
 
 
@@ -24,13 +25,13 @@ export function Bienvenidos() {
                 <Stack  style={{ width: "100%", height: "100%" }}>
                     <span className="fs-5 text-muted">{FechaMomentUtc.format("dddd, DD [de] MMMM")}</span>
                     <h1 className=" mx-4 fs-3 text-muted"> Hola! {vUser.Nombres} </h1>
-                    <HomePostVenta/>
+                    {/* <HomePostVenta/> */}
                 </Stack>
 
 
             </div>
             
-            {/* <div className=" d-flex d-flex-column align-items-center justify-content-center text-center m-15"
+            <div className=" d-flex d-flex-column align-items-center justify-content-center text-center m-15"
             >
                 <img
                  alt="Logo"
@@ -42,7 +43,7 @@ export function Bienvenidos() {
               />
                
 
-            </div> */}
+            </div>
         </Stack>
 
 
