@@ -107,16 +107,17 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
             }
           },
 
+        },
+        dataLabels: {
+          enabled: true,
+                      enabledOnSeries: true,
+                      style: {
+                          colors: ['#424249']
+                      }
         }
       },
       series: [],
-      dataLabels: {
-        enabled: true,
-                    enabledOnSeries: true,
-                    style: {
-                        colors: ['#424249']
-                    }
-      }
+     
     }
     setSemanas(opciones);
     //Para las verticales

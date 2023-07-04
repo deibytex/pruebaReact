@@ -35,7 +35,7 @@ export interface IAuthState {
 }
 
 export const reducer = persistReducer(
-  { storage, key: "usuario-sistema", whitelist: ["user", "accessToken", "refreshToken", "menu"] },
+  { storage, key: "usuario-syscaf", whitelist: ["user", "accessToken", "refreshToken", "menu"] },
   (state: IAuthState = initialAuthState, action: ActionWithPayload<IAuthState>) => {
 
     switch (action.type) {

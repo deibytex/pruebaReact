@@ -23,7 +23,7 @@ export function Bienvenidos() {
                style={{ width: "100%", height: "100%" }}
             >
                 <Stack  style={{ width: "100%", height: "100%" }}>
-                    <span className="fs-5 text-muted">{FechaMomentUtc.format("dddd, DD [de] MMMM")}</span>
+                    <span className="fs-5 text-muted">{FechaMomentUtc().format("dddd, DD [de] MMMM")}</span>
                     <h1 className=" mx-4 fs-3 text-muted"> Hola! {vUser.Nombres} </h1>
                     {/* <HomePostVenta/> */}
                 </Stack>
