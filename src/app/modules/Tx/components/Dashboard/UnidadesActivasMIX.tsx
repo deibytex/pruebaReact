@@ -451,14 +451,14 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
         }
       ]
     );
-
+    
 
     //UNIDADES ACTIVAS
     let nombreSeries: any[] = []
     let cantidadUnidadesActivas = 0;
     nombreSeries = data.map((item: any) => {
       let a = (item.ClasificacionId == "No Definido" ? item.ActivoFacturable : item.ClasificacionId);
-      if (item.MixVision == 'Si' && a != 'Si')
+      if (item.MixVision == 'Si' && (a == "Si" || a == "No"))
         return (item.ClasificacionId == "No Definido" ? item.ActivoFacturable : item.ClasificacionId);
     }).filter((value: any, index: any, self: any) => {
       return self.indexOf(value) === index;
@@ -468,7 +468,7 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
     nombreSeries.map((item: any) => {
       if (item != undefined && item != "No Definido") {
         let prefiterdata = data.filter(function (val: any) {
-          let b = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId);
+          let b =  val.ActivoFacturable //(val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId);
           if (b == item && val.MixVision == "Si")
             return val.ClienteId
         });
