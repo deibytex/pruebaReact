@@ -13,7 +13,7 @@ import type {
 } from '@tanstack/react-table';
 
 import { Box, IconButton, Tooltip } from "@mui/material";
-import { Message, VerifiedUser, Map } from "@mui/icons-material";
+import { Message, VerifiedUser, Map, List } from "@mui/icons-material";
 import { FechaServidor } from "../../../../_start/helpers/Helper";
 import { getAlertas, setGestor, setObservaciones } from "../data/dashBoardData";
 import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/helpers/components/ConfirmDialog";
@@ -21,7 +21,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../../setup";
 import { UserModelSyscaf } from "../../auth/models/UserModel";
 import moment from "moment";
-import { CheckboxGroup, Checkbox } from "rsuite";
+import { CheckboxGroup, Checkbox, useToaster, Notification } from "rsuite";
 import { FormatoColombiaDDMMYYYHHmmss } from "../../../../_start/helpers/Constants";
 type Props = {
 
@@ -51,6 +51,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   const [FechaGestion, setFechaGestion] = useState("n/a");
 
   const [observaciones, setobservaciones] = useState("");
+  const [detalleEventos, setdetalleEventos] = useState("");
   const [alertaId, setalertaId] = useState(0);
 
   const [show, setShow] = useState(false);
@@ -61,15 +62,27 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
     setShow(true);
   }
 
+  const [show2, setShow2] = useState(false);
+  const handleClose2 = () => {
+    setShow2(false);
+  };
+  const showModal2 = () => {
+    setShow2(true);
+  }
+
   const [Data, setData] = useState<any[]>([]);
   const [esgestionado, setesgestionado] = useState(false);
+  const [Placa, setPlaca] = useState("");
+  const [Alerta, setAlerta] = useState("");
 
+  const [DataDetalleEventos, setDataDetalleEventos] = useState<any[]>([]);
 
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isRefetching, setIsRefetching] = useState(false);
   const [rowCount, setRowCount] = useState(0);
   const [rowCount2, setRowCount2] = useState(0);
+  const [rowCount3, setRowCount3] = useState(0);
 
   //table state
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -86,6 +99,53 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   const [check2, setcheck2] = useState(true);
   const [Orden, setOrden] = useState("");
 
+  const toaster = useToaster();
+
+  const message = (type: any, titulo: string, mensaje: React.ReactNode) => {
+    return (<Notification className="bg-light-danger" type={type} header={titulo} 
+    closable duration={10000}>
+        {mensaje}
+    </Notification>)
+}
+
+const defaultRiesgoSelected: any[] = [
+  {
+    name: 'Alto',
+    data: [],
+    isSelected: false,
+    getData: (fecha: any, f: any) => {
+      return {
+        "x": fecha,
+        "y": f.Soc
+      }
+    }
+  },
+  {
+    name: 'Moderado',
+    data: [],
+    isSelected: false,
+    getData: (fecha: any, f: any) => {
+      return {
+        "x": fecha,
+        "y": (f.CargakWh / f.DescargakWh) * 100
+      }
+    }
+  },
+  {
+    name: 'Bajo',
+    data: [],
+    isSelected: false,
+    getData: (fecha: any, f: any) => {
+      return {
+        "x": fecha,
+        "y": f.DescargakWh - f.CargakWh
+      }
+    }
+  }
+
+]
+
+let preSeleccionados = defaultRiesgoSelected.filter(x => x.isSelected).map(x => x.name);
 
   useEffect(() => {
     setDataAlertas(alertas.sort(function (a: any, b: any) { return a.EventDateTime - b.EventDateTime }));
@@ -209,6 +269,40 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
     ];
 
+    let listadoEventos: MRT_ColumnDef<any>[] =
+
+    [
+      {
+        accessorKey: 'evento',
+        header: 'Evento',
+        size: 100
+      },
+      {
+        accessorKey: 'EventDateTime',
+        header: 'Fecha',
+        size: 100,
+        Cell({ cell, column, row, table, }) {
+          return (moment(cell.getValue() as Date).format(FormatoColombiaDDMMYYYHHmmss))
+        }
+      },
+      {
+        accessorKey: 'Latitud',
+        header: 'Latitud',
+        size: 100
+      },
+      {
+        accessorKey: 'Longitud',
+        header: 'Longitud',
+        size: 100
+      },
+      {
+        accessorKey: 'velocidad',
+        header: 'Velocidad',
+        size: 100
+      }
+
+
+    ];
 
   useEffect(() => {
 
@@ -222,6 +316,19 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
       setRowCount(0);
     }
   }, [observaciones])
+
+  useEffect(() => {
+       
+    if (detalleEventos != "" && detalleEventos != null) {
+      let json = JSON.parse(detalleEventos);
+      setDataDetalleEventos(json);
+      setRowCount3(json.length);
+    }
+    else {
+      setDataDetalleEventos([]);
+      setRowCount3(0);
+    }
+  }, [detalleEventos])
 
   const getobservacion = (e: any) => {
     setobervacionGestion(e.target.value)
@@ -245,7 +352,10 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
     confirmarDialog(() => {
       setObservaciones(JSON.stringify(GestorObervaciones)).then((response) => {
-        successDialog("Operación Éxitosa", "");
+        
+        toaster.push(message('success', "Gestionar", "Gestión Guardada"), {
+          placement: 'topStart'
+      });
         setData([...Data, JSON.parse(JSON.stringify(GestorObervaciones))] as any[]);
         setobervacionGestion("");
         getAlertas().then((response) => {
@@ -259,7 +369,9 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
 
       }).catch((error) => {
-        errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
+        toaster.push(message('error', "Gestionar", "Error al gestionar intente nuevamente"), {
+          placement: 'topCenter'
+      });
       });
     }, escerrado == "false" ? `Esta seguro que desea agregar el comentario` : `Esta seguro que terminar la gestión`
       , escerrado == "false" ? "Guardar" : "Terminar")
@@ -284,19 +396,34 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
             setalertas(response.data);
 
           });
-        successDialog("Operación Éxitosa.", "");
+          toaster.push(message('success', "Asignar Gestor", "Gestor Asignado"), {
+            placement: 'topCenter'
+        });
       }).catch(() => {
-        errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
+        toaster.push(message('error', "Asignar Gestor", "Error al asignar gestor intente nuevamente"), {
+          placement: 'topCenter'
+      });
       });
     }, `Desea usted gestionar esta alerta`, "Sí");
   }
 
 
-  const modalObervaciones = (Obervaciones: string, alertaId: number, EsGestionado: boolean) => {
-    setobservaciones(Obervaciones);
-    setalertaId(alertaId);
-    setesgestionado(EsGestionado);
+  const modalObervaciones = (row: any) => {
+    setobservaciones(row.Observaciones);
+    setalertaId(row.AlertaId);
+    setesgestionado(row.EstadoGestion );
+    setPlaca(row.vehiculo);
+    setAlerta(row.TipoAlerta);
+
     showModal();
+  }
+
+  const modalDetalleEventos = (row: any) => {
+    setPlaca(row.vehiculo);
+    setAlerta(row.TipoAlerta);
+    setdetalleEventos(row.DetalladoEventos);
+
+    showModal2();
   }
 
   const IrToMap = (row: any) => {
@@ -496,7 +623,7 @@ const ordenarData = (tipo: string) => {
             {(row.original.EstadoGestion != null || row.original.EstadoGestion == true) ?
               <Tooltip arrow placement="left" title="Detalle Gestión">
                 <IconButton onClick={() => {
-                  modalObervaciones(row.original.Observaciones, row.original.AlertaId, row.original.EstadoGestion);
+                  modalObervaciones(row.original);
                 }}>
                   <Message />
                 </IconButton>
@@ -517,6 +644,13 @@ const ordenarData = (tipo: string) => {
               </Tooltip>
               : <></>
             }
+            <Tooltip arrow placement="left" title="Detalle Eventos Alertas">
+                <IconButton onClick={() => {
+                  modalDetalleEventos(row.original);
+                }}>
+                  <List />
+                </IconButton>
+              </Tooltip>
             {/* Para el mapa  Marcial*/}
             <Tooltip arrow placement="top" title="Ver en el mapa">
               <IconButton onClick={(e: any) => {
@@ -525,6 +659,7 @@ const ordenarData = (tipo: string) => {
                 <Map />
               </IconButton>
             </Tooltip>
+
 
           </Box>
         )
@@ -649,7 +784,7 @@ const ordenarData = (tipo: string) => {
         onHide={handleClose}
         size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>{'Gestionar'}</Modal.Title>
+          <Modal.Title>{`Gestionar Alerta ${Alerta} - ${Placa}`}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className="row">
@@ -728,6 +863,66 @@ const ordenarData = (tipo: string) => {
         <Modal.Footer>
           <Button type="button" variant="secondary" onClick={handleClose}>
             Cancelar
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal
+        show={show2}
+        onHide={handleClose2}
+        size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>{`Detalle Eventos Alerta ${Alerta} - ${Placa}`}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div>
+            <MaterialReactTable
+              localization={MRT_Localization_ES}
+              displayColumnDefOptions={{
+                'mrt-row-actions': {
+                  muiTableHeadCellProps: {
+                    align: 'center',
+                  },
+                  size: 120,
+                },
+              }}
+              columns={listadoEventos}
+              data={DataDetalleEventos}
+              // editingMode="modal" //default         
+              enableTopToolbar={false}
+              enableColumnOrdering
+              // enableEditing
+              /* onEditingRowSave={handleSaveRowEdits}
+                  onEditingRowCancel={handleCancelRowEdits}*/
+              muiToolbarAlertBannerProps={
+                isError
+                  ? {
+                    color: 'error',
+                    children: 'Error al cargar información',
+                  }
+                  : undefined
+              }
+              onColumnFiltersChange={setColumnFilters}
+              onGlobalFilterChange={setGlobalFilter}
+              onPaginationChange={setPagination}
+              onSortingChange={setSorting}
+              rowCount={rowCount3}
+
+              state={{
+                columnFilters,
+                globalFilter,
+                isLoading,
+                pagination,
+                showAlertBanner: isError,
+                showProgressBars: isRefetching,
+                sorting,
+              }}
+            />
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button type="button" variant="secondary" onClick={handleClose2}>
+            Cerrar
           </Button>
         </Modal.Footer>
       </Modal>
