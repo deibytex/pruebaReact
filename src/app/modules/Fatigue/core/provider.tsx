@@ -113,7 +113,7 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
     //CONSULTA VEHICULOS OPERANDO
     let consulta = (children: string) => {
         // consultamos en la base de datos la informacion de vehiculos operando
-        getVehiculosOperando(children, FechaServidor).then(
+        getVehiculosOperando(children, FechaServidor()).then(
             (response) => {
                 let datos = response.data[0];
                 // traemos la informacion del  objeto a traer y la seteamos 
@@ -128,13 +128,13 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
             setError({ accion: "DataVehiculoOperando", error });
         });
          //let datetemp = moment("2023-06-06 09:19:05.990").toDate()
-        GetAlarmas(children, FechaServidor, moment(FechaServidor).add("8", "hours").toDate()).then((response: AxiosResponse<any>) => {
+        GetAlarmas(children, FechaServidor(), moment(FechaServidor()).add("8", "hours").toDate()).then((response: AxiosResponse<any>) => {
             setDataAlertas(response.data);
         }).catch((error: any) => {
             console.log("Error : ", error);
         });
 
-        GetDetalladoEventos(children, FechaServidor).then((response: AxiosResponse<any>) => {
+        GetDetalladoEventos(children, FechaServidor()).then((response: AxiosResponse<any>) => {
             let Data = new Array()
             response.data.map((e: any) => {
                 Data = [...Data, ...JSON.parse(e.DetalladoEventos)]
@@ -150,8 +150,8 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
     let consultaEventsActivos = (children: string) => {
         var params: { [id: string]: string; } = {};
         params["Clienteids"] = children;
-        params["period"] = moment(FechaServidor).format("MYYYY");
-        params["Fecha"] = moment(FechaServidor).add(-1, 'days').format("YYYYMMDD");
+        params["period"] = moment(FechaServidor()).format("MYYYY");
+        params["Fecha"] = moment(FechaServidor()).add(-1, 'days').format("YYYYMMDD");
         getEventosActivosPorDia({
             Clase: "FATGQueryHelper",
             NombreConsulta: "GetEventosActivosDiario", Pagina: null, RecordsPorPagina: null

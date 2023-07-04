@@ -62,7 +62,7 @@ function useDataParqueo() {
 const DataClientes: React.FC = ({ children }) => {
     const { setVisible, setDatosMapa, setClienteSeleccionado, setClientes, setdataTable } = useDataParqueo();
     const interval = useRef<any>();
-    const Periodo = moment(FechaServidor).format("MYYYY").toString();
+    const Periodo = moment(FechaServidor()).format("MYYYY").toString();
 
     let consulta = (clienteIdS: string) => {
         // consultamos en la base de datos la informacion de vehiculos operando

@@ -107,7 +107,7 @@ function useDataEventoCarga() {
 const DataRecargaTiempoClientes: React.FC = ({ children }) => {
     const { setVisible, setdataTable } = useDataEventoCarga();
     const interval = useRef<any>();
-    const Periodo = moment(FechaServidor).format("MYYYY").toString();
+    const Periodo = moment(FechaServidor()).format("MYYYY").toString();
 
     const CargarEventos = (clienteIdS: string, Periodo: string) => {
         setVisible(true)
