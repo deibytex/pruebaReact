@@ -1,6 +1,6 @@
 import moment from "moment";
 import { useEffect, useRef, useState } from "react";
-import { GetDataSafety, listTabsSafety } from "../../data/ReportesData";
+import { GetDataSafety, listTabsSafety, listTabsSafetyMapa } from "../../data/ReportesData";
 import { PageTitle } from "../../../../../_start/layout/core";
 import { DateRangePicker } from "rsuite";
 import BlockUi from "@availity/block-ui";
@@ -10,6 +10,7 @@ import { FormatoColombiaDDMMYYY, FormatoColombiaDDMMYYYHHmmss, FormatoSerializac
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import DualListBox from "react-dual-listbox";
+import 'react-dual-listbox/lib/react-dual-listbox.css';
 import { dualList } from "../../../CorreosTx/models/dataModels";
 import { Button, Form, Modal, ProgressBar } from "react-bootstrap-v5";
 import ReactApexChart from "react-apexcharts";
@@ -18,14 +19,14 @@ import { ClienteDTO } from "../../models/NivelcargaModels";
 import { AxiosResponse } from "axios";
 import { GetClientesEsomos } from "../../data/NivelCarga";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
-import { InicioCliente } from "../../../../../_start/helpers/Models/ClienteDTO";
 import { locateFormatNumberNDijitos } from "../../../../../_start/helpers/Helper";
-import { Box } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { DrawDynamicIconMuiMaterial } from "../../../../../_start/helpers/components/IconsMuiDynamic";
-import { rootCertificates } from "tls";
-import { array } from "yup";
+import MapTest from "../../components/Reportes/HeatMap/HeatMap"
+import { string } from "yup";
 export default function ReporteSafety() {
-
+    //Constante para el mapa unicamente MARCIAL
+    const [Eventos, setEventos] =useState<any[]>([]);
     let filtrosBase: FiltrosReportes = {
         FechaInicialInicial: moment().add(-60, 'days').startOf('day').toDate(),
         FechaFinalInicial: moment().startOf('day').toDate(),
@@ -67,7 +68,7 @@ export default function ReporteSafety() {
                     accessorKey: 'Score',
                     header: 'Score',
                     Cell({ cell, column, row, table, }) {
-                        return (locateFormatNumberNDijitos(isNaN(row.original.Score) ? 0 : row.original.Score , 2))
+                        return (locateFormatNumberNDijitos(isNaN(row.original.Score) ? 0 : row.original.Score, 2))
                     },
                     muiTableBodyCellProps: ({
                         cell
@@ -177,6 +178,7 @@ export default function ReporteSafety() {
 
     const [TipoReporte, setTipoReporte] = useState(TipoReporteBase);
     const [tabSel, settabSel] = useState<number>(0);
+    const [tabSelMapa, settabSelMapa] = useState<number>(0);
     const [lstIndicadores, setListIndicadores] = useState<any>({
         "Cond Rojo": 0,
         "Cond Ambar": 0,
@@ -935,7 +937,19 @@ export default function ReporteSafety() {
             setTotalesGB(TotalGB[0] == undefined ? [] : TotalGB[0]);
             setTotalesVel50(TotalVEL50[0] == undefined ? [] : TotalVEL50[0]);
             setTotalesVel30(TotalVEL30[0] == undefined ? [] : TotalVEL30[0]);
+
         };
+        //PARA LOS EVENTOS MARCIAL
+        if(tabSel == 2){
+            let EventosDB = datosFiltrados.map((p:any) => {
+                return [p.Latitud as number, p.Longitud as number, p.Evento as string];
+              }).filter((e) =>{
+                if(e[0] != null && e[1] != null)
+                  return e;
+              })
+            setEventos(EventosDB);
+        }
+       
     };
 
     useEffect(() => {
@@ -1022,8 +1036,8 @@ export default function ReporteSafety() {
         return (
             <Form.Select className=" mb-3 " onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
-             
-                    setClienteSeleccionado(Number.parseInt(e.currentTarget.value));
+
+                setClienteSeleccionado(Number.parseInt(e.currentTarget.value));
             }} aria-label="Default select example" value={ClienteSeleccionado}>
                 {
                     Clientes?.map((element: any, i: any) => {
@@ -1043,7 +1057,7 @@ export default function ReporteSafety() {
                     <div className="d-flex justify-content-between mx-auto">
                         <div className="ms-9 text-center">
                             <h3 className="mb-0">Reporte Safety</h3>
-                           
+
                         </div>
                     </div>
                 </div>
@@ -1054,9 +1068,11 @@ export default function ReporteSafety() {
 
                                 return (
                                     <div key={`indicadores_${element[0]}`} className="row card shadow m-2 px-2 col-sm-3 col-md-3 col-xs-3 mx-auto"
-                                        style={{ backgroundColor: `${(element[0] == "Cond Rojo") ? "#F26E5F" : (element[0] == "Cond Ambar") ? "#D7962E" : 
-                                        (element[0] == "Cond Verde") ? "#64B178" : ""}` }} 
-                                        >
+                                        style={{
+                                            backgroundColor: `${(element[0] == "Cond Rojo") ? "#F26E5F" : (element[0] == "Cond Ambar") ? "#D7962E" :
+                                                (element[0] == "Cond Verde") ? "#64B178" : ""}`
+                                        }}
+                                    >
                                         <div className="ms-3 text-center m-4">
                                             <h2 className={`mb-0 ${(element[0] != "Calificación Total") ? "text-white" : ""}`}><span id={element[0]}>{element[1]}</span></h2>
                                             <span className={`${(element[0] != "Calificación Total") ? "text-white" : "text-muted"}`}>{element[0]}</span>
@@ -1094,7 +1110,7 @@ export default function ReporteSafety() {
                         )}
                         <Button className="mb-6 mx-2 mt-2 btn btn-sm btn-primary" onClick={() => { setShowModal(true) }}>
                             <i className="bi-person"></i></Button>
-                        {(tabSel == 2) && (<Button className="mb-6 mx-2 mt-2   btn btn-sm btn-primary" onClick={() => { setShowModalEventos(true) }}>
+                        {(tabSel == 2) && (<Button title="Seleccione eventos" className="mb-6 mx-2 mt-2   btn btn-sm btn-primary" onClick={() => { setShowModalEventos(true) }}>
                             <i className="bi-card-list"></i></Button>)}
                         <Button className="mb-6 mx-2 mt-2   btn btn-sm btn-primary" onClick={() => { ConsultarData() }}><i className="bi-search"></i></Button>
                     </div>
@@ -1147,6 +1163,384 @@ export default function ReporteSafety() {
                                 type="bar"
                                 height={200} />)}
                     </div>
+                    <div className="w-100" style={{ display: (tabSel == 2) ? "block" : "none" }}>
+                        {/* Tabas para las tablas y Mapas */}
+                        <div className="me-sm-10 me-0">
+                            <ul className="nav nav-tabs nav-pills nav-pills-custom">
+                                {listTabsSafetyMapa.map((tab, idx) => {
+                                    return (<li className="nav-item mb-3" key={`tabenc_${idx}`}>
+                                        <a
+                                            onClick={() => settabSelMapa(idx)}
+                                            className={`nav-link w-225px h-70px ${tabSelMapa === idx ? "active btn-active-light" : ""
+                                                } fw-bolder me-2`}
+                                            id={`tab${idx}`}
+                                        >
+                                            <div className="nav-icon me-3">
+                                                <DrawDynamicIconMuiMaterial name={tab.icon} isactive={(tabSelMapa === idx)} />
+                                            </div>
+                                            <div className="ps-1">
+                                                <span className="nav-text text-gray-600 fw-bolder fs-6">
+                                                    {tab.titulo}
+                                                </span>
+                                                <span className="text-muted fw-bold d-block pt-1">
+                                                    {tab.subtitulo}
+                                                </span>
+                                            </div>
+                                        </a>
+                                    </li>
+                                    )
+                                })}
+                            </ul>
+                        </div>
+                        <div className="tab-content">
+                            <div className={`tab-pane fade ${tabSelMapa === 0 ? "show active" : ""}`} id="tab0_content" >
+                                {/* begin::Cards */}
+                                <div className="overflow-auto">
+                                    <div style={{ display: (tabSel == 2) ? "block" : "none" }}>
+
+                                        <div className="row" >
+                                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll' }} >
+                                                <div className="text-center"><label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px', display: (tabSel == 2) ? "block" : "none" }}>Exceso Velocidad &gt; 50 km/h</label></div>
+                                                {(TotalesVel50.length != 0) && (<MaterialReactTable
+                                                    // tableInstanceRef={ColumnasTablas['movil']}
+                                                    muiTableBodyCellProps={{
+                                                        sx: {
+                                                            border: '0px solid #000',
+                                                        }
+                                                    }}
+                                                    displayColumnDefOptions={{
+                                                        'mrt-row-actions': {
+                                                            muiTableHeadCellProps: {
+                                                                align: 'center'
+                                                            },
+                                                            size: 0,
+                                                        },
+                                                    }}
+
+                                                    localization={MRT_Localization_ES}
+                                                    columns={ColumnasTablasVerticales}
+                                                    data={TotalesVel50}
+                                                    enableColumnOrdering={false}
+                                                    enableColumnActions={false}
+                                                    enableSorting={true}
+                                                    enableFilters={false}
+                                                    manualSorting={false}
+                                                    enableGlobalFilterRankedResults={false}
+                                                    enableDensityToggle={false}
+                                                    enableColumnDragging={false}
+                                                    enablePagination={false}
+                                                    enableHiding={false}
+                                                    enableFullScreenToggle={false}
+                                                    enableSortingRemoval={false}
+                                                    enableStickyHeader
+                                                    enableRowVirtualization
+                                                    defaultColumn={{
+                                                        minSize: 150, //allow columns to get smaller than default
+                                                        maxSize: 400, //allow columns to get larger than default
+                                                        size: 150, //make columns wider by default
+                                                    }}
+                                                    initialState={{ density: 'compact' }}
+                                                    state={{
+                                                        columnFilters,
+                                                        globalFilter,
+                                                        isLoading,
+                                                        pagination,
+                                                        showAlertBanner: isError,
+                                                        showProgressBars: isRefetching,
+                                                        sorting,
+                                                    }}
+                                                />)}
+                                            </div>
+                                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll' }}  >
+                                                <div className="text-center"><label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px', display: (tabSel == 2) ? "block" : "none" }}>Aceleración Brusca &gt; 8 km/h/s</label></div>
+                                                {(TotalesAC.length != 0) && (<MaterialReactTable
+                                                    // tableInstanceRef={ColumnasTablas['movil']}
+                                                    muiTableBodyCellProps={{
+                                                        sx: {
+                                                            border: '0px solid #000',
+                                                        }
+                                                    }}
+                                                    displayColumnDefOptions={{
+                                                        'mrt-row-actions': {
+                                                            muiTableHeadCellProps: {
+                                                                align: 'center'
+                                                            },
+                                                            size: 0,
+                                                        },
+                                                    }}
+
+                                                    localization={MRT_Localization_ES}
+                                                    columns={ColumnasTablasVerticales}
+                                                    data={TotalesAC}
+                                                    enableColumnOrdering={false}
+                                                    enableColumnActions={false}
+                                                    enableSorting={true}
+                                                    enableFilters={false}
+                                                    manualSorting={false}
+                                                    enableGlobalFilterRankedResults={false}
+                                                    enableDensityToggle={false}
+                                                    enableColumnDragging={false}
+                                                    enablePagination={false}
+                                                    enableHiding={false}
+                                                    enableFullScreenToggle={false}
+                                                    enableSortingRemoval={false}
+                                                    enableStickyHeader
+                                                    enableRowVirtualization
+                                                    defaultColumn={{
+                                                        minSize: 150, //allow columns to get smaller than default
+                                                        maxSize: 400, //allow columns to get larger than default
+                                                        size: 150, //make columns wider by default
+                                                    }}
+                                                    initialState={{ density: 'compact' }}
+                                                    state={{
+                                                        columnFilters,
+                                                        globalFilter,
+                                                        isLoading,
+                                                        pagination,
+                                                        showAlertBanner: isError,
+                                                        showProgressBars: isRefetching,
+                                                        sorting,
+                                                    }}
+                                                />)}
+                                            </div>
+                                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll' }}  >
+                                                <div className="text-center">
+                                                    <label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px', display: (tabSel == 2) ? "block" : "none" }}>Frenada Brusca &gt; 10 km/h/s</label>
+                                                </div>
+                                                {(TotalesFB.length != 0) && (<MaterialReactTable
+                                                    // tableInstanceRef={ColumnasTablas['movil']}
+                                                    muiTableBodyCellProps={{
+                                                        sx: {
+                                                            border: '0px solid #000',
+                                                        }
+                                                    }}
+                                                    displayColumnDefOptions={{
+                                                        'mrt-row-actions': {
+                                                            muiTableHeadCellProps: {
+                                                                align: 'center'
+                                                            },
+                                                            size: 0,
+                                                        },
+                                                    }}
+
+                                                    localization={MRT_Localization_ES}
+                                                    columns={ColumnasTablasVerticales}
+                                                    data={TotalesFB}
+                                                    enableColumnOrdering={false}
+                                                    enableColumnActions={false}
+                                                    enableSorting={true}
+                                                    enableFilters={false}
+                                                    manualSorting={false}
+                                                    enableGlobalFilterRankedResults={false}
+                                                    enableDensityToggle={false}
+                                                    enableColumnDragging={false}
+                                                    enablePagination={false}
+                                                    enableHiding={false}
+                                                    enableFullScreenToggle={false}
+                                                    enableSortingRemoval={false}
+                                                    enableStickyHeader
+                                                    enableRowVirtualization
+                                                    defaultColumn={{
+                                                        minSize: 150, //allow columns to get smaller than default
+                                                        maxSize: 400, //allow columns to get larger than default
+                                                        size: 150, //make columns wider by default
+                                                    }}
+                                                    initialState={{ density: 'compact' }}
+                                                    state={{
+                                                        columnFilters,
+                                                        globalFilter,
+                                                        isLoading,
+                                                        pagination,
+                                                        showAlertBanner: isError,
+                                                        showProgressBars: isRefetching,
+                                                        sorting,
+                                                    }}
+                                                />)}
+                                            </div>
+                                        </div>
+                                        <div className="row" >
+                                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll' }}  >
+                                                <div className="text-center"><label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px', display: (tabSel == 2) ? "block" : "none" }}>Exceso Velocidad &gt; 30 km/h</label></div>
+                                                {(TotalesVel30.length != 0) && (<MaterialReactTable
+                                                    // tableInstanceRef={ColumnasTablas['movil']}
+                                                    muiTableBodyCellProps={{
+                                                        sx: {
+                                                            border: '0px solid #000',
+                                                        }
+                                                    }}
+                                                    displayColumnDefOptions={{
+                                                        'mrt-row-actions': {
+                                                            muiTableHeadCellProps: {
+                                                                align: 'center'
+                                                            },
+                                                            size: 0,
+                                                        },
+                                                    }}
+
+                                                    localization={MRT_Localization_ES}
+                                                    columns={ColumnasTablasVerticales}
+                                                    data={TotalesVel30}
+                                                    enableColumnOrdering={false}
+                                                    enableColumnActions={false}
+                                                    enableSorting={true}
+                                                    enableFilters={false}
+                                                    manualSorting={false}
+                                                    enableGlobalFilterRankedResults={false}
+                                                    enableDensityToggle={false}
+                                                    enableColumnDragging={false}
+                                                    enablePagination={false}
+                                                    enableHiding={false}
+                                                    enableFullScreenToggle={false}
+                                                    enableSortingRemoval={false}
+                                                    enableStickyHeader
+                                                    enableRowVirtualization
+                                                    defaultColumn={{
+                                                        minSize: 150, //allow columns to get smaller than default
+                                                        maxSize: 400, //allow columns to get larger than default
+                                                        size: 150, //make columns wider by default
+                                                    }}
+                                                    initialState={{ density: 'compact' }}
+                                                    state={{
+                                                        columnFilters,
+                                                        globalFilter,
+                                                        isLoading,
+                                                        pagination,
+                                                        showAlertBanner: isError,
+                                                        showProgressBars: isRefetching,
+                                                        sorting,
+                                                    }}
+                                                />)}
+                                            </div>
+                                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll' }}  >
+                                                <div className="text-center"><label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px', display: (tabSel == 2) ? "block" : "none" }}>Giro Brusco &gt; 0.30 G</label></div>
+                                                {(TotalesGB.length != 0) && (<MaterialReactTable
+                                                    // tableInstanceRef={ColumnasTablas['movil']}
+                                                    muiTableBodyCellProps={{
+                                                        sx: {
+                                                            border: '0px solid #000',
+                                                        }
+                                                    }}
+                                                    displayColumnDefOptions={{
+                                                        'mrt-row-actions': {
+                                                            muiTableHeadCellProps: {
+                                                                align: 'center'
+                                                            },
+                                                            size: 0,
+                                                        },
+                                                    }}
+
+                                                    localization={MRT_Localization_ES}
+                                                    columns={ColumnasTablasVerticales}
+                                                    data={TotalesGB}
+                                                    enableColumnOrdering={false}
+                                                    enableColumnActions={false}
+                                                    enableSorting={true}
+                                                    enableFilters={false}
+                                                    manualSorting={false}
+                                                    enableGlobalFilterRankedResults={false}
+                                                    enableDensityToggle={false}
+                                                    enableColumnDragging={false}
+                                                    enablePagination={false}
+                                                    enableHiding={false}
+                                                    enableFullScreenToggle={false}
+                                                    enableSortingRemoval={false}
+                                                    enableStickyHeader
+                                                    enableRowVirtualization
+                                                    defaultColumn={{
+                                                        minSize: 150, //allow columns to get smaller than default
+                                                        maxSize: 400, //allow columns to get larger than default
+                                                        size: 150, //make columns wider by default
+                                                    }}
+                                                    initialState={{ density: 'compact' }}
+                                                    state={{
+                                                        columnFilters,
+                                                        globalFilter,
+                                                        isLoading,
+                                                        pagination,
+                                                        showAlertBanner: isError,
+                                                        showProgressBars: isRefetching,
+                                                        sorting,
+                                                    }}
+                                                />)}
+                                            </div>
+                                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll' }}  >
+                                                <div className="text-center">
+                                                    <label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px', display: (tabSel == 2) ? "block" : "none" }}>Cinturón Desabrochado &gt; 0 km/h</label>
+                                                </div>
+                                                {(TotalesCD.length != 0) && (<MaterialReactTable
+                                                    // tableInstanceRef={ColumnasTablas['movil']}
+                                                    muiTableBodyCellProps={{
+                                                        sx: {
+                                                            border: '0px solid #000',
+                                                        }
+                                                    }}
+                                                    displayColumnDefOptions={{
+                                                        'mrt-row-actions': {
+                                                            muiTableHeadCellProps: {
+                                                                align: 'center'
+                                                            },
+                                                            size: 0,
+                                                        },
+                                                    }}
+
+                                                    localization={MRT_Localization_ES}
+                                                    columns={ColumnasTablasVerticales}
+                                                    data={TotalesCD}
+                                                    enableColumnOrdering={false}
+                                                    enableColumnActions={false}
+                                                    enableSorting={true}
+                                                    enableFilters={false}
+                                                    manualSorting={false}
+                                                    enableGlobalFilterRankedResults={false}
+                                                    enableDensityToggle={false}
+                                                    enableColumnDragging={false}
+                                                    enablePagination={false}
+                                                    enableHiding={false}
+                                                    enableFullScreenToggle={false}
+                                                    enableSortingRemoval={false}
+                                                    enableStickyHeader
+                                                    enableRowVirtualization
+                                                    defaultColumn={{
+                                                        minSize: 150, //allow columns to get smaller than default
+                                                        maxSize: 400, //allow columns to get larger than default
+                                                        size: 150, //make columns wider by default
+                                                    }}
+                                                    initialState={{ density: 'compact' }}
+                                                    state={{
+                                                        columnFilters,
+                                                        globalFilter,
+                                                        isLoading,
+                                                        pagination,
+                                                        showAlertBanner: isError,
+                                                        showProgressBars: isRefetching,
+                                                        sorting,
+                                                    }}
+                                                />)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {/* end::Cards      */}
+                            </div>
+                            <div className={`tab-pane fade ${tabSelMapa === 1 ? "show active" : ""}`} id="tab1_content">
+                                {/* begin::Cards */}
+                                <div className="overflow-auto">
+                                    {/*Tabla de los operadores */}
+                                    <Stack style={{ width: "100%", height: "100%" }}>
+                                        {/* <HomePostVenta/> */}
+                                        <div className="w-100">
+                                            <div className="text-center">
+                                                <h3>{}</h3>
+                                            </div>
+                                        </div>
+                                        {(tabSelMapa === 1) && (Eventos.length != 0) && (<MapTest Data={Eventos} />)}
+                                    </Stack>
+                                </div>
+                                {/* end::Cards      */}
+                            </div>
+                        </div>
+                    </div>
+
                     <div style={{ display: (tabSel != 2) ? "block" : "none" }} >
                         <div className="card">
                             {(opciones != null) && (
@@ -1157,329 +1551,7 @@ export default function ReporteSafety() {
                                     height={300} />)}
                         </div>
                     </div>
-                    <div style={{ display: (tabSel == 2) ? "block" : "none" }}>
 
-                        <div className="row" >
-                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll' }} >
-                                <div className="text-center"><label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px', display: (tabSel == 2) ? "block" : "none" }}>Exceso Velocidad &gt; 50 km/h</label></div>
-                                {(TotalesVel50.length != 0) && (<MaterialReactTable
-                                    // tableInstanceRef={ColumnasTablas['movil']}
-                                    muiTableBodyCellProps={{
-                                        sx: {
-                                            border: '0px solid #000',
-                                        }
-                                    }}
-                                    displayColumnDefOptions={{
-                                        'mrt-row-actions': {
-                                            muiTableHeadCellProps: {
-                                                align: 'center'
-                                            },
-                                            size: 0,
-                                        },
-                                    }}
-
-                                    localization={MRT_Localization_ES}
-                                    columns={ColumnasTablasVerticales}
-                                    data={TotalesVel50}
-                                    enableColumnOrdering={false}
-                                    enableColumnActions={false}
-                                    enableSorting={true}
-                                    enableFilters={false}
-                                    manualSorting={false}
-                                    enableGlobalFilterRankedResults={false}
-                                    enableDensityToggle={false}
-                                    enableColumnDragging={false}
-                                    enablePagination={false}
-                                    enableHiding={false}
-                                    enableFullScreenToggle={false}
-                                    enableSortingRemoval={false}
-                                    enableStickyHeader
-                                    enableRowVirtualization
-                                    defaultColumn={{
-                                        minSize: 150, //allow columns to get smaller than default
-                                        maxSize: 400, //allow columns to get larger than default
-                                        size: 150, //make columns wider by default
-                                    }}
-                                    initialState={{ density: 'compact' }}
-                                    state={{
-                                        columnFilters,
-                                        globalFilter,
-                                        isLoading,
-                                        pagination,
-                                        showAlertBanner: isError,
-                                        showProgressBars: isRefetching,
-                                        sorting,
-                                    }}
-                                />)}
-                            </div>
-                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll' }}  >
-                                <div className="text-center"><label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px', display: (tabSel == 2) ? "block" : "none" }}>Aceleración Brusca &gt; 8 km/h/s</label></div>
-                                {(TotalesAC.length != 0) && (<MaterialReactTable
-                                    // tableInstanceRef={ColumnasTablas['movil']}
-                                    muiTableBodyCellProps={{
-                                        sx: {
-                                            border: '0px solid #000',
-                                        }
-                                    }}
-                                    displayColumnDefOptions={{
-                                        'mrt-row-actions': {
-                                            muiTableHeadCellProps: {
-                                                align: 'center'
-                                            },
-                                            size: 0,
-                                        },
-                                    }}
-
-                                    localization={MRT_Localization_ES}
-                                    columns={ColumnasTablasVerticales}
-                                    data={TotalesAC}
-                                    enableColumnOrdering={false}
-                                    enableColumnActions={false}
-                                    enableSorting={true}
-                                    enableFilters={false}
-                                    manualSorting={false}
-                                    enableGlobalFilterRankedResults={false}
-                                    enableDensityToggle={false}
-                                    enableColumnDragging={false}
-                                    enablePagination={false}
-                                    enableHiding={false}
-                                    enableFullScreenToggle={false}
-                                    enableSortingRemoval={false}
-                                    enableStickyHeader
-                                    enableRowVirtualization
-                                    defaultColumn={{
-                                        minSize: 150, //allow columns to get smaller than default
-                                        maxSize: 400, //allow columns to get larger than default
-                                        size: 150, //make columns wider by default
-                                    }}
-                                    initialState={{ density: 'compact' }}
-                                    state={{
-                                        columnFilters,
-                                        globalFilter,
-                                        isLoading,
-                                        pagination,
-                                        showAlertBanner: isError,
-                                        showProgressBars: isRefetching,
-                                        sorting,
-                                    }}
-                                />)}
-                            </div>
-                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll' }}  >
-                                <div className="text-center">
-                                    <label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px', display: (tabSel == 2) ? "block" : "none" }}>Frenada Brusca &gt; 10 km/h/s</label>
-                                </div>
-                                {(TotalesFB.length != 0) && (<MaterialReactTable
-                                    // tableInstanceRef={ColumnasTablas['movil']}
-                                    muiTableBodyCellProps={{
-                                        sx: {
-                                            border: '0px solid #000',
-                                        }
-                                    }}
-                                    displayColumnDefOptions={{
-                                        'mrt-row-actions': {
-                                            muiTableHeadCellProps: {
-                                                align: 'center'
-                                            },
-                                            size: 0,
-                                        },
-                                    }}
-
-                                    localization={MRT_Localization_ES}
-                                    columns={ColumnasTablasVerticales}
-                                    data={TotalesFB}
-                                    enableColumnOrdering={false}
-                                    enableColumnActions={false}
-                                    enableSorting={true}
-                                    enableFilters={false}
-                                    manualSorting={false}
-                                    enableGlobalFilterRankedResults={false}
-                                    enableDensityToggle={false}
-                                    enableColumnDragging={false}
-                                    enablePagination={false}
-                                    enableHiding={false}
-                                    enableFullScreenToggle={false}
-                                    enableSortingRemoval={false}
-                                    enableStickyHeader
-                                    enableRowVirtualization
-                                    defaultColumn={{
-                                        minSize: 150, //allow columns to get smaller than default
-                                        maxSize: 400, //allow columns to get larger than default
-                                        size: 150, //make columns wider by default
-                                    }}
-                                    initialState={{ density: 'compact' }}
-                                    state={{
-                                        columnFilters,
-                                        globalFilter,
-                                        isLoading,
-                                        pagination,
-                                        showAlertBanner: isError,
-                                        showProgressBars: isRefetching,
-                                        sorting,
-                                    }}
-                                />)}
-                            </div>
-                        </div>
-                        <div className="row" >
-                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll' }}  >
-                                <div className="text-center"><label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px', display: (tabSel == 2) ? "block" : "none" }}>Exceso Velocidad &gt; 30 km/h</label></div>
-                                {(TotalesVel30.length != 0) && (<MaterialReactTable
-                                    // tableInstanceRef={ColumnasTablas['movil']}
-                                    muiTableBodyCellProps={{
-                                        sx: {
-                                            border: '0px solid #000',
-                                        }
-                                    }}
-                                    displayColumnDefOptions={{
-                                        'mrt-row-actions': {
-                                            muiTableHeadCellProps: {
-                                                align: 'center'
-                                            },
-                                            size: 0,
-                                        },
-                                    }}
-
-                                    localization={MRT_Localization_ES}
-                                    columns={ColumnasTablasVerticales}
-                                    data={TotalesVel30}
-                                    enableColumnOrdering={false}
-                                    enableColumnActions={false}
-                                    enableSorting={true}
-                                    enableFilters={false}
-                                    manualSorting={false}
-                                    enableGlobalFilterRankedResults={false}
-                                    enableDensityToggle={false}
-                                    enableColumnDragging={false}
-                                    enablePagination={false}
-                                    enableHiding={false}
-                                    enableFullScreenToggle={false}
-                                    enableSortingRemoval={false}
-                                    enableStickyHeader
-                                    enableRowVirtualization
-                                    defaultColumn={{
-                                        minSize: 150, //allow columns to get smaller than default
-                                        maxSize: 400, //allow columns to get larger than default
-                                        size: 150, //make columns wider by default
-                                    }}
-                                    initialState={{ density: 'compact' }}
-                                    state={{
-                                        columnFilters,
-                                        globalFilter,
-                                        isLoading,
-                                        pagination,
-                                        showAlertBanner: isError,
-                                        showProgressBars: isRefetching,
-                                        sorting,
-                                    }}
-                                />)}
-                            </div>
-                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll' }}  >
-                                <div className="text-center"><label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px', display: (tabSel == 2) ? "block" : "none" }}>Giro Brusco &gt; 0.30 G</label></div>
-                                {(TotalesGB.length != 0) && (<MaterialReactTable
-                                    // tableInstanceRef={ColumnasTablas['movil']}
-                                    muiTableBodyCellProps={{
-                                        sx: {
-                                            border: '0px solid #000',
-                                        }
-                                    }}
-                                    displayColumnDefOptions={{
-                                        'mrt-row-actions': {
-                                            muiTableHeadCellProps: {
-                                                align: 'center'
-                                            },
-                                            size: 0,
-                                        },
-                                    }}
-
-                                    localization={MRT_Localization_ES}
-                                    columns={ColumnasTablasVerticales}
-                                    data={TotalesGB}
-                                    enableColumnOrdering={false}
-                                    enableColumnActions={false}
-                                    enableSorting={true}
-                                    enableFilters={false}
-                                    manualSorting={false}
-                                    enableGlobalFilterRankedResults={false}
-                                    enableDensityToggle={false}
-                                    enableColumnDragging={false}
-                                    enablePagination={false}
-                                    enableHiding={false}
-                                    enableFullScreenToggle={false}
-                                    enableSortingRemoval={false}
-                                    enableStickyHeader
-                                    enableRowVirtualization
-                                    defaultColumn={{
-                                        minSize: 150, //allow columns to get smaller than default
-                                        maxSize: 400, //allow columns to get larger than default
-                                        size: 150, //make columns wider by default
-                                    }}
-                                    initialState={{ density: 'compact' }}
-                                    state={{
-                                        columnFilters,
-                                        globalFilter,
-                                        isLoading,
-                                        pagination,
-                                        showAlertBanner: isError,
-                                        showProgressBars: isRefetching,
-                                        sorting,
-                                    }}
-                                />)}
-                            </div>
-                            <div className="col-xs-4 col-sm-4 col-md-4" style={{ height: '200px', overflowY: 'scroll' }}  >
-                                <div className="text-center">
-                                    <label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px', display: (tabSel == 2) ? "block" : "none" }}>Cinturón Desabrochado &gt; 0 km/h</label>
-                                </div>
-                                {(TotalesCD.length != 0) && (<MaterialReactTable
-                                    // tableInstanceRef={ColumnasTablas['movil']}
-                                    muiTableBodyCellProps={{
-                                        sx: {
-                                            border: '0px solid #000',
-                                        }
-                                    }}
-                                    displayColumnDefOptions={{
-                                        'mrt-row-actions': {
-                                            muiTableHeadCellProps: {
-                                                align: 'center'
-                                            },
-                                            size: 0,
-                                        },
-                                    }}
-
-                                    localization={MRT_Localization_ES}
-                                    columns={ColumnasTablasVerticales}
-                                    data={TotalesCD}
-                                    enableColumnOrdering={false}
-                                    enableColumnActions={false}
-                                    enableSorting={true}
-                                    enableFilters={false}
-                                    manualSorting={false}
-                                    enableGlobalFilterRankedResults={false}
-                                    enableDensityToggle={false}
-                                    enableColumnDragging={false}
-                                    enablePagination={false}
-                                    enableHiding={false}
-                                    enableFullScreenToggle={false}
-                                    enableSortingRemoval={false}
-                                    enableStickyHeader
-                                    enableRowVirtualization
-                                    defaultColumn={{
-                                        minSize: 150, //allow columns to get smaller than default
-                                        maxSize: 400, //allow columns to get larger than default
-                                        size: 150, //make columns wider by default
-                                    }}
-                                    initialState={{ density: 'compact' }}
-                                    state={{
-                                        columnFilters,
-                                        globalFilter,
-                                        isLoading,
-                                        pagination,
-                                        showAlertBanner: isError,
-                                        showProgressBars: isRefetching,
-                                        sorting,
-                                    }}
-                                />)}
-                            </div>
-                        </div>
-                    </div>
                     <div className="row">
                         <div className="col-xs-12 col-sm-12 col-md-12">
                             <div className="text-center"><label className="label control-label label-sm fw-bolder" style={{ fontSize: '14px' }}> </label></div>
@@ -1578,6 +1650,7 @@ export default function ReporteSafety() {
                     <div className={`tab-pane fade ${tabSel === 2 ? "show active" : ""}`} id="tab1_content">
                         {/* begin::Cards */}
                         <div className="overflow-auto">
+
                         </div>
                         {/* end::Cards      */}
                     </div>
