@@ -68,10 +68,16 @@ export const FiltrosCorreos: React.FC<Props> = () => {
                 return (arr.ClienteIds == ClienteIdS)
             });
             setlstListaNotifacion(filterListas);
-            ListaNotifacionId == 0 ? setListaNotifacionId(filterListas[0].ListaClienteNotifacionId) : setListaNotifacionId(ListaNotifacionId);
+
+             setListaNotifacionId(filterListas[0].ListaClienteNotifacionId);
         }
 
     }, [ClienteIdS, ListaNotifacion, ListaNotifacionId])
+
+    useEffect(() => {
+        setListaNotifacionId(ListaNotifacionId)
+
+    }, [ListaNotifacionId])
 
     useEffect(() => {
         if (Clientes.length > 0) {
