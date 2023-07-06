@@ -7,9 +7,6 @@ import MaterialReactTable, { MRT_ColumnDef } from "material-react-table"
 import { MRT_Localization_ES } from "material-react-table/locales/es"
 import moment from "moment";
 import { useEffect, useState } from "react";
-
-//import { useEffect, useRef, useState } from "react";
-import { Check } from "react-feather";
 import confirmarDialog, { errorDialog, successDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 
 import { useDataReporte } from "../../core/ReporteProvider";
@@ -138,6 +135,7 @@ const TableReporte : React.FC = () =>{
         )
      }
      const PintarIconosMenu = (row:any) =>{
+   
         return(
             <div className="dropdown show position-absolute">
                 <a className="dropdown-toggle"  id="dropdownMenuButton1"  data-bs-toggle="dropdown" aria-expanded="false">
@@ -190,6 +188,7 @@ const TableReporte : React.FC = () =>{
         let Cliente = (ClienteSeleccionado != undefined ? ClienteSeleccionado?.clienteIdS.toString():"");
         await GetInformeTransmision(Cliente,FechaActual).then((response:AxiosResponse) =>{
             setData(response.data);
+            
             setRowCount(response.data.length);
             setDatalocal(response.data);
             setCargando(false);
@@ -272,6 +271,7 @@ const TableReporte : React.FC = () =>{
              renderRowActions={({ row, table }) => (
                  <Box sx={{ display: 'flex', gap: '1rem', zIndex:'1000' }}>
                     {
+                        
                         PintarIconosMenu(row.original.assetId)
                     }
                  </Box>
