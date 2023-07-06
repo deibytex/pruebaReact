@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
-
-import { useDataCorreosTx } from "../core/provider";
-
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { MRT_Localization_ES } from 'material-react-table/locales/es';
-
 import type {
     ColumnFiltersState,
     PaginationState,
@@ -12,14 +8,12 @@ import type {
 } from '@tanstack/react-table';
 import { Box, IconButton, Tooltip } from "@mui/material";
 import { Delete, Update } from "@mui/icons-material";
-import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/helpers/components/ConfirmDialog";
 import { Button } from "react-bootstrap-v5";
-import "../../../../../node_modules/@availity/block-ui/src/BlockUi.css";
-import "../../../../../node_modules/@availity/block-ui/src/Loader.css";
-import { CorreosTx } from "../models/dataModels";
 import { UpdateCorreos } from "./modalUpdatedCorreos";
-import { deleteCorreosTx } from "../data/dataCorreosTx";
-
+import confirmarDialog, { successDialog, errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
+import { useDataCorreosTx } from "../../core/provider";
+import { deleteCorreosTx } from "../../data/dataCorreosTx";
+import { CorreosTx } from "../../models/dataModels";
 
 type Props = {
 };

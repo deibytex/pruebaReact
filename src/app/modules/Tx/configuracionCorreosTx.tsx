@@ -1,6 +1,6 @@
 import { PageTitle } from "../../../_start/layout/core";
-import { FiltrosCorreos } from "./components/filtrosInformes";
-import { CorrTx_PanelCentral } from "./components/panelCentral";
+import { FiltrosCorreos } from "./components/CorreosTx/filtrosInformes";
+import { CorrTx_PanelCentral } from "./components/CorreosTx/panelCentral";
 import { CorreosTxProvider, DataCorreosTX } from "./core/provider";
 
 export default function ConfiguracionCorreos() {

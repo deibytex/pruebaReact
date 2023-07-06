@@ -8,7 +8,7 @@ import { Button, Form, Modal } from "react-bootstrap-v5";
 import DualListBox from "react-dual-listbox";
 import { DatePicker } from "rsuite";
 import { ModuleName, PageTitle } from "../../../../../_start/layout/core";
-import { dualList } from "../../../CorreosTx/models/dataModels";
+import { dualList } from "../../../Tx/models/dataModels";
 import { GetReporteOdometro } from "../../data/ReportesData";
 import { DescargarExcel } from "../../../../../_start/helpers/components/DescargarExcel"
 import { FormatoColombiaDDMMYYYHHmmss, FormatoSerializacionYYYY_MM_DD_HHmmss } from "../../../../../_start/helpers/Constants";

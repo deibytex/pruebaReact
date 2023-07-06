@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from "react";
-
-import { useDataCorreosTx } from "../core/provider";
-
-
+import { CorreosTx } from "../../models/dataModels";
 import { Button, Form, Modal } from "react-bootstrap-v5"
-import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/helpers/components/ConfirmDialog";
-import { setCorreoTx, updateCorreosTx } from "../data/dataCorreosTx";
-import { CorreosTx, DetalleListas } from "../models/dataModels";
-import { CORE_ExecProcedureByTipoConsulta } from "../../../../apiurlstore";
+import confirmarDialog, { successDialog, errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
+import { useDataCorreosTx } from "../../core/provider";
+import { setCorreoTx, updateCorreosTx } from "../../data/dataCorreosTx";
+import { DetalleListas } from "../../models/dataModels";
+
 
 
 type Props = {

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Button } from "react-bootstrap-v5";
 import DualListBox from "react-dual-listbox";
-import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/helpers/components/ConfirmDialog";
-import { useDataCorreosTx } from "../core/provider";
-import { setSitesCorreosTx } from "../data/dataCorreosTx";
-import {  dualList, Sites, SitesNotifacion } from "../models/dataModels";
+import confirmarDialog, { successDialog, errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
+import { useDataCorreosTx } from "../../core/provider";
+import { setSitesCorreosTx } from "../../data/dataCorreosTx";
+import { dualList, Sites, SitesNotifacion } from "../../models/dataModels";
+
 
 type Props = {
 }

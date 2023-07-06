@@ -1,15 +1,10 @@
 import React, { useEffect, useState } from "react";
 
-import { useDataCorreosTx } from "../core/provider";
-
-
 import { Button, Form, Modal } from "react-bootstrap-v5"
-import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/helpers/components/ConfirmDialog";
-import { insertListasCorreosTx, updateListasCorreosTx } from "../data/dataCorreosTx";
-import {  Clientes, ListaNotifacion } from "../models/dataModels";
-import { number } from "yup";
-
-
+import confirmarDialog, { successDialog, errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
+import { useDataCorreosTx } from "../../core/provider";
+import { insertListasCorreosTx, updateListasCorreosTx } from "../../data/dataCorreosTx";
+import { Clientes,  ListaNotifacion  } from "../../models/dataModels";
 type Props = {
     show: boolean;
     handleClose: () => void;

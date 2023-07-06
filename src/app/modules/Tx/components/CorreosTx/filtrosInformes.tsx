@@ -1,11 +1,8 @@
 
 import React, { useEffect, useState } from "react";
 import { Button, Form } from "react-bootstrap-v5";
-
-import "../../../../../node_modules/@availity/block-ui/src/BlockUi.css";
-import "../../../../../node_modules/@availity/block-ui/src/Loader.css";
-import { useDataCorreosTx } from "../core/provider";
-import { Clientes, ListaNotifacion } from "../models/dataModels"
+import { useDataCorreosTx } from "../../core/provider";
+import { Clientes, ListaNotifacion } from "../../models/dataModels"
 import { UpdateListaCorreos } from "./modalUpdatedListaCorreos";
 
 
@@ -68,10 +65,16 @@ export const FiltrosCorreos: React.FC<Props> = () => {
                 return (arr.ClienteIds == ClienteIdS)
             });
             setlstListaNotifacion(filterListas);
-            ListaNotifacionId == 0 ? setListaNotifacionId(filterListas[0].ListaClienteNotifacionId) : setListaNotifacionId(ListaNotifacionId);
+
+             setListaNotifacionId(filterListas[0].ListaClienteNotifacionId);
         }
 
     }, [ClienteIdS, ListaNotifacion, ListaNotifacionId])
+
+    useEffect(() => {
+        setListaNotifacionId(ListaNotifacionId)
+
+    }, [ListaNotifacionId])
 
     useEffect(() => {
         if (Clientes.length > 0) {
@@ -162,4 +165,4 @@ export const FiltrosCorreos: React.FC<Props> = () => {
             <UpdateListaCorreos show={show} handleClose={handleClose} title={tituloModalCorreos} />
         </>
     )
-} 
+}
