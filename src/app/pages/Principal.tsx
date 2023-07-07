@@ -7,8 +7,6 @@ import { UserModelSyscaf } from "../modules/auth/models/UserModel";
 import HomePostVenta from "../modules/SYSCAF/PostVenta/DashBoard/Dashboard";
 import { toAbsoluteUrl } from "../../_start/helpers";
 
-
-
 export function Bienvenidos() {
     const user = useSelector<RootState>(
         ({ auth }) => auth.user
@@ -27,10 +25,7 @@ export function Bienvenidos() {
                     <h1 className=" mx-4 fs-3 text-muted"> Hola! {vUser.Nombres} </h1>
                     {/* <HomePostVenta/> */}
                 </Stack>
-
-
             </div>
-            
             <div className=" d-flex d-flex-column align-items-center justify-content-center text-center m-15"
             >
                 <img

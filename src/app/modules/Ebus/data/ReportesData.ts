@@ -120,6 +120,10 @@ const tabSaf1 = { icon: 'Person', titulo: "Operador", subtitulo: "Mensual" }
 const tabSaf2 = { icon: 'Person', titulo: "Operador", subtitulo: "Diario" }
 const tabSaf3 = { icon: 'Person', titulo: "Operador", subtitulo: "Detallado" }
 export const listTabsSafety: any[] = [tabSaf1, tabSaf2, tabSaf3]
+ 
+const tabTablas = { icon: 'Person', titulo: "Indicadores", subtitulo: "Mensual" }
+const tabMapaCalor = { icon: 'Map', titulo: "Mapa Calor", subtitulo: "Eventos" }
+export const listTabsSafetyMapa: any[] = [tabTablas, tabMapaCalor]
 
 export function GetDataSafety(FechaInicial: string, FechaFinal: string, clientesIds: number, tipo: number) {
     var params: { [id: string]: string | null | undefined; } = {};
