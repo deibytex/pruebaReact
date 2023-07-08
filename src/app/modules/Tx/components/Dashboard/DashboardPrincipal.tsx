@@ -3,19 +3,19 @@ import moment from "moment"
 import { useEffect, useState } from "react"
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog"
 import {  useDataDashboard } from "../../core/DashboardProvider"
-import {  GetSnapShotTickets2, GetSnapShotTransmision, GetSnapShotTransmisionAcumulado, GetSnapShotUnidadesActivasAcumulado, GetUnidadesActivas, GetUnidadesActivasAcumulado } from "../../data/Dashboard"
+import {  GetSnapShotTickets2, GetSnapShotTransmision, GetSnapShotTransmisionAcumulado, GetSnapShotUnidadesActivasAcumulado, GetSnapShotUnidadesActivasChurn, GetUnidadesActivas, GetUnidadesActivasAcumulado } from "../../data/Dashboard"
 import { Tickets } from "./Tickets"
 import { Transmision } from "./Transmision"
 import { UnidadesActivas } from "./UnidadesActivas"
 import BlockUi from "@availity/block-ui"
 
 export default function  DashboardPrincipal (){
-    const {ClienteSeleccionado, DataTx,  setData, setDataTx, setDataTk,TabActive, setTabActive, SemanaSeleccionada, Cargando, setCargando, setDataAcumulado} = useDataDashboard()
+    const {ClienteSeleccionado, DataTx,  setData, setDataTx, setDataTk,TabActive, setTabActive, SemanaSeleccionada, Cargando, setCargando, setDataAcumulado, setDataChurn} = useDataDashboard()
     const [montarTx, setmontarTx] = useState<boolean>(false);
     const [montarTicket, setMontarTicket] = useState<boolean>(false);
     const [montarUnidades, setmontarUnidades] = useState<boolean>(true);
 
-     function ConsultarUnidades() {
+     function  ConsultarUnidades() {
         setCargando(true);
         let Fecha = (SemanaSeleccionada != undefined ? SemanaSeleccionada['fecha'] : moment().format("DD/MM/YYYY").toString())
         GetUnidadesActivasAcumulado(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
@@ -57,19 +57,34 @@ export default function  DashboardPrincipal (){
             setCargando(false);
         });
     }
-    function ConsultarAcumuladoSnapShot (){
+    async function ConsultarAcumuladoSnapShot (){
         let Fecha = (SemanaSeleccionada != undefined ? SemanaSeleccionada['fecha'] : moment().format("DD/MM/YYYY").toString())
-        GetSnapShotUnidadesActivasAcumulado(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
+      await  GetSnapShotUnidadesActivasAcumulado(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
             setDataAcumulado(response.data);
             setCargando(false);
         }).catch((error:AxiosError<any>) =>{
             setCargando(false);
         });
     }
+    async function ConsultarAcumuladoChurn (){
+        let Fecha = (SemanaSeleccionada != undefined ? SemanaSeleccionada['fecha'] : moment().format("DD/MM/YYYY").toString())
+        await  GetSnapShotUnidadesActivasChurn(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
+            setDataChurn(response.data);
+            setCargando(false);
+        }).catch((error:AxiosError<any>) =>{
+            setCargando(false);
+        });
+    }
+    
     useEffect(() =>{
         if(TabActive == "Tab1"){
             ConsultarUnidades();
-            ConsultarAcumuladoSnapShot();
+            setTimeout(() =>{
+                ConsultarAcumuladoSnapShot();
+            }, 4000);
+            setTimeout(() =>{
+                ConsultarAcumuladoChurn();
+            }, 5000);
         }
         //ConsultarTickets();
         return () =>{

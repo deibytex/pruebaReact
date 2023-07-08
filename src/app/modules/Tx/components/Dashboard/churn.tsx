@@ -10,7 +10,7 @@ import { object } from "yup";
 type Props = {
 }
 const Churn: React.FC<Props> = ({  }) => {
-  const { DataAcumulado, showChurn, setshowChurn, setCargando } = useDataDashboard();
+  const { DataAcumulado, showChurn, setshowChurn, setCargando, DataChurn } = useDataDashboard();
   const [churnDataEntradas, setChurnDataEntradas] = useState<any[]>([]);
   const [churnDataSalidas, setChurnDataSalidas] = useState<any[]>([])
   const [TotalIn, setTotalIn] = useState<string>("0");
@@ -99,13 +99,14 @@ const Churn: React.FC<Props> = ({  }) => {
     setOpciones(Opciones);
   },[]);
 
+  
   //para los acumulado o cruch
   useEffect(() => {
-    if (DataAcumulado != undefined && DataAcumulado.length != 0)
-      PintarAcumulado2Semanas(DataAcumulado);
-  }, [DataAcumulado])
+    if (DataAcumulado != undefined && DataAcumulado.length != 0 && DataChurn)
+      PintarAcumulado2Semanas(DataAcumulado, DataChurn);
+  }, [DataAcumulado, DataChurn])
 
-  const PintarAcumulado2Semanas = (DataAcumulado: any[]) => {
+  const PintarAcumulado2Semanas = (DataAcumulado: any[], DataChurn:any[]) => {
     setCargando(true);
    
     let agrupadofecha = DataAcumulado
@@ -288,7 +289,7 @@ const Churn: React.FC<Props> = ({  }) => {
     //     }
     //   })
     // })
-    setChurnDataEntradas(DataAcumulado);
+    setChurnDataEntradas(DataChurn);
     // setChurnDataSalidas(ArrayClientesSalidas);
 
     // let TotalIn = (
@@ -315,11 +316,20 @@ const Churn: React.FC<Props> = ({  }) => {
   }
   let DatosColumnasChurnEntradas: MRT_ColumnDef<any>[] = [
     {
-      accessorKey: 'Base',
+      accessorKey: 'Cliente',
       header: 'Cliente',
       size: 100,
       Cell: ({ cell, column, row, table }) => {
-        let dato = (<span title={""} className="">{row.original.Base}</span>)
+        let dato = (<span title={""} className="">{row.original.Cliente}</span>)
+        return dato;
+      }
+    },
+    {
+      accessorKey: 'Fecha',
+      header: 'Semana',
+      size: 100,
+      Cell: ({ cell, column, row, table }) => {
+        let dato = (<span title={""} className="">{row.original.Fecha}</span>)
         return dato;
       }
     },
@@ -337,14 +347,20 @@ const Churn: React.FC<Props> = ({  }) => {
       header: 'Out',
       size: 100,
       Cell: ({ cell, column, row, table }) => {
-        let dato = (<span title={""} className="">{row.original.Entradas}</span>)
+        let dato = (<span title={""} className="">{row.original.Salidas}</span>)
+        return dato;
+      }
+    },
+    {
+      accessorKey: 'Diferencia',
+      header: 'Diferencia',
+      size: 100,
+      Cell: ({ cell, column, row, table }) => {
+        let dato = (<span title={""} className="">{row.original.Diferencia}</span>)
         return dato;
       }
     },
   ]
-
-
-
   return (
         <div className="container">
           <div className="row">
