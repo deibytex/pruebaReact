@@ -111,16 +111,19 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   const defaultRiesgoSelected: any[] = [
     {
       name: 'Alto',
+      data: [],
       valor: 'Riesgo alto',
       isSelected: false
     },
     {
       name: 'Moderado',
+      data: [],
       valor: 'Riesgo moderado',
       isSelected: false
     },
     {
       name: 'Bajo',
+      data: [],
       valor: 'Riesgo bajo',
       isSelected: false
     }
@@ -130,15 +133,6 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
   const [value, setValue] = useState<any[]>(preSeleccionadosriesgo);
 
-  const handleCheckAll = (value: any, checked: any) => {
-
-    let aux = defaultRiesgoSelected.map((x: any) => {
-      x.isSelected = checked;
-      return x;
-    });
-    setRiesgoSelected(aux);
-    setValue(checked ? defaultRiesgoSelected.map(x => x.valor) : []);
-  }
   const handleChange = (value: any[]) => {
 
     let aux = defaultRiesgoSelected.map((x: any) => {
@@ -162,70 +156,41 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
       name: 'No Gestionados',
       data: [],
       valor: 'null',
-      isSelected: false,
-      getData: (fecha: any, f: any) => {
-        return {
-          "x": fecha,
-          "y": f.Soc
-        }
-      }
+      isSelected: false
     },
     {
       name: 'Gestionados No Cerrados',
       data: [],
       isSelected: false,
-      valor: 'false',
-      getData: (fecha: any, f: any) => {
-        return {
-          "x": fecha,
-          "y": (f.CargakWh / f.DescargakWh) * 100
-        }
-      }
+      valor: 'false'
     },
     {
       name: 'Gestionados',
       data: [],
       isSelected: false,
-      valor: 'true',
-      getData: (fecha: any, f: any) => {
-        return {
-          "x": fecha,
-          "y": f.DescargakWh - f.CargakWh
-
-        }
-      }
+      valor: 'true'
     }
 
   ]
 
-  let preSeleccionadosgestion = defaultRiesgoSelected.filter(x => x.isSelected).map(x => x.name);
+  let preSeleccionadosgestion = defaultGestionSelected.filter(x => x.isSelected).map(x => x.name);
 
   const [value2, setValue2] = useState<any[]>(preSeleccionadosgestion);
 
   const [GestionSelected, setGestionSelected] = useState(defaultGestionSelected);
 
-  const handleCheckAll2 = (value: any, checked: any) => {
+  const handleChange2 = (value2: any[]) => {
 
     let aux = defaultGestionSelected.map((x: any) => {
-      x.isSelected = checked;
-      return x;
-    });
-    setRiesgoSelected(aux);
-    setValue2(checked ? defaultGestionSelected.map(x => x.valor) : []);
-  }
-
-  const handleChange2 = (value: any[]) => {
-
-    let aux = defaultGestionSelected.map((x: any) => {
-      x.isSelected = value.includes(x.name);
+      x.isSelected = value2.includes(x.name);
       return x;
     });
 
-    setValue2(value);
+    setValue2(value2);
     setGestionSelected(aux);
 
-    const filteredArray = dataAlertas.filter((item: any) => value.indexOf(`${item.EstadoGestion}`) >= 0);
-    console.log(value)
+    const filteredArray = dataAlertas.filter((item: any) => value2.indexOf(`${item.EstadoGestion}`) >= 0);
+    console.log(value2)
     setDataAlertasfiltrada(filteredArray);
     setRowCount(filteredArray.length);
   };
@@ -234,62 +199,54 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
     {
       name: 'ADAS',
       data: [],
-      isSelected: false,
-      getData: (fecha: any, f: any) => {
-        return {
-          "x": fecha,
-          "y": f.Soc
-        }
-      }
+      isSelected: false
     },
     {
       name: 'Fatiga',
       data: [],
-      isSelected: false,
-      getData: (fecha: any, f: any) => {
-        return {
-          "x": fecha,
-          "y": (f.CargakWh / f.DescargakWh) * 100
-        }
-      }
+      isSelected: false
     },
     {
       name: 'Distracción',
       data: [],
-      isSelected: false,
-      getData: (fecha: any, f: any) => {
-        return {
-          "x": fecha,
-          "y": f.DescargakWh - f.CargakWh
-        }
-      }
+      isSelected: false
     },
     {
       name: 'Seguridad',
       data: [],
-      isSelected: false,
-      getData: (fecha: any, f: any) => {
-        return {
-          "x": fecha,
-          "y": f.DescargakWh - f.CargakWh
-        }
-      }
+      isSelected: false
     },
     {
       name: 'Diagnostico',
       data: [],
-      isSelected: false,
-      getData: (fecha: any, f: any) => {
-        return {
-          "x": fecha,
-          "y": f.DescargakWh - f.CargakWh
-        }
-      }
+      isSelected: false
     }
 
   ]
 
+ 
+
+  let preSeleccionadosAlarmas = defaultAlarmasSelected.filter(x => x.isSelected).map(x => x.name);
+
+  const [value3, setValue3] = useState<any[]>(preSeleccionadosAlarmas);
+
   const [AlarmasSelected, setAlarmasSelected] = useState(defaultAlarmasSelected);
+
+  const handleChange3 = (value3: any[]) => {
+
+    let aux = defaultAlarmasSelected.map((x: any) => {
+      x.isSelected = value3.includes(x.name);
+      return x;
+    });
+
+    setValue3(value3);
+    setAlarmasSelected(aux);
+
+    const filteredArray = dataAlertas.filter((item: any) => value3.indexOf(`${item.TipoAlerta}`) >= 0);
+    console.log(value3)
+    setDataAlertasfiltrada(filteredArray);
+    setRowCount(filteredArray.length);
+  };
 
   useEffect(() => {
     setRiesgoSelected(defaultRiesgoSelected);
@@ -500,7 +457,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
       setObservaciones(JSON.stringify(GestorObervaciones)).then((response) => {
 
         toaster.push(message('success', "Gestionar", "Gestión Guardada"), {
-          placement: 'topStart'
+          placement: 'topCenter'
         });
         setData([...Data, JSON.parse(JSON.stringify(GestorObervaciones))] as any[]);
         setobervacionGestion("");
@@ -676,14 +633,6 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
                 {item.name}
               </Checkbox>
             ))}
-            <Checkbox
-              indeterminate={value.length > 0 && value.length < RiesgoSelected.length}
-              checked={value.length-1 === RiesgoSelected.length}
-              // key={-1} value={-1}
-              onChange={handleCheckAll}
-            >
-              Todos
-            </Checkbox>
           </CheckboxGroup>
         </div>
 
@@ -693,20 +642,12 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
       <div className="row">
       <div className="col-sm-3 col-md-3 col-xs-3">
           <h6 className="m-1">Gestion: </h6>
-          <CheckboxGroup inline className="m-3" name="checkboxList" value={value} onChange={handleChange2}>
+          <CheckboxGroup inline className="m-3" name="checkboxList" value={value2} onChange={handleChange2}>
             {GestionSelected.map(item => (
               <Checkbox key={item.name} value={item.valor}>
                 {item.name}
               </Checkbox>
             ))}
-            <Checkbox
-              // indeterminate={value.length > 0 && value.length < data.length}
-              // checked={value.length === data.length}
-             
-              onChange={handleCheckAll2}
-            >
-              Todos
-            </Checkbox>
           </CheckboxGroup>
         </div>
       </div>
@@ -714,19 +655,12 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         
         <div className="col-sm-3 col-md-3 col-xs-3">
           <h6 className="m-1">Alertas: </h6>
-          <CheckboxGroup inline className="m-3" name="checkboxList" value={value} onChange={handleChange2}>
+          <CheckboxGroup inline className="m-3" name="checkboxList" value={value3} onChange={handleChange3}>
             {AlarmasSelected.map(item => (
               <Checkbox key={item.name} value={item.name}>
                 {item.name}
               </Checkbox>
             ))}
-            <Checkbox
-              // indeterminate={value.length > 0 && value.length < data.length}
-              // checked={value.length === data.length}
-              onChange={handleCheckAll2}
-            >
-              Todos
-            </Checkbox>
           </CheckboxGroup>
         </div>
       </div>
@@ -955,7 +889,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         onHide={handleClose}
         size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>{`Gestionar Alerta ${Alerta} - ${Placa}`}</Modal.Title>
+          <Modal.Title>Alerta <span className="text-success">{`${Alerta}`}</span> - <span className="text-success">{`${Placa}`}</span></Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className="row">
@@ -1043,7 +977,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         onHide={handleClose2}
         size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>{`Detalle Eventos Alerta ${Alerta} - ${Placa}`}</Modal.Title>
+          <Modal.Title>Alerta <span className="text-success">{`${Alerta}`}</span> - <span className="text-success">{`${Placa}`}</span></Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div>
