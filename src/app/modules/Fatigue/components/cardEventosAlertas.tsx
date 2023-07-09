@@ -217,7 +217,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   const handleChange2 = (value: any[]) => {
 
     let aux = defaultGestionSelected.map((x: any) => {
-      x.isSelected = value2.includes(x.name);
+      x.isSelected = value.includes(x.name);
       return x;
     });
 
