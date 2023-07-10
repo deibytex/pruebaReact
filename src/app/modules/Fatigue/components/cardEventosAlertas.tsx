@@ -39,7 +39,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   const model = (isAuthorized as UserModelSyscaf);
 
 
-  const { alertas, UserId, setalertas, setUserId, setDataDetalladoFiltrado, setFiltrado, setActiveTab, setloader } = useDataFatigue();
+  const { alertas, UserId, clienteIds, setalertas, setUserId, setDataDetalladoFiltrado, setFiltrado, setActiveTab, setloader } = useDataFatigue();
 
   const [dataAlertas, setDataAlertas] = useState([]);
   const [dataAlertasfiltrada, setDataAlertasfiltrada] = useState([]);
@@ -102,52 +102,154 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   const toaster = useToaster();
 
   const message = (type: any, titulo: string, mensaje: React.ReactNode) => {
-    return (<Notification className="bg-light-danger" type={type} header={titulo} 
-    closable duration={10000}>
-        {mensaje}
+    return (<Notification className="bg-light-danger" type={type} header={titulo}
+      closable duration={10000}>
+      {mensaje}
     </Notification>)
-}
-
-const defaultRiesgoSelected: any[] = [
-  {
-    name: 'Alto',
-    data: [],
-    isSelected: false,
-    getData: (fecha: any, f: any) => {
-      return {
-        "x": fecha,
-        "y": f.Soc
-      }
-    }
-  },
-  {
-    name: 'Moderado',
-    data: [],
-    isSelected: false,
-    getData: (fecha: any, f: any) => {
-      return {
-        "x": fecha,
-        "y": (f.CargakWh / f.DescargakWh) * 100
-      }
-    }
-  },
-  {
-    name: 'Bajo',
-    data: [],
-    isSelected: false,
-    getData: (fecha: any, f: any) => {
-      return {
-        "x": fecha,
-        "y": f.DescargakWh - f.CargakWh
-      }
-    }
   }
 
-]
+  const defaultRiesgoSelected: any[] = [
+    {
+      name: 'Alto',
+      data: [],
+      valor: 'Riesgo alto',
+      isSelected: false
+    },
+    {
+      name: 'Moderado',
+      data: [],
+      valor: 'Riesgo moderado',
+      isSelected: false
+    },
+    {
+      name: 'Bajo',
+      data: [],
+      valor: 'Riesgo bajo',
+      isSelected: false
+    }
+  ]
 
-let preSeleccionados = defaultRiesgoSelected.filter(x => x.isSelected).map(x => x.name);
+  let preSeleccionadosriesgo = defaultRiesgoSelected.filter(x => x.isSelected).map(x => x.name);
+
+  const [value, setValue] = useState<any[]>(preSeleccionadosriesgo);
+
+  const handleChange = (value: any[]) => {
+
+    let aux = defaultRiesgoSelected.map((x: any) => {
+      x.isSelected = value.includes(x.name);
+      return x;
+    });
+
+    setValue(value);
+    setRiesgoSelected(aux);
+
+    const filteredArray = dataAlertas.filter((item: any) => value.indexOf(item.Criticidad) >= 0);
+    console.log(dataAlertas);
+    setDataAlertasfiltrada(filteredArray);
+    setRowCount(filteredArray.length);
+  };
+
+  const [RiesgoSelected, setRiesgoSelected] = useState(defaultRiesgoSelected);
+
+  const defaultGestionSelected: any[] = [
+    {
+      name: 'No Gestionados',
+      data: [],
+      valor: 'null',
+      isSelected: false
+    },
+    {
+      name: 'Gestionados No Cerrados',
+      data: [],
+      isSelected: false,
+      valor: 'false'
+    },
+    {
+      name: 'Gestionados',
+      data: [],
+      isSelected: false,
+      valor: 'true'
+    }
+
+  ]
+
+  let preSeleccionadosgestion = defaultGestionSelected.filter(x => x.isSelected).map(x => x.name);
+
+  const [value2, setValue2] = useState<any[]>(preSeleccionadosgestion);
+
+  const [GestionSelected, setGestionSelected] = useState(defaultGestionSelected);
+
+  const handleChange2 = (value2: any[]) => {
+
+    let aux = defaultGestionSelected.map((x: any) => {
+      x.isSelected = value2.includes(x.name);
+      return x;
+    });
+
+    setValue2(value2);
+    setGestionSelected(aux);
+
+    const filteredArray = dataAlertas.filter((item: any) => value2.indexOf(`${item.EstadoGestion}`) >= 0);
+    console.log(value2)
+    setDataAlertasfiltrada(filteredArray);
+    setRowCount(filteredArray.length);
+  };
+
+  const defaultAlarmasSelected: any[] = [
+    {
+      name: 'ADAS',
+      data: [],
+      isSelected: false
+    },
+    {
+      name: 'Fatiga',
+      data: [],
+      isSelected: false
+    },
+    {
+      name: 'Distracción',
+      data: [],
+      isSelected: false
+    },
+    {
+      name: 'Seguridad',
+      data: [],
+      isSelected: false
+    },
+    {
+      name: 'Diagnostico',
+      data: [],
+      isSelected: false
+    }
+
+  ]
+
+ 
+
+  let preSeleccionadosAlarmas = defaultAlarmasSelected.filter(x => x.isSelected).map(x => x.name);
+
+  const [value3, setValue3] = useState<any[]>(preSeleccionadosAlarmas);
+
+  const [AlarmasSelected, setAlarmasSelected] = useState(defaultAlarmasSelected);
+
+  const handleChange3 = (value3: any[]) => {
+
+    let aux = defaultAlarmasSelected.map((x: any) => {
+      x.isSelected = value3.includes(x.name);
+      return x;
+    });
+
+    setValue3(value3);
+    setAlarmasSelected(aux);
+
+    const filteredArray = dataAlertas.filter((item: any) => value3.indexOf(`${item.TipoAlerta}`) >= 0);
+    console.log(value3)
+    setDataAlertasfiltrada(filteredArray);
+    setRowCount(filteredArray.length);
+  };
 
   useEffect(() => {
+    setRiesgoSelected(defaultRiesgoSelected);
     setDataAlertas(alertas.sort(function (a: any, b: any) { return a.EventDateTime - b.EventDateTime }));
     setRowCount(alertas.length);
   }, [alertas])
@@ -213,7 +315,8 @@ let preSeleccionados = defaultRiesgoSelected.filter(x => x.isSelected).map(x => 
               : (cell.getValue() == false) ? <span className="badge bg-primary">En Gestion</span>
                 : <span>{row.original.EstadoGestion}</span>
         },
-      }, {
+      }, 
+      {
         accessorKey: 'gestor',
         header: 'Analista',
         size: 80,
@@ -269,7 +372,7 @@ let preSeleccionados = defaultRiesgoSelected.filter(x => x.isSelected).map(x => 
 
     ];
 
-    let listadoEventos: MRT_ColumnDef<any>[] =
+  let listadoEventos: MRT_ColumnDef<any>[] =
 
     [
       {
@@ -318,7 +421,7 @@ let preSeleccionados = defaultRiesgoSelected.filter(x => x.isSelected).map(x => 
   }, [observaciones])
 
   useEffect(() => {
-       
+
     if (detalleEventos != "" && detalleEventos != null) {
       let json = JSON.parse(detalleEventos);
       setDataDetalleEventos(json);
@@ -352,13 +455,13 @@ let preSeleccionados = defaultRiesgoSelected.filter(x => x.isSelected).map(x => 
 
     confirmarDialog(() => {
       setObservaciones(JSON.stringify(GestorObervaciones)).then((response) => {
-        
+
         toaster.push(message('success', "Gestionar", "Gestión Guardada"), {
-          placement: 'topStart'
-      });
+          placement: 'topCenter'
+        });
         setData([...Data, JSON.parse(JSON.stringify(GestorObervaciones))] as any[]);
         setobervacionGestion("");
-        getAlertas().then((response) => {
+        getAlertas(clienteIds as string).then((response) => {
           setalertas(response.data);
 
         });
@@ -371,7 +474,7 @@ let preSeleccionados = defaultRiesgoSelected.filter(x => x.isSelected).map(x => 
       }).catch((error) => {
         toaster.push(message('error', "Gestionar", "Error al gestionar intente nuevamente"), {
           placement: 'topCenter'
-      });
+        });
       });
     }, escerrado == "false" ? `Esta seguro que desea agregar el comentario` : `Esta seguro que terminar la gestión`
       , escerrado == "false" ? "Guardar" : "Terminar")
@@ -390,19 +493,19 @@ let preSeleccionados = defaultRiesgoSelected.filter(x => x.isSelected).map(x => 
     confirmarDialog(() => {
 
       setGestor(UserId as string, '[' + JSON.stringify(GestorObervaciones) + ']', false, alertaId, model.Nombres).then(() => {
-        getAlertas().then(
+        getAlertas(clienteIds as string).then(
           (response) => {
 
             setalertas(response.data);
 
           });
-          toaster.push(message('success', "Asignar Gestor", "Gestor Asignado"), {
-            placement: 'topCenter'
+        toaster.push(message('success', "Asignar Gestor", "Gestor Asignado"), {
+          placement: 'topCenter'
         });
       }).catch(() => {
         toaster.push(message('error', "Asignar Gestor", "Error al asignar gestor intente nuevamente"), {
           placement: 'topCenter'
-      });
+        });
       });
     }, `Desea usted gestionar esta alerta`, "Sí");
   }
@@ -411,7 +514,7 @@ let preSeleccionados = defaultRiesgoSelected.filter(x => x.isSelected).map(x => 
   const modalObervaciones = (row: any) => {
     setobservaciones(row.Observaciones);
     setalertaId(row.AlertaId);
-    setesgestionado(row.EstadoGestion );
+    setesgestionado(row.EstadoGestion);
     setPlaca(row.vehiculo);
     setAlerta(row.TipoAlerta);
 
@@ -455,126 +558,108 @@ let preSeleccionados = defaultRiesgoSelected.filter(x => x.isSelected).map(x => 
 
   useEffect(() => {
     if (FiltroGestion === "2" || FiltroGestion === "") {
-        setDataAlertasfiltrada(dataAlertas);
-        setRowCount((dataAlertas).length);
-    }
-    else if (FiltroGestion === "false") {
-        let filtergestion = (dataAlertas).filter((est: any) => est.EstadoGestion == false);
-        setDataAlertasfiltrada(filtergestion);
-        setRowCount(filtergestion.length);
-    }
-    else if (FiltroGestion === "true") {
-        let filtergestion = (dataAlertas).filter((est: any) => est.EstadoGestion == true);
-        setDataAlertasfiltrada(filtergestion);
-        setRowCount(filtergestion.length);
-    }else{
-      let filtergestion = (dataAlertas).filter((est: any) => est.EstadoGestion == null);
-      setDataAlertasfiltrada(filtergestion);
-        setRowCount(filtergestion.length);
-    }
-
-   
-}, [dataAlertas, FiltroGestion])
-
-useEffect(() => {
-  if (FiltroRiesgo === "2" || FiltroRiesgo === "") {
       setDataAlertasfiltrada(dataAlertas);
       setRowCount((dataAlertas).length);
+    }
+    else if (FiltroGestion === "false") {
+      let filtergestion = (dataAlertas).filter((est: any) => est.EstadoGestion == false);
+      setDataAlertasfiltrada(filtergestion);
+      setRowCount(filtergestion.length);
+    }
+    else if (FiltroGestion === "true") {
+      let filtergestion = (dataAlertas).filter((est: any) => est.EstadoGestion == true);
+      setDataAlertasfiltrada(filtergestion);
+      setRowCount(filtergestion.length);
+    } else {
+      let filtergestion = (dataAlertas).filter((est: any) => est.EstadoGestion == null);
+      setDataAlertasfiltrada(filtergestion);
+      setRowCount(filtergestion.length);
+    }
+
+
+  }, [dataAlertas, FiltroGestion])
+
+
+  const ordenarData = (tipo: string) => {
+
+
+    console.log(tipo);
+    if (tipo.toString() === '1') {
+      let a = dataAlertasfiltrada.sort(function (a: any, b: any) { return a.Criticidad - b.Criticidad });
+
+      
+      setDataAlertasfiltrada(a);
+      console.log(dataAlertasfiltrada);
+    }
+    else {
+      let a = [...dataAlertasfiltrada].sort((a: any, b: any) =>  a.EventDateTime - b.EventDateTime );
+      setDataAlertas(a);
+      console.log(a);
+      console.log(dataAlertasfiltrada);
+    }
+
   }
-  else if (FiltroRiesgo === "Riesgo Bajo") {
-      let filterriesgo = (dataAlertas).filter((est: any) => est.Criticidad == FiltroRiesgo);
-      setDataAlertasfiltrada(filterriesgo);
-      setRowCount(filterriesgo.length);
-  }
-  else if (FiltroRiesgo === "Riesgo Moderado") {
-      let filterriesgo = (dataAlertas).filter((est: any) => est.Criticidad == FiltroRiesgo);
-      setDataAlertasfiltrada(filterriesgo);
-      setRowCount(filterriesgo.length);
-  }else{
-    let filterriesgo = (dataAlertas).filter((est: any) => est.Criticidad == FiltroRiesgo);
-      setDataAlertasfiltrada(filterriesgo);
-      setRowCount(filterriesgo.length);
-  }
-
-
-}, [dataAlertas, FiltroRiesgo])
-
-
-const ordenarData = (tipo: string) => {
-
-  
-
-  if (tipo == '1'){
-    let a = dataAlertas.sort(function (a: any, b: any) { return a.Criticidad - b.Criticidad });
-    
-    console.log(dataAlertas); 
-    setDataAlertasfiltrada(a);
-  }
-  else{
-    dataAlertas.sort(function (a: any, b: any) { return a.EventDateTime - b.EventDateTime });
-    setDataAlertas(dataAlertas);
-  }
-  
-}
 
 
   return (
 
     <>
-    <div className="row">
-    <div className="col-sm-4 col-md-4 col-xs-4">
-      <h6 className="m-1">Riesgo: </h6>
-      <label className="form-check form-switch form-check-reverse">
-                                    <input type="radio" name="tipofiltroriesgo" value={'Riesgo alto'} onChange={e => setFiltroRiesgo(e.target.value)} />
-                                    <span className="text-primary"> Alto</span>
-                                </label>
-                                <label className="form-check form-switch form-check-reverse">
-                                    <input type="radio" name="tipofiltroriesgo" value={'Riesgo moderado'} onChange={e => setFiltroRiesgo(e.target.value)} />
-                                    <span className="text-primary"> Moderado</span>
-                                </label>
-                                <label className="form-check form-switch form-check-reverse">
-                                    <input type="radio" name="tipofiltroriesgo" value={'Riesgo bajo'}  onChange={e => setFiltroRiesgo(e.target.value)} />
-                                    <span className="text-primary"> Bajo</span>
-                                </label>
-                                <label className="form-check form-switch form-check-reverse">
-                                    <input type="radio" name="tipofiltroriesgo" value={'2'}  defaultChecked={check} onChange={e => setFiltroRiesgo(e.target.value)} />
-                                    <span className="text-primary"> Todos</span>
-                                </label>
-      </div>
-      <div className="col-sm-4 col-md-4 col-xs-4">
-      <h6 className="m-1">Gestion: </h6>
-      <label className="form-check form-switch form-check-reverse">
-                                    <input type="radio" name="tipofiltro" value={'null'} onChange={e => setFiltroGestion(e.target.value)} />
-                                    <span className="text-primary"> No Gestionados</span>
-                                </label>
-                                <label className="form-check form-switch form-check-reverse">
-                                    <input type="radio" name="tipofiltro" value={'false'} onChange={e => setFiltroGestion(e.target.value)} />
-                                    <span className="text-primary"> Gestionados No Cerrados</span>
-                                </label>
-                                <label className="form-check form-switch form-check-reverse">
-                                    <input type="radio" name="tipofiltro" value={'true'} onChange={e => setFiltroGestion(e.target.value)} />
-                                    <span className="text-primary"> Gestionados</span>
-                                </label>
-                                <label className="form-check form-switch form-check-reverse">
-                                    <input type="radio" name="tipofiltro" value={'2'}  defaultChecked={check2} onChange={e => setFiltroGestion(e.target.value)} />
-                                    <span className="text-primary"> Todos</span>
-                                </label>
-      </div>
-      <div className="col-sm-4 col-md-4 col-xs-4">
-      <h6 className="m-1">Ordenar: </h6>
-      <Form.Select onChange={(e) => {
-                // buscamos el objeto completo para tenerlo en el sistema                  
-                ordenarData(e.currentTarget.value)
+      <div className="row">
+        <div className="col-sm-3 col-md-3 col-xs-3">
+          <h6 className="m-1">Riesgo: </h6>
+          <CheckboxGroup inline className="m-3" name="checkboxList" value={value} onChange={handleChange}>
+            {RiesgoSelected.map(item => (
+              <Checkbox key={item.name} value={item.valor}>
+                {item.name}
+              </Checkbox>
+            ))}
+          </CheckboxGroup>
+        </div>
 
-            }}>
+
+       
+      </div>
+      <div className="row">
+      <div className="col-sm-3 col-md-3 col-xs-3">
+          <h6 className="m-1">Gestion: </h6>
+          <CheckboxGroup inline className="m-3" name="checkboxList" value={value2} onChange={handleChange2}>
+            {GestionSelected.map(item => (
+              <Checkbox key={item.name} value={item.valor}>
+                {item.name}
+              </Checkbox>
+            ))}
+          </CheckboxGroup>
+        </div>
+      </div>
+      <div className="row">
+        
+        <div className="col-sm-3 col-md-3 col-xs-3">
+          <h6 className="m-1">Alertas: </h6>
+          <CheckboxGroup inline className="m-3" name="checkboxList" value={value3} onChange={handleChange3}>
+            {AlarmasSelected.map(item => (
+              <Checkbox key={item.name} value={item.name}>
+                {item.name}
+              </Checkbox>
+            ))}
+          </CheckboxGroup>
+        </div>
+      </div>
+      <div className="row">
+      <div className="col-sm-3 col-md-3 col-xs-3 m-1">
+          <h6 className="m-1">Ordenar: </h6>
+          <Form.Select onChange={(e) => {
+            // buscamos el objeto completo para tenerlo en el sistema                  
+            ordenarData(e.currentTarget.value)
+
+          }}>
             <option >Seleccione</option>
             <option key={1} value={1}>Riesgo</option>
             <option key={2} value={2}>Fecha</option>
-               
-      </Form.Select>
+
+          </Form.Select>
+        </div>
       </div>
-    </div>
-   
+
       <MaterialReactTable
         localization={MRT_Localization_ES}
         displayColumnDefOptions={{
@@ -645,12 +730,12 @@ const ordenarData = (tipo: string) => {
               : <></>
             }
             <Tooltip arrow placement="left" title="Detalle Eventos Alertas">
-                <IconButton onClick={() => {
-                  modalDetalleEventos(row.original);
-                }}>
-                  <List />
-                </IconButton>
-              </Tooltip>
+              <IconButton onClick={() => {
+                modalDetalleEventos(row.original);
+              }}>
+                <List />
+              </IconButton>
+            </Tooltip>
             {/* Para el mapa  Marcial*/}
             <Tooltip arrow placement="top" title="Ver en el mapa">
               <IconButton onClick={(e: any) => {
@@ -678,7 +763,7 @@ const ordenarData = (tipo: string) => {
           <Tabs
             defaultActiveKey="gestion"
             className="mb-3"
-            // justify
+          // justify
           // onClick={() => {
           //   console.log('hola', row);
           // }} 
@@ -693,20 +778,20 @@ const ordenarData = (tipo: string) => {
                   width: '100%',
                 }}
               >
-              <div className="row  col-sm-12 col-md-12 col-xs-12">
-                <div className="col-6">
-                  <h6 className=" text-primary m-1 "> Fecha Apertura: <span>{FechaApertura}</span></h6> 
-                </div>
-                <div className="col-6">
-                  <h6 className=" m-1 text-primary"> Ultima Gestión: {FechaGestion} </h6> 
-                </div>
-              
-      
+                <div className="row  col-sm-12 col-md-12 col-xs-12">
+                  <div className="col-6">
+                    <h6 className=" text-primary m-1 "> Fecha Apertura: <span>{FechaApertura}</span></h6>
+                  </div>
+                  <div className="col-6">
+                    <h6 className=" m-1 text-primary"> Ultima Gestión: {FechaGestion} </h6>
+                  </div>
 
-                <textarea className="form-control input m-2" id={'obervacion'} rows={3} value={obervacionGestionlast} disabled></textarea>
-              
-              </div>
-            </Box>
+
+
+                  <textarea className="form-control input m-2" id={'obervacion'} rows={3} value={obervacionGestionlast} disabled></textarea>
+
+                </div>
+              </Box>
             </Tab>
             <Tab eventKey="Contacto" title={`Información de contacto`}>
               <Box
@@ -784,7 +869,7 @@ const ordenarData = (tipo: string) => {
         onHide={handleClose}
         size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>{`Gestionar Alerta ${Alerta} - ${Placa}`}</Modal.Title>
+          <Modal.Title>Alerta <span className="text-success">{`${Alerta}`}</span> - <span className="text-success">{`${Placa}`}</span></Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className="row">
@@ -872,7 +957,7 @@ const ordenarData = (tipo: string) => {
         onHide={handleClose2}
         size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>{`Detalle Eventos Alerta ${Alerta} - ${Placa}`}</Modal.Title>
+          <Modal.Title>Alerta <span className="text-success">{`${Alerta}`}</span> - <span className="text-success">{`${Placa}`}</span></Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div>

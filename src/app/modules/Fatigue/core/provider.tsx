@@ -32,6 +32,8 @@ export interface FatigueContextModel {
     setloader: (loader: boolean) => void;
     UserId?: string;
     setUserId: (id: string) => void;
+    clienteIds?: string;
+    setclienteIds: (clienteid: string) => void;
 
 
 }
@@ -48,6 +50,7 @@ const FatigueContext = createContext<FatigueContextModel>({
     setDataDetalladoFiltrado: (DataAlertas: any) => { },
     setActiveTab: (tabGlobal: string) => { },
     setUserId: (id: string) => "",
+    setclienteIds: (clienteid: string) => "",
     setloader: (loader: boolean) => { }
 });
 
@@ -65,6 +68,7 @@ const FatigueProvider: React.FC = ({ children }) => {
     const [activeTab, setActiveTab] = useState<string>("#tab1");
     const [loader, setloader] = useState<boolean>(false);
     const [UserId, setUserId] = useState("");
+    const [clienteIds, setclienteIds] = useState("");
     const value: FatigueContextModel = {
         vehiculosOperacion,
         setvehiculosOperacion,
@@ -87,9 +91,11 @@ const FatigueProvider: React.FC = ({ children }) => {
         activeTab,
         setActiveTab,
         loader,
-        setloader ,UserId,
-        setUserId
-
+        setloader,
+        UserId,
+        setUserId,
+        clienteIds,
+        setclienteIds
     };
     return (
         <FatigueContext.Provider value={value}>
@@ -107,7 +113,7 @@ function useDataFatigue() {
 // segun parametrización que debe realizarse
 
 const DataVehiculoOperando: React.FC = ({ children }) => {
-    const { setvehiculosOperacion, setlistadoEventosActivos, setListadoVehiculoSinOperacion, setalertas, setError, iserror, setDataAlertas, setDataDetallado, loader, setloader } = useDataFatigue();
+    const { setvehiculosOperacion, setlistadoEventosActivos, setListadoVehiculoSinOperacion, setalertas, setError, iserror, setDataAlertas, setDataDetallado, loader, setloader, setclienteIds } = useDataFatigue();
     let idinterval: number = 0;
 
     //CONSULTA VEHICULOS OPERANDO
@@ -169,10 +175,10 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
     }
 
     // CONSULTA EVENTOS ACTIVOS POR MINUTO
-    let consultaAlertas = () => {
+    let consultaAlertas = (children: string) => {
         setloader(true);
         // consultamos en la base de datos la informacion de vehiculos operando
-        getAlertas().then(
+        getAlertas(children).then(
             (response) => {
                 setalertas(response.data);
                 setloader(false);
@@ -190,14 +196,14 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
 
             consulta(children.toString());
             consultaEventsActivos(children.toString());
-            consultaAlertas();
+            consultaAlertas(children.toString());
+            setclienteIds(children.toString());
             // si no tiene error hace el interval
             if (iserror === null || iserror === undefined)
                 if (idinterval === 0) {
                     idinterval = window.setInterval(() => {
                         consulta(children.toString());
                         consultaEventsActivos(children.toString());
-                        consultaAlertas();
                     }, 120000)
                 }
         }

@@ -15,6 +15,9 @@ import "../node_modules/@availity/block-ui/src/Loader.css"
 import 'rsuite/dist/rsuite.min.css';
 import 'react-dual-listbox/lib/react-dual-listbox.css';
 
+import 'rsuite/dist/rsuite.min.css';
+import 'react-dual-listbox/lib/react-dual-listbox.css';
+
 /**
  * Base URL of the website.
  *
