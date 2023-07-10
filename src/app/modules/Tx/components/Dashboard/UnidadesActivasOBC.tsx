@@ -874,9 +874,9 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
               ))}
             </CheckboxGroup></>)}
         </div>
-        <div className="float-end">
+        {/* <div className="float-end">
             <button onClick={cargarModal} className="btn btn-sm btn-primary mt-8" title="Ver churn"><i className="bi-table"></i></button>
-        </div>
+        </div> */}
       </div>
       <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-10">
         {(Data != undefined) && (<div className="shadow-lg">
@@ -987,7 +987,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       </Modal>
 
       {/* Modal churn */}
-        <Churn SetShow={setshow} Show={show}></Churn>
+       
     </div>
   )
 }

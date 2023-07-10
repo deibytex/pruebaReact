@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { useDataDashboard } from "../../core/DashboardProvider"
 import { UnidadesActivasOBC } from "./UnidadesActivasOBC";
 import { UnidadesActivasMIX } from "./UnidadesActivasMIX";
+import { Churn } from "./churn";
 
 const UnidadesActivas: React.FC = () => {
     const [MontarOBC, SetMontarOBC] = useState<boolean>(true);
+    const [Montarchurn, SetMontarchurn] = useState<boolean>(true);
     const [MontarMX, SetMontarMX] = useState<boolean>(false);
     const [tab, setTab] = useState<string>("#tab1");
     const defaultPriopios: any[] = [
@@ -29,7 +31,7 @@ const UnidadesActivas: React.FC = () => {
             }
         }
     ]
-    const { Data, DataFiltrada, setDataFiltrada, Filtrado, setFiltrado, Cargando, setCargando } = useDataDashboard();
+    const { Data, DataFiltrada, setDataFiltrada, Filtrado, setFiltrado, Cargando, setCargando, setshowChurn, showChurn } = useDataDashboard();
     let preSeleccionados = defaultPriopios.filter(x => x.isSelected).map(x => x.name);
     const [eventsSelected, setEventsSelected] = useState(defaultPriopios);
     const [value, setValue] = useState<any[]>(preSeleccionados);
@@ -136,13 +138,21 @@ const FiltrarPestañas = (row:any) =>{
         setTab("#tab1");
         SetMontarOBC(true);
        SetMontarMX(false);
-    }else
-    {
+       SetMontarchurn(false);
+    } else if(Tab == "pills-churn-tab"){
         setTab("#tab2");
+        setshowChurn(true);
+        SetMontarchurn(true);
+        SetMontarMX(false);
+        SetMontarOBC(false);
+    }
+    else
+    {
+        setTab("#tab3");
         SetMontarOBC(false);
         SetMontarMX(true);
+   
     }
-    // setDataFiltrada
 };
     return (
         <>
@@ -158,6 +168,9 @@ const FiltrarPestañas = (row:any) =>{
                             <li className="nav-item" role="presentation" onClick={FiltrarPestañas}>
                                 <button className={`nav-link text-success active fw-bolder`} id="pills-propios-tab" data-bs-toggle="pill" data-bs-target={`#pill-propios`} type="button" role="tab" aria-controls="pills-propios" aria-selected="false">OBC</button>
                             </li>
+                            <li className="nav-item" role="presentation" onClick={FiltrarPestañas}>
+                                <button className={`nav-link text-success fw-bolder`} id="pills-churn-tab" data-bs-toggle="pill" data-bs-target={`#pill-churn`} type="button" role="tab" aria-controls="pills-propios" aria-selected="false">Churn</button>
+                            </li>
                             <li className="nav-item" role="presentation"  onClick={FiltrarPestañas}>
                                 <button className={`nav-link text-success fw-bolder`} id="pills-arrendado-tab" data-bs-toggle="pill" data-bs-target={`#pill-alquilado`} type="button" role="tab" aria-controls="pills-alquilado" aria-selected="false">Mix Visión</button>
                             </li>
@@ -167,9 +180,14 @@ const FiltrarPestañas = (row:any) =>{
                                     {/* Para los OBC */}
                                     {(tab == "#tab1") && (MontarOBC) && (<UnidadesActivasOBC tab={tab}></UnidadesActivasOBC>)}  
                             </div>
+                            <div className="tab-pane fade" id="pill-churn" role="tabpanel" aria-labelledby="home-tab">
+                                    {/* Para los churn */}
+                                  
+                                    {(tab == "#tab2") && (Montarchurn) &&(showChurn) && (<Churn></Churn>)}  
+                            </div>
                             <div className="tab-pane fade" id="pill-alquilado" role="tabpanel" aria-labelledby="profile-tab">
                                     {/* Para los MIX */}
-                                    {(tab == "#tab2") && (MontarMX) && (<UnidadesActivasMIX tab={tab}></UnidadesActivasMIX>)}  
+                                    {(tab == "#tab3") && (MontarMX) && (<UnidadesActivasMIX tab={tab}></UnidadesActivasMIX>)}  
                             </div>
                         </div>
                     </div>
