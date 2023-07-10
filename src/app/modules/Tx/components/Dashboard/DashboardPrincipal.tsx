@@ -10,7 +10,7 @@ import { UnidadesActivas } from "./UnidadesActivas"
 import BlockUi from "@availity/block-ui"
 
 export default function  DashboardPrincipal (){
-    const {ClienteSeleccionado, DataTx,  setData, setDataTx, setDataTk,TabActive, setTabActive, SemanaSeleccionada, Cargando, setCargando, setDataAcumulado, setDataChurn} = useDataDashboard()
+    const {ClienteSeleccionado, DataTx,  setData, setDataTx, setDataTk,TabActive, setTabActive, SemanaSeleccionada, Cargando, setCargando, setDataAcumulado, setDataChurn, showChurn} = useDataDashboard()
     const [montarTx, setmontarTx] = useState<boolean>(false);
     const [montarTicket, setMontarTicket] = useState<boolean>(false);
     const [montarUnidades, setmontarUnidades] = useState<boolean>(true);
@@ -58,6 +58,7 @@ export default function  DashboardPrincipal (){
         });
     }
     async function ConsultarAcumuladoSnapShot (){
+        setCargando(true);
         let Fecha = (SemanaSeleccionada != undefined ? SemanaSeleccionada['fecha'] : moment().format("DD/MM/YYYY").toString())
       await  GetSnapShotUnidadesActivasAcumulado(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
             setDataAcumulado(response.data);
@@ -67,6 +68,7 @@ export default function  DashboardPrincipal (){
         });
     }
     async function ConsultarAcumuladoChurn (){
+        setCargando(true);
         let Fecha = (SemanaSeleccionada != undefined ? SemanaSeleccionada['fecha'] : moment().format("DD/MM/YYYY").toString())
         await  GetSnapShotUnidadesActivasChurn(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
             setDataChurn(response.data);
@@ -78,20 +80,19 @@ export default function  DashboardPrincipal (){
     
     useEffect(() =>{
         if(TabActive == "Tab1"){
-            ConsultarUnidades();
-            setTimeout(() =>{
+            if(showChurn){
                 ConsultarAcumuladoSnapShot();
-            }, 4000);
-            setTimeout(() =>{
                 ConsultarAcumuladoChurn();
-            }, 5000);
+            }else{
+                ConsultarUnidades();
+            }
         }
         //ConsultarTickets();
         return () =>{
            setData([]);
            setDataTx([]);
         }
-    }, [SemanaSeleccionada, TabActive])
+    }, [SemanaSeleccionada, TabActive, showChurn])
 
     useEffect(() =>{
         if(TabActive == "Tab2"){
