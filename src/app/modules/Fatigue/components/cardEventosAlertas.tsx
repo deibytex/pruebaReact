@@ -39,7 +39,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   const model = (isAuthorized as UserModelSyscaf);
 
 
-  const { alertas, UserId, setalertas, setUserId, setDataDetalladoFiltrado, setFiltrado, setActiveTab, setloader } = useDataFatigue();
+  const { alertas, UserId, clienteIds, setalertas, setUserId, setDataDetalladoFiltrado, setFiltrado, setActiveTab, setloader } = useDataFatigue();
 
   const [dataAlertas, setDataAlertas] = useState([]);
   const [dataAlertasfiltrada, setDataAlertasfiltrada] = useState([]);
@@ -461,7 +461,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         });
         setData([...Data, JSON.parse(JSON.stringify(GestorObervaciones))] as any[]);
         setobervacionGestion("");
-        getAlertas().then((response) => {
+        getAlertas(clienteIds as string).then((response) => {
           setalertas(response.data);
 
         });
@@ -493,7 +493,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
     confirmarDialog(() => {
 
       setGestor(UserId as string, '[' + JSON.stringify(GestorObervaciones) + ']', false, alertaId, model.Nombres).then(() => {
-        getAlertas().then(
+        getAlertas(clienteIds as string).then(
           (response) => {
 
             setalertas(response.data);
@@ -579,43 +579,23 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
   }, [dataAlertas, FiltroGestion])
 
-  useEffect(() => {
-    if (FiltroRiesgo === "2" || FiltroRiesgo === "") {
-      setDataAlertasfiltrada(dataAlertas);
-      setRowCount((dataAlertas).length);
-    }
-    else if (FiltroRiesgo === "Riesgo Bajo") {
-      let filterriesgo = (dataAlertas).filter((est: any) => est.Criticidad == FiltroRiesgo);
-      setDataAlertasfiltrada(filterriesgo);
-      setRowCount(filterriesgo.length);
-    }
-    else if (FiltroRiesgo === "Riesgo Moderado") {
-      let filterriesgo = (dataAlertas).filter((est: any) => est.Criticidad == FiltroRiesgo);
-      setDataAlertasfiltrada(filterriesgo);
-      setRowCount(filterriesgo.length);
-    } else {
-      let filterriesgo = (dataAlertas).filter((est: any) => est.Criticidad == FiltroRiesgo);
-      setDataAlertasfiltrada(filterriesgo);
-      setRowCount(filterriesgo.length);
-    }
-
-
-  }, [dataAlertas, FiltroRiesgo])
-
 
   const ordenarData = (tipo: string) => {
 
 
+    console.log(tipo);
+    if (tipo.toString() === '1') {
+      let a = dataAlertasfiltrada.sort(function (a: any, b: any) { return a.Criticidad - b.Criticidad });
 
-    if (tipo == '1') {
-      let a = dataAlertas.sort(function (a: any, b: any) { return a.Criticidad - b.Criticidad });
-
-      console.log(dataAlertas);
+      
       setDataAlertasfiltrada(a);
+      console.log(dataAlertasfiltrada);
     }
     else {
-      dataAlertas.sort(function (a: any, b: any) { return a.EventDateTime - b.EventDateTime });
-      setDataAlertas(dataAlertas);
+      let a = [...dataAlertasfiltrada].sort((a: any, b: any) =>  a.EventDateTime - b.EventDateTime );
+      setDataAlertas(a);
+      console.log(a);
+      console.log(dataAlertasfiltrada);
     }
 
   }

@@ -59,8 +59,9 @@ export  function getEventosActivosPorDia(props: ParamsEndPointDynamic , body: an
     });
   }
 
-  export  function getAlertas() {
+  export  function getAlertas(clienteIds: string) {
     var params: { [id: string]: string | null; } = {};
+    params["clienteIds"] = clienteIds;
     return  axios({
       method: 'post',
       url: DWH_getconsultadinamicasprocedure,
