@@ -89,22 +89,28 @@ export default function  DashboardPrincipal (){
         if(TabActive == "Tab1"){
             if(showChurn){
                 if(ConsultarAcumulado || Consulta){
+                    setCargando(true);
                     ConsultarAcumuladoSnapShot();
                 }else{
+                    setCargando(true);
                     let Data = (DataAcumulado != undefined ?  [...DataAcumulado]:[] );
                     setDataAcumulado(Data);
                 }
                 if(ConsultaChurn || Consulta){
+                    setCargando(true);
                     ConsultarAcumuladoChurn();
                 }else{
+                    setCargando(true);
                     let Data = (DataChurn != undefined ?  [...DataChurn]:[] );
                     setDataAcumulado(Data);
                 }
             }else{
                 if(ConsultaUnidades || Consulta){
+                    setCargando(true);
                     ConsultarUnidades();
                 }
                 else{
+                    setCargando(true);
                     let Undiades = (Data != undefined ? [...Data] : []) ;
                     setData(Undiades);
                 }
