@@ -12,7 +12,7 @@ export function AsideMenuMain() {
   const menu = useSelector<RootState>(
     ({ auth }) => auth.menu
   );
-
+ 
   const [menuSelected, setmenuSelected] = useState<any[]>([]);
   //const [expandAll, setexpandAll] = useState<boolean>();
   const [opcionesPadres, setOpciones] = useState<Opciones[]>([]);
