@@ -131,7 +131,6 @@ const UnidadesActivas: React.FC = () => {
                 }
             });
     };
-
 const FiltrarPestañas = (row:any) =>{
     let Tab = row.target.attributes.id.value;
     if(Tab == "pills-propios-tab"){
