@@ -11,7 +11,7 @@ import BlockUi from "@availity/block-ui"
 
 
 export default function  DashboardPrincipal (){
-    const {ClienteSeleccionado, DataTx, Data,  setData, setDataTx, setDataTk,TabActive, setTabActive, SemanaSeleccionada, Cargando, setConsulta, Consulta,  setCargando,DataAcumulado,  setDataAcumulado, DataChurn, setDataChurn, showChurn} = useDataDashboard()
+    const {ClienteSeleccionado, DataTx, Data, DataTk, setData, setDataTx, setDataTk,TabActive, setTabActive, SemanaSeleccionada,DataAcumuladoChurn, setDataAcumuladoChurn,  Cargando, setConsulta, Consulta,  setCargando,DataAcumulado,  setDataAcumulado, DataChurn, setDataChurn, showChurn} = useDataDashboard()
     const [montarTx, setmontarTx] = useState<boolean>(false);
     const [montarTicket, setMontarTicket] = useState<boolean>(false);
     const [montarUnidades, setmontarUnidades] = useState<boolean>(true);
@@ -19,12 +19,12 @@ export default function  DashboardPrincipal (){
     const [ConsultarAcumulado, setConsultarAcumulado] = useState<boolean>(true);
     const [ConsultaUnidades, setConsultaUnidades] = useState<boolean>(true);
      function  ConsultarUnidades() {
-        setCargando(true);
         let Fecha = (SemanaSeleccionada != undefined ? SemanaSeleccionada['fecha'] : moment().format("DD/MM/YYYY").toString())
+        setCargando(true);
+      if(Fecha != null)
         GetUnidadesActivasAcumulado(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
             setData({"Unidades":response.data});
             setCargando(false);
-           
         }).catch((error:AxiosError<any>) =>{
             errorDialog("Ha ocurrido un error al consultar las unidades","");
             setCargando(false);
@@ -34,7 +34,6 @@ export default function  DashboardPrincipal (){
         setCargando(true);
         let Fecha = (SemanaSeleccionada != undefined  ?  (SemanaSeleccionada?.length != 0 ?SemanaSeleccionada['fecha'] : moment().format("DD/MM/YYYY").toString()): moment().format("DD/MM/YYYY").toString());
             GetSnapShotTransmision(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
-            
                 setDataTx({"Transmision":response.data});
                 setCargando(false);
             }).catch((error:AxiosError<any>) =>{
@@ -66,7 +65,7 @@ export default function  DashboardPrincipal (){
         setCargando(true);
         let Fecha = (SemanaSeleccionada != undefined ? SemanaSeleccionada['fecha'] : moment().format("DD/MM/YYYY").toString())
       await  GetSnapShotUnidadesActivasAcumulado(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
-            setDataAcumulado(response.data);
+            setDataAcumuladoChurn(response.data);
             setCargando(false);
             setConsultarAcumulado(false)
         }).catch((error:AxiosError<any>) =>{
@@ -87,53 +86,56 @@ export default function  DashboardPrincipal (){
     
     useEffect(() =>{
         if(TabActive == "Tab1"){
+            let Data = (DataAcumulado != undefined ?  [...DataAcumulado]:[] );
             if(showChurn){
-                if(ConsultarAcumulado || Consulta){
-                    setCargando(true);
+                if(ConsultarAcumulado || Consulta)
                     ConsultarAcumuladoSnapShot();
-                }else{
-                    setCargando(true);
-                    let Data = (DataAcumulado != undefined ?  [...DataAcumulado]:[] );
+                else
                     setDataAcumulado(Data);
-                }
-                if(ConsultaChurn || Consulta){
-                    setCargando(true);
+
+                Data = (DataChurn != undefined ?  [...DataChurn]:[] );
+
+                if(ConsultaChurn || Consulta)
                     ConsultarAcumuladoChurn();
-                }else{
-                    setCargando(true);
-                    let Data = (DataChurn != undefined ?  [...DataChurn]:[] );
+                else
                     setDataAcumulado(Data);
-                }
             }else{
-                if(ConsultaUnidades || Consulta){
-                    setCargando(true);
-                    ConsultarUnidades();
-                }
-                else{
-                    setCargando(true);
-                    let Undiades = (Data != undefined ? [...Data] : []) ;
-                    setData(Undiades);
-                }
+                if(Data?.length == 0)
+                     ConsultarUnidades();
+                let Undiades = (Data != undefined ? [...Data] : []) ;
+                setData(Undiades);
             }
         }
         return () =>{
         }
-    }, [SemanaSeleccionada, TabActive, showChurn])
+    }, [SemanaSeleccionada, showChurn])
 
     useEffect(() =>{
         if(TabActive == "Tab2"){
-            ConsultarTransmision();
-            ConsultarAcumuladoSemana();
+            if(DataTx?.length == 0){
+                    ConsultarTransmision();
+                    ConsultarAcumuladoSemana();
+                }
+                else{
+                    let Datatxtemp = (DataTx ? DataTx["Transmision"] :[] ) 
+                    setDataTx( {"Transmision": Datatxtemp});
+                    let dtAcumulado = (DataAcumulado != undefined ? [...DataAcumulado] :[]) 
+                    setDataAcumulado(dtAcumulado);
+                }
         }
     },[SemanaSeleccionada, TabActive])
 
     useEffect(() =>{
         if(TabActive == "Tab3")
+        if(DataTk != undefined)
+        if(DataTk.length == 0)
             ConsultarTickets()
-        return () =>{
-            setDataTk([]);
-           setDataTx([]);
+        else{
+            let Datatktemp = (DataTk ? DataTk["Ticket"] :[] ) 
+            setDataTk({"Ticket":Datatktemp});
+
         }
+       
     }, [SemanaSeleccionada, TabActive])
   
     const MontarTransmision = (event:any) =>{
@@ -166,13 +168,13 @@ export default function  DashboardPrincipal (){
                         </ul>
                         <div className="tab-content" id="pills-tabContent">
                             <div className="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
-                              {(montarUnidades) && (<UnidadesActivas></UnidadesActivas>)} 
+                              {(montarUnidades) && (TabActive == "Tab1") && (<UnidadesActivas></UnidadesActivas>)} 
                             </div>
                             <div className="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
-                               {(montarTx) && ( <Transmision></Transmision>)}
+                               {(montarTx) && (TabActive == "Tab2") && ( <Transmision></Transmision>)}
                             </div>
                             <div className="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
-                              {(montarTicket) && (<Tickets></Tickets>)} 
+                              {(montarTicket) && (TabActive == "Tab3") && (<Tickets></Tickets>)} 
                             </div>
                         </div>
                 </div>

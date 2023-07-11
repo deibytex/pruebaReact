@@ -10,7 +10,7 @@ import { object } from "yup";
 type Props = {
 }
 const Churn: React.FC<Props> = ({  }) => {
-  const { DataAcumulado, showChurn, setshowChurn, setCargando, DataChurn, Filtrado, Consulta } = useDataDashboard();
+  const { DataAcumuladoChurn, showChurn, setshowChurn, setCargando, DataChurn, Filtrado, Consulta } = useDataDashboard();
   const [churnDataEntradas, setChurnDataEntradas] = useState<any[]>([]);
   const [churnDataSalidas, setChurnDataSalidas] = useState<any[]>([])
   const [TotalIn, setTotalIn] = useState<string>("0");
@@ -105,13 +105,13 @@ const Churn: React.FC<Props> = ({  }) => {
     else {
       //Toco ponerle un timeuot porque no renderizaba cuando debia
       let timerId = setTimeout(() => {
-        if (DataAcumulado != undefined && DataAcumulado.length != 0 && DataChurn)
-            PintarAcumulado2Semanas(DataAcumulado, DataChurn);
+        if (DataAcumuladoChurn != undefined && DataAcumuladoChurn.length != 0 && DataChurn)
+            PintarAcumulado2Semanas(DataAcumuladoChurn, DataChurn);
         clearTimeout(timerId);
       }, 1000);
       // clearTimeout(timerId);
     }
-  }, [DataAcumulado, DataChurn])
+  }, [DataAcumuladoChurn, DataChurn])
 
   const PintarAcumulado2Semanas = (DataAcumulado: any[], DataChurn:any[]) => {
     setCargando(true);
