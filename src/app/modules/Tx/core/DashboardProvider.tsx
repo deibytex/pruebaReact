@@ -47,7 +47,8 @@ export interface DashboardContextModel {
     setshowChurn:(showChurn:boolean) =>void;
     DataChurn?:any[];
     setDataChurn:(Data:any[]) =>void;
-
+    Consulta?:boolean;
+    setConsulta:(Consulta:boolean) =>void;
 }
 const DashboardContext = createContext<DashboardContextModel>({
     setClientes: (Cliente: any) => {},
@@ -69,6 +70,7 @@ const DashboardContext = createContext<DashboardContextModel>({
     setDataAcumulado:(DataAcumulado:any[]) => {},
     setshowChurn:(showChurn:boolean) =>{},
     setDataChurn:(DataAcumulado:any[]) => {},
+    setConsulta:(Consulta:boolean) =>{},
 });
 const DashboardProvider: React.FC = ({ children }) => {
     const [Clientes, setClientes] = useState<ClienteDTO[]>([]);
@@ -90,6 +92,7 @@ const DashboardProvider: React.FC = ({ children }) => {
     const [DataChurn, setDataChurn] = useState<any[]>([]);
     const [DataAcumulado, setDataAcumulado] = useState<any[]>([]);
     const [showChurn, setshowChurn] = useState<boolean>(false);
+    const [Consulta, setConsulta] = useState<boolean>(false);
     const value: DashboardContextModel = {
         setClientes,
         setClienteSeleccionado,
@@ -129,6 +132,8 @@ const DashboardProvider: React.FC = ({ children }) => {
         setshowChurn,
         DataChurn,
         setDataChurn,
+        Consulta,
+        setConsulta,
     };
     return (
         <DashboardContext.Provider value={value}>
@@ -204,7 +209,7 @@ function SeleccionClientes (Clientes:any, ClienteSeleccionado:any, setClienteSel
 }
 
 const CargarSemanas : React.FC = ({children}) =>{
-    const { setSemanas, Semanas, setSemanaSeleccionada, SemanaSeleccionada, SemanaTipo, setSemanaTipo, setFiltrado, setDataFiltrada,setFiltradoTx, setDataFiltradaTx, Data, DataTx } = useDataDashboard();
+    const { setSemanas, Semanas, setSemanaSeleccionada, SemanaSeleccionada, SemanaTipo, setSemanaTipo, setFiltrado, setDataFiltrada,setFiltradoTx, setDataFiltradaTx, Data, DataTx, setConsulta } = useDataDashboard();
     useEffect(() =>{
         let Anio = moment().format("YYYY").toString();;
         GetListadoSemanas(Anio).then((response:AxiosResponse) =>{
@@ -215,10 +220,23 @@ const CargarSemanas : React.FC = ({children}) =>{
             errorDialog("Ha ocurrido un error al tratar de obtener las semanas","");
         });
     },[SemanaTipo])
-    return <>{(SemanaSeleccionada != undefined && Semanas != undefined && SemanaTipo != undefined ) && (CargarListadoSemanas(setSemanas,Semanas,setSemanaSeleccionada,SemanaSeleccionada, SemanaTipo, setSemanaTipo, setFiltrado, setDataFiltrada,setDataFiltradaTx, Data, DataTx, setFiltradoTx))}</>
+    return <>{(SemanaSeleccionada != undefined && Semanas != undefined && SemanaTipo != undefined ) && (CargarListadoSemanas(setSemanas,Semanas,setSemanaSeleccionada,SemanaSeleccionada, SemanaTipo, setSemanaTipo, setFiltrado, setDataFiltrada,setDataFiltradaTx, Data, DataTx, setConsulta))}</>
 }
 
-function CargarListadoSemanas (setSemanas:(arg0:any)=>void, Semanas:any, setSemanaSeleccionada: (arg0:any) => void, SemanaSeleccionada:any, SemanaTipo:any, setSemanaTipo:(arg0:any) =>void, setFiltrado:(arg0:any) => void, setDataFiltrada:(arg0:any) => void,setDataFiltradaTx:(arg0:any) => void, Data:any, DataTx:any, setFiltradoTx:(arg0:any) =>void){
+function CargarListadoSemanas (
+    setSemanas:(arg0:any)=>void, 
+    Semanas:any, 
+    setSemanaSeleccionada: (arg0:any) => void, 
+    SemanaSeleccionada:any, 
+    SemanaTipo:any, 
+    setSemanaTipo:(arg0:any) =>void, 
+    setFiltrado:(arg0:any) => void, 
+    setDataFiltrada:(arg0:any) => void,
+    setDataFiltradaTx:(arg0:any) => void,
+    Data:any, 
+    DataTx:any,
+    setConsulta:(arg0:any) =>void, 
+){
     return (           
         <Form.Select defaultValue={0}  className=" mb-3 " onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
@@ -226,6 +244,7 @@ function CargarListadoSemanas (setSemanas:(arg0:any)=>void, Semanas:any, setSema
                     return value.fecha === e.currentTarget.value
                 })  
                 setSemanaSeleccionada(lstSemanas[0]);
+                setConsulta(true);
             }} aria-label="Default select example">
             {           
                 Semanas?.filter((e:any)=>{

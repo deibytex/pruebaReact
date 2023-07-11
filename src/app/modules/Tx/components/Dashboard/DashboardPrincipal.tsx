@@ -9,18 +9,22 @@ import { Transmision } from "./Transmision"
 import { UnidadesActivas } from "./UnidadesActivas"
 import BlockUi from "@availity/block-ui"
 
+
 export default function  DashboardPrincipal (){
-    const {ClienteSeleccionado, DataTx,  setData, setDataTx, setDataTk,TabActive, setTabActive, SemanaSeleccionada, Cargando, setCargando, setDataAcumulado, setDataChurn, showChurn} = useDataDashboard()
+    const {ClienteSeleccionado, DataTx, Data,  setData, setDataTx, setDataTk,TabActive, setTabActive, SemanaSeleccionada, Cargando, setConsulta, Consulta,  setCargando,DataAcumulado,  setDataAcumulado, DataChurn, setDataChurn, showChurn} = useDataDashboard()
     const [montarTx, setmontarTx] = useState<boolean>(false);
     const [montarTicket, setMontarTicket] = useState<boolean>(false);
     const [montarUnidades, setmontarUnidades] = useState<boolean>(true);
-
+    const [ConsultaChurn, setConsultaChurn] = useState<boolean>(true);
+    const [ConsultarAcumulado, setConsultarAcumulado] = useState<boolean>(true);
+    const [ConsultaUnidades, setConsultaUnidades] = useState<boolean>(true);
      function  ConsultarUnidades() {
         setCargando(true);
         let Fecha = (SemanaSeleccionada != undefined ? SemanaSeleccionada['fecha'] : moment().format("DD/MM/YYYY").toString())
         GetUnidadesActivasAcumulado(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
             setData({"Unidades":response.data});
             setCargando(false);
+           
         }).catch((error:AxiosError<any>) =>{
             errorDialog("Ha ocurrido un error al consultar las unidades","");
             setCargando(false);
@@ -44,6 +48,7 @@ export default function  DashboardPrincipal (){
         GetSnapShotTickets2(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
             setDataTk({"Ticket":response.data.data});
             setCargando(false);
+
         }).catch((error:AxiosError<any>) =>{
             setCargando(false);
         });
@@ -63,6 +68,7 @@ export default function  DashboardPrincipal (){
       await  GetSnapShotUnidadesActivasAcumulado(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
             setDataAcumulado(response.data);
             setCargando(false);
+            setConsultarAcumulado(false)
         }).catch((error:AxiosError<any>) =>{
             setCargando(false);
         });
@@ -73,6 +79,7 @@ export default function  DashboardPrincipal (){
         await  GetSnapShotUnidadesActivasChurn(Fecha,ClienteSeleccionado?.clienteIdS.toString()).then((response:AxiosResponse<any>) =>{
             setDataChurn(response.data);
             setCargando(false);
+            setConsultaChurn(false);
         }).catch((error:AxiosError<any>) =>{
             setCargando(false);
         });
@@ -81,16 +88,35 @@ export default function  DashboardPrincipal (){
     useEffect(() =>{
         if(TabActive == "Tab1"){
             if(showChurn){
-                ConsultarAcumuladoSnapShot();
-                ConsultarAcumuladoChurn();
+                if(ConsultarAcumulado || Consulta){
+                    setCargando(true);
+                    ConsultarAcumuladoSnapShot();
+                }else{
+                    setCargando(true);
+                    let Data = (DataAcumulado != undefined ?  [...DataAcumulado]:[] );
+                    setDataAcumulado(Data);
+                }
+                if(ConsultaChurn || Consulta){
+                    setCargando(true);
+                    ConsultarAcumuladoChurn();
+                }else{
+                    setCargando(true);
+                    let Data = (DataChurn != undefined ?  [...DataChurn]:[] );
+                    setDataAcumulado(Data);
+                }
             }else{
-                ConsultarUnidades();
+                if(ConsultaUnidades || Consulta){
+                    setCargando(true);
+                    ConsultarUnidades();
+                }
+                else{
+                    setCargando(true);
+                    let Undiades = (Data != undefined ? [...Data] : []) ;
+                    setData(Undiades);
+                }
             }
         }
-        //ConsultarTickets();
         return () =>{
-           setData([]);
-           setDataTx([]);
         }
     }, [SemanaSeleccionada, TabActive, showChurn])
 

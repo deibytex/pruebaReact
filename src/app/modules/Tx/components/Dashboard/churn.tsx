@@ -10,7 +10,7 @@ import { object } from "yup";
 type Props = {
 }
 const Churn: React.FC<Props> = ({  }) => {
-  const { DataAcumulado, showChurn, setshowChurn, setCargando, DataChurn } = useDataDashboard();
+  const { DataAcumulado, showChurn, setshowChurn, setCargando, DataChurn, Filtrado, Consulta } = useDataDashboard();
   const [churnDataEntradas, setChurnDataEntradas] = useState<any[]>([]);
   const [churnDataSalidas, setChurnDataSalidas] = useState<any[]>([])
   const [TotalIn, setTotalIn] = useState<string>("0");
@@ -19,11 +19,7 @@ const Churn: React.FC<Props> = ({  }) => {
   const [SemanaAnterior, setSemanaAnterior] = useState<string>("");
   const [SemanaActual, setSemanaActual] = useState<string>("");
   const [opciones, setOpciones] = useState<any>(null);
-  const [lstIndicadores, setListIndicadores] = useState<any>({
-    SemanaAnterior: 0,
-    SemanaActual: 0,
-    "Churn": 0
-  });
+  
   
   useEffect(() => {
     
@@ -102,13 +98,23 @@ const Churn: React.FC<Props> = ({  }) => {
   
   //para los acumulado o cruch
   useEffect(() => {
-    if (DataAcumulado != undefined && DataAcumulado.length != 0 && DataChurn)
-      PintarAcumulado2Semanas(DataAcumulado, DataChurn);
+
+    if (Filtrado) {
+      
+    }
+    else {
+      //Toco ponerle un timeuot porque no renderizaba cuando debia
+      let timerId = setTimeout(() => {
+        if (DataAcumulado != undefined && DataAcumulado.length != 0 && DataChurn)
+            PintarAcumulado2Semanas(DataAcumulado, DataChurn);
+        clearTimeout(timerId);
+      }, 1000);
+      // clearTimeout(timerId);
+    }
   }, [DataAcumulado, DataChurn])
 
   const PintarAcumulado2Semanas = (DataAcumulado: any[], DataChurn:any[]) => {
     setCargando(true);
-   
     let agrupadofecha = DataAcumulado
     .reduce((p: any, c: any) => {
         let name = c.Fecha;
@@ -175,144 +181,8 @@ const Churn: React.FC<Props> = ({  }) => {
       }
     ]
     );
-
-    // ApexCharts.exec('totalDistancia', 'updateSeries', [
-    //   {
-    //     name: 'Distancia [km]',
-    //     data: totalDistanciaA
-    //   }]);
-
-    //Los que no estan en la semana actual respecto anterior
-    // los que entraron
-    // let entradas = DatoSemanaActual.filter(function (el) {
-    //   return !(DatoSemanaAnterior.filter((ff) => ff.Matricula === el.Matricula && ff.Base == el.Base).length == 1);
-    // });
-    // //filtrar los datos de la semana anterior respecto a la actual
-    // // los que salieron 
-    // let salidas = DatoSemanaAnterior.filter(function (el) {
-    //   return !(DatoSemanaActual.filter((ff) => ff.Matricula === el.Matricula && ff.Base == el.Base).length == 1);
-    // });
-    // let agrupado = entradas
-    //   .reduce((p, c) => {
-    //     let name = c.Base;
-    //     let isExists = p.filter((f: string) => f === name);
-    //     if (isExists.length == 0)
-    //       p.push(name);
-
-    //     return p;
-    //   }, []);
-    // let EntradasPorClientes = entradas.reduce((p, c) => {
-    //   let name = c.Base;
-    //   p[name] = p[name] ?? [];
-    //   p[name].push(c);
-    //   return p;
-    // }, {});
-
-    // let ArrayClientes: any[] = [];
-    // Object.entries(EntradasPorClientes).forEach((elem: any) => {
-    //   agrupado.forEach((fr: string, index: number) => {
-    //     let name = elem[0];
-    //     let objetomovil = ArrayClientes.filter(f => f.Base === name);
-    //     // si no existe creamos el objeto de la fila a guardar
-    //     let rowMovil = (objetomovil.length == 0) ? {} : objetomovil[0];
-    //     rowMovil["Base"] = name;
-    //     rowMovil["Cantidad"] = elem[1].length;
-    //     if (objetomovil.length == 0) {
-    //       ArrayClientes.push(rowMovil);
-    //     }
-    //   });
-    // });
-
-
-    // let agrupadoSalidas = salidas
-    //   .reduce((p, c) => {
-    //     let name = c.Base;
-    //     let isExists = p.filter((f: string) => f === name);
-    //     if (isExists.length == 0)
-    //       p.push(name);
-
-    //     return p;
-    //   }, []);
-    // let SalidasPorClientes = salidas.reduce((p, c) => {
-    //   let name = c.Base;
-    //   p[name] = p[name] ?? [];
-    //   p[name].push(c);
-    //   return p;
-    // }, {});
-
-    // let ArrayClientesSalidas: any[] = [];
-    // Object.entries(SalidasPorClientes).forEach((elem: any) => {
-    //   agrupadoSalidas.forEach((fr: string, index: number) => {
-    //     let name = elem[0];
-    //     let objetomovil = ArrayClientesSalidas.filter(f => f.Base === name);
-    //     // si no existe creamos el objeto de la fila a guardar
-    //     let rowMovil = (objetomovil.length == 0) ? {} : objetomovil[0];
-    //     rowMovil["Base"] = name;
-    //     rowMovil["Cantidad"] = elem[1].length;
-    //     if (objetomovil.length == 0) {
-    //       ArrayClientesSalidas.push(rowMovil);
-    //     }
-    //   });
-    // });
-
-    // let ArrayClientesCompletos: any[] = [];
-
-    // ArrayClientes.map((val, index) => {
-    //   ArrayClientesSalidas.map((item) => {
-    //     if (val.Base == item.Base) {
-    //       let encontred = ArrayClientesCompletos.findIndex(Element => Element.Base == val.Base);
-    //       if (encontred == -1) {
-    //         ArrayClientesCompletos.push({
-    //           "Base": val.Base,
-    //           "In": val.Cantidad,
-    //           "Out": (item.Cantidad == null || item.Cantidad == undefined || item.Cantidad == "" ? 0 : item.Cantidad),
-    //           "Total": (val.Cantidad - (item.Cantidad == null || item.Cantidad == undefined || item.Cantidad == "" ? 0 : item.Cantidad))
-    //         })
-    //       } else {
-    //         ArrayClientesCompletos[encontred].In = ArrayClientesCompletos[encontred].In + (item.Cantidad == null || item.Cantidad == undefined || item.Cantidad == "" ? 0 : item.Cantidad);
-    //         ArrayClientesCompletos[encontred].Out = ArrayClientesCompletos[encontred].Out + item.Cantidad;
-    //         ArrayClientesCompletos[encontred].Total = ArrayClientesCompletos[encontred].Total + (val.Cantidad - (item.Cantidad == null || item.Cantidad == undefined || item.Cantidad == "" ? 0 : item.Cantidad))
-    //       }
-    //     } else {
-    //       let encontred = ArrayClientesCompletos.findIndex(Element => Element.Base == val.Base);
-    //       if (encontred == -1) {
-    //         ArrayClientesCompletos.push({
-    //           "Base": val.Base,
-    //           "In": val.Cantidad,
-    //           "Out": 0,
-    //           "Total": val.Cantidad
-    //         })
-    //       } else {
-    //         ArrayClientesCompletos[encontred].In = ArrayClientesCompletos[encontred].In + val.Cantidad;
-    //         ArrayClientesCompletos[encontred].Total = ArrayClientesCompletos[encontred].Total + val.Cantidad;
-    //       }
-    //     }
-    //   })
-    // })
     setChurnDataEntradas(DataChurn);
-    // setChurnDataSalidas(ArrayClientesSalidas);
-
-    // let TotalIn = (
-    //   ArrayClientesCompletos.map((m: any) => {
-    //     return (m.In)
-    //   }).reduce((a: any, b: any) => a + b, 0));
-    // let TotalOut = (
-    //   ArrayClientesCompletos.map((m: any) => {
-    //     return (m.Out)
-    //   }).reduce((a: any, b: any) => a + b, 0));
-    // let TotalDierencia = (
-    //   ArrayClientesCompletos.map((m: any) => {
-    //     return (m.Total)
-    //   }).reduce((a: any, b: any) => a + b, 0));
-
-    // setTotalIn(TotalIn);
-    // setTotalOut(TotalOut);
-    // setTotalResultado(TotalDierencia);
     setCargando(false);
-
-
-
-
   }
   let DatosColumnasChurnEntradas: MRT_ColumnDef<any>[] = [
     {
@@ -418,7 +288,7 @@ const Churn: React.FC<Props> = ({  }) => {
                     muiTableContainerProps={{ sx: { maxHeight: '300px' } }}
                   />
                 )}
-                <div className="container" style={{ display: (churnDataEntradas.length != 0 ? "inline" : "none") }}>
+                {/* <div className="container" style={{ display: (churnDataEntradas.length != 0 ? "inline" : "none") }}>
                   <div className="row">
                     <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
                       <span className="fw-bolder">Total</span>
@@ -431,9 +301,9 @@ const Churn: React.FC<Props> = ({  }) => {
                     </div>
                     {/* <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3  text-center">
                   <span className="fw-bolder text-end">{TotalResultado}</span>
-                </div> */}
+                </div> 
                   </div>
-                </div>
+                </div> */}
               </div>
               <div style={{ display: (churnDataEntradas.length == 0 ? "inline" : "none") }}>
                 <div className="card">

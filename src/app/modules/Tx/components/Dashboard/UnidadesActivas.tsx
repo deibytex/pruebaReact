@@ -31,7 +31,7 @@ const UnidadesActivas: React.FC = () => {
             }
         }
     ]
-    const { Data, DataFiltrada, setDataFiltrada, Filtrado, setFiltrado, Cargando, setCargando, setshowChurn, showChurn } = useDataDashboard();
+    const { Data, DataFiltrada, setDataFiltrada, Filtrado, setFiltrado, Cargando, setCargando, setshowChurn, showChurn , Consulta} = useDataDashboard();
     let preSeleccionados = defaultPriopios.filter(x => x.isSelected).map(x => x.name);
     const [eventsSelected, setEventsSelected] = useState(defaultPriopios);
     const [value, setValue] = useState<any[]>(preSeleccionados);
@@ -131,7 +131,6 @@ const UnidadesActivas: React.FC = () => {
                 }
             });
     };
-
 const FiltrarPestañas = (row:any) =>{
     let Tab = row.target.attributes.id.value;
     if(Tab == "pills-propios-tab"){
@@ -183,7 +182,7 @@ const FiltrarPestañas = (row:any) =>{
                             <div className="tab-pane fade" id="pill-churn" role="tabpanel" aria-labelledby="home-tab">
                                     {/* Para los churn */}
                                   
-                                    {(tab == "#tab2") && (Montarchurn) &&(showChurn) && (<Churn></Churn>)}  
+                                    {(tab == "#tab2") && (Montarchurn)  && (<Churn></Churn>)}  
                             </div>
                             <div className="tab-pane fade" id="pill-alquilado" role="tabpanel" aria-labelledby="profile-tab">
                                     {/* Para los MIX */}
