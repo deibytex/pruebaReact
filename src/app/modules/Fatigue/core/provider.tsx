@@ -1,5 +1,5 @@
 import moment from "moment";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
 import { FechaServidor } from "../../../../_start/helpers/Helper";
 import { GetAlarmas, GetDetalladoEventos, getAlertas, getEventosActivosPorDia, getVehiculosOperando } from "../data/dashBoardData";
@@ -114,7 +114,18 @@ function useDataFatigue() {
 
 const DataVehiculoOperando: React.FC = ({ children }) => {
     const { setvehiculosOperacion, setlistadoEventosActivos, setListadoVehiculoSinOperacion, setalertas, setError, iserror, setDataAlertas, setDataDetallado, loader, setloader, setclienteIds } = useDataFatigue();
-    let idinterval: number = 0;
+    const interval = useRef<any>();
+
+    const GetTiempo = () => {
+            let tiempo = 60000;
+
+            consultaAlertas(children as string);
+            interval.current = setInterval(() => {
+                consultaAlertas(children as string);
+            }, tiempo);
+
+       
+    }
 
     //CONSULTA VEHICULOS OPERANDO
     let consulta = (children: string) => {
@@ -149,6 +160,8 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
         }).catch((error: any) => {
             console.log("Error detallado de evento: ", error);
         });
+
+        GetTiempo();
 
     }
 
@@ -193,22 +206,20 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
     useEffect(() => {
 
         if (children) {
-
-            consulta(children.toString());
-            consultaEventsActivos(children.toString());
-            consultaAlertas(children.toString());
-            setclienteIds(children.toString());
-            // si no tiene error hace el interval
-            if (iserror === null || iserror === undefined)
-                if (idinterval === 0) {
-                    idinterval = window.setInterval(() => {
-                        consulta(children.toString());
-                        consultaEventsActivos(children.toString());
-                    }, 120000)
-                }
+        
+            if (interval.current != 0)
+                clearInterval(interval.current)
+            if (children) {
+                consulta(children.toString());
+                consultaEventsActivos(children.toString());
+                consultaAlertas(children.toString());
+                setclienteIds(children.toString());
+            }
+            
         }
         return () => {
             setvehiculosOperacion([]);
+            setalertas([]);
         };
     }, [children]);
     return <></>;
