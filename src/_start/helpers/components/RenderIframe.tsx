@@ -19,9 +19,7 @@ type Props = {
       <div className="container d-flex flex-row align-items-center justify-content-center text-center m-10"
        style={{height: "800px"}}
       >
-
-        <iframe 
-          
+        <iframe           
           onLoad={onLoad}
            src={atob(url)} width="100%"
           height={height}
