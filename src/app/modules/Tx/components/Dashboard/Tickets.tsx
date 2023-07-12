@@ -9,7 +9,7 @@ const Tickets: React.FC = () => {
     const [DataAdmin, setDataAdmin] = useState<any>(null);
     const [Database, setDatabase] = useState<any>(null);
     const [Datatipo, setDatatipo] = useState<any>(null);
-    const { DataTk, setDataTk, DataFiltradaTk, Filtrado } = useDataDashboard()
+    const { DataTk, setDataTk, DataFiltradaTk, Filtrado , setFiltradoTk, FiltradoTk, setDataFiltradaTk} = useDataDashboard()
     useEffect(() => {
         let administrador = {
             options: {
@@ -52,23 +52,23 @@ const Tickets: React.FC = () => {
             //SE DEBE DESTRUIR EL OBJETO CHART
         };
     }, [])
-    const PintarGraficas = () => {
-        if (DataTk != undefined) {
+    const PintarGraficas = (Dt:any[]) => {
+        if (Dt != undefined) {
             let Datos = new Array();
             let arrayEstados = new Array();
             let arrayVerticaTipo = new Array();
-            let agrupadorGeneral = DataTk['Ticket'].map((item: any) => {
+            let agrupadorGeneral = Dt['Ticket'].map((item: any) => {
                 return item.administrador;
             }).filter((value: any, index: any, self: any) => {
                 return self.indexOf(value) === index;
             });
             //Verticales
-            let agrupadortipo = DataTk['Ticket'].map((item: any) => {
+            let agrupadortipo = Dt['Ticket'].map((item: any) => {
                 return (item.base == undefined) ? item.Base : item.base;
             }).filter((value: any, index: any, self: any) => {
                 return self.indexOf(value) === index;
             });
-            let Semana = DataTk['Ticket'].map((item: any) => {
+            let Semana = Dt['Ticket'].map((item: any) => {
                 return item.fecha;
             }).filter((value: any, index: any, self: any) => {
                 return self.indexOf(value) === index;
@@ -76,7 +76,7 @@ const Tickets: React.FC = () => {
 
             agrupadortipo.map(function (item: any) {
                 Semana.map(function (itemSemana: any) {
-                    let filtroEstado = DataTk['Ticket'].filter(function (val: any) {
+                    let filtroEstado = Dt['Ticket'].filter(function (val: any) {
                         return (val.fecha == itemSemana && val.base == item);
                     });
                     arrayEstados.push([{
@@ -87,19 +87,19 @@ const Tickets: React.FC = () => {
                 });
             });
             // Vertical po Tipo
-            let ArupadorVertical = DataTk['Ticket'].map((item: any) => {
+            let ArupadorVertical = Dt['Ticket'].map((item: any) => {
                 return (item.tipodeTicket == undefined) ? item.TipodeTicket : item.tipodeTicket;
             }).filter((value: any, index: any, self: any) => {
                 return self.indexOf(value) === index;
             });
-            let SemanaVertical = DataTk['Ticket'].map((item: any) => {
+            let SemanaVertical = Dt['Ticket'].map((item: any) => {
                 return item.fecha;
             }).filter((value: any, index: any, self: any) => {
                 return self.indexOf(value) === index;
             });
             ArupadorVertical.map(function (item: any) {
                 SemanaVertical.map(function (itemSemana: any) {
-                    let filtroVertical = DataTk['Ticket'].filter(function (val: any) {
+                    let filtroVertical = Dt['Ticket'].filter(function (val: any) {
                         return (val.fecha == itemSemana && val.tipodeTicket == item);
                     });
                     arrayVerticaTipo.push([{
@@ -206,7 +206,7 @@ const Tickets: React.FC = () => {
             /*Admins */
             agrupadorGeneral?.map(function (item: any) {
                 if(item != null){
-                    let totalAdmon = DataTk['Ticket']?.filter(function (data: any, index: any) {
+                    let totalAdmon = Dt['Ticket']?.filter(function (data: any, index: any) {
                         if (data.administrador == item)
                             return data.administrador
                     }).length;
@@ -249,7 +249,7 @@ const Tickets: React.FC = () => {
             ApexCharts.exec('apexchart-administrador', 'updateSeries', Datos)
         }
     }
-    let MenuAdministradores = [];
+    let MenuAdministradores: JSX.Element[] | undefined = [];
     /* DESDE AQUI LO HICE PARA PROBAR LAS CONEXIONES CREADAS */
     /* FIN DE LAS CONEXIONES */
     let AdminsTk: { usuarioIds: string, nombre: string }[] = [];
@@ -266,24 +266,49 @@ const Tickets: React.FC = () => {
                 return null;
             });
         }
+    const FiltrarByAdminsTk = (event:any) =>{
+        let Usuario:string = event.target.attributes['data-bs-target'].value.split("--")[1];
+        switch(Usuario) {
+            case '0':
+                setFiltradoTk(false);
+                break;
+            default:
+                setFiltradoTk( true);
+                if(DataTk != undefined){
+                    let DataResulttx = DataTk['Ticket'].filter((val:any) =>{
+                        let user = val.administrador.split(" - ")[0];
+                        return (user == Usuario)
+                    });
+                    setDataFiltradaTk({"Ticket":DataResulttx});
+                }
+                    break;
+            }
+        }
     MenuAdministradores = AdminsTk.map((val: any, index: any) => {
         return (
-            <li key={val.nombre} className="nav-item" role="presentation">
-                <button key={val.nombre} className="nav-link text-success fw-bolder" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target={`#pills-${val.usuarioIds}`} type="button" role="tab" aria-controls="pills-profile" aria-selected="false">{val.nombre}</button>
+            <li key={val.nombre} className={`nav-item`} role="presentation">
+                <button key={val.nombre}  onClick={FiltrarByAdminsTk} className={`nav-link text-success ${(index == 0 ? 'active':'')} fw-bolder`}  id="pills-profile-tab" data-bs-toggle="pill" data-bs-target={`#pills--${val.usuarioIds}`} type="button" role="tab" aria-controls="pills-profile" aria-selected="false">{val.nombre}</button>
             </li>
         )
     })
     useEffect(() => {
-        if (DataTk) {
+        if (FiltradoTk) {
+            if (DataFiltradaTk) {
+              PintarGraficas(DataFiltradaTk)
+            }
+          }
+        else if (DataTk) {
             if (DataTk['Ticket'] != undefined) {
-                PintarGraficas()
+                PintarGraficas(DataTk);
             }
         }
-    }, [DataTk, Filtrado, DataFiltradaTk]);
+    }, [DataTk, FiltradoTk, DataFiltradaTk]);
+    
+   
     return (
         <>
             <div className="row">
-                <div style={{ display: (DataTk == undefined) ? 'none' : 'inline' }} className="col-sm-12 col-xl-12 col-md-12 col-lg-12" id="txpestana">
+                <div style={{ display: 'inline' }} className="col-sm-12 col-xl-12 col-md-12 col-lg-12" id="txpestana">
                     <ul className="nav nav-pills mb-3" id="pills-tab" role="tablist">
                         {
                             (MenuAdministradores.length != 0) && ([...MenuAdministradores])
@@ -331,9 +356,9 @@ const Tickets: React.FC = () => {
                         </div>
                     </div>
                 </div>
-                <div style={{ display: (DataTk != undefined) ? 'none' : 'inline' }} className="col-sm-12 col-xl-12 col-md-12 col-lg-12 text-center" id="txpestananull">
+                {/* <div style={{ display: (DataTk != undefined) ? 'none' : 'inline' }} className="col-sm-12 col-xl-12 col-md-12 col-lg-12 text-center" id="txpestananull">
                     <span className="font-weight-bold mb-3 text-muted" style={{ fontSize: '30px' }}>No hay datos que mostrar !!!</span>
-                </div>
+                </div> */}
             </div>
         </>
     )

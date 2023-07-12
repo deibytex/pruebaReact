@@ -118,7 +118,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
         enabled: true,
         enabledOnSeries: true,
         style: {
-            colors: ['#424249']
+            colors: ['#304758']
         }
       }
     }
@@ -164,7 +164,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
         enabled: true,
         enabledOnSeries: true,
         style: {
-            colors: ['#424249']
+          colors: ["#304758"]
         }
       },
       xaxis: {
@@ -212,7 +212,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
         enabled: true,
         enabledOnSeries: true,
         style: {
-            colors: ['#424249']
+          colors: ["#304758"]
         }
       }
     }

@@ -1,17 +1,13 @@
-
-import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
 import MaterialReactTable, { MRT_ColumnDef} from "material-react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import {  useEffect, useRef, useState } from "react";
 import { useDataDashboard } from "../../core/DashboardProvider";
 import { TablaClientesTxDTO } from "../../models/DasboardModels";
-import { TransmisionScatterChart } from "./TransmisionScatterChart";
-import { TransmisionBarChart } from "./TransmisionBarChart";
 import ReactApexChart from "react-apexcharts";
 import moment from "moment";
 
 const Transmision: React.FC = () =>{
-    const {DataTx, Clientes, ClienteSeleccionado, setData, DataFiltradaTx, FiltradoTx,DataAcumulado, setFiltradoTx, setDataFiltradaTx} = useDataDashboard()
+    const {DataTx, DataFiltradaTx, FiltradoTx,DataAcumulado, setFiltradoTx, setDataFiltradaTx} = useDataDashboard()
     const [DataTxAdmin, setDataTxAdmin] = useState<any[]>([]);
     const [PlacaSinTx, setPlacaSinTx] = useState<string>("0");
     const [ClienteSinTx, setClienteSinTx] = useState<string>("0");
@@ -19,18 +15,8 @@ const Transmision: React.FC = () =>{
 
 //table state
 const tableContainerRef = useRef<HTMLDivElement>(null);
-const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-const [globalFilter, setGlobalFilter] = useState('');
-const [sorting, setSorting] = useState<SortingState>([]);
-const [pagination, setPagination] = useState<PaginationState>({
-  pageIndex: 0,
-  pageSize: -1,
-});
 const [rowCount1, setRowCount1] = useState(0);
 const [rowCount2, setRowCount2] = useState(0);
-const [isLoading, setIsLoading] = useState(false);
-const [isRefetching, setIsRefetching] = useState(false);
-const [isError, setIsError] = useState(false);
 const [Scatter, setScatter] = useState<any>(null);
 const [VerticalTx, setVerticalTx] = useState<any>(null);
     //decimal de miles
@@ -458,7 +444,8 @@ const [VerticalTx, setVerticalTx] = useState<any>(null);
             }
         else
         {
-            if(DataAcumulado != undefined){
+            let timerId = setTimeout(() => {
+            if(DataAcumulado != undefined && DataAcumulado.length){
                 RetornarSerie(DataAcumulado.filter(function (item:any) {
                     return item.Usuario;
                 }))
@@ -466,6 +453,8 @@ const [VerticalTx, setVerticalTx] = useState<any>(null);
             if(DataTx != undefined  && DataTx.length != 0){
                 DatosClientes(DataTx["Transmision"]);
             }
+            clearTimeout(timerId);
+            }, 1000);
         }
     },[DataAcumulado, FiltradoTx,DataFiltradaTx, DataTx ])
 
