@@ -49,7 +49,6 @@ export const TablaCorreosTx: React.FC<Props> = () => {
     }
 
     let listadoCampos: MRT_ColumnDef<CorreosTx>[] =
-
         [
             {
                 accessorKey: 'correo',
@@ -80,11 +79,21 @@ export const TablaCorreosTx: React.FC<Props> = () => {
         showModal();
     }
 
-    const deleteCorreo = (CorreoId: number) => {
+    const deleteCorreo = (row: any) => {
+        //Verifico si el correo es el unico que viene marcado desde la base de datos como principal
+        let EsUnico =  lstCorreosTx.filter((item:any) =>{
+           return (item.tipoCorreo == row.original.tipoCorreo ? item : null)
+        })
+        //Si es unico no dejo que lo eliminen, hasta que no haya mas de 1 como principal
+        if(EsUnico.length == 1){
+            errorDialog("No puede eliminar este correo ya que es el unico principal","");
+            return false;
+        }
+        //Sino elimino el correo.
         confirmarDialog(() => {
-            deleteCorreosTx(CorreoId).then((response) => {
+            deleteCorreosTx(row.original.CorreoTxIdS).then((response) => {
                 if (response.statusText == "OK") {
-                    let correosFilter = (CorreosTx as CorreosTx[]).filter(lis => lis.CorreoTxIdS != CorreoId);
+                    let correosFilter = (CorreosTx as CorreosTx[]).filter(lis => lis.CorreoTxIdS != row.original.CorreoTxIdS);
                     setCorreosTx(correosFilter);
                     successDialog("Operación Éxitosa", "");
                 } else
@@ -110,10 +119,21 @@ export const TablaCorreosTx: React.FC<Props> = () => {
                             size: 120,
                         },
                     }}
+                    muiTableHeadCellProps={{
+                        sx: (theme) => ({
+                          fontSize : 14,
+                          fontStyle: 'bold',  
+                        color: 'rgb(27, 66, 94)'
+                        
+                      }),
+                    }}
                     columns={listadoCampos}
                     data={lstCorreosTx}
                     // editingMode="modal" //default         
-                    enableTopToolbar={false}
+                    enableTopToolbar={true}
+                    enableDensityToggle={false}
+                    enablePagination={false}
+                    enableRowVirtualization
                     enableColumnOrdering
                     enableEditing
                     /* onEditingRowSave={handleSaveRowEdits}
@@ -131,7 +151,7 @@ export const TablaCorreosTx: React.FC<Props> = () => {
                     onPaginationChange={setPagination}
                     onSortingChange={setSorting}
                     rowCount={rowCount}
-
+                    initialState={{density: 'compact'}}
                     state={{
                         columnFilters,
                         globalFilter,
@@ -142,7 +162,6 @@ export const TablaCorreosTx: React.FC<Props> = () => {
                         sorting,
                     }}
                     renderRowActions={({ row, table }) => (
-
                         <>
                             <Box sx={{ display: 'flex', gap: '1rem' }}>
                                 <Tooltip arrow placement="left" title="modificar">
@@ -158,7 +177,7 @@ export const TablaCorreosTx: React.FC<Props> = () => {
                                 <Tooltip arrow placement="left" title="eliminar">
                                     <IconButton
                                         onClick={() => {
-                                            deleteCorreo(row.original.CorreoTxIdS);
+                                            deleteCorreo(row);
                                         }}
                                     >
                                         <Delete />
