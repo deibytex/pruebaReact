@@ -137,6 +137,8 @@ export default function FatigueDashboard() {
                     </div>
                     <div className="col-xl-3">
                         <BaseIndicador className={"card-stretch mb-1 mb-xxl-2"} titulo={""} subtitulo={""}  >
+
+                            {/* //WARNING NO FUNCIONA */}
                             {/*Contenido que quiero mostar dentro del indicador*/}
                             {/* <IndicadorPanelGeneral className={""} /> */}
                         </BaseIndicador>
