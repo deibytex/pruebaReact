@@ -2,7 +2,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useEffect, useRef, useState } from "react";
 import { Carousel } from "bootstrap";
-import { datosFatigue, dataGeneral } from "../dataFatigue";
+import { datosFatigue } from "../dataFatigue";
 import { useDataFatigue } from "../core/provider";
 
 type Props = {
@@ -11,15 +11,17 @@ type Props = {
 };
 
 const IndicadorPanelGeneral: React.FC<Props> = ({ className, innerPadding = "" }) => {
-  const { listadoEventosActivos, ListadoVehiculoSinOperacion } = useDataFatigue();
+  const { ListadoVehiculoSinOperacion, alertas } = useDataFatigue();
   const [indicadoresCriticidad, setIndicadoresCriticidad] = useState<any>({});
 
+    // console.log('sinoperar', ListadoVehiculoSinOperacion);
+    // console.log('alertas', alertas);
  
 
 
   const carouselRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
-    setIndicadoresCriticidad(datosFatigue.getTotalPorCriticidad(listadoEventosActivos ?? [], ListadoVehiculoSinOperacion));
+    setIndicadoresCriticidad(datosFatigue.getTotalPorCriticidad(alertas ?? [], ListadoVehiculoSinOperacion));
     const element = carouselRef.current;
     if (!element) {
       return;
@@ -29,7 +31,7 @@ const IndicadorPanelGeneral: React.FC<Props> = ({ className, innerPadding = "" }
     return function cleanUp() {
       carousel.dispose();
     };
-  }, [listadoEventosActivos, ListadoVehiculoSinOperacion]);
+  }, [alertas, ListadoVehiculoSinOperacion]);
 
 
 
@@ -81,7 +83,8 @@ const IndicadorPanelGeneral: React.FC<Props> = ({ className, innerPadding = "" }
 
             {
               Object.entries(indicadoresCriticidad.operandoDivididos).map((element, index) => {
-
+                // console.log('a',element[1]);
+                // console.log('b',element[0]);
                 return (
 
                   <div className={`carousel-item ${(index == 0) && "active"}`} key={`indicadorpanelgeneral_${(element[1] as any[]).length}-${element[0]}`}>
@@ -90,11 +93,16 @@ const IndicadorPanelGeneral: React.FC<Props> = ({ className, innerPadding = "" }
                         {`${element[0]}(${(element[1] as any[]).length})`}
                       </h3>
                       <div className="row">
+                        
                         {
+                          //Se hace validación de key
+                          ((element[1] as any).length > 0 && (element[1] as any) != undefined) &&
                           (element[1] as any[]).slice(0, 8).map((m) => {
-
+                            // console.log('1',m);
+                            
                             return (
                             
+                                 
                                 <p key={`indicadorpanelgeneralp_${m.RegistrationNumber}`} className= {`text-gray-800  fw-bolder col-xl-3 fs-9 bg-light-${m["color"]} m-1`}> {m.RegistrationNumber} </p>
                               
                             )

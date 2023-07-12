@@ -61,7 +61,7 @@ export  function getEventosActivosPorDia(props: ParamsEndPointDynamic , body: an
 
   export  function getAlertas(clienteIds: string) {
     var params: { [id: string]: string | null; } = {};
-    params["clienteIds"] = clienteIds;
+    params["clienteIds"] = clienteIds.toString();
     return  axios({
       method: 'post',
       url: DWH_getconsultadinamicasprocedure,

@@ -1,14 +1,16 @@
 import { uuid } from "uuidv4";
 import Moment from 'moment';
 import _ from "lodash";
-import { EventoActivo } from "./models/EventosActivos";
-import { GetAlarmas } from "./data/dashBoardData";
-import { AxiosResponse } from "axios";
+
 
 
 
 const dataGeneral: any[] = [];
 const eventos: any[] = []
+ 
+
+console.log(dataGeneral);
+
 dataGeneral.map((element) => {
     let tipoAlerta = "";
     let color = "";
@@ -75,28 +77,38 @@ const datosFatigue = {
             p[name]++;
             return p;
         }, {});
-
+        console.log('conteo', counts);
         return counts;
 
     },
 
-    getTotalPorCriticidad: (listadoEventosActivos: EventoActivo[], ListadoVehiculoSinOperacion : unknown, soloNiveles : boolean = false) => {
+    getTotalPorCriticidad: (alertas: any[], ListadoVehiculoSinOperacion : unknown, soloNiveles : boolean = false) => {
 
-        let totalEventos = listadoEventosActivos ?? [];
+          console.log('alertas', alertas);
+          console.log('sinoperar',ListadoVehiculoSinOperacion);
+          console.log('niveles', soloNiveles)
+          
+        let totalEventos = alertas ?? [];
         let ListadoVehiculoSinOpera = (ListadoVehiculoSinOperacion as any[]);
         // agrupamos la informacion por el registration number del carro
-        var grouped = _.mapValues(_.groupBy(totalEventos, 'registrationnumber'),
-          clist => clist.map(car => _.omit(car, 'registrationnumber')));
-      
-          const vehiculosFiltrados = ListadoVehiculoSinOpera.filter((elem) => !totalEventos.find(({ AssetId }) => elem.Assetid === AssetId));
+        var grouped = _.mapValues(_.groupBy(totalEventos, 'vehiculo'),
+          clist => clist.map(car => _.omit(car, 'vehiculo')));
+      console.log('grouped',grouped);
+          const vehiculosFiltrados = ListadoVehiculoSinOpera.filter((elem) => !totalEventos.find(({ vehiculo }) => elem.Assetid === vehiculo));
        
+          console.log('vehiculsfiltrados',vehiculosFiltrados)
+
         let vehiculosNoOperando =vehiculosFiltrados.filter( (f) => f.Estado == 'No Operando' );
         let VehiculosOperando  = vehiculosFiltrados.filter( (f) => f.Estado == 'Operando' );
 
         let arrayVehiculos: any[] = [];
         let arrayCriticidad: any[] = [{ nivel: 'Riesgo bajo' }, { nivel: 'Riesgo moderado' }, { nivel: 'Riesgo alto' }]
 
+        
+        
         let getCriticidad = (TotalEventos: number) => {
+
+            console.log('totaleventos', totalEventos)
             let tipoAlerta = "";
             if (TotalEventos >= 0 && TotalEventos <= 2)
                 tipoAlerta = "Riesgo bajo";
@@ -106,11 +118,18 @@ const datosFatigue = {
                 tipoAlerta = "Riesgo alto";
             return tipoAlerta;
         };
+
         Object.entries(grouped).map((element, index) => {
 
+            console.log('goupeded[1]',element[1] as any[])
             //  // agrupamos la informacion por los eventos para saber la cantidad de eventos que esta generando
-            var groupedEvento = _.mapValues(_.groupBy((element[1] as any[]), 'descriptionevent'),
-                clist => clist.map(evento => _.omit(evento, 'descriptionevent')));
+            var groupedEvento = _.mapValues(_.groupBy((element[1] as any[]), 'TipoAlerta'),
+                clist => clist.map(evento => _.omit(evento, 'TipoAlerta')));
+
+                console.log('antes del array', groupedEvento)
+
+                console.log('a ver que es', element[0]);
+                console.log('supuesta criti ', (element[1] as any[]));
 
             arrayVehiculos.push({
                 RegistrationNumber: element[0],
@@ -119,6 +138,8 @@ const datosFatigue = {
                 EventosDetallados: element[1],
                 EventosAgrupados: groupedEvento
             })
+
+            console.log('objeto arrya vh',arrayVehiculos)
         })
             ;
        
@@ -147,6 +168,7 @@ const datosFatigue = {
 
         //  // agrupamos la informacion por los eventos para saber la cantidad de eventos que esta generando
         // agrupamos la informacion por el registration number del carro
+        console.log('arraycirticos',arrayCriticidad)
         var agrupadosPorNivel = _.mapValues(_.groupBy(arrayCriticidad, 'Criticidad'),
             clist => clist.map(nivel => _.omit(nivel, 'Criticidad')));
         response.operandoDivididos = agrupadosPorNivel;
@@ -162,7 +184,9 @@ const datosFatigue = {
     // obtiene los primeros 10 lineas de tiempo de las alargas generadas en el d[ia]
     getTimeLine: () => {
         // llenamos la informacion con datos dummis
+        
         dataGeneral.forEach((elemt) => {
+            console.log('a ver si es alertas', elemt);
             elemt["Alertas"] = getRamdomAlertas(elemt.TotalAlertas, elemt.RegistrationNumber);
         });
         return dataGeneral;

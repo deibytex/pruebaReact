@@ -16,7 +16,7 @@ import { Box, IconButton, Tooltip } from "@mui/material";
 import { Message, VerifiedUser, Map, List } from "@mui/icons-material";
 import { FechaServidor } from "../../../../_start/helpers/Helper";
 import { getAlertas, setGestor, setObservaciones } from "../data/dashBoardData";
-import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/helpers/components/ConfirmDialog";
+import confirmarDialog from "../../../../_start/helpers/components/ConfirmDialog";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../setup";
 import { UserModelSyscaf } from "../../auth/models/UserModel";
@@ -93,12 +93,6 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
     pageSize: 10,
   });
 
-  const [FiltroRiesgo, setFiltroRiesgo] = useState("");
-  const [FiltroGestion, setFiltroGestion] = useState("");
-  const [check, setcheck] = useState(true);
-  const [check2, setcheck2] = useState(true);
-  const [Orden, setOrden] = useState("");
-
   const toaster = useToaster();
 
   const message = (type: any, titulo: string, mensaje: React.ReactNode) => {
@@ -108,6 +102,9 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
     </Notification>)
   }
 
+
+  // inicio filtros
+  //WARNING NO CONSERVA FILTRO
   const defaultRiesgoSelected: any[] = [
     {
       name: 'Alto',
@@ -248,16 +245,19 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
     setRowCount(filteredArray.length);
   };
 
+  //WARNING NO FUNCIONA
   useEffect(() => {
     setRiesgoSelected(defaultRiesgoSelected);
     setDataAlertas(alertas.sort(function (a: any, b: any) { return a.EventDateTime - b.EventDateTime }));
     setRowCount(alertas.length);
   }, [alertas])
 
+  //primer cargue carga userid
   useEffect(() => {
     setUserId(model.Id?.toString())
   }, [])
 
+ //listado campos tablas
   const columnasTabla: MRT_ColumnDef<any>[]
     = [
       {
@@ -327,6 +327,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
     ];
 
+ 
   const columnasContacto: MRT_ColumnDef<any>[]
     = [
       {
@@ -407,6 +408,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
     ];
 
+    //pintar modal observaciones
   useEffect(() => {
 
     if (observaciones != "" && observaciones != null) {
@@ -420,6 +422,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
     }
   }, [observaciones])
 
+  //pintar modal de ddetallado eventos
   useEffect(() => {
 
     if (detalleEventos != "" && detalleEventos != null) {
@@ -438,7 +441,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   };
 
 
-  //revisar
+  //gestión obervación
   const setObservacion = (observacion: string, escerrado?: string) => {
 
     let GestorObervaciones: any = {};
@@ -480,6 +483,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
       , escerrado == "false" ? "Guardar" : "Terminar")
   }
 
+  //gestión gestor
   const setGestorPreoperacional = (alertaId: number) => {
 
     let GestorObervaciones: any = {};
@@ -511,6 +515,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   }
 
 
+  //modal
   const modalObervaciones = (row: any) => {
     setobservaciones(row.Observaciones);
     setalertaId(row.AlertaId);
@@ -529,6 +534,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
     showModal2();
   }
 
+  //Función para ir al mapa de marcial
   const IrToMap = (row: any) => {
     setloader(true);
     let Data = new Array()
@@ -556,28 +562,15 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
   };
 
+  //se asigna alertas a la data filtrada
   useEffect(() => {
-    if (FiltroGestion === "2" || FiltroGestion === "") {
+
       setDataAlertasfiltrada(dataAlertas);
       setRowCount((dataAlertas).length);
-    }
-    else if (FiltroGestion === "false") {
-      let filtergestion = (dataAlertas).filter((est: any) => est.EstadoGestion == false);
-      setDataAlertasfiltrada(filtergestion);
-      setRowCount(filtergestion.length);
-    }
-    else if (FiltroGestion === "true") {
-      let filtergestion = (dataAlertas).filter((est: any) => est.EstadoGestion == true);
-      setDataAlertasfiltrada(filtergestion);
-      setRowCount(filtergestion.length);
-    } else {
-      let filtergestion = (dataAlertas).filter((est: any) => est.EstadoGestion == null);
-      setDataAlertasfiltrada(filtergestion);
-      setRowCount(filtergestion.length);
-    }
+    
 
 
-  }, [dataAlertas, FiltroGestion])
+  }, [dataAlertas])
 
 
   const ordenarData = (tipo: string) => {
