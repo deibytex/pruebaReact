@@ -1,5 +1,5 @@
 import { Post_getconsultadinamicasUser } from "../../../../_start/helpers/Axios/CoreService";
-import { GetClientes, Post_GetConsultasDinamicasUserDWH } from "../../../../_start/helpers/Axios/DWHService";
+import { GetClientes, Post_GetConsultasDinamicas, Post_GetConsultasDinamicasUserDWH } from "../../../../_start/helpers/Axios/DWHService";
 
 export  function ObtenerListadoCLientes() {
     var params: { [id: string]: string | null; } = {};
@@ -18,4 +18,10 @@ export function SetEstadoSyscaf (assetId:string,estadoSyscafIdS:string ) {
     params["assetId"] = assetId;
     params["estadoSyscafIdS"] = estadoSyscafIdS;
     return  Post_getconsultadinamicasUser({ Clase : "TXQueryHelper",  NombreConsulta: "CambiarEstadoSyscaf", Pagina :null, RecordsPorPagina :null}, params);
+}
+export function GetEstadosTransmision (TipoIds:string) {
+    var params: { [id: string]: string | null | boolean; } = {};
+    params["TipoIds"] = (TipoIds == null || TipoIds == undefined ? "3":TipoIds);
+
+    return  Post_GetConsultasDinamicas({ Clase : "TXQueryHelper",  NombreConsulta: "GetEstadosTransmision", Pagina :null, RecordsPorPagina :null}, params);
 }

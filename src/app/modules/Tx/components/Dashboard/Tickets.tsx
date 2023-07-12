@@ -15,34 +15,42 @@ const Tickets: React.FC = () => {
             options: {
                 chart: {
                     id: 'apexchart-administrador',
-                }
+                },
+                
             },
             series: [],
-            dataLabels: {
-                enabled: false
-            }
         }
         let base = {
             options: {
                 chart: {
                     id: 'apexchart-base',
+                },
+                dataLabels: {
+                    enabled: true,
+                    enabledOnSeries: true,
+                    style: {
+                        colors: ['#424249']
+                    }
                 }
             },
             series: [],
-            dataLabels: {
-                enabled: false
-            }
+         
         }
         let tipo = {
             options: {
                 chart: {
                     id: 'apexchart-tipo',
+                },
+                dataLabels: {
+                    enabled: true,
+                    enabledOnSeries: true,
+                    style: {
+                        colors: ['#424249']
+                    }
                 }
             },
             series: [],
-            dataLabels: {
-                enabled: false
-            }
+           
         }
         setDataAdmin(administrador);
         setDatabase(base);
