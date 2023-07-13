@@ -37,6 +37,16 @@ const Churn: React.FC<Props> = ({  }) => {
             }
           }
         },
+        dataLabels: {
+
+          enabled: true,
+          enabledOnSeries: true,
+          formatter: function (value: any, { seriesIndex, dataPointIndex, w }: any) {
+            return value;
+           // return seriesIndex == 2 ? locateFormatPercentNDijitos(value, 2) : locateFormatNumberNDijitos(value, 2)
+          },
+
+        },
         xaxis: {
           categories: [],
           tickPlacement: 'on'
@@ -79,16 +89,7 @@ const Churn: React.FC<Props> = ({  }) => {
           }
         }
         ],
-        dataLabels: {
-
-          enabled: true,
-          enabledOnSeries: true,
-          formatter: function (value: any, { seriesIndex, dataPointIndex, w }: any) {
-            return value;
-           // return seriesIndex == 2 ? locateFormatPercentNDijitos(value, 2) : locateFormatNumberNDijitos(value, 2)
-          },
-
-        }
+       
       },
       series: []
 
