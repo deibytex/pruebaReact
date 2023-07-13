@@ -172,7 +172,7 @@ const TableReporte : React.FC = () =>{
                {
                  Estados.map((val, index) => {
                   return(
-                      <a id={`${val.estadoIdS}`} key={val.estadoIdS+index} className="dropdown-item" onClick={CambiarEstado} data-target={row}>
+                      <a id={`${val.estadoIdS}`} key={val.estadoIdS+index} data-rel={`${val.estado}`} className="dropdown-item" onClick={CambiarEstado} data-target={row}>
                         { RetornarIcono(val.estado,val.estadoIdS+index) }
                         { <>&nbsp;</> }
                         { val.estado  }
@@ -231,12 +231,21 @@ const TableReporte : React.FC = () =>{
      const CambiarEstado = (event:any) =>{
         let Estado = event.target.attributes.id.value;
         let AssetId = event.target.attributes['data-target'].value;
+        let NombreEstado =  event.target.attributes['data-rel'].value;
         confirmarDialog(() => {
           setCargando(true);
             SetEstadoSyscaf(AssetId,Estado).then((response:AxiosResponse) =>{
-                successDialog("¡Operación Éxitosa!","");
-                ConsultarDatos();
-                setCargando(false);
+              if(response.statusText=="OK"){
+                let vehiculo = (Data as any[]).map((lis) =>{
+                  if(lis.assetId === AssetId){
+                    lis.estadoSyscaf = NombreEstado;
+                  }
+                  return lis;
+                });
+                setData(vehiculo);
+              }
+              successDialog("¡Operación Éxitosa!","");
+              setCargando(false);
             }).catch(() =>{
                 errorDialog("Ha ocurrido un error al cambiar el estado del activo","");
                 setCargando(false);
