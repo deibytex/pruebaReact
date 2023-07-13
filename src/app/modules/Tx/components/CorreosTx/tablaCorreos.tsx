@@ -19,7 +19,7 @@ type Props = {
 };
 
 export const TablaCorreosTx: React.FC<Props> = () => {
-    const TipoCorreoPrincipal = 4;
+   
     const { CorreosTx, ListaNotifacionId, setCorreoId, setCorreo, setTipoCorreo, setCorreosTx } = useDataCorreosTx();
 
     const [lstCorreosTx, setlstCorreosTx] = useState<CorreosTx[]>([]);
@@ -47,7 +47,7 @@ export const TablaCorreosTx: React.FC<Props> = () => {
     const showModal = () => {
         setShow(true);
     }
-
+    const [TipoCorreoPrincipal, setTipoCorreoPrincipal] = useState(4);
     let listadoCampos: MRT_ColumnDef<CorreosTx>[] =
         [
             {
@@ -67,6 +67,8 @@ export const TablaCorreosTx: React.FC<Props> = () => {
             let correos = (CorreosTx as CorreosTx[]).filter(lis => lis.ListaClienteNotifacionId == ListaNotifacionId);
             setlstCorreosTx(correos);
             setRowCount(correos.length);
+            let TipoCorreo = correos.filter(val =>val.TipoEnvio=="Principal");
+            (TipoCorreo.length != 0 ? setTipoCorreoPrincipal(TipoCorreo[0].tipoCorreo) :setTipoCorreoPrincipal(4));
         }
     }, [CorreosTx, ListaNotifacionId])
 
