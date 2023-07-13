@@ -13,16 +13,13 @@ export default function HomePostVenta() {
         ({ auth }) => auth.user
     );
     const vUser = user as UserModelSyscaf;
-
     const [dataAdmin, setDataAdmin] = useState<any[]>([]);
     const [indicadores, setIndicadores] = useState<any>();
     const [loader, setLoader] = useState(false);
     useEffect(() => {
         setLoader(true);
         GetInfoDashBoardAdmin(vUser.Id).then(
-
             (result) => {
-         
                 setDataAdmin(result.data)                
                 const data = result.data;
                 console.log(data.length)
@@ -31,32 +28,22 @@ export default function HomePostVenta() {
                     const Clientes = JSON.parse(data[0].Clientes);
                     const Conductores = JSON.parse(data[0].Conductores);
                     const VehiculosSinTx = JSON.parse(data[0].VehiculosSinTx);
-
                     let Indicadores = {
-
                         Assets: Assets.length,
                         Clientes: Clientes.length,
                         Conductores: Conductores.length,
                         VehiculosSinTx: VehiculosSinTx.length
                     };
-
                     console.log(Indicadores)
                     setIndicadores(Indicadores);
-
                 }
-
-
                 setLoader(false);
-
             }
         ).catch((e) => { console.log("error",e) });
-
         return () => {
             setDataAdmin([]);
         }
-
     }, [])
-
     return (<>
         <div className="row g-0 g-xl-5 g-xxl-8">
             {(indicadores) && (<>
@@ -70,7 +57,6 @@ export default function HomePostVenta() {
                     {/* end::Info */}
                 </Indicador>
             </div>
-
             <div className="col-xl-4">
                 <Indicador className="card-stretch mb-5  mb-xxl-8" Titulo={`Novedades (${indicadores.VehiculosSinTx})`} Subtitulo={"Tx, Señales"} >
                     {/* begin::Info */}
