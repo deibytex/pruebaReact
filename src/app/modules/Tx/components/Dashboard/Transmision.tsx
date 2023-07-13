@@ -7,7 +7,7 @@ import ReactApexChart from "react-apexcharts";
 import moment from "moment";
 
 const Transmision: React.FC = () =>{
-    const {DataTx, DataFiltradaTx, FiltradoTx,DataAcumulado, setFiltradoTx, setDataFiltradaTx} = useDataDashboard()
+    const {DataTx, DataFiltradaTx, FiltradoTx,DataAcumulado, setFiltradoTx, setDataFiltradaTx, SemanaSeleccionada} = useDataDashboard()
     const [DataTxAdmin, setDataTxAdmin] = useState<any[]>([]);
     const [PlacaSinTx, setPlacaSinTx] = useState<string>("0");
     const [ClienteSinTx, setClienteSinTx] = useState<string>("0");
@@ -18,6 +18,8 @@ const tableContainerRef = useRef<HTMLDivElement>(null);
 const [rowCount1, setRowCount1] = useState(0);
 const [rowCount2, setRowCount2] = useState(0);
 const [Scatter, setScatter] = useState<any>(null);
+const [AcumuladoTotal, setAcumuladoTotal] = useState<string>("0");
+const [AcumuladoParcial, setAcumuladoParcial] = useState<string>("0");
 const [VerticalTx, setVerticalTx] = useState<any>(null);
     //decimal de miles
     const format = (num:number) => {
@@ -241,6 +243,13 @@ const [VerticalTx, setVerticalTx] = useState<any>(null);
                         show: false
                       },
                 },
+                dataLabels: {
+                    enabled: true,
+                    enabledOnSeries: true,
+                    style: {
+                        colors: ['#424249']
+                    }
+                  },
             },
             series: [],
             dataLabels: {
@@ -260,9 +269,9 @@ const [VerticalTx, setVerticalTx] = useState<any>(null);
         }
         setVerticalTx(opcionesVertical);
      },[])
-//funcion que llena la grafica de los clientes
+    //funcion que llena la grafica de los clientes
      const DatosClientes = (data:any[]) =>{
-  //BARRAS
+        //BARRAS
          //agrupador general o fecha.
          let agrupadorGeneral = data.map((item) => {
             return item.clientenNombre;
@@ -356,10 +365,16 @@ const [VerticalTx, setVerticalTx] = useState<any>(null);
             );
      }
      const RetornarSerie = (data:any[]) => {
+        let DataActual = data.map((e:any) =>{
+            if(SemanaSeleccionada != undefined)
+                if(moment(e.Fecha).format("DD/MM/YYYY") == moment(SemanaSeleccionada['fecha']).format("DD/MM/YYYY")){
+                    return e;
+                }
+        }).filter((i) =>i);
+        console.log(DataActual);
         var dataChart = data;
         //Para los datos de la grafica principal
         let Datos = new Array();
-        let retornarDatos = new Array();
         //Agrupador por color.
         let Usuarios = dataChart.map((item) => {
             return item.Usuario;
@@ -371,7 +386,6 @@ const [VerticalTx, setVerticalTx] = useState<any>(null);
         }).filter((value, index, self:any) =>{
             return self.indexOf(value) === index;
         });
-        let totalAdmon:any =[]
         Usuarios.map((Usuario) =>{
             Fechas.forEach(Fecha => {
                 if(Usuario != undefined){
@@ -416,17 +430,10 @@ const [VerticalTx, setVerticalTx] = useState<any>(null);
             hash[current.name] = true;
             return exists;
           });
-        
-                // ApexCharts.exec('apexchart-scatter', 'updateOptions', {
-        //     // Para los nombres de la serie
-        //     //para que la lengenda me salga en la parte de abajo
-        //     labels: agrupadorData.filter((e) => e),
-        // });
-            // actializar los datos
+          setAcumuladoParcial(DataActual.length.toString())
+        setAcumuladoTotal(Data.map((e:any) =>e.data.map((i:any) =>i.y).reduce((e:any,a:any) => e+a)).reduce((i:any,o:any) =>i+o).toString());
+        // actializar los datos
         ApexCharts.exec('apexchart-scatter', 'updateSeries', Data);
-
-
-      
     };
     useEffect(() => {
         if(FiltradoTx){
@@ -474,6 +481,22 @@ const [VerticalTx, setVerticalTx] = useState<any>(null);
                                     <div className="text-center"><span id="EstadoCantidad" style={{fontSize:'26px'}}></span></div>
                                 </div>
                                 <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                                    <div className="text-center">
+                                        <div className="row">
+                                            <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                                            <label className="label label-sm control-label">Cantidad sin TX</label>
+                                                <div>
+                                                    <span className="" style={{fontSize:'26px'}}>{AcumuladoParcial}</span>
+                                                </div>
+                                            </div>
+                                            {/* <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                                                <label className="label label-sm control-label">Datos acumulado sin TX</label>
+                                                <div>
+                                                    <span className="" style={{fontSize:'26px'}}>{AcumuladoTotal}</span>
+                                                </div>
+                                            </div> */}
+                                        </div>
+                                    </div>
                                 {
                                     (Scatter != null) && (Scatter.options != undefined) && (<ReactApexChart options={Scatter.options} series={Scatter.series} type="scatter" height={300} />)
                                 }

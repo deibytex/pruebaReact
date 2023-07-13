@@ -111,16 +111,17 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
               }
             }
           },
+        },
+        dataLabels: {
+          enabled: true,
+          enabledOnSeries: true,
+          // style: {
+          //     colors: ['#304758']
+          // }
         }
       },
       series: [],
-      dataLabels: {
-        enabled: true,
-        enabledOnSeries: true,
-        style: {
-            colors: ['#304758']
-        }
-      }
+     
     }
     setSemanas(opciones);
     //Para las verticales
@@ -157,16 +158,17 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
 
             }
           },
-        }
+        },
+        dataLabels: {
+          enabled: true,
+          enabledOnSeries: true,
+          style: {
+            colors: ["#304758"]
+          }
+        },
       },
       series: [],
-      dataLabels: {
-        enabled: true,
-        enabledOnSeries: true,
-        style: {
-          colors: ["#304758"]
-        }
-      },
+     
       xaxis: {
         type: 'category'
       }
@@ -205,16 +207,17 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
               }
             }
           },
+        },
+        dataLabels: {
+          enabled: true,
+          enabledOnSeries: true,
+          // style: {
+          //   colors: ["#304758"]
+          // }
         }
       },
       series: [],
-      dataLabels: {
-        enabled: true,
-        enabledOnSeries: true,
-        style: {
-          colors: ["#304758"]
-        }
-      }
+     
     }
     setUnidadesActivas(opcionesUnidades);
     //OTRAS UNIDADES
@@ -250,16 +253,17 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
               }
             }
           },
+        },
+        dataLabels: {
+          enabled: true,
+          enabledOnSeries: true,
+          // style: {
+          //     colors: ['#424249']
+          // }
         }
       },
       series: [],
-      dataLabels: {
-        enabled: true,
-        enabledOnSeries: true,
-        style: {
-            colors: ['#424249']
-        }
-      }
+     
     }
     setOtrasUnidadesActivas(opcionesOtrasUnidades);
     //Para las verticales pero para el modal del cliente
@@ -305,16 +309,17 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
         },
         xaxis: {
           categories: [],
-        }
+        },
+        dataLabels: {
+          enabled: true,
+          enabledOnSeries: true,
+          style: {
+              colors: ['#424249']
+          }
+        },
       },
       series: [],
-      dataLabels: {
-        enabled: true,
-        enabledOnSeries: true,
-        style: {
-            colors: ['#424249']
-        }
-      },
+     
       // plotOptions: {
       //   bar: {
       //     horizontal: false
@@ -534,9 +539,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
     });
     // actializar los datos
     ApexCharts.exec('apexchart-unidades', 'updateSeries', datosUnidadesActivas);
-
     //OTRAS UNIDADES
-
     let nombreSeriesOtrasUnidades: any[] = []
     let cantidadUnidadesActivasOtras = 0;
     nombreSeriesOtrasUnidades = data.map((item: any) => {
@@ -813,26 +816,20 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
     };
   }, [BaseVC])
   const CargarSerieCliente = (Data: any[]) => {
-    let agrupadorGeneral = Data.map((item) => {
-      let a = (item.ClasificacionId == "No Definido" ? item.ActivoFacturable : item.ClasificacionId);
-      if (a == "Si" || a == "No")
-        return item.Base;
-    }).filter((value, index, self: any) => {
-      return self.indexOf(value) === index;
-    });
-    let arrayEstados = new Array();
-    // filtramos por los clientes para obtener la agrupacion por  estado
-    agrupadorGeneral.map(function (item) {
-      if (item != undefined) {
-        //  Semana.map(function (itemSemana) {
-        let filtroEstado = Data.filter(function (val, index) {
-          return (val.Base == item);
-        });
-        arrayEstados.push((filtroEstado.length == null ? 0 : filtroEstado.length));
-      }
-    });
+    let datosGrafica = Data.reduce((p, c) => {
+      const cat = c.Base ?? "NoDefinido"; // si no hay categoria se asigna no categorizado
+      let currCount = Object.hasOwn(p, cat) ? p[cat] : 0;
+      currCount++;
+      return {
+        ...p,
+        [cat]: currCount
+      };
+    }, {});
+
+    const datosOrdenado = Object.entries(datosGrafica).sort((a: any, b: any) => { return b[1] - a[1] });  
+   
     ApexCharts.exec('apexchart-verticalCliente', 'updateOptions', {
-      labels: agrupadorGeneral.filter((e) => e),
+      labels:datosOrdenado.map(m => m[0] ),
       legend: {
         show: true,
         position: 'bottom'
@@ -850,16 +847,11 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
     ApexCharts.exec('apexchart-verticalCliente', 'updateSeries',
       [
         {
-          name: [...agrupadorGeneral],//agrupadorGeneral.filter((e) => e),
-          data: arrayEstados.map((e) => e)
+          name: datosOrdenado.map(m =>  m[0]),
+          data: datosOrdenado.map(m =>  m[1])
         }
       ]
     );
-
-  }
-  const [show, setshow] = useState<boolean>(false);
-  const cargarModal = () =>{
-    setshow(true);
   }
   return (
     <div className="row">
@@ -874,9 +866,6 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
               ))}
             </CheckboxGroup></>)}
         </div>
-        {/* <div className="float-end">
-            <button onClick={cargarModal} className="btn btn-sm btn-primary mt-8" title="Ver churn"><i className="bi-table"></i></button>
-        </div> */}
       </div>
       <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-10">
         {(Data != undefined) && (<div className="shadow-lg">

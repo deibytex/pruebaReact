@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { formatNumberChart, locateFormatNumberNDijitos, locateFormatPercentNDijitos } from "../../../../../_start/helpers/Helper";
 import ReactApexChart from "react-apexcharts";
 import { object } from "yup";
+import { setIn } from "formik";
 
 type Props = {
 }
@@ -35,6 +36,16 @@ const Churn: React.FC<Props> = ({  }) => {
 
             }
           }
+        },
+        dataLabels: {
+
+          enabled: true,
+          enabledOnSeries: true,
+          formatter: function (value: any, { seriesIndex, dataPointIndex, w }: any) {
+            return value;
+           // return seriesIndex == 2 ? locateFormatPercentNDijitos(value, 2) : locateFormatNumberNDijitos(value, 2)
+          },
+
         },
         xaxis: {
           categories: [],
@@ -78,16 +89,7 @@ const Churn: React.FC<Props> = ({  }) => {
           }
         }
         ],
-        dataLabels: {
-
-          enabled: true,
-          enabledOnSeries: true,
-          formatter: function (value: any, { seriesIndex, dataPointIndex, w }: any) {
-            return value;
-           // return seriesIndex == 2 ? locateFormatPercentNDijitos(value, 2) : locateFormatNumberNDijitos(value, 2)
-          },
-
-        }
+       
       },
       series: []
 
@@ -181,6 +183,21 @@ const Churn: React.FC<Props> = ({  }) => {
       }
     ]
     );
+
+    let Sumas = 0 ;
+    let SumasSalidas = 0;
+    let SumasDiferencias = 0;
+    if(DataChurn.length != 0){
+      Sumas = DataChurn.map((e:any) => e.Entradas).reduce((e,a) => e+a);
+      SumasSalidas =  DataChurn.map((e:any) => e.Salidas).reduce((e,a) => e+a);
+      SumasDiferencias =  DataChurn.map((e:any) => e.Diferencia).reduce((e,a) => e+a);
+    }
+
+
+    // let SumasSalidas = Salida.reduce((e,a) =>e+a)
+    setTotalIn(Sumas.toString());
+    setTotalOut(SumasSalidas.toString());
+    setTotalResultado(SumasDiferencias.toString())
     setChurnDataEntradas(DataChurn);
     setCargando(false);
   }
@@ -223,10 +240,10 @@ const Churn: React.FC<Props> = ({  }) => {
     },
     {
       accessorKey: 'Diferencia',
-      header: 'Diferencia',
+      header: 'Churn',
       size: 100,
       Cell: ({ cell, column, row, table }) => {
-        let dato = (<span title={""} className="">{row.original.Diferencia}</span>)
+        let dato = (<span title={""} className="text-left">{row.original.Diferencia}</span>)
         return dato;
       }
     },
@@ -235,15 +252,6 @@ const Churn: React.FC<Props> = ({  }) => {
         <div className="container">
           <div className="row">
             <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 pt-12">
-              {/* <div className="card">
-                <div className="d-flex justify-content-between mb-2">
-                  <div className="mx-auto">
-                    <div className="ms-3 text-center">
-                      <h3 className="mb-0">{`CHURN ${SemanaAnterior} y ${SemanaActual}`} </h3>
-                    </div>
-                  </div>
-                </div>
-              </div> */}
               <div className="card">
               {
               (opciones != null) 
@@ -288,22 +296,29 @@ const Churn: React.FC<Props> = ({  }) => {
                     muiTableContainerProps={{ sx: { maxHeight: '300px' } }}
                   />
                 )}
-                {/* <div className="container" style={{ display: (churnDataEntradas.length != 0 ? "inline" : "none") }}>
+                <div className="container" style={{ display: (churnDataEntradas.length != 0 ? "inline" : "none") }}>
                   <div className="row">
-                    <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                    <div className="col-sm-2 col-xl-2 col-md-2 col-lg-2">
                       <span className="fw-bolder">Total</span>
                     </div>
-                    <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4  text-left">
-                      <span className="fw-bolder text-end">{TotalIn}</span>
+                    <div className="col-sm-2 col-xl-2 col-md-2 col-lg-2">
                     </div>
-                    <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4  text-left">
+                    <div className="col-sm-2 col-xl-2 col-md-2 col-lg-2 text-center">
+                       <span className="fw-bolder">{TotalIn}</span>
+                    </div>
+                    <div className="col-sm-1 col-xl-1 col-md-1 col-lg-1  text-center">
+                    </div>
+                    <div className="col-sm-2 col-xl-2 col-md-2 col-lg-2  text-left">
                       <span className="fw-bolder text-end">{TotalOut}</span>
                     </div>
-                    {/* <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3  text-center">
-                  <span className="fw-bolder text-end">{TotalResultado}</span>
-                </div> 
+                    <div className="col-sm-2 col-xl-2 col-md-2 col-lg-2  text-left">
+                      <span className="fw-bolder text-center">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{TotalResultado}</span> 
+                    </div>
+                    <div className="col-sm-1 col-xl-1 col-md-1 col-lg-1  text-left">
+                     
+                    </div>
                   </div>
-                </div> */}
+                </div>
               </div>
               <div style={{ display: (churnDataEntradas.length == 0 ? "inline" : "none") }}>
                 <div className="card">

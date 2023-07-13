@@ -21,4 +21,5 @@ export interface TablaDTO{
     assetId:string;
     estadoSyscaf:string;
     Cliente:string;
+    accion:string
 }

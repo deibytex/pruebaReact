@@ -154,16 +154,17 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
 
             }
           },
-        }
+        },
+        dataLabels: {
+          enabled: true,
+          enabledOnSeries: true,
+          style: {
+              colors: ['#424249']
+          }
+        },
       },
       series: [],
-      dataLabels: {
-        enabled: true,
-        enabledOnSeries: true,
-        style: {
-            colors: ['#424249']
-        }
-      },
+     
       xaxis: {
         type: 'category'
       }
@@ -301,16 +302,17 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
           },
           xaxis: {
             categories: [],
-          }
+          },
+          dataLabels: {
+            enabled: true,
+            enabledOnSeries: true,
+            style: {
+                colors: ['#424249']
+            }
+          },
         },
         series: [],
-        dataLabels: {
-          enabled: true,
-          enabledOnSeries: true,
-          style: {
-              colors: ['#424249']
-          }
-        },
+       
         // plotOptions: {
         //   bar: {
         //     horizontal: false
@@ -763,31 +765,7 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
     }
   }, [BaseV])
 
-// //para las grafica de los cllientes dentro del modal
-//   useEffect(() =>{
-//     //Para las verticales pero para el modal del cliente
-//     let opcionesVerticalCliente = {
-//      options: {
-//        chart: {
-//          id: 'apexchart-verticalCliente',
-//            fontFamily: 'Montserrat',
-//            stacked: false,
-   
-//        },
-//        xaxis: {
-//            categories: [],
-//        }
-//    },
-//    series: [],
-//    dataLabels: {
-//        enabled: true
-//    }
-//    }
-//    setVerticalCliente(opcionesVerticalCliente);
-//      return function cleanUp() {
-//        //SE DEBE DESTRUIR EL OBJETO CHART
-//      };
-//    },[render,BaseX])
+
 
    //Vertical Cliente
   useEffect(() => {
@@ -822,41 +800,20 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
   }, [BaseVC])
 
    const CargarSerieCliente = (Data: any[]) => {
-    let agrupadorGeneral = Data.map((item) => {
-      let a = (item.ClasificacionId == "No Definido" ? item.ActivoFacturable : item.ClasificacionId);
-      if (a == "Si" || a == "No")
-        return item.Base;
-    }).filter((value, index, self: any) => {
-      return self.indexOf(value) === index;
-    });
-    let arrayEstados = new Array();
-    // filtramos por los clientes para obtener la agrupacion por  estado
-    agrupadorGeneral.map(function (item) {
-      if (item != undefined) {
-        //  Semana.map(function (itemSemana) {
-        let filtroEstado = Data.filter(function (val, index) {
-          return (val.Base == item);
-        });
-        arrayEstados.push((filtroEstado.length == null ? 0:filtroEstado.length));
-      }
-    });
-    ApexCharts.exec('apexchart-verticalCliente', 'updateOptions', {
-      chart: {
-        fill: {
-          colors: ['#1f77b4', '#aec7e8']
-        },
-        toolbar: {
-          show: false
-        },
+    let datosGrafica = Data.reduce((p, c) => {
+      const cat = c.Base ?? "NoDefinido"; // si no hay categoria se asigna no categorizado
+      let currCount = Object.hasOwn(p, cat) ? p[cat] : 0;
+      currCount++;
+      return {
+        ...p,
+        [cat]: currCount
+      };
+    }, {});
 
-      },
-      colors: ['#1f77b4', '#aec7e8'],
-    }
-    );
+    const datosOrdenado = Object.entries(datosGrafica).sort((a: any, b: any) => { return b[1] - a[1] });  
+   
     ApexCharts.exec('apexchart-verticalCliente', 'updateOptions', {
-      // Para los nombres de la serie
-      //para que la lengenda me salga en la parte de abajo
-      labels: agrupadorGeneral.filter((e) => e),
+      labels:datosOrdenado.map(m => m[0] ),
       legend: {
         show: true,
         position: 'bottom'
@@ -869,18 +826,13 @@ const UnidadesActivasMIX: React.FC<Props> = ({ tab }) => {
         }
       },
       //para darle forma a los totales
-      plotOptions: {
-        bar: {
-          horizontal: false
-        }
-      }
     });
     // actializar los datos
     ApexCharts.exec('apexchart-verticalCliente', 'updateSeries',
       [
         {
-          name: [...agrupadorGeneral],
-          data:[...arrayEstados]
+          name: datosOrdenado.map(m =>  m[0]),
+          data: datosOrdenado.map(m =>  m[1])
         }
       ]
     );

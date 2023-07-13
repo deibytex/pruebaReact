@@ -34,7 +34,7 @@ export default function Dashboard() {
                                     <ExportarExcel></ExportarExcel>
                                 </div>
                                 <div className="col-sm-2 col-md-2 col-lg-2 col-xl-2 col-xxl-2">
-                                    <ActualizarUnidades></ActualizarUnidades>
+                                    {/* <ActualizarUnidades></ActualizarUnidades> */}
                                 </div>
                             </div>
                             <div className="row shadow bg-secundary">

@@ -167,11 +167,11 @@ const FiltrarPestañas = (row:any) =>{
                             <li className="nav-item" role="presentation" onClick={FiltrarPestañas}>
                                 <button className={`nav-link text-success active fw-bolder`} id="pills-propios-tab" data-bs-toggle="pill" data-bs-target={`#pill-propios`} type="button" role="tab" aria-controls="pills-propios" aria-selected="false">OBC</button>
                             </li>
-                            <li className="nav-item" role="presentation" onClick={FiltrarPestañas}>
-                                <button className={`nav-link text-success fw-bolder`} id="pills-churn-tab" data-bs-toggle="pill" data-bs-target={`#pill-churn`} type="button" role="tab" aria-controls="pills-propios" aria-selected="false">Churn</button>
-                            </li>
                             <li className="nav-item" role="presentation"  onClick={FiltrarPestañas}>
                                 <button className={`nav-link text-success fw-bolder`} id="pills-arrendado-tab" data-bs-toggle="pill" data-bs-target={`#pill-alquilado`} type="button" role="tab" aria-controls="pills-alquilado" aria-selected="false">Mix Visión</button>
+                            </li>
+                            <li className="nav-item" role="presentation" onClick={FiltrarPestañas}>
+                                <button className={`nav-link text-success fw-bolder`} id="pills-churn-tab" data-bs-toggle="pill" data-bs-target={`#pill-churn`} type="button" role="tab" aria-controls="pills-propios" aria-selected="false">Churn</button>
                             </li>
                         </ul>
                         <div className="tab-content" id="myTabContent">
@@ -179,14 +179,14 @@ const FiltrarPestañas = (row:any) =>{
                                     {/* Para los OBC */}
                                     {(tab == "#tab1") && (MontarOBC) && (<UnidadesActivasOBC tab={tab}></UnidadesActivasOBC>)}  
                             </div>
+                            <div className="tab-pane fade" id="pill-alquilado" role="tabpanel" aria-labelledby="profile-tab">
+                                    {/* Para los MIX */}
+                                    {(tab == "#tab3") && (MontarMX) && (<UnidadesActivasMIX tab={tab}></UnidadesActivasMIX>)}  
+                            </div>
                             <div className="tab-pane fade" id="pill-churn" role="tabpanel" aria-labelledby="home-tab">
                                     {/* Para los churn */}
                                   
                                     {(tab == "#tab2") && (Montarchurn)  && (<Churn></Churn>)}  
-                            </div>
-                            <div className="tab-pane fade" id="pill-alquilado" role="tabpanel" aria-labelledby="profile-tab">
-                                    {/* Para los MIX */}
-                                    {(tab == "#tab3") && (MontarMX) && (<UnidadesActivasMIX tab={tab}></UnidadesActivasMIX>)}  
                             </div>
                         </div>
                     </div>
