@@ -19,7 +19,7 @@ type Props = {
 };
 
 export const TablaCorreosTx: React.FC<Props> = () => {
-
+    const TipoCorreoPrincipal = 4;
     const { CorreosTx, ListaNotifacionId, setCorreoId, setCorreo, setTipoCorreo, setCorreosTx } = useDataCorreosTx();
 
     const [lstCorreosTx, setlstCorreosTx] = useState<CorreosTx[]>([]);
@@ -82,13 +82,20 @@ export const TablaCorreosTx: React.FC<Props> = () => {
     const deleteCorreo = (row: any) => {
         //Verifico si el correo es el unico que viene marcado desde la base de datos como principal
         let EsUnico =  lstCorreosTx.filter((item:any) =>{
-           return (item.tipoCorreo == row.original.tipoCorreo ? item : null)
-        })
+           return (item.tipoCorreo == TipoCorreoPrincipal ? item : null)
+        });
+        
         //Si es unico no dejo que lo eliminen, hasta que no haya mas de 1 como principal
         if(EsUnico.length == 1){
-            errorDialog("No puede eliminar este correo ya que es el unico principal","");
-            return false;
+            let filtro = EsUnico.filter((val:any) =>{
+                return (val.CorreoTxIdS == row.original.CorreoTxIdS ? val:null);
+            });
+            if(filtro.length == 1){
+                errorDialog("No puede eliminar este correo ya que es el unico principal","");
+                return false;
+            }
         }
+        
         //Sino elimino el correo.
         confirmarDialog(() => {
             deleteCorreosTx(row.original.CorreoTxIdS).then((response) => {
