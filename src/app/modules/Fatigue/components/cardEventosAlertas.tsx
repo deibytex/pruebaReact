@@ -462,6 +462,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         toaster.push(message('success', "Gestionar", "Gestión Guardada"), {
           placement: 'topCenter'
         });
+
         setData([...Data, JSON.parse(JSON.stringify(GestorObervaciones))] as any[]);
         setobervacionGestion("");
         getAlertas(clienteIds as string).then((response) => {
@@ -486,6 +487,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   //gestión gestor
   const setGestorPreoperacional = (alertaId: number) => {
 
+    //areglo temporal primera muestra menos 5 horas tras actulizar se arregla
     let GestorObervaciones: any = {};
     GestorObervaciones = {
       fechaapertura: FechaServidor(),
@@ -550,6 +552,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
     if (datos[0] != null) {
       let last = datos[0].at(-1);
+      console.log(datos[0]);
       setFechaApertura(moment(last.fechaapertura as Date).format('DD/MM/YYYY'));
       setFechaGestion(moment(last.fechagestion as Date).format('DD/MM/YYYY'));
       setobervacionGestionlast(last.value);
