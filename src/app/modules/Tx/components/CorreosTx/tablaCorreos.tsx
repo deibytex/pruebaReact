@@ -67,6 +67,7 @@ export const TablaCorreosTx: React.FC<Props> = () => {
             let correos = (CorreosTx as CorreosTx[]).filter(lis => lis.ListaClienteNotifacionId == ListaNotifacionId);
             setlstCorreosTx(correos);
             setRowCount(correos.length);
+            //Para ver que cual es el tipo de correo marcado como principal, sino hay ninguno lo que se hace es que se usa el ID 4 que es el principal desde el inicio.
             let TipoCorreo = correos.filter(val =>val.TipoEnvio=="Principal");
             (TipoCorreo.length != 0 ? setTipoCorreoPrincipal(TipoCorreo[0].tipoCorreo) :setTipoCorreoPrincipal(4));
         }
