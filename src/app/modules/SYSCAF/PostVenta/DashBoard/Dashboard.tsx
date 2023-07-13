@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 import { KTSVG } from "../../../../../_start/helpers";
-import { Indicador } from "./Indicadores/General";
+import { Indicador } from "./Indicadores/Indicador";
 import { VehiculosSinTx } from "./Indicadores/VehiculosSinTx";
 import { GetInfoDashBoardAdmin } from "../data/PostVentaData";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../../setup";
 import { UserModelSyscaf } from "../../../auth/models/UserModel";
-import { useDataParqueo } from "../../../Ebus/core/ParqueoProvider";
 import { locateFormatPercentNDijitos } from "../../../../../_start/helpers/Helper";
 
 export default function HomePostVenta() {
