@@ -2,7 +2,6 @@ const apiURL = process.env.REACT_APP_API_URL;
 const apiURLDWH = process.env.REACT_APP_API_DWH_URL;
 const apiURLPORTAL = process.env.REACT_APP_API_MVC_URL;
 const apiFRESHDESK = process.env.REACT_APP_FRESHDESK;
-console.log(apiURL,apiURLDWH, apiURLPORTAL )
 /*URL ACCOUNT PARA EDITAR, CREAR */
 
 export const Auth_EditarUsuario = `${apiURL}/account/editar`
