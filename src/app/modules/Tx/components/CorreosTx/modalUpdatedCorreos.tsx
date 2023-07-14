@@ -15,11 +15,8 @@ type Props = {
 };
 
 export const UpdateCorreos: React.FC<Props> = ({ show, handleClose, title }) => {
-
     const { ListaNotifacionId, CorreoId, Correo, TipoCorreo, detalleListas, CorreosTx, setCorreo, setTipoCorreo, setCorreosTx } = useDataCorreosTx();
-
     const [errorCorreo, seterrorCorreo] = useState<any>("");
-
     function SelectTipoCorreo() {
         return (
             <Form.Select className=" mb-3 " name="tipocorreo" value={TipoCorreo} onChange={(e) => {
@@ -82,7 +79,7 @@ export const UpdateCorreos: React.FC<Props> = ({ show, handleClose, title }) => 
     const getCorreo = (e: any) => {
         const regex = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
         setCorreo(e.target.value);
-        !Correo || regex.test(Correo) === false ? seterrorCorreo("Correo No Valido") : seterrorCorreo("")
+        !Correo || regex.test(e.target.value) === false ? seterrorCorreo("Correo No Valido") : seterrorCorreo("")
     };
 
     return (
