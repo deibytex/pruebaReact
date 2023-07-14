@@ -27,6 +27,7 @@ import { dualList } from "../../../../../_start/helpers/Models/DualListDTO";
 export default function ReporteSafety() {
     //Constante para el mapa unicamente MARCIAL
     const [Eventos, setEventos] =useState<any[]>([]);
+    const [TituloEventos, setTitulosEventos] = useState<string>("Todos");
     let filtrosBase: FiltrosReportes = {
         FechaInicialInicial: moment().add(-60, 'days').startOf('day').toDate(),
         FechaFinalInicial: moment().startOf('day').toDate(),
@@ -1023,6 +1024,7 @@ export default function ReporteSafety() {
                 onChange={(selected: any) => {
                     // dejamos los seleccionados
                     setEventosSeleccionados(selected)
+                    TituloMapa(selected);
                     // modificacion de filtros
                     let tiporeporte = [...TipoReporte];
                     tiporeporte[tabSel].filtros = { ...TipoReporte[0].filtros, Vehiculos: selected };
@@ -1046,6 +1048,11 @@ export default function ReporteSafety() {
                 }
             </Form.Select>
         );
+    };
+    const TituloMapa = (titulo:any) =>{
+        setTitulosEventos(
+            (titulo.length == 1 ? titulo[0]: (titulo.length  >= 5 ? "5 Eventos o Mas..." : titulo.join()))
+        )
     }
 
     return (<>
@@ -1529,8 +1536,8 @@ export default function ReporteSafety() {
                                     <Stack style={{ width: "100%", height: "100%" }}>
                                         {/* <HomePostVenta/> */}
                                         <div className="w-100">
-                                            <div className="text-center">
-                                                <h3>{}</h3>
+                                            <div className="text-center ms-9">
+                                                <h6 className="text-muted">{TituloEventos}</h6>
                                             </div>
                                         </div>
                                         {(tabSelMapa === 1) && (Eventos.length != 0) && (<MapTest Data={Eventos} />)}
