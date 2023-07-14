@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useSelector } from "react-redux";
-import { CORE_ExecProcedureByTipoConsulta, CORE_getconsultadinamicas, CORE_getconsultadinamicasUser, CORE_GetConsultasDinamicas, urlFatigueGetConfiguracionAlerta, urlFatigueSetConfiguracionAlerta } from "../../../apiurlstore";
+import { CORE_ExecProcedureByTipoConsulta,  CORE_getconsultadinamicas, CORE_getconsultadinamicasUser, CORE_GetConsultasDinamicas, CORE_getGruposSeguridad, CORE_setGrupoSeguridad, urlFatigueGetConfiguracionAlerta, urlFatigueSetConfiguracionAlerta } from "../../../apiurlstore";
 import { RootState } from "../../../setup";
 import { ParamsEndPointDynamic } from "../Models/paramsConsultasDinamicas";
 import jwt_decode from "jwt-decode"
@@ -165,4 +165,23 @@ export function SetConfiguracionAlerta(data: any) {
       headers: { 'Content-Type': 'application/json' },
     }
   );
+}
+export  function  Post_getGruposSeguridad(clientesIdS: number | null) {
+  return  axios({
+    method: 'get',
+    url:  CORE_getGruposSeguridad,     
+    headers: { 'Content-Type': 'application/json' },
+    params : { clientesIdS }
+  });
+}
+
+
+export function Post_SetGrupoSeguridad(body: any) {
+  return axios({
+    method: 'post',
+    url: CORE_setGrupoSeguridad,
+    data: JSON.stringify(body),
+    headers: { 'Content-Type': 'application/json' },
+    params: {}
+  });
 }
