@@ -184,22 +184,7 @@ const TableReporte : React.FC = () =>{
            </div>
        )
      }
-     function ConsultarDatos(){
-      setIsLoading(true);
-        let FechaActual = moment().add("hours",10).add("minutes",30).format("YYYY/MM/DD").toString();
-        let Cliente = (ClienteSeleccionado != undefined ? ClienteSeleccionado?.clienteIdS.toString():"");
-        GetInformeTransmision(Cliente,FechaActual).then((response:AxiosResponse) =>{
-            setData(response.data);
-            setRowCount(response.data.length);
-            setDatalocal(response.data);
-            setCargando(false);
-            setIsLoading(false)
-            setFiltrado(false);
-        }).catch(() =>{
-            errorDialog("Ha ocurrido un error al intentar consultar el informe","");
-            setIsError(true);
-        })
-     }
+    
      const ConsultarEstados = () =>{
       setCargando(true);
       GetEstadosTransmision(TipoIds).then((response:AxiosResponse<any>) =>{
@@ -211,7 +196,7 @@ const TableReporte : React.FC = () =>{
      }
 
      useEffect(() =>{
-        ConsultarDatos();
+        
         ConsultarEstados();
         (Filtrado == undefined ? setDatalocal((Data? Data:[])):setDatalocal((DataFiltrada?DataFiltrada:[])));
         return () => setData([]);
@@ -251,9 +236,11 @@ const TableReporte : React.FC = () =>{
                 setCargando(false);
             })
         }, `¿Esta seguro que desea cambiar el estado del activo?`, 'Guardar')
-     };
+     }; 
+
     return(
         <>
+          
         <BlockUi tag="span" className="shadow-sm" loader={<><img alt="Logo" src="/media/logos/logo-compact.svg" className="mh-50px"/> Cargando...</>}  keepInView blocking={(Cargando == undefined? true:Cargando)}>
             <MaterialReactTable
               localization={MRT_Localization_ES}
@@ -283,7 +270,7 @@ const TableReporte : React.FC = () =>{
              enablePagination={false}
              enableRowVirtualization
              muiTableContainerProps={{
-              sx: { maxHeight: '300px' }, //give the table a max height
+              sx: { maxHeight: '500px' }, //give the table a max height
             }}
              rowCount={rowCount}
              enableFilters

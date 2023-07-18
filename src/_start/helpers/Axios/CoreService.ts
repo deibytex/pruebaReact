@@ -145,6 +145,14 @@ export const isExpire = (accessToken: string) => {
 
   return (diffTime < 0);  // si esta dentro de los 10  minutos refrescamos el token de lo contrario se debera loguear nuevamente 
 }
+export  function GetClientes(props:any) {
+  return  Post_getconsultadinamicasUser({
+    Clase: "TxQueryHelper",
+    NombreConsulta: "GetClienteTx",
+    Pagina: null,
+    RecordsPorPagina: null
+  }, props )
+}
 
 export function GetConfiguracionAlerta(data: any) {
   return axios(

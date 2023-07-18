@@ -120,7 +120,7 @@ const DataCorreosTX: React.FC = ({ children }) => {
 
             setClientes(response.data);
             setClienteIdS(datos["clienteIdS"]);
-            setClienteId(datos["clienteId"]);
+            setClienteId(datos["ClienteId"]);
 
         }
         ).catch((error) => {

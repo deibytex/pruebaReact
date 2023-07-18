@@ -142,14 +142,7 @@ export function Post_GetConsultasDinamicas(props: ParamsEndPointDynamic, body: a
     });
   }
 
-  export  function GetClientes(props:any) {
-    return  axios({
-      method: 'get',
-      url: CLIENTE_GetClientes,     
-      headers: { 'Content-Type': 'application/json' },
-      params : props
-    });
-  }
+
 
   export  function GetClientesActiveEvent(props:any) {
     return  axios({

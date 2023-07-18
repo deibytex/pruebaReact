@@ -1,9 +1,9 @@
-import { GetClientes, GetClientesActiveEvent, Post_GetClientesUsuarios, Post_GetConsultasDinamicas, Post_GetListadoClientesUsuario, Post_GetLocations, Post_GetTiempoActualizacion, setClientesActiveEvent } from "../../../../_start/helpers/Axios/DWHService";
+import { GetClientes } from "../../../../_start/helpers/Axios/CoreService";
+import {  GetClientesActiveEvent, Post_GetClientesUsuarios, Post_GetConsultasDinamicas, Post_GetListadoClientesUsuario, Post_GetLocations, Post_GetTiempoActualizacion, setClientesActiveEvent } from "../../../../_start/helpers/Axios/DWHService";
 
 export  function ObtenerListadoCLientes() {
     var params: { [id: string]: string | null; } = {};
-    params['Estado'] = "1";
-    return  GetClientes(params);
+     return  GetClientes(params);
 }
 
 

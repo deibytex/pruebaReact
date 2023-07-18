@@ -1,9 +1,9 @@
-import { Post_ExecProcedureByTipoConsulta, Post_getconsultadinamicas } from "../../../../_start/helpers/Axios/CoreService";
-import { GetClientes } from "../../../../_start/helpers/Axios/DWHService";
+import { GetClientes, Post_ExecProcedureByTipoConsulta, Post_getconsultadinamicas } from "../../../../_start/helpers/Axios/CoreService";
+
 
 export function getListadoCLientes() {
     var params: { [id: string]: string | null; } = {};
-    params['Estado'] = "1";
+
     return GetClientes(params);
 }
 

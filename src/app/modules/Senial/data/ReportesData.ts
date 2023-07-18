@@ -1,8 +1,9 @@
-import { GetClientes, Post_GetConsultasDinamicas, Post_GetConsultasDinamicasProcedure } from "../../../../_start/helpers/Axios/DWHService";
+import { GetClientes } from "../../../../_start/helpers/Axios/CoreService";
+import {  Post_GetConsultasDinamicas, Post_GetConsultasDinamicasProcedure } from "../../../../_start/helpers/Axios/DWHService";
 
 export function GetListaClientes() {
     var params: { [id: string]: string | null | undefined;} = {};
-    params['Estado'] = '1';
+ 
     return  GetClientes(params);
 }
 export function GetReporte(FechaInicial:string, FechaFinal:string, clientesIds :string) {

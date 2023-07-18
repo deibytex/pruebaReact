@@ -17,7 +17,7 @@ export const FiltrosCorreos: React.FC<Props> = () => {
 
     //Funciones de filtro - seteo
     const [lstListaNotifacion, setlstListaNotifacion] = useState<ListaNotifacion[]>([]);
-    const [lstClientes, setlstClientes] = useState<Clientes[]>([]);
+    const [lstClientes, setlstClientes] = useState<any[]>([]);
     const [ListaNotificacionId, setListaNotificacionId] = useState('');
 
     //Modal
@@ -50,7 +50,7 @@ export const FiltrosCorreos: React.FC<Props> = () => {
                 return (arr == item.clienteIdS)
             })
 
-            fill != null ? filtered.push(fill[0]) : filtered.push();
+            if(fill != null ) filtered.push(fill[0]);
         });
 
         setlstClientes(filtered);
@@ -79,13 +79,13 @@ export const FiltrosCorreos: React.FC<Props> = () => {
     useEffect(() => {
         if (Clientes.length > 0) {
             //filtramos la lista según el cliente id
-            let clienteIdfilter = (Clientes as Clientes[]).filter(function (arr) {
+            let clienteIdfilter = (Clientes as any[]).filter(function (arr) {
                 return (arr.clienteIdS == ClienteIdS)
             });
 
             // traemos la primera posicipon del filtro para actualizar el clinet id
             const [clienteId] = clienteIdfilter;
-            setClienteId(clienteId.clienteId)
+            setClienteId(clienteId.ClienteId)
         }
 
     }, [ClienteIdS])
@@ -98,9 +98,11 @@ export const FiltrosCorreos: React.FC<Props> = () => {
                 //validar con yuli si se puede obtener el key desde aquí                 
                 setClienteIdS(e.currentTarget.value as any);
             }}>
-                {(lstClientes).map((cli) => {
+                {(lstClientes) &&  (lstClientes).filter( f=> f != undefined).map((cli:any) => {
+                
                     return (
-                        <option key={cli.clienteId} value={cli.clienteIdS}>
+                        <option key={cli.ClienteId} value={cli.clienteIdS
+                        }>
                             {cli.clienteNombre}
                         </option>
                     );

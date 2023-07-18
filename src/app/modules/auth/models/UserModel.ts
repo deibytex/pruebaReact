@@ -42,7 +42,8 @@ export interface UserModelSyscaf {
   auth?: AuthModel;
   tipoClienteid?: TipoUsuario;
   menu : string,
-  preoperacional: string
+  preoperacional: string,
+  perfil: string | null | undefined
 }
 export interface UserDTO{
   id: string;

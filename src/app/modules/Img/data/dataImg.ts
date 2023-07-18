@@ -1,12 +1,12 @@
 import axios from "axios";
-import { GetClientes, Post_GetConsultasDinamicas } from "../../../../_start/helpers/Axios/DWHService";
+import {  Post_GetConsultasDinamicas } from "../../../../_start/helpers/Axios/DWHService";
 import { DWH_getconsultadinamicasprocedure } from "../../../../apiurlstore";
+import { GetClientes } from "../../../../_start/helpers/Axios/CoreService";
 
 const tipoPreferencia = "2";
 
 export  function getListadoClientes() {
-    var params: { [id: string]: string | null; } = {};
-    params['Estado'] = "1";
+    var params: { [id: string]: string | null; } = {};   
     return  GetClientes(params);
 };
 

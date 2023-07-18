@@ -1,9 +1,9 @@
-import { Post_getconsultadinamicasUser } from "../../../../_start/helpers/Axios/CoreService";
-import { GetClientes, Post_GetConsultasDinamicas, Post_GetConsultasDinamicasUserDWH } from "../../../../_start/helpers/Axios/DWHService";
+import { GetClientes, Post_getconsultadinamicasUser } from "../../../../_start/helpers/Axios/CoreService";
+import {  Post_GetConsultasDinamicas, Post_GetConsultasDinamicasUserDWH } from "../../../../_start/helpers/Axios/DWHService";
 
 export  function ObtenerListadoCLientes() {
     var params: { [id: string]: string | null; } = {};
-    params['Estado'] = "1";
+  
     return  GetClientes(params);
 }
 

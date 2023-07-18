@@ -1,5 +1,5 @@
-import { Post_SetGrupoSeguridad, Post_getGruposSeguridad, Post_getconsultadinamicas } from "../../../../_start/helpers/Axios/CoreService";
-import { GetClientes } from "../../../../_start/helpers/Axios/DWHService";
+import { GetClientes, Post_SetGrupoSeguridad, Post_getGruposSeguridad, Post_getconsultadinamicas } from "../../../../_start/helpers/Axios/CoreService";
+
 
 export function GetGruposSeguridad(clientesIdS: number | null){
     return Post_getGruposSeguridad(clientesIdS);
@@ -17,7 +17,7 @@ export function SetGruposSeguridad(nombre:string, descripcion:string, grupoSegur
 
 export function getListadoClientes() {
     var params: { [id: string]: string | null; } = {};
-    params['Estado'] = "1";
+  
     return GetClientes(params);
 }
 

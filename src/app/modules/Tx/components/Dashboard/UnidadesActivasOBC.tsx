@@ -6,13 +6,14 @@ import { Modal } from "react-bootstrap-v5";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import { Churn } from "./churn";
+import { FiltroData } from "../../data/Dashboard";
 
 
 type Props = {
   tab: string;
 }
 const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
-  const { Data, DataFiltrada, Filtrado, setFiltrado, setDataFiltrada, setCargando, DataAcumulado, showChurn, setshowChurn } = useDataDashboard();
+  const { Data, DataFiltrada, Filtrado, setFiltrado, setDataFiltrada, setCargando } = useDataDashboard();
   //constantes para las graficas en general.
   const [base, SetBase] = useState<string>("");
   const [baseE, SetBaseE] = useState<string>("");
@@ -50,7 +51,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       size: 100
     }
   ]
- 
+
   const defaultPriopios: any[] = [
     {
       name: 'Syscaf',
@@ -90,272 +91,259 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
     setEventsSelected(aux);
   };
   useEffect(() => {
-    let opciones = {
-      options: {
-        chart: {
-          id: 'apexchart-semanas',
-          fontFamily: 'Montserrat',
-          zoom: {
+    if (Data) {
+      let opciones = {
+        options: {
+          chart: {
+            id: 'apexchart-semanas',
+            fontFamily: 'Montserrat',
+            zoom: {
+              enabled: true,
+              type: 'x',
+              autoScaleYaxis: false,
+              zoomedArea: {
+                fill: {
+                  color: '#90CAF9',
+                  opacity: 0.4
+                },
+                stroke: {
+                  color: '#0D47A1',
+                  opacity: 0.4,
+                  width: 1
+                }
+              }
+            },
+          },
+          dataLabels: {
             enabled: true,
-            type: 'x',
-            autoScaleYaxis: false,
-            zoomedArea: {
-              fill: {
-                color: '#90CAF9',
-                opacity: 0.4
-              },
-              stroke: {
-                color: '#0D47A1',
-                opacity: 0.4,
-                width: 1
-              }
-            }
-          },
-        },
-        dataLabels: {
-          enabled: true,
-          enabledOnSeries: true,
-          // style: {
-          //     colors: ['#304758']
-          // }
-        }
-      },
-      series: [],
-     
-    }
-    setSemanas(opciones);
-    //Para las verticales
-    let opcionesVertical = {
-      options: {
-        chart: {
-          id: 'apexchart-vertical',
-          fontFamily: 'Montserrat',
-          zoom: {
-            enabled: true,
-            type: 'x',
-            autoScaleYaxis: false,
-            zoomedArea: {
-              fill: {
-                color: '#90CAF9',
-                opacity: 0.4
-              },
-              stroke: {
-                color: '#0D47A1',
-                opacity: 0.4,
-                width: 1
-              }
-            }
-          },
-          events: {
-            click: (event: any, chartContext: any, config: any) => {
-              if (event.target.attributes.j != undefined) {
-                let Base = config.config.labels[event.target.attributes.j.value];
-                SetBaseX(Base);
-                setshowModal(true);
-                setshowGraficaModal(false);
-                setTitulo(`${Base} `)
-              }
-
-            }
-          },
-        },
-        dataLabels: {
-          enabled: true,
-          enabledOnSeries: true,
-          style: {
-            colors: ["#304758"]
+            enabledOnSeries: true,
+            // style: {
+            //     colors: ['#304758']
+            // }
           }
         },
-      },
-      series: [],
-     
-      xaxis: {
-        type: 'category'
+        series: [],
+
       }
-    }
-    setVertical(opcionesVertical);
-    //UA
-    let opcionesUnidades = {
-      options: {
-        chart: {
-          id: 'apexchart-unidades',
-          fontFamily: 'Montserrat',
-          zoom: {
-            enabled: true,
-            type: 'x',
-            autoScaleYaxis: false,
-            zoomedArea: {
-              fill: {
-                color: '#90CAF9',
-                opacity: 0.4
-              },
-              stroke: {
-                color: '#0D47A1',
-                opacity: 0.4,
-                width: 1
+      setSemanas(opciones);
+      //Para las verticales
+      let opcionesVertical = {
+        options: {
+          chart: {
+            id: 'apexchart-vertical',
+            fontFamily: 'Montserrat',
+            zoom: {
+              enabled: true,
+              type: 'x',
+              autoScaleYaxis: false,
+              zoomedArea: {
+                fill: {
+                  color: '#90CAF9',
+                  opacity: 0.4
+                },
+                stroke: {
+                  color: '#0D47A1',
+                  opacity: 0.4,
+                  width: 1
+                }
               }
-            }
-          },
-          events: {
-            click: (event: any, chartContext: any, config: any) => {
-              if (event.target.attributes.j != undefined) {
-                let Base = config.config.labels[event.target.attributes.j.value];
-                SetBaseE(Base);
-                setshowGraficaModal(false);
-                setTituloFacturable(Base);
-                setDetallado(true);
-              }
-            }
-          },
-        },
-        dataLabels: {
-          enabled: true,
-          enabledOnSeries: true,
-          // style: {
-          //   colors: ["#304758"]
-          // }
-        }
-      },
-      series: [],
-     
-    }
-    setUnidadesActivas(opcionesUnidades);
-    //OTRAS UNIDADES
-    let opcionesOtrasUnidades = {
-      options: {
-        chart: {
-          id: 'apexchart-otrasunidades',
-          fontFamily: 'Montserrat',
-          zoom: {
-            enabled: true,
-            type: 'x',
-            autoScaleYaxis: false,
-            zoomedArea: {
-              fill: {
-                color: '#90CAF9',
-                opacity: 0.4
-              },
-              stroke: {
-                color: '#0D47A1',
-                opacity: 0.4,
-                width: 1
-              }
-            }
-          },
-          events: {
-            click: (event: any, chartContext: any, config: any) => {
-              if (event.target.attributes.j != undefined) {
-                let Base = config.config.labels[event.target.attributes.j.value];
-                SetBase(Base);
-                setTitulo(`${Base}`)
-                setshowModal(true);
-                setshowGraficaModal(false);
-              }
-            }
-          },
-        },
-        dataLabels: {
-          enabled: true,
-          enabledOnSeries: true,
-          // style: {
-          //     colors: ['#424249']
-          // }
-        }
-      },
-      series: [],
-     
-    }
-    setOtrasUnidadesActivas(opcionesOtrasUnidades);
-    //Para las verticales pero para el modal del cliente
-    let opcionesVerticalCliente = {
-      options: {
-        chart: {
-          id: 'apexchart-verticalCliente',
-          fontFamily: 'Montserrat',
-          zoom: {
-            enabled: true,
-            type: 'x',
-            autoScaleYaxis: false,
-            zoomedArea: {
-              fill: {
-                color: '#90CAF9',
-                opacity: 0.4
-              },
-              stroke: {
-                color: '#0D47A1',
-                opacity: 0.4,
-                width: 1
-              }
-            }
-          },
-          events: {
-            click: (event: any, chartContext: any, config: any) => {
-              if (event.target.attributes.j != undefined) {
-                let Base = config.config.labels[event.target.attributes.j.value];
-                setTitulo(`${Base} `)
-                SetBaseVC(Base);
-                setshowModal(true);
-              }
+            },
+            events: {
+              click: (event: any, chartContext: any, config: any) => {
+                if (event.target.attributes.j != undefined) {
+                  let Base = config.config.labels[event.target.attributes.j.value];
+                  SetBaseX(Base);
+                  setshowModal(true);
+                  setshowGraficaModal(false);
+                  setTitulo(`${Base} `)
+                }
 
+              }
+            },
+          },
+          dataLabels: {
+            enabled: true,
+            enabledOnSeries: true,
+            style: {
+              colors: ["#304758"]
             }
           },
-          stacked: false,
-          fill: {
-            colors: ['#1f77b4', '#aec7e8']
-          },
-          toolbar: {
-            show: false
-          },
         },
+        series: [],
+
         xaxis: {
-          categories: [],
-        },
-        dataLabels: {
-          enabled: true,
-          enabledOnSeries: true,
-          style: {
-              colors: ['#424249']
+          type: 'category'
+        }
+      }
+      setVertical(opcionesVertical);
+      //UA
+      let opcionesUnidades = {
+        options: {
+          chart: {
+            id: 'apexchart-unidades',
+            fontFamily: 'Montserrat',
+            zoom: {
+              enabled: true,
+              type: 'x',
+              autoScaleYaxis: false,
+              zoomedArea: {
+                fill: {
+                  color: '#90CAF9',
+                  opacity: 0.4
+                },
+                stroke: {
+                  color: '#0D47A1',
+                  opacity: 0.4,
+                  width: 1
+                }
+              }
+            },
+            events: {
+              click: (event: any, chartContext: any, config: any) => {
+                if (event.target.attributes.j != undefined) {
+                  let Base = config.config.labels[event.target.attributes.j.value];
+                  SetBaseE(Base);
+                  setshowGraficaModal(false);
+                  setTituloFacturable(Base);
+                  setDetallado(true);
+                }
+              }
+            },
+          },
+          dataLabels: {
+            enabled: true,
+            enabledOnSeries: true,
+            // style: {
+            //   colors: ["#304758"]
+            // }
           }
         },
-      },
-      series: [],
-     
-      // plotOptions: {
-      //   bar: {
-      //     horizontal: false
-      //   }
-      // },
-      colors: ['#1f77b4', '#aec7e8'],
+        series: [],
 
+      }
+      setUnidadesActivas(opcionesUnidades);
+      //OTRAS UNIDADES
+      let opcionesOtrasUnidades = {
+        options: {
+          chart: {
+            id: 'apexchart-otrasunidades',
+            fontFamily: 'Montserrat',
+            zoom: {
+              enabled: true,
+              type: 'x',
+              autoScaleYaxis: false,
+              zoomedArea: {
+                fill: {
+                  color: '#90CAF9',
+                  opacity: 0.4
+                },
+                stroke: {
+                  color: '#0D47A1',
+                  opacity: 0.4,
+                  width: 1
+                }
+              }
+            },
+            events: {
+              click: (event: any, chartContext: any, config: any) => {
+                if (event.target.attributes.j != undefined) {
+                  let Base = config.config.labels[event.target.attributes.j.value];
+                  SetBase(Base);
+                  setTitulo(`${Base}`)
+                  setshowModal(true);
+                  setshowGraficaModal(false);
+                }
+              }
+            },
+          },
+          dataLabels: {
+            enabled: true,
+            enabledOnSeries: true,
+            // style: {
+            //     colors: ['#424249']
+            // }
+          }
+        },
+        series: [],
+
+      }
+      setOtrasUnidadesActivas(opcionesOtrasUnidades);
+      //Para las verticales pero para el modal del cliente
+      let opcionesVerticalCliente = {
+        options: {
+          chart: {
+            id: 'apexchart-verticalCliente',
+            fontFamily: 'Montserrat',
+            zoom: {
+              enabled: true,
+              type: 'x',
+              autoScaleYaxis: false,
+              zoomedArea: {
+                fill: {
+                  color: '#90CAF9',
+                  opacity: 0.4
+                },
+                stroke: {
+                  color: '#0D47A1',
+                  opacity: 0.4,
+                  width: 1
+                }
+              }
+            },
+            events: {
+              click: (event: any, chartContext: any, config: any) => {
+                if (event.target.attributes.j != undefined) {
+                  let Base = config.config.labels[event.target.attributes.j.value];
+                  setTitulo(`${Base} `)
+                  SetBaseVC(Base);
+                  setshowModal(true);
+                }
+
+              }
+            },
+            stacked: false,
+            fill: {
+              colors: ['#1f77b4', '#aec7e8']
+            },
+            toolbar: {
+              show: false
+            },
+          },
+          xaxis: {
+            categories: [],
+          },
+          dataLabels: {
+            enabled: true,
+            enabledOnSeries: true,
+            style: {
+              colors: ['#424249']
+            }
+          },
+        },
+        series: [],
+
+        // plotOptions: {
+        //   bar: {
+        //     horizontal: false
+        //   }
+        // },
+        colors: ['#1f77b4', '#aec7e8'],
+
+      }
+      setVerticalCliente(opcionesVerticalCliente);
     }
-    setVerticalCliente(opcionesVerticalCliente);
     return function cleanUp() {
       //SE DEBE DESTRUIR EL OBJETO CHART
     };
-  }, [])
+  }, [Data])
+
+
   const RetornarSerie = (data: any[], VerticalData: any[]) => {
     var dataChart = data.filter((e: any) => {
       return e;
     });
-    //Para los datos de la grafica principal
-    let Datos = new Array();
-    //Agrupador por color.
-    let agrupadorData = dataChart.map((item) => {
-      return item.Administrador;
-    }).filter((value, index, self: any) => {
-      return self.indexOf(value) === index;
-    });
 
-    agrupadorData.map((item) => {
-      if (item != null) {
-        let totalAdmon = data.filter(function (val, index) {
-          if (val.Administrador == item)
-            return val.Descripcion
-        }).length;
-        Datos.push(totalAdmon);
-      }
-    })
-
+    // GRAFICA DE SEMANAS AGRUPADO POR ADMINISTRADORES
     ApexCharts.exec('apexchart-semanas', 'updateOptions', {
       chart: {
         fill: {
@@ -372,46 +360,17 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
     ApexCharts.exec('apexchart-semanas', 'updateOptions', {
       // Para los nombres de la serie
       //para que la lengenda me salga en la parte de abajo
-      labels: agrupadorData.filter((e) => e),
+      labels: FiltroData.getAdministradores(dataChart).map((m: any) => m.Administrador),
       legend: {
         show: true,
         position: 'bottom'
       },
     });
     // actializar los datos
-    ApexCharts.exec('apexchart-semanas', 'updateSeries', Datos
+    ApexCharts.exec('apexchart-semanas', 'updateSeries', FiltroData.getAdministradores(dataChart).map((m: any) => m.Total)
     );
 
-    //Vertical
-    let agrupadorGeneral = VerticalData.map((item) => {
-      let a = (item.ClasificacionId == "No Definido" ? item.ActivoFacturable : item.ClasificacionId);
-      if (a == "Si")
-        return item.Vertical;
-    }).filter((value, index, self: any) => {
-      return self.indexOf(value) === index;
-    });
-
-    //Agrupador por color.
-    let Semana = VerticalData.map((item) => {
-      return item.Fecha;
-    }).filter((value, index, self: any) => {
-      return self.indexOf(value) === index;
-    });
-    let arrayEstados = new Array();
-    // filtramos por los clientes para obtener la agrupacion por  estado
-    agrupadorGeneral.map(function (item) {
-      if (item != undefined) {
-        Semana.map(function (itemSemana) {
-          let filtroEstado = data.filter(function (val, index) {
-            return (val.Fecha == itemSemana && val.Vertical == item);
-          });
-          arrayEstados.push([{
-            x: item,
-            y: filtroEstado.length
-          }]);
-        });
-      }
-    });
+    // GRAFICA VERTICAL
 
     ApexCharts.exec('apexchart-vertical', 'updateOptions', {
       chart: {
@@ -429,7 +388,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
     ApexCharts.exec('apexchart-vertical', 'updateOptions', {
       // Para los nombres de la serie
       //para que la lengenda me salga en la parte de abajo
-      labels: agrupadorGeneral.filter((e) => e),
+      labels: FiltroData.getDataVerticalPorEstado(dataChart, "Si", "-1").map((m: any) => m.Vertical),
       legend: {
         show: true,
         position: 'bottom'
@@ -452,43 +411,14 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
     ApexCharts.exec('apexchart-vertical', 'updateSeries',
       [
         {
-          name: [...Semana],
-          data: arrayEstados.map((val) => {
-            return val[0].y;
-          })
+
+          data: FiltroData.getDataVerticalPorEstado(dataChart, "Si", "-1").map((m: any) => m.Total),
         }
       ]
     );
 
 
-    //UNIDADES ACTIVAS
-    let nombreSeries: any[] = []
-    let cantidadUnidadesActivas = 0;
-    nombreSeries = data.map((item: any) => {
-      let a = (item.ClasificacionId == "No Definido" ? item.ActivoFacturable : item.ClasificacionId);
-      if (a == "Si" || a == "No")
-        return (item.ClasificacionId == "No Definido" ? item.ActivoFacturable : item.ClasificacionId);
-    }).filter((value: any, index: any, self: any) => {
-      return self.indexOf(value) === index;
-    });
-
-    let datosUnidadesActivas: any[] = [];
-    nombreSeries.map((item: any) => {
-      if (item != undefined) {
-        let prefiterdata = data.filter(function (val: any) {
-          let b = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId);
-          if (b == item)
-            return val.ClienteId
-        });
-        datosUnidadesActivas.push(Number.parseInt(prefiterdata.length.toString()));
-        cantidadUnidadesActivas = cantidadUnidadesActivas + prefiterdata.length;
-      }
-    })
-
-    let labels = nombreSeries.map((e) => {
-      if (e != undefined)
-        return (e == "Si" ? "Facturable" : "No Facturable")
-    }).filter((f) => f);
+    //UNIDADES ACTIVAS TORTA
 
     ApexCharts.exec('apexchart-unidades', 'updateOptions', {
       chart: {
@@ -505,7 +435,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
     );
     ApexCharts.exec('apexchart-unidades', 'updateOptions', {
       // Para los nombres de la serie
-      labels: labels.filter((e) => e),
+      labels: FiltroData.getDataActivos(dataChart).map((m: any) => m.ClasificacionId),
       //para que la lengenda me salga en la parte de abajo
       legend: {
         show: true,
@@ -538,30 +468,9 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       }
     });
     // actializar los datos
-    ApexCharts.exec('apexchart-unidades', 'updateSeries', datosUnidadesActivas);
-    //OTRAS UNIDADES
-    let nombreSeriesOtrasUnidades: any[] = []
-    let cantidadUnidadesActivasOtras = 0;
-    nombreSeriesOtrasUnidades = data.map((item: any) => {
-      let a = (item.ClasificacionId == "No Definido" ? item.ActivoFacturable : item.ClasificacionId);
-      if (a == 'No')
-        return (item.Vertical);
-    }).filter((value: any, index: any, self: any) => {
-      return self.indexOf(value) === index;
-    });
-    let datos: any[] = [];
-    nombreSeriesOtrasUnidades.map((item: any) => {
-      if (item != undefined) {
-        let prefiterdata = data.filter(function (val: any) {
-          if (val.Vertical == item)
-            return val.ClienteId
-        });
-        datos.push(Number.parseInt(prefiterdata.length.toString()));
-        cantidadUnidadesActivasOtras = cantidadUnidadesActivasOtras + prefiterdata.length;
+    ApexCharts.exec('apexchart-unidades', 'updateSeries', FiltroData.getDataActivos(dataChart).map((m: any) => m.Total));
 
-      }
-    })
-
+    // GRAFICA OTRAS UNIDADES
     ApexCharts.exec('apexchart-otrasunidades', 'updateOptions', {
       chart: {
         fill: {
@@ -577,7 +486,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
     );
     ApexCharts.exec('apexchart-otrasunidades', 'updateOptions', {
       // Para los nombres de la serie
-      labels: nombreSeriesOtrasUnidades.filter((e) => e),
+      labels: FiltroData.getDataVerticalPorEstado(dataChart, "No", "-1").map((m: any) => m.Vertical),
       //para que la lengenda me salga en la parte de abajo
       legend: {
         show: true,
@@ -610,8 +519,10 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       }
     });
     // actializar los datos
-    ApexCharts.exec('apexchart-otrasunidades', 'updateSeries', datos);
+    ApexCharts.exec('apexchart-otrasunidades', 'updateSeries', FiltroData.getDataVerticalPorEstado(dataChart, "No", "-1").map((m: any) => m.Total));
   };
+
+
   useEffect(() => {
     if (Filtrado) {
       if (DataFiltrada) {
@@ -639,12 +550,16 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       setDataTable([]);
     };
   }, [Data, Filtrado, DataFiltrada])
+
+
   useEffect(() => {
     FiltrarDatos();
     return function cleanUp() {
       setDataTable([]);
     };
   }, [eventsSelected])
+
+
   const FiltrarDatos = () => {
     if (value.length == 2) {
       setFiltrado(false);
@@ -731,34 +646,22 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       setDataTable([]);
     };
   }, [base])
+
   useEffect(() => {
-    if (Filtrado) {
-      if (DataFiltrada != undefined) {
-        let _dataFiltrada = DataFiltrada.filter(function (val: any, index: any) {
-          let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId);
-          let c = (baseE == "Facturable" ? "Si" : "No");
-          if (a == c)
-            return (val)
-        }).filter((e: any) => e);
-        CargarSerieCliente(_dataFiltrada)
-        setDataTable(_dataFiltrada);
-      }
-    } else {
-      if (Data != undefined && Data['Unidades'] != undefined) {
-        let _DataFiltrada = Data['Unidades'].filter(function (val: any, index: any) {
-          let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId);
-          let c = (baseE == "Facturable" ? "Si" : "No");
-          if (a == c)
-            return (val);
-        }).filter((e: any) => e);
-        CargarSerieCliente(_DataFiltrada)
-        setDataTable(_DataFiltrada)
-      }
+
+    const dataBase = (Filtrado && DataFiltrada != null && DataFiltrada?.length > 0) ? DataFiltrada :
+      ((Data != undefined && Data['Unidades'] != undefined) ? Data['Unidades'] : []); // informacion base
+    let _dataFiltrada = FiltroData.getDataFacturableDetallada(dataBase, (baseE == "Facturable" ? "Si" : "No"));
+
+    if (dataBase.length > 0) {
+      CargarSerieCliente(_dataFiltrada)
+      setDataTable(_dataFiltrada);
     }
     return function cleanUp() {
       setDataTable([]);
     };
-  }, [baseE])
+  }, [baseE, DataFiltrada, Filtrado])
+
   //Para la grafica de vertical
   useEffect(() => {
     if (Filtrado) {
@@ -803,7 +706,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       if (Data != undefined && Data['Unidades'] != undefined) {
         let _DataFiltrada = Data['Unidades'].filter(function (val: any, index: any) {
           let a = (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId);
-          if (val.Base == BaseVC &&  a == "Si" || a == "No" && (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId) == (baseE == "Facturable" ? "Si" : "No"))
+          if (val.Base == BaseVC && a == "Si" || a == "No" && (val.ClasificacionId == "No Definido" ? val.ActivoFacturable : val.ClasificacionId) == (baseE == "Facturable" ? "Si" : "No"))
             return (val);
         }).filter((e: any) => e);
         setDataTable(_DataFiltrada);
@@ -815,6 +718,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       setDataTable([]);
     };
   }, [BaseVC])
+
   const CargarSerieCliente = (Data: any[]) => {
     let datosGrafica = Data.reduce((p, c) => {
       const cat = c.Base ?? "NoDefinido"; // si no hay categoria se asigna no categorizado
@@ -826,10 +730,10 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       };
     }, {});
 
-    const datosOrdenado = Object.entries(datosGrafica).sort((a: any, b: any) => { return b[1] - a[1] });  
-   
+    const datosOrdenado = Object.entries(datosGrafica).sort((a: any, b: any) => { return b[1] - a[1] });
+
     ApexCharts.exec('apexchart-verticalCliente', 'updateOptions', {
-      labels:datosOrdenado.map(m => m[0] ),
+      labels: datosOrdenado.map(m => m[0]),
       legend: {
         show: true,
         position: 'bottom'
@@ -847,8 +751,8 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
     ApexCharts.exec('apexchart-verticalCliente', 'updateSeries',
       [
         {
-          name: datosOrdenado.map(m =>  m[0]),
-          data: datosOrdenado.map(m =>  m[1])
+          name: datosOrdenado.map(m => m[0]),
+          data: datosOrdenado.map(m => m[1])
         }
       ]
     );
@@ -976,7 +880,7 @@ const UnidadesActivasOBC: React.FC<Props> = ({ tab }) => {
       </Modal>
 
       {/* Modal churn */}
-       
+
     </div>
   )
 }

@@ -65,12 +65,14 @@ export function PrivateRoutes() {
     <BlockUi tag="div" keepInView blocking={loader ?? false} >
       <Suspense fallback={<FallbackView />}>
         <Switch>
-          {(importedModules.length > 0) && (
-            <>
-              <Redirect exact from="/" to="/bienvenido" />
-              <Redirect exact from="/auth/login" to="/bienvenido" />
+        <Redirect exact from="/" to="/bienvenido" />
+        <Redirect exact from="/auth/login" to="/bienvenido" />
               <Route path="/bienvenido" component={Bienvenidos} />
               <Route path="/politicaprivacidad" component={PoliticaPrivacidad} />
+          {(importedModules.length > 0) && (
+            <>
+              
+              
               {importedModules}
               <Route path="/reportes/pbi/mttobusetones/:titulo/:url" render= {
                 (props) => {
