@@ -6,9 +6,11 @@ type Props = {
     className: string;
     innerPadding?: string;
     color?: string;
+    path?:string;
+    colorPath?:string;
 }
 
-export const Indicador : React.FC<Props> = ({children , Titulo, Subtitulo, className, innerPadding = "", color ="primary"}) => {
+export const Indicador : React.FC<Props> = ({children , Titulo, Subtitulo, className, innerPadding = "", color ="primary", path="/media/icons/duotone/Home/Library.svg", colorPath=""}) => {
 
     return (
         <div className={`card ${className}`}>
@@ -18,9 +20,9 @@ export const Indicador : React.FC<Props> = ({children , Titulo, Subtitulo, class
             <div className="d-flex align-items-center">
               {/* begin::Symbol */}
               <div className="symbol symbol-50px me-5">
-                <span className="symbol-label bg-light-success">
+                <span className={`symbol-label ${colorPath}`}>
                   <KTSVG
-                    path="/media/icons/duotone/Home/Library.svg"
+                    path={path}
                     className="svg-icon-2x svg-icon-success"
                   />
                 </span>
