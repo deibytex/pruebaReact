@@ -85,7 +85,14 @@ export default function HomePostVenta() {
             }
             
         },[TipoReporte])
-
+        //Para los estados del requrimiento
+        useEffect(() =>{
+            if(EstadoRequerimientos.length != 0)
+            setEstadoRequerimientosSeleccionado(EstadoRequerimientos[0]);
+            return () =>{
+                setEstadoRequerimientosSeleccionado([]);
+            }
+        },[EstadoRequerimientosSeleccionado])
         //FUNCION DE CREAR LOS REQUERIMIENTOS
         const CrearRequerimiento = (row:any) =>{
             setObservaciones ("");
@@ -129,12 +136,12 @@ export default function HomePostVenta() {
         //Se cargan los tipos
         const CargarTipos = ( ) =>{
             return (           
-                <Form.Select defaultValue={"Seleccione"}  className=" mb-3 " onChange={(e) => {
+                <Form.Select   className=" mb-3 " onChange={(e) => {
                     // buscamos el objeto completo para tenerlo en el sistema
-                    let seleccionado =  TipoRequerimientos?.filter((value:any, index:any) => {
+                    let _seleccionado =  TipoRequerimientos?.filter((value:any, index:any) => {
                         return value.Nombre === e.currentTarget.value;
                     })  
-                    setTipoRequerimientosSeleccionado(seleccionado[0]);
+                    setTipoRequerimientosSeleccionado(_seleccionado[0]);
                 }} aria-label="Default select example">
                     <option value={"Seleccione"}>Seleccione un tipo</option>
                     {           
@@ -148,12 +155,7 @@ export default function HomePostVenta() {
         }
         //Carga los estados y los tipos desde la DB    
         const CargarEstados = ( ) =>{
-            useEffect(() =>{
-                {setEstadoRequerimientosSeleccionado(EstadoRequerimientos[0])};
-                return () =>{
-                    setEstadoRequerimientosSeleccionado([]);
-                }
-            },[])
+         
             return (           
                 <Form.Select disabled  className=" mb-3 " onChange={(e) => {
                     // buscamos el objeto completo para tenerlo en el sistema
@@ -753,7 +755,11 @@ export default function HomePostVenta() {
                             <div className="col-sm-12 col-md-12 col-lg-12 col-xl-12 col-xxl-12">
                                 <div className="mb-3">
                                     <label className="form-label fw-bolder">Observaciones</label>
-                                    <textarea className="form-control" id="exampleFormControlTextarea1"  value={Observaciones} onChange={(e) => setObservaciones(e.target.value)} rows={3}></textarea>
+                                    <textarea className="form-control" id="exampleFormControlTextarea1"  
+                                        value={Observaciones} 
+                                        onChange={(e) => setObservaciones(e.target.value)} 
+                                        rows={3}>
+                                    </textarea>
                                 </div>
                             </div>
                         </div>
