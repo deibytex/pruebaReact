@@ -1,4 +1,3 @@
-import BlockUi from "@availity/block-ui"
 import { TituloDashboardTx } from "../../../_start/helpers/Texts/textosPorDefecto"
 import { PageTitle } from "../../../_start/layout/core"
 import DashboardPrincipal from "./components/Dashboard/DashboardPrincipal"

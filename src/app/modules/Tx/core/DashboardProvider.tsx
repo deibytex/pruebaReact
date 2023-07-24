@@ -17,9 +17,9 @@ export interface DashboardContextModel {
     setTabActive:(Tab:string) =>void;
     Data?:any[];
     setData:(data:any) =>void;
-    DataTx?:any[];
+    DataTx?:any;
     setDataTx:(data:any) =>void;
-    DataTk?:any[];
+    DataTk?:any;
     setDataTk:(data:any) =>void;
     Cargando?:boolean;
     setCargando:(Cargando:boolean) => void;
@@ -79,8 +79,8 @@ const DashboardProvider: React.FC = ({ children }) => {
     const [Clientes, setClientes] = useState<ClienteDTO[]>([]);
     const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente);
     const [Data, setData] = useState<any[]>([]);
-    const [DataTx, setDataTx] = useState<any[]>([]);
-    const [DataTk, setDataTk] = useState<any[]>([]);
+    const [DataTx, setDataTx] = useState<any>();
+    const [DataTk, setDataTk] = useState<any>();
     const [DataFiltrada, setDataFiltrada] = useState<any[]>([]);
     const [DataFiltradaTx, setDataFiltradaTx] = useState<any[]>([]);
     const [DataFiltradaTk, setDataFiltradaTk] = useState<any[]>([]);

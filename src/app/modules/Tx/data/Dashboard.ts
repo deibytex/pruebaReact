@@ -77,6 +77,7 @@ export function GetSnapShotUnidadesActivasChurn(Fecha: string | null, ClienteId:
     return Post_getconsultadinamicasUser({ Clase: "TXQueryHelper", NombreConsulta: "GetSnapshotUnidadesActivasChurn", Pagina: null, RecordsPorPagina: null }, params);
 }
 
+//======================================================================================================================================
 export const FiltroData = {
     // obtiene la informaci'on de unidades con Activo facturable SI
     getActivosSiNO: (data: any[]) => {

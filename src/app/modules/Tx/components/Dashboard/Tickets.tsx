@@ -13,7 +13,8 @@ const Tickets: React.FC = () => {
     const [DataEstado, setDataEstado] = useState<any>(null);
     const [DataAgente, setAgente] = useState<any>(null);
     const [dataTickets, setDataTickets] = useState<any[]>([]);
-    const { DataTk, DataFiltradaTk, Filtrado, setFiltradoTk, FiltradoTk, setDataFiltradaTk } = useDataDashboard()
+    const [dataTicketsFiltrada, setDataTicketsFiltrada] = useState<any[]>([]);
+    const { DataTk } = useDataDashboard()
 
     // informacion del usuario almacenado en el sistema
     const isAuthorized = useSelector<RootState>(
@@ -25,9 +26,8 @@ const Tickets: React.FC = () => {
     // pinta la grafica si  se ha filtrado
 
     useEffect(() => {
-        if (dataTickets.length > 0)
-            PintarGraficas(dataTickets)
-    }, [dataTickets]);
+         PintarGraficas(dataTicketsFiltrada)
+    }, [dataTicketsFiltrada]);
 
     useEffect(() => {
 
@@ -38,6 +38,7 @@ const Tickets: React.FC = () => {
                 (f: any) => (model.perfil == "118" && f.administrador.includes(model.Id)) || model.perfil != "118"
             )
             setDataTickets(datafiltradaporadmin);
+            setDataTicketsFiltrada(datafiltradaporadmin);
             PintarGraficas(datafiltradaporadmin);
 
         }
@@ -440,18 +441,19 @@ const Tickets: React.FC = () => {
     const FiltrarByAdminsTk = (event: any) => {
         let Usuario: string = event.target.attributes['data-bs-target'].value.split("--")[1];
         switch (Usuario) {
+
+
             case '0':
-                setFiltradoTk(false);
+                setDataTicketsFiltrada(dataTickets);
                 break;
             default:
-                setFiltradoTk(true);
-                if (DataTk != undefined) {
+              
                     let DataResulttx =dataTickets.filter((val: any) => {
                         let user = val.administrador.split(" - ")[0];
                         return (user == Usuario)
                     });
-                    setDataFiltradaTk({ "Ticket": DataResulttx });
-                }
+                    setDataTicketsFiltrada(DataResulttx);
+                
                 break;
         }
     }
