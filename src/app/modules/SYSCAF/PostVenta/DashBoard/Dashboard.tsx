@@ -18,6 +18,8 @@ import BlockUi from "@availity/block-ui";
 import confirmarDialog, { successDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 import { SetEstadoSyscaf } from "../../../Tx/data/Reporte";
 export default function HomePostVenta() {
+        //Esta es para tomar la cantidad de muestra de vehiculos de transmision.
+        const MuestraTX = 20;
         const [show, setShow] = useState(false);
         const [showr, setShowr] = useState(false);
         const [dataTx, setDatatx] = useState<any[]>([]);
@@ -31,9 +33,10 @@ export default function HomePostVenta() {
         const [TipoRequerimientos, setTipoRequerimientos] = useState<any[]>([]);
         const [TipoRequerimientosSeleccionado, setTipoRequerimientosSeleccionado] = useState<any>({Nombre:"", Value: ""});
         const [EstadoRequerimientos, setEstadoRequerimientos] = useState<any[]>([]);
-        const [EstadoRequerimientosSeleccionado, setEstadoRequerimientosSeleccionado] = useState<any>({Nombre:"", Value: ""});
+        const [EstadoRequerimientosSeleccionado, setEstadoRequerimientosSeleccionado] = useState<any>({Nombre:"Creado ", Value: "Estado"});
         const [Observaciones, setObservaciones] = useState<string>("");
         const [TituloModal, setTituloModal] = useState<string>("");
+        const [TxUltimaActualizacion, setTxUltimaActualizacion] = useState<string>("");
         //ESTA ES PARA EL MODAL DINAMICO.
         const [sowL, setShowL] = useState<boolean>(false);
         const user = useSelector<RootState>(
@@ -85,14 +88,14 @@ export default function HomePostVenta() {
             }
             
         },[TipoReporte])
-        //Para los estados del requrimiento
-        useEffect(() =>{
-            if(EstadoRequerimientos.length != 0)
-            setEstadoRequerimientosSeleccionado(EstadoRequerimientos[0]);
-            return () =>{
-                setEstadoRequerimientosSeleccionado([]);
-            }
-        },[EstadoRequerimientosSeleccionado])
+        // //Para los estados del requrimiento
+        // useEffect(() =>{
+        //     if(EstadoRequerimientos.length != 0)
+        //     setEstadoRequerimientosSeleccionado(EstadoRequerimientos[0]);
+        //     return () =>{
+        //         setEstadoRequerimientosSeleccionado([]);
+        //     }
+        // },[EstadoRequerimientosSeleccionado])
         //FUNCION DE CREAR LOS REQUERIMIENTOS
         const CrearRequerimiento = (row:any) =>{
             setObservaciones ("");
@@ -263,6 +266,15 @@ export default function HomePostVenta() {
         let CamposAsset: MRT_ColumnDef<any>[] =
         [
             {
+                accessorKey: 'Base',
+                header: 'Cliente',
+                enableHiding: false,
+                size: 10,
+                minSize: 10, //min size enforced during resizing
+                maxSize: 10,
+
+            },
+            {
                 accessorKey: 'Description',
                 header: 'Descripción',
                 enableHiding: false,
@@ -322,6 +334,15 @@ export default function HomePostVenta() {
         let CamposConductores: MRT_ColumnDef<any>[] =
         [
             {
+                accessorKey: 'clienteNombre',
+                header: 'Cliente',
+                enableHiding: false,
+                size: 10,
+                minSize: 10, //min size enforced during resizing
+                maxSize: 10,
+
+            },
+            {
                 accessorKey: 'name',
                 header: 'Nombre',
                 enableHiding: false,
@@ -380,14 +401,14 @@ export default function HomePostVenta() {
                 minSize: 10, //min size enforced during resizing
                 maxSize: 10,
             },
-            {
-                accessorKey: 'Semana',
-                header: 'Semana',
-                enableHiding: true,
-                size: 10,
-                minSize: 10, //min size enforced during resizing
-                maxSize: 10,
-            },
+            // {
+            //     accessorKey: 'Semana',
+            //     header: 'Semana',
+            //     enableHiding: true,
+            //     size: 10,
+            //     minSize: 10, //min size enforced during resizing
+            //     maxSize: 10,
+            // },
             {
                 accessorKey: 'TipodeTicket',
                 header: 'Tipo',
@@ -423,16 +444,16 @@ export default function HomePostVenta() {
                 const data = result.data;
                 let ClientesIds:any[] = [];
                 console.log(data.length)
-
+                let VehiculosSinTx:any[] = [];
                 if (data.length > 0) {
                     const Assets = JSON.parse(data[0].Assets);
 
                     //Recontruyo la lista de unidades Activas
-                    let Unidades:any[] = [];
-                    Assets.map((val:any, index:any) =>{
-                        Unidades.push({"AssetId":val.AssetId, "Description":val.U[0].Description, "RegistrationNumber":val.U[0].RegistrationNumber})
-                    })
-                    setDataUnidades(Unidades);
+                    // let Unidades:any[] = [];
+                    // Assets.map((val:any, index:any) =>{
+                    //     Unidades.push({"AssetId":val.AssetId, "Description":val.Description, "RegistrationNumber":val.RegistrationNumber, "Base":val.Base})
+                    // })
+                    setDataUnidades(Assets);
                     //LSITADO DE CLIENTES O EMPRESAS
                     const Clientes = JSON.parse(data[0].Clientes);
                     ClientesIds = Clientes.map((e:any) => e.ClienteIdS);
@@ -441,7 +462,8 @@ export default function HomePostVenta() {
                     const Conductores = JSON.parse(data[0].Conductores);
                     setdataConductores(Conductores);
                     //VEHICULOS SIN TX
-                    const VehiculosSinTx = JSON.parse(data[0].VehiculosSinTx);
+                    VehiculosSinTx = JSON.parse(data[0].VehiculosSinTx);
+                    setTxUltimaActualizacion(moment( VehiculosSinTx[0].FechaTransmision).format(formatSimpleJsonColombia));
                     setDatatx(VehiculosSinTx);
                     //LISTADO DE TICKETS
                     const Ticket = JSON.parse(data[0].Ticket);
@@ -470,11 +492,14 @@ export default function HomePostVenta() {
                         Seniales: ind.Seniales,
                         Ticket: ind.Ticket
                     }
+
                     //seteamos las variables
                     setIndicadores(Indicadores);
                     setDataAdmin(DatosCompletos);
                     //Cancelamos el cargando.
                     setLoader(false);
+                   
+
                 }).catch((e) => {
                     console.log("error", e);
                 });
@@ -727,6 +752,19 @@ export default function HomePostVenta() {
                     <Modal.Title>{TituloModal}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                    <div className="container mb-5" style={{display:(TipoReporte != "1" ? 'none':'block')}}>
+                        <div className="col-sm-4 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
+                            <div className="text-center border border-5">
+                                <label className="control-label label labels-sm">Ultima actualización</label><br/>
+                                <span className="mx-4 fs-3 text-muted">{TxUltimaActualizacion}</span>
+                            </div>
+                        </div>
+                        <div className="col-sm-4 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
+                        </div>
+                        <div className="col-sm-4 col-md-4 col-lg-4 col-xl-4 col-xxl-4">
+                        </div>
+                    </div>
+                   
                     {(show ) && (!showr)  && (
                         <TablaDatos show={show} TipoData={TipoReporte}></TablaDatos>
                     )}
