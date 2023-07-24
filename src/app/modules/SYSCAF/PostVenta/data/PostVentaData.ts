@@ -36,7 +36,7 @@ export function SetRequerimiento(Datos:any){
 export function GetLista(){
     var params: { [id: string]: string | null | undefined; } = {};
     params["Sigla"] = "GOIREQ";
-    return Post_GetConsultasDinamicasUserDWH({
+    return Post_GetConsultasDinamicasUser({
         NombreConsulta: "getListas", Clase: "PortalQueryHelper",
         Pagina: null,
         RecordsPorPagina: null
@@ -46,7 +46,7 @@ export function GetLista(){
 export function GetDetalleLista(ListaId:any){
     var params: { [id: string]: string | null | undefined; } = {};
     params["ListaId"] = ListaId;
-    return Post_GetConsultasDinamicasUserDWH({
+    return Post_GetConsultasDinamicasUser({
         NombreConsulta: "getDetalleListas", Clase: "PortalQueryHelper",
         Pagina: null,
         RecordsPorPagina: null
