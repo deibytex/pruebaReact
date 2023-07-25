@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { KTSVG } from "../../../../../_start/helpers";
 import { Indicador } from "./Indicadores/Indicador";
 import { VehiculosSinTx } from "./Indicadores/VehiculosSinTx";
-import { GetDetalleLista, GetFallasSeniales, GetInfoDashBoardAdmin, GetLista, SetRequerimiento } from "../data/PostVentaData";
+import { GetDetalleLista, GetFallasSeniales, GetInfoDashBoardAdmin, GetLista, GettRequerimiento, SetRequerimiento } from "../data/PostVentaData";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../../setup";
 import { UserModelSyscaf } from "../../../auth/models/UserModel";
@@ -17,6 +17,9 @@ import moment from "moment";
 import BlockUi from "@availity/block-ui";
 import confirmarDialog, { successDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 import { SetEstadoSyscaf } from "../../../Tx/data/Reporte";
+import { IndicadorSinTxAlto } from "./Indicadores/IndicadorSinTxAlto";
+
+import { TotalFallas, dataIndicadores } from "../mockData/indicadores";
 export default function HomePostVenta() {
         //Esta es para tomar la cantidad de muestra de vehiculos de transmision.
         const MuestraTX = 20;
@@ -36,6 +39,7 @@ export default function HomePostVenta() {
         const [EstadoRequerimientosSeleccionado, setEstadoRequerimientosSeleccionado] = useState<any>({Nombre:"Creado ", Value: "Estado"});
         const [Observaciones, setObservaciones] = useState<string>("");
         const [TituloModal, setTituloModal] = useState<string>("");
+        const [TituloTicket, setTituloTicket] = useState<string>("Listado de tickets por estado");
         const [TxUltimaActualizacion, setTxUltimaActualizacion] = useState<string>("");
         //ESTA ES PARA EL MODAL DINAMICO.
         const [sowL, setShowL] = useState<boolean>(false);
@@ -47,6 +51,7 @@ export default function HomePostVenta() {
         const [indicadores, setIndicadores] = useState<any>();
         const [loader, setLoader] = useState(false);
         const [Cabecera, setCabecera] = useState<{}>(
+            
             {
                 administrador:"", 
                 UsuarioId:"",   
@@ -58,6 +63,9 @@ export default function HomePostVenta() {
                 agente:""
             }
         );
+        const [Muestra, setMuestra] = useState<any[]>([]);
+        const [Requerimientos, setRequerimientos] = useState<any[]>([]);
+        const [TotalFallasCantidad, setTotalFallas] = useState<string>("4");
         //ESPACIO PARA LOS USEEFFECT
         useEffect(() => {
             if(vUser != undefined)
@@ -98,16 +106,17 @@ export default function HomePostVenta() {
         // },[EstadoRequerimientosSeleccionado])
         //FUNCION DE CREAR LOS REQUERIMIENTOS
         const CrearRequerimiento = (row:any) =>{
+            let data = (row.original == undefined ? row: row.original)
             setObservaciones ("");
-            if(row.original.Estado =="Operando Normalmente"){
+            if(data.estado  =="Operando Normalmente"){
                 setCabecera( { 
                     administrador:vUser.Nombres, 
                     UsuarioId:vUser.Id,   
-                    assetid: (row.original.AssetId == undefined ? row.original.assetId : row.original.AssetId), 
-                    clienteid:(row.original.ClienteId == undefined ? row.original.clienteIdS: row.original.ClienteId), 
-                    registrationNumber:row.original.registrationNumber, 
-                    description:row.original.assetsDescription, 
-                    nombrecliente:row.original.clienteNombre , 
+                    assetid: (data.AssetId == undefined ? data.assetId : data.AssetId), 
+                    clienteid:(data.ClienteId == undefined ?data.clienteIdS:data.ClienteId), 
+                    registrationNumber:data.registrationNumber, 
+                    description:data.assetsDescription, 
+                    nombrecliente:data.clienteNombre , 
                     agente:vUser.Nombres
                 });
                 setShowr(true);
@@ -116,15 +125,15 @@ export default function HomePostVenta() {
             else
                 confirmarDialog(() => {
                     setLoader(true);
-                    SetEstadoSyscaf((row.original.assetId == undefined ? row.original.AssetId.toString(): row.original.assetId.toString()),"7").then((response:AxiosResponse) =>{
+                    SetEstadoSyscaf((data.assetId == undefined ? data.AssetId.toString(): data.assetId.toString()),"7").then((response:AxiosResponse) =>{
                         setCabecera( { 
                             administrador:vUser.Nombres, 
                             UsuarioId:vUser.Id,   
-                            assetid: (row.original.AssetId == undefined ? row.original.assetId : row.original.AssetId), 
-                            clienteid:(row.original.ClienteId == undefined ? row.original.clienteIdS: row.original.ClienteId), 
-                            registrationNumber:row.original.registrationNumber, 
-                            description:row.original.assetsDescription, 
-                            nombrecliente:row.original.clienteNombre , 
+                            assetid: (data.AssetId == undefined ? data.assetId : data.AssetId), 
+                            clienteid:(data.ClienteId == undefined ? data.clienteIdS: data.ClienteId), 
+                            registrationNumber:data.registrationNumber, 
+                            description:data.assetsDescription, 
+                            nombrecliente: (data.clientenNombre == undefined ? data.clienteNombre:data.clientenNombre) , 
                             agente:vUser.Nombres
                         });
                         setShowr(true);
@@ -134,7 +143,7 @@ export default function HomePostVenta() {
                     console.log("Error de cambio de estado")
                         setLoader(false);
                     })
-                }, `¿El Vehículo con placa ${row.original.registrationNumber} del Cliente ${row.original.clienteNombre} se encuentra operando normalmente?`, 'Si');
+                }, `¿El Vehículo con placa ${data.registrationNumber} del Cliente ${(data.clientenNombre == undefined ? data.clienteNombre:data.clientenNombre)} se encuentra operando normalmente?`, 'Si');
         }
         //Se cargan los tipos
         const CargarTipos = ( ) =>{
@@ -203,24 +212,24 @@ export default function HomePostVenta() {
         //SIN TX
         let Campos: MRT_ColumnDef<any>[] =
         [
-            {
-                accessorKey: 'AssetId',
-                header: 'Opciones',
-                size: 10,
-                minSize: 10, //min size enforced during resizing
-                maxSize: 10,
-                Cell({ cell, column, row, table, }) {
-                return  <Box sx={{ display: 'block', gap: '1rem', marginLeft: 'auto', marginRight: 'auto' }}>
-                <Tooltip arrow placement="top" title="crear requerimiento">
-                    <IconButton  onClick={() => {
-                       CrearRequerimiento(row);
-                    }}>
-                        <Check />
-                    </IconButton>
-                </Tooltip>
-            </Box>
-                },
-            },
+            // {
+            //     accessorKey: 'AssetId',
+            //     header: 'Opciones',
+            //     size: 10,
+            //     minSize: 10, //min size enforced during resizing
+            //     maxSize: 10,
+            //     Cell({ cell, column, row, table, }) {
+            //     return  <Box sx={{ display: 'block', gap: '1rem', marginLeft: 'auto', marginRight: 'auto' }}>
+            //     <Tooltip arrow placement="top" title="crear requerimiento">
+            //         <IconButton  onClick={() => {
+            //            CrearRequerimiento(row);
+            //         }}>
+            //             <Check />
+            //         </IconButton>
+            //     </Tooltip>
+            // </Box>
+            //     },
+            // },
             {
                 accessorKey: 'clienteNombre',
                 header: 'Cliente',
@@ -394,8 +403,8 @@ export default function HomePostVenta() {
 
             },
             {
-                accessorKey: 'Estado',
-                header: 'Estado',
+                accessorKey: 'Ticket',
+                header: 'Descripción',
                 enableHiding: true,
                 size: 10,
                 minSize: 10, //min size enforced during resizing
@@ -438,71 +447,209 @@ export default function HomePostVenta() {
         };
         let Data: any[] = [];
         setLoader(true);
+        // traemos informacion de mocks para agilizar el desarrollo 
+        const eslocal : boolean = process.env.REACT_APP_MOCK == 'true'
+        if(eslocal)
+        {
+            const Assets = JSON.parse(dataIndicadores[0].Assets);
+            let ClientesIds:any[] = [];
+            let VehiculosSinTx:any[] = [];
+            let requerimientos : any[]=[];
+            let Vehiculosrequerimientos : any[]=[];
+            setDataUnidades(Assets);
+            //LSITADO DE CLIENTES O EMPRESAS
+            const Clientes = JSON.parse(dataIndicadores[0].Clientes);
+            ClientesIds = Clientes.map((e:any) => e.ClienteIdS);
+            setdataEmpresas(Clientes);
+            //LISTADO DE CONDUCTORES
+            const Conductores = JSON.parse(dataIndicadores[0].Conductores);
+            setdataConductores(Conductores);
+            //VEHICULOS SIN TX
+            VehiculosSinTx = JSON.parse(dataIndicadores[0].VehiculosSinTx);
+            setTxUltimaActualizacion(moment( VehiculosSinTx[0].FechaTransmision).format(formatSimpleJsonColombia));
+            setDatatx(VehiculosSinTx);
+            //LISTADO DE TICKETS
+            const Ticket = JSON.parse(dataIndicadores[0].Ticket);
+            setdataTickets(Ticket);
+            Indicadores.Assets = Assets.length;
+           //SETEO DE INDICADORES
+            Indicadores.Clientes = Clientes.length;
+            Indicadores.Conductores = Conductores.length;
+            Indicadores.VehiculosSinTx = VehiculosSinTx.length;
+            Indicadores.Ticket = Ticket.length;
+
+            let DatosCompletos = [...dataIndicadores];
+            DatosCompletos[0].Seniales = JSON.stringify(TotalFallas);
+            setdataSeniales(TotalFallas);
+            //Para los indicadores adicionamos señales
+            let ind: any = { ...Indicadores }
+            ind['Seniales'] = TotalFallas.length;
+            Indicadores = {
+                Assets: ind.Assets,
+                Clientes: ind.Clientes,
+                Conductores: ind.Conductores,
+                VehiculosSinTx: ind.VehiculosSinTx,
+                Seniales: ind.Seniales,
+                Ticket: ind.Ticket
+            }
+            //seteamos las variables
+            setIndicadores(Indicadores);
+            setDataAdmin(DatosCompletos);
+            //Cancelamos el cargando.
+            setLoader(false);
+             //Saco a aparte todos los sin respuesta y operando normalmente de TX.
+             let filtro = VehiculosSinTx.filter((item:any, index:any) =>{
+                let estado = (item.estado == undefined ?  item.Estado: item.estado);
+                if(estado == "Sin Respuesta del Cliente" || estado == "Operando Normalmente")
+                    return item;
+            });
+            //Organizo el que tenga mayor cantidad de dias primero.
+            let muestraFinal = filtro.slice(0,MuestraTX);
+            muestraFinal.sort(function(a, b) {
+                let bDias = (b.DiasSinTx == undefined ? b.diffAVL:b.DiasSinTx);
+                let aDias = (a.DiasSinTx == undefined ? a.diffAVL: a.DiasSinTx)
+                return  bDias - aDias;
+            });
+            //Ya consultados los requeriminetos sacamos los vehiculos que tienen un requerimiento activo o creado.
+            requerimientos.map((val:any) =>{
+                if(val.Estado == "Creado "){
+                    let a = JSON.parse(val.Cabecera);
+                    Vehiculosrequerimientos.push(a[0].assetid);
+                }
+            });
+            //Elimino los vehiculos con un requerimiento creado o activo
+            Vehiculosrequerimientos.map((item:any) =>{
+            let index =  muestraFinal.findIndex((element) => element.assetId == item);
+                if(index != -1)
+                    muestraFinal.splice(index,1);
+            })
+            //Verifico si los Vehiculos o la muestra de los vehiculos tienen falla de señales.
+            if(TotalFallas.length != 0){
+                muestraFinal.reduce((a:any,b:any) =>{
+                    TotalFallas.map((val:any)  =>{
+                        if(b.AssetId == val.AssetId)
+                            b.TFallas = val.TFallas;
+                        return b;
+                    })
+                },[])
+            }
+            //Seteo toda la muestra final
+            setMuestra(muestraFinal);
+            //Cancelamos el cargando.
+            setLoader(false);
+        }
+        else
         GetInfoDashBoardAdmin().then(
             (result) => {
-                Data = result.data;
-                const data = result.data;
-                let ClientesIds:any[] = [];
-                console.log(data.length)
-                let VehiculosSinTx:any[] = [];
-                if (data.length > 0) {
-                    const Assets = JSON.parse(data[0].Assets);
 
-                    //Recontruyo la lista de unidades Activas
-                    // let Unidades:any[] = [];
-                    // Assets.map((val:any, index:any) =>{
-                    //     Unidades.push({"AssetId":val.AssetId, "Description":val.Description, "RegistrationNumber":val.RegistrationNumber, "Base":val.Base})
-                    // })
-                    setDataUnidades(Assets);
-                    //LSITADO DE CLIENTES O EMPRESAS
-                    const Clientes = JSON.parse(data[0].Clientes);
-                    ClientesIds = Clientes.map((e:any) => e.ClienteIdS);
-                    setdataEmpresas(Clientes);
-                    //LISTADO DE CONDUCTORES
-                    const Conductores = JSON.parse(data[0].Conductores);
-                    setdataConductores(Conductores);
-                    //VEHICULOS SIN TX
-                    VehiculosSinTx = JSON.parse(data[0].VehiculosSinTx);
-                    setTxUltimaActualizacion(moment( VehiculosSinTx[0].FechaTransmision).format(formatSimpleJsonColombia));
-                    setDatatx(VehiculosSinTx);
-                    //LISTADO DE TICKETS
-                    const Ticket = JSON.parse(data[0].Ticket);
-                    setdataTickets(Ticket);
-                    Indicadores.Assets = Assets.length;
-                   //SETEO DE INDICADORES
-                    Indicadores.Clientes = Clientes.length;
-                    Indicadores.Conductores = Conductores.length;
-                    Indicadores.VehiculosSinTx = VehiculosSinTx.length;
-                    Indicadores.Ticket = Ticket.length;
-                }
-                //indicador de señales.
-                GetFallasSeniales(ClientesIds.join()).then((result: AxiosResponse<any>) => {
-                    //Como tengo una consulta anidada, debo traer datos anteriores para meterlos en otros.
-                    let DatosCompletos = [...Data];
-                    DatosCompletos[0].Seniales = JSON.stringify(result.data);
-                    setdataSeniales(result.data);
-                    //Para los indicadores adicionamos señales
-                    let ind: any = { ...Indicadores }
-                    ind['Seniales'] = result.data.length;
-                    Indicadores = {
-                        Assets: ind.Assets,
-                        Clientes: ind.Clientes,
-                        Conductores: ind.Conductores,
-                        VehiculosSinTx: ind.VehiculosSinTx,
-                        Seniales: ind.Seniales,
-                        Ticket: ind.Ticket
+                    Data = result.data;
+                    const data = result.data;
+                    let ClientesIds:any[] = [];
+                    console.log(data.length)
+                    let VehiculosSinTx:any[] = [];
+                    let requerimientos : any[]=[];
+                    let Vehiculosrequerimientos : any[]=[];
+                    if (data.length > 0) {
+                        const Assets = JSON.parse(data[0].Assets);
+                        setDataUnidades(Assets);
+                        //LSITADO DE CLIENTES O EMPRESAS
+                        const Clientes = JSON.parse(data[0].Clientes);
+                        ClientesIds = Clientes.map((e:any) => e.ClienteIdS);
+                        setdataEmpresas(Clientes);
+                        //LISTADO DE CONDUCTORES
+                        const Conductores = JSON.parse(data[0].Conductores);
+                        setdataConductores(Conductores);
+                        //VEHICULOS SIN TX
+                        VehiculosSinTx = JSON.parse(data[0].VehiculosSinTx);
+                        setTxUltimaActualizacion(moment( VehiculosSinTx[0].FechaTransmision).format(formatSimpleJsonColombia));
+                        setDatatx(VehiculosSinTx);
+                        //LISTADO DE TICKETS
+                        const Ticket = JSON.parse(data[0].Ticket);
+                        setdataTickets(Ticket);
+                        Indicadores.Assets = Assets.length;
+                        //SETEO DE INDICADORES
+                        Indicadores.Clientes = Clientes.length;
+                        Indicadores.Conductores = Conductores.length;
+                        Indicadores.VehiculosSinTx = VehiculosSinTx.length;
+                        Indicadores.Ticket = Ticket.length;
                     }
+                    //Obtengo los requimientos del sistema
+                    GettRequerimiento().then(( response:AxiosResponse<any>) =>{
+                        if(response.data.length != 0){
+                        let Cabeceras =  response.data.filter((val:any) =>{
+                                return JSON.parse(val.Cabecera);
+                            })
+                            requerimientos = Cabeceras;
+                            setRequerimientos(Cabeceras);
+                        }
+                    }).catch(() =>{
+                        console.log("Error de consulta de detalles listas");
+                    })
+                    //indicador de señales.
+                    GetFallasSeniales(ClientesIds.join()).then((result: AxiosResponse<any>) => {
+                        //Como tengo una consulta anidada, debo traer datos anteriores para meterlos en otros.
+                        let DatosCompletos = [...Data];
+                        DatosCompletos[0].Seniales = JSON.stringify(result.data);
+                        setdataSeniales(result.data);
+                        //Para los indicadores adicionamos señales
+                        let ind: any = { ...Indicadores }
+                        ind['Seniales'] = result.data.length;
+                        Indicadores = {
+                            Assets: ind.Assets,
+                            Clientes: ind.Clientes,
+                            Conductores: ind.Conductores,
+                            VehiculosSinTx: ind.VehiculosSinTx,
+                            Seniales: ind.Seniales,
+                            Ticket: ind.Ticket
+                        }
 
-                    //seteamos las variables
-                    setIndicadores(Indicadores);
-                    setDataAdmin(DatosCompletos);
-                    //Cancelamos el cargando.
-                    setLoader(false);
-                   
-
-                }).catch((e) => {
-                    console.log("error", e);
-                });
+                        //seteamos las variables
+                        setIndicadores(Indicadores);
+                        setDataAdmin(DatosCompletos);
+                        //Saco a aparte todos los sin respuesta y operando normalmente de TX.
+                        let filtro = VehiculosSinTx.filter((item:any, index:any) =>{
+                            let estado = (item.estado == undefined ?  item.Estado: item.estado);
+                            if(estado == "Sin Respuesta del Cliente" || estado == "Operando Normalmente")
+                                return item;
+                        });
+                        //Organizo el que tenga mayor cantidad de dias primero.
+                        let muestraFinal = filtro.slice(0,MuestraTX);
+                        muestraFinal.sort(function(a, b) {
+                            let bDias = (b.DiasSinTx == undefined ? b.diffAVL:b.DiasSinTx);
+                            let aDias = (a.DiasSinTx == undefined ? a.diffAVL: a.DiasSinTx)
+                            return  bDias - aDias;
+                        });
+                        //Ya consultados los requeriminetos sacamos los vehiculos que tienen un requerimiento activo o creado.
+                        requerimientos.map((val:any) =>{
+                            if(val.Estado == "Creado "){
+                                let a = JSON.parse(val.Cabecera);
+                                Vehiculosrequerimientos.push(a[0].assetid);
+                            }
+                        });
+                        //Elimino los vehiculos con un requerimiento creado o activo
+                        Vehiculosrequerimientos.map((item:any) =>{
+                        let index =  muestraFinal.findIndex((element) => element.assetId == item);
+                            if(index != -1)
+                                muestraFinal.splice(index,1);
+                        })
+                        //Verifico si los Vehiculos o la muestra de los vehiculos tienen falla de señales.
+                        if(result.data.length != 0){
+                            muestraFinal.reduce((a:any,b:any) =>{
+                                result.data.map((val:any)  =>{
+                                    if(b.AssetId == val.AssetId)
+                                        b.TFallas = val.TFallas;
+                                    return b;
+                                })
+                            },[])
+                        
+                        }
+                        //Seteo toda la muestra final
+                        setMuestra(muestraFinal);
+                        //Cancelamos el cargando.
+                        setLoader(false);
+                    }).catch((e) => {
+                        console.log("error", e);
+                    });
             }).catch((e) => {
                 console.log("error", e)
                 setLoader(false);
@@ -528,6 +675,7 @@ export default function HomePostVenta() {
                 console.log("Registre los parametros en listas para poder conseguir los parametros para los tipos de requerimientos con la sigla GOIREQ");
                 setLoader(false);
             })
+            
     };
     //Para reutilizar modal de tablas.  
     const TablaDatos = (TipoData:any, show:boolean) =>{
@@ -609,12 +757,13 @@ export default function HomePostVenta() {
       let campos =   Object.entries(AgrupadoEstado).map((elem: any) => {
         return(
                 <div key={elem[0]} className="row align-items-start">
-                    <div className="col">
+                    <div title={elem[0]} className="col text-truncate">
                         {elem[0]}
                     </div>
                     <div className="col">
                         <span onClick={(e) =>{
                             setTiketsDatos(elem[1].filter((e:any) => e.Estado == elem[0]));
+                            setTituloTicket(`Listado de tickets ${elem[0]}`)
                             setShowL(true);
                         }} className="" style={{cursor: 'pointer'}}>{elem[1].length}</span>
                     </div>
@@ -629,7 +778,7 @@ export default function HomePostVenta() {
                 <div className="row g-0 g-xl-5 g-xxl-8">
                     {(indicadores) && (<>
                         <div className="col-xl-4 pt-5">
-                            <Indicador className="card-stretch bg-light-danger mb-5  mb-xxl-8"  Titulo={"Total Empresa"} Subtitulo= {
+                            <Indicador color="info" className="card-stretch bg-light-danger mb-5  mb-xxl-8"  Titulo={"Total Empresa"} Subtitulo= {
                                  `${ indicadores.Clientes }`  
                                 } path="/media/icons/duotone/Home/Home-heart.svg">
                                 {/* begin::Info */}
@@ -649,7 +798,7 @@ export default function HomePostVenta() {
                             </Indicador>
                         </div>
                         <div className="col-xl-4 pt-5">
-                            <Indicador className="card-stretch  bg-light-info mb-5  mb-xxl-8" Titulo={`Novedades (${indicadores.VehiculosSinTx})`} Subtitulo={`Tx (${indicadores.VehiculosSinTx}) Señales (${indicadores.Seniales})`}>
+                            <Indicador color="info"  className="card-stretch  bg-light-info mb-5  mb-xxl-8" Titulo={`Novedades (${indicadores.VehiculosSinTx})`} Subtitulo={`Tx (${indicadores.VehiculosSinTx}) Señales (${indicadores.Seniales})`}>
                                 {/* begin::Info */}
                                 <div className="fw-bolder text-muted pt-7 text-center">
                                     <div className="container">
@@ -696,7 +845,7 @@ export default function HomePostVenta() {
                             </Indicador>
                         </div>
                         <div className="col-xl-4 pt-5">
-                            <Indicador className="card-stretch bg-light-success mb-5  mb-xxl-8" Titulo={"Tickets"} Subtitulo={"Ticket"}>
+                            <Indicador color="info"  className="card-stretch bg-light-success mb-5  mb-xxl-8" Titulo={"Tickets"} Subtitulo={"Ticket"}>
                                 <div className="fw-bolder text-muted pt-7 text-center">
                                     <div className="container">
                                         <div className="row align-items-start">
@@ -724,18 +873,56 @@ export default function HomePostVenta() {
                         <div className="col-4">
                             <div className="row g-0 g-xl-5 g-xxl-8">
                                 <div className="col-xxl-4">
-                                    <VehiculosSinTx className="card-stretch mb-5  mb-xxl-8">
-                                        <a
-                                            //   onClick={() => setShowCreateAppModal(true)}
-                                            className="btn btn-secondary btn-sm fw-bolder fs-6 ps-4 mt-6"
-                                        >
-                                            Req ST{" "}
-                                            <KTSVG
-                                                className="svg-icon-3 me-0"
-                                                path="/media/icons/duotone/Navigation/Up-right.svg"
-                                            />
-                                        </a>
-                                    </VehiculosSinTx>
+                                    {Muestra.map((val:any, index:any) =>{
+                                        let DiasSinTX = (val.diffAVL == undefined ? val.DiasSinTx:val.diffAVL);
+                                        // if(DiasSinTX >= 10)
+                                        return (
+                                            <IndicadorSinTxAlto key={index} className={"card-stretch mb-5  mb-xxl-8"} placa={val.registrationNumber} dias={DiasSinTX} fallas={val.TFallas} TotalFallas={TotalFallasCantidad}>
+                                                 <a
+                                                     onClick={() =>  CrearRequerimiento(val)}
+                                                    className="btn btn-secondary btn-sm fw-bolder fs-6 ps-4 mt-6"
+                                                    title={`Creación de requerimiento para el vehiculo ${val.registrationNumber}`}
+                                                >
+                                                    Req ST {val.registrationNumber}
+                                                    <KTSVG
+                                                        className="svg-icon-3 me-0"
+                                                        path="/media/icons/duotone/Navigation/Up-right.svg"
+                                                    />
+                                                </a>
+                                            </IndicadorSinTxAlto>
+                                        )
+                                        // else if(DiasSinTX>= 5)
+                                        // return (
+                                        //     <IndicadorSinTxMedio key={index} className={"card-stretch mb-5  mb-xxl-8"} placa={val.registrationNumber} dias={DiasSinTX} fallas={val.TFallas}>
+                                        //          <a
+                                        //              onClick={() =>  CrearRequerimiento(val)}
+                                        //             className="btn btn-secondary btn-sm fw-bolder fs-6 ps-4 mt-6"
+                                        //         >
+                                        //             Req ST{" "}
+                                        //             <KTSVG
+                                        //                 className="svg-icon-3 me-0"
+                                        //                 path="/media/icons/duotone/Navigation/Up-right.svg"
+                                        //             />
+                                        //         </a>
+                                        //     </IndicadorSinTxMedio>
+                                        // )
+                                        // else
+                                        // return (
+                                        //     <IndicadorSinTxBajo key={index} className={"card-stretch mb-5  mb-xxl-8"} placa={val.registrationNumber} dias={DiasSinTX} fallas={val.TFallas}>
+                                        //          <a
+                                        //              onClick={() =>  CrearRequerimiento(val)}
+                                        //             className="btn btn-secondary btn-sm fw-bolder fs-6 ps-4 mt-6"
+                                        //         >
+                                        //             Req ST{" "}
+                                        //             <KTSVG
+                                        //                 className="svg-icon-3 me-0"
+                                        //                 path="/media/icons/duotone/Navigation/Up-right.svg"
+                                        //             />
+                                        //         </a>
+                                        //     </IndicadorSinTxBajo>
+                                        // )
+                                    })}
+                                    
                                 </div>
                                 <div className="col-xxl-8 gy-0 gy-xxl-8">
                                 </div>
@@ -811,7 +998,7 @@ export default function HomePostVenta() {
             </Modal>)}
             {(sowL) && (TiketsDatos.length != 0) && (<Modal show={sowL} onHide={setShowL} size="lg">
                     <Modal.Header closeButton>
-                        <Modal.Title>Listado de tickets por estado</Modal.Title>
+                        <Modal.Title>{TituloTicket}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         {(sowL) && (TiketsDatos.length != 0) && (<MaterialReactTable

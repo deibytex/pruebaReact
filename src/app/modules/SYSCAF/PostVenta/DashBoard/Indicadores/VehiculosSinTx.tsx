@@ -5,12 +5,18 @@ import React from "react";
 type Props = {
   className: string;
   innerPadding?: string;
+  placa:string;
+  dias:string;
+  fallas:string;
 };
 
 export const VehiculosSinTx: React.FC<Props> = ({
   className,
   innerPadding = "",
+  placa,
   children,
+  dias,
+  fallas
 }) => {
   return (
     <div className={`card ${className}`}>
@@ -24,12 +30,12 @@ export const VehiculosSinTx: React.FC<Props> = ({
             <div className="">
               <span className="text-danger d-block mb-n1">Vehículo Crítico</span>
               <span className="font-weight-light fs-1 text-gray-800">
-                ABC-123 sin TX {" "}
-                <span className="fw-bolder fs-1 text-gray-800">20 días</span>
+                {placa} sin TX 
+                <span className="fw-bolder fs-1 text-gray-800"> {dias} días</span>
               </span><br/>
               <span className="font-weight-light fs-1 text-gray-800">
-                Tiene Falla de {" "}
-                <span className="fw-bolder fs-1 text-gray-800">2/4 Señales</span>
+                Tiene Falla de 
+                <span className="fw-bolder fs-1 text-gray-800"> {fallas}/4 Señales</span>
               </span>
             </div>
             {/* end::Text */}
