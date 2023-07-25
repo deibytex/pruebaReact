@@ -17,6 +17,7 @@ import moment from "moment";
 import BlockUi from "@availity/block-ui";
 import confirmarDialog, { successDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 import { SetEstadoSyscaf } from "../../../Tx/data/Reporte";
+import { TotalFallas, dataIndicadores } from "../mockData/indicadores";
 export default function HomePostVenta() {
         //Esta es para tomar la cantidad de muestra de vehiculos de transmision.
         const MuestraTX = 20;
@@ -438,12 +439,74 @@ export default function HomePostVenta() {
         };
         let Data: any[] = [];
         setLoader(true);
+
+        // traemos informacion de mocks para agilizar el desarrollo 
+      const eslocal : boolean = process.env.REACT_APP_MOCK == 'true'
+
+      
+         if(eslocal)
+         { 
+            Data = dataIndicadores;
+            const Assets = JSON.parse(dataIndicadores[0].Assets);
+            let ClientesIds:any[] = [];
+                
+            let VehiculosSinTx:any[] = [];
+            //Recontruyo la lista de unidades Activas
+            // let Unidades:any[] = [];
+            // Assets.map((val:any, index:any) =>{
+            //     Unidades.push({"AssetId":val.AssetId, "Description":val.Description, "RegistrationNumber":val.RegistrationNumber, "Base":val.Base})
+            // })
+            setDataUnidades(Assets);
+            //LSITADO DE CLIENTES O EMPRESAS
+            const Clientes = JSON.parse(dataIndicadores[0].Clientes);
+            ClientesIds = Clientes.map((e:any) => e.ClienteIdS);
+            setdataEmpresas(Clientes);
+            //LISTADO DE CONDUCTORES
+            const Conductores = JSON.parse(dataIndicadores[0].Conductores);
+            setdataConductores(Conductores);
+            //VEHICULOS SIN TX
+            VehiculosSinTx = JSON.parse(dataIndicadores[0].VehiculosSinTx);
+            setTxUltimaActualizacion(moment( VehiculosSinTx[0].FechaTransmision).format(formatSimpleJsonColombia));
+            setDatatx(VehiculosSinTx);
+            //LISTADO DE TICKETS
+            const Ticket = JSON.parse(dataIndicadores[0].Ticket);
+            setdataTickets(Ticket);
+            Indicadores.Assets = Assets.length;
+           //SETEO DE INDICADORES
+            Indicadores.Clientes = Clientes.length;
+            Indicadores.Conductores = Conductores.length;
+            Indicadores.VehiculosSinTx = VehiculosSinTx.length;
+            Indicadores.Ticket = Ticket.length;
+
+            let DatosCompletos = [...dataIndicadores];
+            DatosCompletos[0].Seniales = JSON.stringify(TotalFallas);
+            setdataSeniales(TotalFallas);
+            //Para los indicadores adicionamos señales
+            let ind: any = { ...Indicadores }
+            ind['Seniales'] = TotalFallas.length;
+            Indicadores = {
+                Assets: ind.Assets,
+                Clientes: ind.Clientes,
+                Conductores: ind.Conductores,
+                VehiculosSinTx: ind.VehiculosSinTx,
+                Seniales: ind.Seniales,
+                Ticket: ind.Ticket
+            }
+
+            //seteamos las variables
+            setIndicadores(Indicadores);
+            setDataAdmin(DatosCompletos);
+            //Cancelamos el cargando.
+            setLoader(false);
+
+         }
+          else
         GetInfoDashBoardAdmin().then(
             (result) => {
                 Data = result.data;
                 const data = result.data;
                 let ClientesIds:any[] = [];
-                console.log(data.length)
+                
                 let VehiculosSinTx:any[] = [];
                 if (data.length > 0) {
                     const Assets = JSON.parse(data[0].Assets);
@@ -609,7 +672,7 @@ export default function HomePostVenta() {
       let campos =   Object.entries(AgrupadoEstado).map((elem: any) => {
         return(
                 <div key={elem[0]} className="row align-items-start">
-                    <div className="col">
+                    <div className="col text-truncate">
                         {elem[0]}
                     </div>
                     <div className="col">
