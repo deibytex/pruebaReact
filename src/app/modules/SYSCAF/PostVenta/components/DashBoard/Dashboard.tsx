@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { KTSVG } from "../../../../../_start/helpers";
+import { KTSVG } from "../../../../../../_start/helpers";
 import { Indicador } from "./Indicadores/Indicador";
 import { VehiculosSinTx } from "./Indicadores/VehiculosSinTx";
-import { GetDetalleLista, GetFallasSeniales, GetInfoDashBoardAdmin, GetLista, SetRequerimiento } from "../data/PostVentaData";
+import { GetDetalleLista, GetFallasSeniales, GetInfoDashBoardAdmin, GetLista, SetRequerimiento } from "../../data/PostVentaData";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../../../setup";
-import { UserModelSyscaf } from "../../../auth/models/UserModel";
-import { formatSimpleJsonColombia, locateFormatPercentNDijitos } from "../../../../../_start/helpers/Helper";
+import { RootState } from "../../../../../../setup";
+import { UserModelSyscaf } from "../../../../auth/models/UserModel";
+import { formatSimpleJsonColombia, locateFormatPercentNDijitos } from "../../../../../../_start/helpers/Helper";
 import { AxiosResponse } from "axios";
 import { Form, Modal } from "react-bootstrap-v5";
 import { Check, Edit, Rule } from "@mui/icons-material";
@@ -15,9 +15,9 @@ import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import moment from "moment";
 import BlockUi from "@availity/block-ui";
-import confirmarDialog, { successDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
-import { SetEstadoSyscaf } from "../../../Tx/data/Reporte";
-import { TotalFallas, dataIndicadores } from "../mockData/indicadores";
+import confirmarDialog, { successDialog } from "../../../../../../_start/helpers/components/ConfirmDialog";
+import { SetEstadoSyscaf } from "../../../../Tx/data/Reporte";
+import { TotalFallas, dataIndicadores } from "../../mockData/indicadores";
 export default function HomePostVenta() {
         //Esta es para tomar la cantidad de muestra de vehiculos de transmision.
         const MuestraTX = 20;
