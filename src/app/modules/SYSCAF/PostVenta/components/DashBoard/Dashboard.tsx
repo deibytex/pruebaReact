@@ -1,25 +1,21 @@
 import { useEffect, useState } from "react";
-import { KTSVG } from "../../../../../_start/helpers";
+import { KTSVG } from "../../../../../../_start/helpers";
 import { Indicador } from "./Indicadores/Indicador";
-import { VehiculosSinTx } from "./Indicadores/VehiculosSinTx";
-import { GetDetalleLista, GetFallasSeniales, GetInfoDashBoardAdmin, GetLista, GettRequerimiento, SetRequerimiento } from "../data/PostVentaData";
+import { GetDetalleLista, GetFallasSeniales, GetInfoDashBoardAdmin, GetLista, GettRequerimiento, SetRequerimiento } from "../../data/PostVentaData";
 import { useSelector } from "react-redux";
-import { RootState } from "../../../../../setup";
-import { UserModelSyscaf } from "../../../auth/models/UserModel";
-import { formatSimpleJsonColombia, locateFormatPercentNDijitos } from "../../../../../_start/helpers/Helper";
+import { RootState } from "../../../../../../setup";
+import { UserModelSyscaf } from "../../../../auth/models/UserModel";
+import { formatSimpleJsonColombia, locateFormatPercentNDijitos } from "../../../../../../_start/helpers/Helper";
 import { AxiosResponse } from "axios";
 import { Form, Modal } from "react-bootstrap-v5";
-import { Check, Edit, Rule } from "@mui/icons-material";
-import { Box, IconButton, Tooltip } from "@mui/material";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import moment from "moment";
 import BlockUi from "@availity/block-ui";
-import confirmarDialog, { successDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
-import { SetEstadoSyscaf } from "../../../Tx/data/Reporte";
+import confirmarDialog, { successDialog } from "../../../../../../_start/helpers/components/ConfirmDialog";
+import { SetEstadoSyscaf } from "../../../../Tx/data/Reporte";
 import { IndicadorSinTxAlto } from "./Indicadores/IndicadorSinTxAlto";
-
-import { TotalFallas, dataIndicadores } from "../mockData/indicadores";
+import { TotalFallas, dataIndicadores } from "../../mockData/indicadores";
 export default function HomePostVenta() {
         //Esta es para tomar la cantidad de muestra de vehiculos de transmision.
         const MuestraTX = 20;
@@ -36,7 +32,7 @@ export default function HomePostVenta() {
         const [TipoRequerimientos, setTipoRequerimientos] = useState<any[]>([]);
         const [TipoRequerimientosSeleccionado, setTipoRequerimientosSeleccionado] = useState<any>({Nombre:"", Value: ""});
         const [EstadoRequerimientos, setEstadoRequerimientos] = useState<any[]>([]);
-        const [EstadoRequerimientosSeleccionado, setEstadoRequerimientosSeleccionado] = useState<any>({Nombre:"Creado ", Value: "Estado"});
+        const [EstadoRequerimientosSeleccionado, setEstadoRequerimientosSeleccionado] = useState<any>({Nombre:"Creado", Value: "Estado"});
         const [Observaciones, setObservaciones] = useState<string>("");
         const [TituloModal, setTituloModal] = useState<string>("");
         const [TituloTicket, setTituloTicket] = useState<string>("Listado de tickets por estado");
@@ -112,11 +108,11 @@ export default function HomePostVenta() {
                 setCabecera( { 
                     administrador:vUser.Nombres, 
                     UsuarioId:vUser.Id,   
-                    assetid: (data.AssetId == undefined ? data.assetId : data.AssetId), 
-                    clienteid:(data.ClienteId == undefined ?data.clienteIdS:data.ClienteId), 
+                    assetid: String(data.AssetId == undefined ? data.assetId : data.AssetId), 
+                    clienteid:String(data.ClienteId == undefined ?data.clienteIdS:data.ClienteId), 
                     registrationNumber:data.registrationNumber, 
                     description:data.assetsDescription, 
-                    nombrecliente:data.clienteNombre , 
+                    nombrecliente:(data.clienteNombre == undefined ?data.clientenNombre:data.clienteNombre) , 
                     agente:vUser.Nombres
                 });
                 setShowr(true);
@@ -449,7 +445,7 @@ export default function HomePostVenta() {
         setLoader(true);
         // traemos informacion de mocks para agilizar el desarrollo 
         const eslocal : boolean = process.env.REACT_APP_MOCK == 'true'
-        if(eslocal)
+        if(eslocal == false)
         {
             const Assets = JSON.parse(dataIndicadores[0].Assets);
             let ClientesIds:any[] = [];
@@ -512,7 +508,7 @@ export default function HomePostVenta() {
             });
             //Ya consultados los requeriminetos sacamos los vehiculos que tienen un requerimiento activo o creado.
             requerimientos.map((val:any) =>{
-                if(val.Estado == "Creado "){
+                if(val.Estado == "Creado"){
                     let a = JSON.parse(val.Cabecera);
                     Vehiculosrequerimientos.push(a[0].assetid);
                 }
@@ -621,7 +617,7 @@ export default function HomePostVenta() {
                         });
                         //Ya consultados los requeriminetos sacamos los vehiculos que tienen un requerimiento activo o creado.
                         requerimientos.map((val:any) =>{
-                            if(val.Estado == "Creado "){
+                            if(val.Estado == "Creado"){
                                 let a = JSON.parse(val.Cabecera);
                                 Vehiculosrequerimientos.push(a[0].assetid);
                             }
@@ -878,17 +874,15 @@ export default function HomePostVenta() {
                                         // if(DiasSinTX >= 10)
                                         return (
                                             <IndicadorSinTxAlto key={index} className={"card-stretch mb-5  mb-xxl-8"} placa={val.registrationNumber} dias={DiasSinTX} fallas={val.TFallas} TotalFallas={TotalFallasCantidad}>
-                                                 <a
-                                                     onClick={() =>  CrearRequerimiento(val)}
-                                                    className="btn btn-secondary btn-sm fw-bolder fs-6 ps-4 mt-6"
-                                                    title={`Creación de requerimiento para el vehiculo ${val.registrationNumber}`}
-                                                >
-                                                    Req ST {val.registrationNumber}
-                                                    <KTSVG
-                                                        className="svg-icon-3 me-0"
-                                                        path="/media/icons/duotone/Navigation/Up-right.svg"
-                                                    />
-                                                </a>
+                                                 <span className="float-end">
+                                                    <a
+                                                        onClick={() =>  CrearRequerimiento(val)}
+                                                        className="btn btn-primary btn-sm fw-bolder  mt-6"
+                                                        title={`Creación de requerimiento para el vehiculo ${val.registrationNumber}`}
+                                                    >
+                                                        <i className="bi-clipboard-check"></i>
+                                                    </a>
+                                                 </span>
                                             </IndicadorSinTxAlto>
                                         )
                                         // else if(DiasSinTX>= 5)

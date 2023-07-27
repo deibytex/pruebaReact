@@ -1,4 +1,4 @@
-import { KTSVG } from "../../../../../../_start/helpers";
+import { KTSVG } from "../../../../../../../_start/helpers";
 
 type Props = {
     Titulo: string;
