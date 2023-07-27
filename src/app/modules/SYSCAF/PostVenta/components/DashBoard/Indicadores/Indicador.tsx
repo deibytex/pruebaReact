@@ -15,9 +15,9 @@ export const Indicador : React.FC<Props> = ({children , Titulo, Subtitulo, class
     return (
         <div className={`card ${className}`}>
           {/* begin::Body */}
-          <div className={`card-body ${innerPadding}`}>
+          <div  className={`card-body ${innerPadding}`}>
             {/* begin::Section */}
-            <div className="d-flex align-items-center">
+            <div  className="d-flex align-items-center">
               {/* begin::Symbol */}
               <div className="symbol symbol-50px me-5">
                 <span className={`symbol-label ${colorPath}`}>
@@ -44,10 +44,9 @@ export const Indicador : React.FC<Props> = ({children , Titulo, Subtitulo, class
             {/* end::Section */}
     
             {/* begin::Info */}
-            <div className="fw-bolder text-muted pt-7 text-center">
+            {/* Para el tamaño fijo y no solo eso sino que la linea de cargando quede el mismo nivel */}
+            <div className="fw-bolder text-muted pt-7 text-center" style={{height:'143px', maxHeight:'143px'}}>
               {children}
-             
-            
             </div>
             {/* end::Info */}
     

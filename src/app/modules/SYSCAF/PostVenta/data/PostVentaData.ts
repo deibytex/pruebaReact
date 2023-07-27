@@ -52,3 +52,12 @@ export function GetDetalleLista(ListaId:any){
         RecordsPorPagina: null
     }, params)
 }
+//Consulta la lista de los requerimientos
+export function GettRequerimiento(){
+    var params: { [id: string]: string | null | undefined; } = {};
+    return Post_GetConsultasDinamicasUser({
+        NombreConsulta: "GetRequerimientos", Clase: "GOIQueryHelper",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, params)
+}
