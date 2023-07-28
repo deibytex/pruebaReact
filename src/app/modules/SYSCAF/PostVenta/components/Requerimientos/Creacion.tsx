@@ -464,7 +464,7 @@ export default function Creacion() {
                     <Box
                         sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
                     >
-                        <button style={{ display: (tabSel <= 2) ? "inline-block" : "none" }} className="  btn btn-sm btn-primary" type="button" onClick={() => {
+                        <button title="Reporte a excel" style={{ display: (tabSel <= 2) ? "inline-block" : "none" }} className="  btn btn-sm btn-primary" type="button" onClick={() => {
                             DescargarExcel(DatosTabla,Campos, `Reporte de requerimientos${(tabSel == 0 ? "": (tabSel == 1 ? " asignados":(tabSel ==2 ? " cerrados":"")))}`)
                         }}>
                             <i className="bi-file-earmark-excel"></i></button>
@@ -665,7 +665,7 @@ export default function Creacion() {
                                     <Box
                                         sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
                                     >
-                                        <button style={{ display:  "inline-block"}} className="btn btn-sm btn-primary" type="button" onClick={() => {
+                                        <button title="Reporte a excel"  style={{ display:  "inline-block"}} className="btn btn-sm btn-primary" type="button" onClick={() => {
                                             DescargarExcel(DatosReporte,CamposReporte, "Reporte requerimientos agrupados")
                                         }}>
                                             <i className="bi-file-earmark-excel"></i></button>
