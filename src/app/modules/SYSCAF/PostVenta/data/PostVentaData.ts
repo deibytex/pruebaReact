@@ -53,8 +53,10 @@ export function GetDetalleLista(ListaId:any){
     }, params)
 }
 //Consulta la lista de los requerimientos
-export function GettRequerimiento(){
+export function GettRequerimiento(FechaInicial:any|null, FechaFinal:any|null){
     var params: { [id: string]: string | null | undefined; } = {};
+    params['FechaInicial'] = FechaInicial;
+    params['FechaFinal'] = FechaFinal;
     return Post_GetConsultasDinamicasUser({
         NombreConsulta: "GetRequerimientos", Clase: "GOIQueryHelper",
         Pagina: null,

@@ -37,6 +37,8 @@ export default function HomePostVenta() {
         const [TituloModal, setTituloModal] = useState<string>("");
         const [TituloTicket, setTituloTicket] = useState<string>("Listado de tickets por estado");
         const [TxUltimaActualizacion, setTxUltimaActualizacion] = useState<string>("");
+        const FechaFinal = moment().startOf('day').toDate();
+        const FechaInicial =  moment().startOf('day').add(-30, 'days').toDate();
         //ESTA ES PARA EL MODAL DINAMICO.
         const [sowL, setShowL] = useState<boolean>(false);
         const user = useSelector<RootState>(
@@ -570,7 +572,7 @@ export default function HomePostVenta() {
                         Indicadores.Ticket = Ticket.length;
                     }
                     //Obtengo los requimientos del sistema
-                    GettRequerimiento().then(( response:AxiosResponse<any>) =>{
+                    GettRequerimiento(FechaInicial, FechaFinal).then(( response:AxiosResponse<any>) =>{
                         if(response.data.length != 0){
                         let Cabeceras =  response.data.filter((val:any) =>{
                                 return JSON.parse(val.Cabecera);
