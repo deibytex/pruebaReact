@@ -124,25 +124,7 @@ const DataCorreosTX: React.FC = ({ children }) => {
         getListadoCLientes().then((response: AxiosResponse<any>) => {
             
 
-            let clientesnotificacion = (response.data).filter(function (arr: any) {
-                let noti = JSON.parse(arr.ParamsSistema);
-                return (noti.notificacion == 1)
-            });
-
-            getListaClienteNotifacion();
-
-            let prueba = (ListaNotifacion).filter(function (item: any) {
-                return response.data.indexOf(item["ClienteIds"]) > -1
-            });
-
-            console.log('filtrado', prueba);
-            console.log('sin filtrar', ListaNotifacion);
-            console.log('clientes cuser', response.data)
-            let datos = clientesnotificacion[0]; 
-
             setClientes(response.data);
-            setClienteIdS(datos["clienteIdS"]);
-            setClienteId(datos["ClienteId"]);
 
         }
         ).catch((error) => {
