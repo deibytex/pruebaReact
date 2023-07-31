@@ -43,6 +43,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
   const [dataAlertas, setDataAlertas] = useState([]);
   const [dataAlertasfiltrada, setDataAlertasfiltrada] = useState([]);
+  const [dataAlertasCombinadas, setDataAlertasCombinadas] = useState([]);
   const [dataContacto, setdataContacto] = useState([]);
   const [obervacionGestion, setobervacionGestion] = useState("");
   const [obervacionGestionlast, setobervacionGestionlast] = useState("");
@@ -110,40 +111,43 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
       name: 'Alto',
       data: [],
       valor: 'Riesgo alto',
-      isSelected: false
+      isSelected: true
     },
     {
       name: 'Moderado',
       data: [],
       valor: 'Riesgo moderado',
-      isSelected: false
+      isSelected: true
     },
     {
       name: 'Bajo',
       data: [],
       valor: 'Riesgo bajo',
-      isSelected: false
+      isSelected: true
     }
   ]
 
-  let preSeleccionadosriesgo = defaultRiesgoSelected.filter(x => x.isSelected).map(x => x.name);
+  let preSeleccionadosriesgo = defaultRiesgoSelected.filter(x => x.isSelected).map(x => x.valor);
 
   const [value, setValue] = useState<any[]>(preSeleccionadosriesgo);
 
   const handleChange = (value: any[]) => {
 
     let aux = defaultRiesgoSelected.map((x: any) => {
-      x.isSelected = value.includes(x.name);
+      x.isSelected = value.includes(x.valor);
       return x;
     });
-
+    
     setValue(value);
     setRiesgoSelected(aux);
 
-    const filteredArray = dataAlertas.filter((item: any) => value.indexOf(item.Criticidad) >= 0);
-    console.log(dataAlertas);
+    
+
+    const filteredArray = dataAlertas.filter((item: any) => value.indexOf(item.Criticidad) > -1);
+
     setDataAlertasfiltrada(filteredArray);
     setRowCount(filteredArray.length);
+
   };
 
   const [RiesgoSelected, setRiesgoSelected] = useState(defaultRiesgoSelected);
@@ -153,24 +157,24 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
       name: 'No Gestionados',
       data: [],
       valor: 'null',
-      isSelected: false
+      isSelected: true
     },
     {
       name: 'Gestionados No Cerrados',
       data: [],
-      isSelected: false,
+      isSelected: true,
       valor: 'false'
     },
     {
       name: 'Gestionados',
       data: [],
-      isSelected: false,
+      isSelected: true,
       valor: 'true'
     }
 
   ]
 
-  let preSeleccionadosgestion = defaultGestionSelected.filter(x => x.isSelected).map(x => x.name);
+  let preSeleccionadosgestion = defaultGestionSelected.filter(x => x.isSelected).map(x => x.valor);
 
   const [value2, setValue2] = useState<any[]>(preSeleccionadosgestion);
 
@@ -179,15 +183,15 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   const handleChange2 = (value2: any[]) => {
 
     let aux = defaultGestionSelected.map((x: any) => {
-      x.isSelected = value2.includes(x.name);
+      x.isSelected = value2.includes(x.valor);
       return x;
     });
 
     setValue2(value2);
     setGestionSelected(aux);
 
-    const filteredArray = dataAlertas.filter((item: any) => value2.indexOf(`${item.EstadoGestion}`) >= 0);
-    console.log(value2)
+
+    const filteredArray = dataAlertas.filter((item: any) => value2.indexOf(`${item.EstadoGestion}`) > -1);
     setDataAlertasfiltrada(filteredArray);
     setRowCount(filteredArray.length);
   };
@@ -196,33 +200,32 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
     {
       name: 'ADAS',
       data: [],
-      isSelected: false
+      isSelected: true
     },
     {
       name: 'Fatiga',
       data: [],
-      isSelected: false
+      isSelected: true
     },
     {
       name: 'Distracción',
       data: [],
-      isSelected: false
+      isSelected: true
     },
     {
       name: 'Seguridad',
       data: [],
-      isSelected: false
+      isSelected: true
     },
     {
-      name: 'Diagnostico',
+      name: 'Diagnóstico',
       data: [],
-      isSelected: false
+      isSelected: true
     }
 
   ]
 
  
-
   let preSeleccionadosAlarmas = defaultAlarmasSelected.filter(x => x.isSelected).map(x => x.name);
 
   const [value3, setValue3] = useState<any[]>(preSeleccionadosAlarmas);
@@ -239,11 +242,17 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
     setValue3(value3);
     setAlarmasSelected(aux);
 
-    const filteredArray = dataAlertas.filter((item: any) => value3.indexOf(`${item.TipoAlerta}`) >= 0);
-    console.log(value3)
+    const filteredArray = dataAlertas.filter((item: any) => value3.indexOf(item.TipoAlerta) > -1);
+
     setDataAlertasfiltrada(filteredArray);
     setRowCount(filteredArray.length);
   };
+
+  //primer cargue carga userid
+  useEffect(() => {
+    setUserId(model.Id?.toString())
+  }, [])
+
 
   //WARNING NO FUNCIONA
   useEffect(() => {
@@ -254,8 +263,19 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
   //primer cargue carga userid
   useEffect(() => {
-    setUserId(model.Id?.toString())
-  }, [])
+    
+    if (dataAlertasfiltrada.length > 0) {
+    
+    const filteredArray1 = dataAlertas.filter((item: any) => value.indexOf(item.Criticidad) > -1);
+    const filteredArray2 = filteredArray1.filter((item: any) => value2.indexOf(`${item.EstadoGestion}`) > -1);
+    const filteredArray3 = filteredArray2.filter((item: any) => value3.indexOf(item.TipoAlerta) > -1);
+    setDataAlertasCombinadas(filteredArray3);
+    }
+    
+
+  }, [dataAlertasfiltrada, dataAlertas])
+
+
 
  //listado campos tablas
   const columnasTabla: MRT_ColumnDef<any>[]
@@ -552,7 +572,6 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
     if (datos[0] != null) {
       let last = datos[0].at(-1);
-      console.log(datos[0]);
       setFechaApertura(moment(last.fechaapertura as Date).format('DD/MM/YYYY'));
       setFechaGestion(moment(last.fechagestion as Date).format('DD/MM/YYYY'));
       setobervacionGestionlast(last.value);
@@ -564,17 +583,6 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
 
   };
-
-  //se asigna alertas a la data filtrada
-  useEffect(() => {
-
-      setDataAlertasfiltrada(dataAlertas);
-      setRowCount((dataAlertas).length);
-    
-
-
-  }, [dataAlertas])
-
 
   const ordenarData = (tipo: string) => {
 
@@ -666,7 +674,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
           },
         }}
         columns={columnasTabla}
-        data={dataAlertasfiltrada}
+        data={dataAlertasCombinadas.length == 0 ? dataAlertas : dataAlertasCombinadas}
         muiTableBodyRowProps={({ row }) => ({
 
           sx: {

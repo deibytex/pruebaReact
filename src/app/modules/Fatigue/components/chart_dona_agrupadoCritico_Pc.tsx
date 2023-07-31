@@ -33,6 +33,7 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "", tipo
 
   const [criticidad, setcriticidad] = useState<any>({});
 
+  //Pintamos indicador 2 donna
   useEffect(() => {
 
     let agrupadocriticidad = alertas
@@ -43,12 +44,11 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "", tipo
         return p;
       }, {});
 
-
     if (Object.keys(agrupadocriticidad).length > 0) {
       setcriticidad({
-        "Alto": agrupadocriticidad['Riesgo alto'].length,
-        "Moderado": agrupadocriticidad['Riesgo moderado'].length,
-        "Bajo": agrupadocriticidad['Riesgo bajo'].length
+        "Alto": agrupadocriticidad['Riesgo alto'] == undefined ? 0 : agrupadocriticidad['Riesgo alto'].length,
+        "Moderado": agrupadocriticidad['Riesgo moderado'] == undefined ? 0 : agrupadocriticidad['Riesgo moderado'].length,
+        "Bajo": agrupadocriticidad['Riesgo bajo'] == undefined ? 0 : agrupadocriticidad['Riesgo bajo'].length
       });
     }
 
