@@ -65,7 +65,7 @@ export const FiltrosCorreos: React.FC<Props> = () => {
                 return (arr.ClienteIds == ClienteIdS)
             });
             setlstListaNotifacion(filterListas);
-
+            if (filterListas.length > 0)
              setListaNotifacionId(filterListas[0].ListaClienteNotifacionId);
         }
 
