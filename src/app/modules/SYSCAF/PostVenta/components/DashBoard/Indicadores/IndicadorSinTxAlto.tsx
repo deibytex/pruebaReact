@@ -15,9 +15,9 @@ export const IndicadorSinTxAlto: React.FC<Props> = ({
     fallas,
     TotalFallas
   }) => {
-    return(
-        <div className="pt-5">
-            <div className="d-flex bg-light-danger card-rounded flex-grow-1">
+    return( 
+        
+            <div className=" bg-light-danger card-rounded ">
                 {/* begin::Section */}
                 <div className="py-10 ps-7">
                     <div className="">
@@ -37,7 +37,7 @@ export const IndicadorSinTxAlto: React.FC<Props> = ({
                     </div>
                     {children}
                 </div>
-            </div>
+         
         </div>
     )
   }

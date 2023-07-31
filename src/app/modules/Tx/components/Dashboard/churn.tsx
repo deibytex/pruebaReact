@@ -11,7 +11,7 @@ import { setIn } from "formik";
 type Props = {
 }
 const Churn: React.FC<Props> = ({  }) => {
-  const { DataAcumuladoChurn, showChurn, setshowChurn, setCargando, DataChurn, Filtrado, Consulta } = useDataDashboard();
+  const { DataAcumuladoChurn, setCargando, DataChurn, Filtrado, Consulta } = useDataDashboard();
   const [churnDataEntradas, setChurnDataEntradas] = useState<any[]>([]);
   const [churnDataSalidas, setChurnDataSalidas] = useState<any[]>([])
   const [TotalIn, setTotalIn] = useState<string>("0");

@@ -13,7 +13,11 @@ type Props = {
 export const Indicador : React.FC<Props> = ({children , Titulo, Subtitulo, className, innerPadding = "", color ="primary", path="/media/icons/duotone/Home/Library.svg", colorPath=""}) => {
 
     return (
-        <div className={`card ${className}`}>
+        <div className={`card ${className}`}
+      //   style={{
+      //     backgroundColor: "#d1e7dd"
+      // }}
+        >
           {/* begin::Body */}
           <div  className={`card-body ${innerPadding}`}>
             {/* begin::Section */}
@@ -30,10 +34,10 @@ export const Indicador : React.FC<Props> = ({children , Titulo, Subtitulo, class
               {/* end::Symbol */}
     
               {/* begin::Title */}
-              <div>
+              <div className="d-flex justify-content-center">
                 <a
                   href="#"
-                  className="fs-4 text-gray-800 text-hover-primary fw-bolder"
+                  className="fs-2 text-gray-800 text-hover-primary fw-bolder"
                 >
                   {Titulo}
                 </a>
