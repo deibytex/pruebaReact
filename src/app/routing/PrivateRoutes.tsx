@@ -74,7 +74,7 @@ export function PrivateRoutes() {
               
               
               {importedModules}
-              <Route path="/reportes/pbi/mttobusetones/:titulo/:url" render= {
+              <Route path="/reportes/pbi/:titulo/:url" render= {
                 (props) => {
                 return <RenderIframe {...props.match.params} ></RenderIframe>
                 }
