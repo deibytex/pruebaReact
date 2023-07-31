@@ -767,7 +767,6 @@ export default function HomePostVenta() {
                                             </div>
                                         </div>
                                     </div>
-
                                 </div>
                                 {/* end::Info */}
                             </Indicador>

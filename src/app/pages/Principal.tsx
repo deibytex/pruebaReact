@@ -4,7 +4,6 @@ import { FechaMomentUtc } from "../../_start/helpers/Helper";
 import { useSelector } from "react-redux";
 import { RootState } from "../../setup";
 import { UserModelSyscaf } from "../modules/auth/models/UserModel";
-import HomePostVenta from "../modules/SYSCAF/PostVenta/DashBoard/Dashboard";
 import { toAbsoluteUrl } from "../../_start/helpers";
 
 export function Bienvenidos() {
