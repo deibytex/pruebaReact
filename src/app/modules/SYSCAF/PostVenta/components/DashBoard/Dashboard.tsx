@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { KTSVG } from "../../../../../../_start/helpers";
 import { Indicador } from "./Indicadores/Indicador";
-import { GetDetalleLista, GetFallasSeniales, GetInfoDashBoardAdmin, GetLista, GettRequerimiento, SetRequerimiento } from "../../data/PostVentaData";
+import { FiltroDashBoardData, GetDetalleLista, GetFallasSeniales, GetInfoDashBoardAdmin, GetLista, GettRequerimiento, SetRequerimiento } from "../../data/PostVentaData";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../../../setup";
 import { UserModelSyscaf } from "../../../../auth/models/UserModel";
@@ -16,6 +16,9 @@ import confirmarDialog, { successDialog } from "../../../../../../_start/helpers
 import { SetEstadoSyscaf } from "../../../../Tx/data/Reporte";
 import { IndicadorSinTxAlto } from "./Indicadores/IndicadorSinTxAlto";
 import { TotalFallas, dataIndicadores } from "../../mockData/indicadores";
+import { Abiertos } from "./Indicadores/Abiertos";
+import { Soporte } from "./Indicadores/Soportes";
+import { Generico } from "./Indicadores/Generico";
 export default function HomePostVenta() {
         //Esta es para tomar la cantidad de muestra de vehiculos de transmision.
         const MuestraTX = 20;
@@ -61,6 +64,16 @@ export default function HomePostVenta() {
                 agente:""
             }
         );
+        var Indicadores = {
+            Assets: 0,
+            Clientes: 0,
+            Conductores: 0,
+            VehiculosSinTx: 0,
+            Seniales: 0,
+            Ticket: 0
+        };
+            
+        var Data: any[] = [];
         const [Muestra, setMuestra] = useState<any[]>([]);
         const [Requerimientos, setRequerimientos] = useState<any[]>([]);
         const [TotalFallasCantidad, setTotalFallas] = useState<string>("4");
@@ -94,14 +107,7 @@ export default function HomePostVenta() {
             }
             
         },[TipoReporte])
-        // //Para los estados del requrimiento
-        // useEffect(() =>{
-        //     if(EstadoRequerimientos.length != 0)
-        //     setEstadoRequerimientosSeleccionado(EstadoRequerimientos[0]);
-        //     return () =>{
-        //         setEstadoRequerimientosSeleccionado([]);
-        //     }
-        // },[EstadoRequerimientosSeleccionado])
+       
         //FUNCION DE CREAR LOS REQUERIMIENTOS
         const CrearRequerimiento = (row:any) =>{
             let data = (row.original == undefined ? row: row.original)
@@ -210,24 +216,6 @@ export default function HomePostVenta() {
         //SIN TX
         let Campos: MRT_ColumnDef<any>[] =
         [
-            // {
-            //     accessorKey: 'AssetId',
-            //     header: 'Opciones',
-            //     size: 10,
-            //     minSize: 10, //min size enforced during resizing
-            //     maxSize: 10,
-            //     Cell({ cell, column, row, table, }) {
-            //     return  <Box sx={{ display: 'block', gap: '1rem', marginLeft: 'auto', marginRight: 'auto' }}>
-            //     <Tooltip arrow placement="top" title="crear requerimiento">
-            //         <IconButton  onClick={() => {
-            //            CrearRequerimiento(row);
-            //         }}>
-            //             <Check />
-            //         </IconButton>
-            //     </Tooltip>
-            // </Box>
-            //     },
-            // },
             {
                 accessorKey: 'clienteNombre',
                 header: 'Cliente',
@@ -299,14 +287,6 @@ export default function HomePostVenta() {
                 maxSize: 10,
 
             },
-            // {
-            //     accessorKey: 'AssetId',
-            //     header: 'Id',
-            //     enableHiding: true,
-            //     size: 10,
-            //     minSize: 10, //min size enforced during resizing
-            //     maxSize: 10,
-            // },
         ];
         //SEÑALES
         let CamposSenial: MRT_ColumnDef<any>[] =
@@ -358,23 +338,6 @@ export default function HomePostVenta() {
                 maxSize: 10,
 
             },
-            // {
-            //     accessorKey: 'aditionalFields',
-            //     header: 'Campos adicionales',
-            //     enableHiding: false,
-            //     size: 10,
-            //     minSize: 10, //min size enforced during resizing
-            //     maxSize: 10,
-
-            // },
-            // {
-            //     accessorKey: 'DriverId',
-            //     header: 'Id',
-            //     enableHiding: true,
-            //     size: 10,
-            //     minSize: 10, //min size enforced during resizing
-            //     maxSize: 10,
-            // },
         ];
         //TICKETS
         let Encabezado: MRT_ColumnDef<any>[] =
@@ -408,14 +371,6 @@ export default function HomePostVenta() {
                 minSize: 10, //min size enforced during resizing
                 maxSize: 10,
             },
-            // {
-            //     accessorKey: 'Semana',
-            //     header: 'Semana',
-            //     enableHiding: true,
-            //     size: 10,
-            //     minSize: 10, //min size enforced during resizing
-            //     maxSize: 10,
-            // },
             {
                 accessorKey: 'TipodeTicket',
                 header: 'Tipo',
@@ -435,17 +390,9 @@ export default function HomePostVenta() {
 
     //ESPACIO PARA LAS FUNCIONES DE CONSULTA
     const ConsultasIniciales = () => {
-        let Indicadores = {
-            Assets: 0,
-            Clientes: 0,
-            Conductores: 0,
-            VehiculosSinTx: 0,
-            Seniales: 0,
-            Ticket: 0
-        };
-        let Data: any[] = [];
         setLoader(true);
         // traemos informacion de mocks para agilizar el desarrollo 
+        //ELIMINAR
         const eslocal : boolean = process.env.REACT_APP_MOCK == 'true'
         if(eslocal == false)
         {
@@ -482,19 +429,11 @@ export default function HomePostVenta() {
             //Para los indicadores adicionamos señales
             let ind: any = { ...Indicadores }
             ind['Seniales'] = TotalFallas.length;
-            Indicadores = {
-                Assets: ind.Assets,
-                Clientes: ind.Clientes,
-                Conductores: ind.Conductores,
-                VehiculosSinTx: ind.VehiculosSinTx,
-                Seniales: ind.Seniales,
-                Ticket: ind.Ticket
-            }
             //seteamos las variables
             setIndicadores(Indicadores);
             setDataAdmin(DatosCompletos);
             //Cancelamos el cargando.
-            setLoader(false);
+        
              //Saco a aparte todos los sin respuesta y operando normalmente de TX.
              let filtro = VehiculosSinTx.filter((item:any, index:any) =>{
                 let estado = (item.estado == undefined ?  item.Estado: item.estado);
@@ -539,115 +478,7 @@ export default function HomePostVenta() {
         else
         GetInfoDashBoardAdmin().then(
             (result) => {
-
-                    Data = result.data;
-                    const data = result.data;
-                    let ClientesIds:any[] = [];
-                    console.log(data.length)
-                    let VehiculosSinTx:any[] = [];
-                    let requerimientos : any[]=[];
-                    let Vehiculosrequerimientos : any[]=[];
-                    if (data.length > 0) {
-                        const Assets = JSON.parse(data[0].Assets);
-                        setDataUnidades(Assets);
-                        //LSITADO DE CLIENTES O EMPRESAS
-                        const Clientes = JSON.parse(data[0].Clientes);
-                        ClientesIds = Clientes.map((e:any) => e.ClienteIdS);
-                        setdataEmpresas(Clientes);
-                        //LISTADO DE CONDUCTORES
-                        const Conductores = JSON.parse(data[0].Conductores);
-                        setdataConductores(Conductores);
-                        //VEHICULOS SIN TX
-                        VehiculosSinTx = JSON.parse(data[0].VehiculosSinTx);
-                        setTxUltimaActualizacion(moment( VehiculosSinTx[0].FechaTransmision).format(formatSimpleJsonColombia));
-                        setDatatx(VehiculosSinTx);
-                        //LISTADO DE TICKETS
-                        const Ticket = JSON.parse(data[0].Ticket);
-                        setdataTickets(Ticket);
-                        Indicadores.Assets = Assets.length;
-                        //SETEO DE INDICADORES
-                        Indicadores.Clientes = Clientes.length;
-                        Indicadores.Conductores = Conductores.length;
-                        Indicadores.VehiculosSinTx = VehiculosSinTx.length;
-                        Indicadores.Ticket = Ticket.length;
-                    }
-                    //Obtengo los requimientos del sistema
-                    GettRequerimiento(FechaInicial, FechaFinal).then(( response:AxiosResponse<any>) =>{
-                        if(response.data.length != 0){
-                        let Cabeceras =  response.data.filter((val:any) =>{
-                                return JSON.parse(val.Cabecera);
-                            })
-                            requerimientos = Cabeceras;
-                            setRequerimientos(Cabeceras);
-                        }
-                    }).catch(() =>{
-                        console.log("Error de consulta de detalles listas");
-                    })
-                    //indicador de señales.
-                    GetFallasSeniales(ClientesIds.join()).then((result: AxiosResponse<any>) => {
-                        //Como tengo una consulta anidada, debo traer datos anteriores para meterlos en otros.
-                        let DatosCompletos = [...Data];
-                        DatosCompletos[0].Seniales = JSON.stringify(result.data);
-                        setdataSeniales(result.data);
-                        //Para los indicadores adicionamos señales
-                        let ind: any = { ...Indicadores }
-                        ind['Seniales'] = result.data.length;
-                        Indicadores = {
-                            Assets: ind.Assets,
-                            Clientes: ind.Clientes,
-                            Conductores: ind.Conductores,
-                            VehiculosSinTx: ind.VehiculosSinTx,
-                            Seniales: ind.Seniales,
-                            Ticket: ind.Ticket
-                        }
-
-                        //seteamos las variables
-                        setIndicadores(Indicadores);
-                        setDataAdmin(DatosCompletos);
-                        //Saco a aparte todos los sin respuesta y operando normalmente de TX.
-                        let filtro = VehiculosSinTx.filter((item:any, index:any) =>{
-                            let estado = (item.estado == undefined ?  item.Estado: item.estado);
-                            if(estado == "Sin Respuesta del Cliente" || estado == "Operando Normalmente")
-                                return item;
-                        });
-                        //Organizo el que tenga mayor cantidad de dias primero.
-                        let muestraFinal = filtro.slice(0,MuestraTX);
-                        muestraFinal.sort(function(a, b) {
-                            let bDias = (b.DiasSinTx == undefined ? b.diffAVL:b.DiasSinTx);
-                            let aDias = (a.DiasSinTx == undefined ? a.diffAVL: a.DiasSinTx)
-                            return  bDias - aDias;
-                        });
-                        //Ya consultados los requeriminetos sacamos los vehiculos que tienen un requerimiento activo o creado.
-                        requerimientos.map((val:any) =>{
-                            if(val.Estado == "Creado"){
-                                let a = JSON.parse(val.Cabecera);
-                                Vehiculosrequerimientos.push(a[0].assetid);
-                            }
-                        });
-                        //Elimino los vehiculos con un requerimiento creado o activo
-                        Vehiculosrequerimientos.map((item:any) =>{
-                        let index =  muestraFinal.findIndex((element) => element.assetId == item);
-                            if(index != -1)
-                                muestraFinal.splice(index,1);
-                        })
-                        //Verifico si los Vehiculos o la muestra de los vehiculos tienen falla de señales.
-                        if(result.data.length != 0){
-                            muestraFinal.reduce((a:any,b:any) =>{
-                                result.data.map((val:any)  =>{
-                                    if(b.AssetId == val.AssetId)
-                                        b.TFallas = val.TFallas;
-                                    return b;
-                                })
-                            },[])
-                        
-                        }
-                        //Seteo toda la muestra final
-                        setMuestra(muestraFinal);
-                        //Cancelamos el cargando.
-                        setLoader(false);
-                    }).catch((e) => {
-                        console.log("error", e);
-                    });
+                ConsultasAnidadas(result);
             }).catch((e) => {
                 console.log("error", e)
                 setLoader(false);
@@ -675,6 +506,105 @@ export default function HomePostVenta() {
             })
             
     };
+
+    const ConsultasAnidadas = (result: any) => {
+        //Espacio para variables a usar dentro de este procedimiento.
+        Data = result.data;
+        const data = result.data;
+        let ClientesIds: any[] = [];
+        let VehiculosSinTx: any[] = [];
+        let requerimientos: any[] = [];
+        let Vehiculosrequerimientos: any[] = [];
+
+        if (data.length > 0) {
+            const Assets = JSON.parse(data[0].Assets);
+            setDataUnidades(Assets);
+            //LSITADO DE CLIENTES O EMPRESAS
+            const Clientes = JSON.parse(data[0].Clientes);
+            ClientesIds = Clientes.map((e: any) => e.ClienteIdS);
+            setdataEmpresas(Clientes);
+            //LISTADO DE CONDUCTORES
+            const Conductores = JSON.parse(data[0].Conductores);
+            setdataConductores(Conductores);
+            //VEHICULOS SIN TX
+            VehiculosSinTx = (data[0].VehiculosSinTx == null ? [] : JSON.parse(data[0].VehiculosSinTx));
+            //Para indicar cual fue la ultima fecha de actualizacion.
+            setTxUltimaActualizacion(moment(VehiculosSinTx[0].FechaTransmision).format(formatSimpleJsonColombia));
+            //Seteamos los valores de los vehiculos sin tx
+            setDatatx(VehiculosSinTx);
+            //LISTADO DE TICKETS
+            const Ticket = (data[0].Ticket == null ? [] : JSON.parse(data[0].Ticket));
+            setdataTickets(Ticket);
+            Indicadores.Assets = Assets.length;
+            //SETEO DE INDICADORES
+            Indicadores.Clientes = Clientes.length;
+            Indicadores.Conductores = Conductores.length;
+            Indicadores.VehiculosSinTx = VehiculosSinTx.length;
+            Indicadores.Ticket = Ticket.length;
+        }
+        //Obtengo los requimientos del sistema para revisar cuales vehiculos tienen algun requerimiento ya creado
+        GettRequerimiento(FechaInicial, FechaFinal).then((response: AxiosResponse<any>) => {
+            if (response.data.length != 0) {
+                let Cabeceras = response.data.filter((val: any) => {
+                    return JSON.parse(val.Cabecera);
+                })
+                requerimientos = Cabeceras;
+                setRequerimientos(Cabeceras);
+            }
+        }).catch(() => {
+            console.log("Error de consulta de detalles listas");
+        })
+        //indicador de señales.
+        GetFallasSeniales(ClientesIds.join()).then((result: AxiosResponse<any>) => {
+            //Como tengo una consulta anidada, debo traer datos anteriores para meterlos en otros.
+            let DatosCompletos = [...Data];
+            DatosCompletos[0].Seniales = JSON.stringify(result.data);
+            setdataSeniales(result.data);
+            //Para los indicadores adicionamos señales
+            let ind: any = { ...Indicadores }
+            ind['Seniales'] = result.data.length;
+            Indicadores = {
+                Assets: ind.Assets,
+                Clientes: ind.Clientes,
+                Conductores: ind.Conductores,
+                VehiculosSinTx: ind.VehiculosSinTx,
+                Seniales: ind.Seniales,
+                Ticket: ind.Ticket
+            }
+
+            //seteamos las variables
+            setIndicadores(Indicadores);
+            setDataAdmin(DatosCompletos);
+            //Saco a aparte todos los sin respuesta y operando normalmente de TX.
+            let filtro = FiltroDashBoardData.getSoloDatosNecesarios(VehiculosSinTx);
+            //Organizo el que tenga mayor cantidad de dias primero.
+            let muestraFinal = filtro.slice(0, MuestraTX);
+            //Los Ordeno de Mayor a menor
+            muestraFinal = FiltroDashBoardData.getOrdenados(muestraFinal);
+            //Ya consultados los requerimientos sacamos los vehiculos que tienen un requerimiento activo o creado.
+            requerimientos.map((val: any) => {
+                if (val.Estado == "Creado") {
+                    let a = JSON.parse(val.Cabecera);
+                    Vehiculosrequerimientos.push(a[0].assetid);
+                }
+            });
+            //Elimino los vehiculos con un requerimiento creado o activo
+            Vehiculosrequerimientos.map((item: any) => {
+                let index = muestraFinal.findIndex((element) => element.assetId == item);
+                if (index != -1)
+                    muestraFinal.splice(index, 1);
+            })
+            //Verifico si los Vehiculos o la muestra de los vehiculos tienen falla de señales.
+            if (result.data.length != 0) 
+                FiltroDashBoardData.getVehiculosFallas(muestraFinal, result.data);
+            //Seteo toda la muestra final
+            setMuestra(muestraFinal);
+            //Cancelamos el cargando.
+            setLoader(false);
+        }).catch((e) => {
+            console.log("error", e);
+        });
+    }
     //Para reutilizar modal de tablas.  
     const TablaDatos = (TipoData:any, show:boolean) =>{
         useEffect(() =>{
@@ -925,7 +855,42 @@ export default function HomePostVenta() {
                             </div>
                         </div>
                         <div className="col-8">
-
+                                <div className="card">
+                                    <div className="mt-5">
+                                        <h5>Requerimientos servicio técnicos</h5>
+                                        <p className="text-muted">Información o solicitud realizada al área de servicio técnico.</p>
+                                    </div>
+                                    <div className="container">
+                                        <div className="row">
+                                            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                                <Generico className={"bg-light-success"} texto={"Abiertos"} indicador={"10"}></Generico>
+                                            </div>
+                                            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                                <Generico className={"bg-ligth-danger"} texto={"Soporte"} indicador={"5"}></Generico>
+                                            </div>
+                                            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                              <Generico className={"bg-danger"} texto={"Asignados"} indicador={"2"}></Generico>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="mt-7">
+                                        <h4>Requerimientos soportes</h4>
+                                        <p className="text-muted">Información de solicitudes realizadas al área de soporte.</p>
+                                    </div>
+                                    <div className="container">
+                                        <div className="row">
+                                            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                                <Generico className={"bg-light-success"} texto={"Abiertos"} indicador={"2"}></Generico>
+                                            </div>
+                                            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                                <Generico className={"bg-light-danger"} texto={"Soporte"} indicador={"1"}></Generico>
+                                            </div>
+                                            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                                <Generico className={"bg-light-info"} texto={"Ingenieria"} indicador={"3"}></Generico>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                         </div>
                     </div>
                 </div>

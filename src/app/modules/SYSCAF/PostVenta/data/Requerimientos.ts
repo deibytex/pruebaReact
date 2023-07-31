@@ -31,7 +31,7 @@ export const FiltroData = {
     },
     //Indicador de soporte
     getSoporte: (data: any[]) => {
-        return data.filter(f => ["Soporte"].includes((f.Tipo)));
+        return data.filter(f => ["Soporte, En Soporte, Rev Soporte"].includes((f.Estado)));
     },
     //Es el reporte total
     getReporte: function (data: any[]) {
