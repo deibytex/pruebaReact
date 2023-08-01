@@ -111,27 +111,27 @@ function useDataCorreosTx() {
 // segun parametrización que debe realizarse
 
 const DataCorreosTX: React.FC = ({ children }) => {
-    const { setClientes, setClienteIdS, setClienteId, setListaNotifacion, setListaSites, setListaSitesNotifacion, setCorreosTx, setdetalleListas } = useDataCorreosTx();
+    const { setClientes, setClienteIdS, setClienteId, setListaNotifacion, setListaSites, setListaSitesNotifacion, setCorreosTx, setdetalleListas, ListaNotifacion } = useDataCorreosTx();
 
     useEffect(() => {
-
-        getListadoCLientes().then((response: AxiosResponse<any>) => {
-            let datos = response.data[0];
-
-            setClientes(response.data);
-            setClienteIdS(datos["clienteIdS"]);
-            setClienteId(datos["ClienteId"]);
-
-        }
-        ).catch((error) => {
-            errorDialog("ListadoClientes", "Error al consultar ListadoClientes, no se puede desplegar informacion");
-        });
 
         getListaClienteNotifacion().then((response: AxiosResponse<any>) => {
             setListaNotifacion(response.data);
         }).catch((error) => {
             errorDialog("ListadoNotifacion", "Error al consultar ListadoNotifacion, no se puede desplegar informacion");
         });
+
+        getListadoCLientes().then((response: AxiosResponse<any>) => {
+            
+
+            setClientes(response.data);
+
+        }
+        ).catch((error) => {
+            errorDialog("ListadoClientes", "Error al consultar ListadoClientes, no se puede desplegar informacion");
+        });
+
+      
 
         getSites(null).then((response: AxiosResponse<any>) => {
             setListaSites(response.data);

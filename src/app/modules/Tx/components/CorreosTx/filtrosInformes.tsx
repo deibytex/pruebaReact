@@ -4,6 +4,7 @@ import { Button, Form } from "react-bootstrap-v5";
 import { useDataCorreosTx } from "../../core/provider";
 import { Clientes, ListaNotifacion } from "../../models/dataModels"
 import { UpdateListaCorreos } from "./modalUpdatedListaCorreos";
+import { clientes } from "../../../Img/models/dataModels";
 
 
 type Props = {
@@ -54,6 +55,12 @@ export const FiltrosCorreos: React.FC<Props> = () => {
         });
 
         setlstClientes(filtered);
+
+        var prueba = (filtered as Clientes[]).filter(function (arr) {
+            return (arr != undefined)
+        }); 
+        setClienteIdS(prueba[0].clienteIdS);
+        setClienteId(prueba[0].clienteIdS);
     }
 
     }, [Clientes, ListaNotifacion])
@@ -65,7 +72,7 @@ export const FiltrosCorreos: React.FC<Props> = () => {
                 return (arr.ClienteIds == ClienteIdS)
             });
             setlstListaNotifacion(filterListas);
-
+            if (filterListas.length > 0)
              setListaNotifacionId(filterListas[0].ListaClienteNotifacionId);
         }
 
