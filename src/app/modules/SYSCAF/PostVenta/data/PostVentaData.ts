@@ -10,6 +10,49 @@ export function GetInfoDashBoardAdmin() {
         RecordsPorPagina: null
     }, params);
 }
+
+export function GetInfoDashBoardAdminClientes() { 
+    var params: { [id: string]: string | null | undefined; } = {};
+    return Post_GetConsultasDinamicasUser({
+        NombreConsulta: "GetInfoDashBoardAdminClientes", Clase: "PortalQueryHelper",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, params);
+}
+export function GetInfoDashBoardAdminAsset() { 
+    var params: { [id: string]: string | null | undefined; } = {};
+    return Post_GetConsultasDinamicasUser({
+        NombreConsulta: "GetInfoDashBoardAdminAsset", Clase: "PortalQueryHelper",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, params);
+}
+export function GetInfoDashBoardAdminConductores() { 
+    var params: { [id: string]: string | null | undefined; } = {};
+    return Post_GetConsultasDinamicasUser({
+        NombreConsulta: "GetInfoDashBoardAdminConductores", Clase: "PortalQueryHelper",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, params);
+}
+export function GetInfoDashBoardAdminVehiculosSinTx() { 
+    var params: { [id: string]: string | null | undefined; } = {};
+    return Post_GetConsultasDinamicasUser({
+        NombreConsulta: "GetInfoDashBoardAdminVehiculosSinTx", Clase: "PortalQueryHelper",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, params);
+}
+export function GetInfoDashBoardAdminTickets() { 
+    var params: { [id: string]: string | null | undefined; } = {};
+    return Post_GetConsultasDinamicasUser({
+        NombreConsulta: "GetInfoDashBoardAdminTickets", Clase: "PortalQueryHelper",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, params);
+}
+
+
 export function GetFallasSeniales(ClienteIds:any){
     var params: { [id: string]: string | null | undefined; } = {};
     params["ClienteIds"] = ClienteIds;
@@ -79,13 +122,23 @@ export const FiltroDashBoardData = {
             return  bDias - aDias;
         });
     },
- getVehiculosFallas:(data:any[], dt:any[]) =>{
-    data.reduce((a: any, b: any) => {
-        dt.map((val: any) => {
-            if (b.AssetId == val.AssetId)
-                b.TFallas = val.TFallas;
-            return b;
-        })
-    }, [])
- }
+    getVehiculosFallas:(data:any[], dt:any[]) =>{
+        data.reduce((a: any, b: any) => {
+            dt.map((val: any) => {
+                if (b.AssetId == val.AssetId)
+                    b.TFallas = val.TFallas;
+                else
+                    b.TFallas = 0;
+                return b;
+            })
+        }, [])
+    },
+    getEmpresasAgrupadas:(data:any[]) =>{
+        return data.reduce((p: any, c: any) => {
+            let name = c.ClienteId;
+            p[name] = p[name] ?? [];
+            p[name].push(c);
+            return p;
+        }, {})
+    }
  }

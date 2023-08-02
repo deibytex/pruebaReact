@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { KTSVG } from "../../../../../../_start/helpers";
 import { Indicador } from "./Indicadores/Indicador";
-import { FiltroDashBoardData, GetDetalleLista, GetFallasSeniales, GetInfoDashBoardAdmin, GetLista, GettRequerimiento, SetRequerimiento } from "../../data/PostVentaData";
+import { FiltroDashBoardData, GetDetalleLista, GetFallasSeniales, GetInfoDashBoardAdminAsset, GetInfoDashBoardAdminClientes, GetInfoDashBoardAdminConductores, GetInfoDashBoardAdminTickets, GetInfoDashBoardAdminVehiculosSinTx, GetLista, GettRequerimiento, SetRequerimiento } from "../../data/PostVentaData";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../../../setup";
 import { UserModelSyscaf } from "../../../../auth/models/UserModel";
@@ -14,14 +13,14 @@ import moment from "moment";
 import BlockUi from "@availity/block-ui";
 import confirmarDialog, { successDialog } from "../../../../../../_start/helpers/components/ConfirmDialog";
 import { SetEstadoSyscaf } from "../../../../Tx/data/Reporte";
-import { IndicadorSinTxAlto } from "./Indicadores/IndicadorSinTxAlto";
 import { TotalFallas, dataIndicadores } from "../../mockData/indicadores";
-import { Abiertos } from "./Indicadores/Abiertos";
-import { Soporte } from "./Indicadores/Soportes";
 import { Generico } from "./Indicadores/Generico";
+import { FiltroData } from "../../data/Requerimientos";
+import { PageTitle } from "../../../../../../_start/layout/core";
+import './style/dahsboard.css';
 export default function HomePostVenta() {
     //Esta es para tomar la cantidad de muestra de vehiculos de transmision.
-    const MuestraTX = 20;
+    const MuestraTX = 1000;
     const [show, setShow] = useState(false);
     const [showr, setShowr] = useState(false);
     const [dataTx, setDatatx] = useState<any[]>([]);
@@ -32,6 +31,7 @@ export default function HomePostVenta() {
     const [dataTickets, setdataTickets] = useState<any[]>([]);
     const [TiketsDatos, setTiketsDatos] = useState<any[]>([]);
     const [dataEmpresas, setdataEmpresas] = useState<any[]>([]);
+    const [dataEmpresasTabla, setdataEmpresasTabla] = useState<any[]>([]);
     const [TipoRequerimientos, setTipoRequerimientos] = useState<any[]>([]);
     const [TipoRequerimientosSeleccionado, setTipoRequerimientosSeleccionado] = useState<any>({ Nombre: "", Value: "" });
     const [EstadoRequerimientos, setEstadoRequerimientos] = useState<any[]>([]);
@@ -42,6 +42,16 @@ export default function HomePostVenta() {
     const [TxUltimaActualizacion, setTxUltimaActualizacion] = useState<string>("");
     const FechaFinal = moment().startOf('day').toDate();
     const FechaInicial = moment().startOf('day').add(-30, 'days').toDate();
+     //indicadores de requerimientos ST.
+     const [Abiertos, setAbiertos] = useState<string>("0");
+     const [Cerrados, setCerrados] = useState<string>("0");
+     const [AsignadosSt, setAsignadosSt] = useState<string>("0");
+     const [EnSoporte, setEnSoporte] = useState<string>("0");
+      //indicadores de requerimientos SOPORTE.
+      const [AbiertosSoporte, setAbiertosSoporte] = useState<string>("0");
+      const [CerradosSoporte, setCerradosSoporte] = useState<string>("0");
+      const [AsignadosSoporte, setAsignadosSoporte] = useState<string>("0");
+      const [EnSoporteSoporte, setEnSoporteSoporte] = useState<string>("0");
     //ESTA ES PARA EL MODAL DINAMICO.
     const [sowL, setShowL] = useState<boolean>(false);
     const user = useSelector<RootState>(
@@ -92,7 +102,6 @@ export default function HomePostVenta() {
     useEffect(() => {
         switch (TipoReporte) {
             case '1':
-            default:
                 setTituloModal("Listado de vehiculos sin Tx");
                 break;
             case '2':
@@ -104,9 +113,39 @@ export default function HomePostVenta() {
             case '4':
                 setTituloModal("Listado de conductores");
                 break;
+            default: 
+                setTituloModal("Listado de empresas");
+                break; 
         }
 
     }, [TipoReporte])
+    //PARA ACTUALIZAR LA TABLA DE VEHICULOS SIN TX
+    useEffect(() =>{
+        if(dataTx.length != 0)
+            PintarTablaVehiculosSinTX(dataTx);
+    },[dataTx])
+
+      //PARA CREAR UNA DATA CON CONDUCTORES, ASSETS, Y CLIENTES
+      useEffect(() =>{
+        if(dataEmpresas.length != 0){
+   
+            let Empresa = FiltroDashBoardData.getEmpresasAgrupadas(dataEmpresas);
+           let EmpCond =  Object.entries(Empresa).map((elem: any) =>{
+                let conductoresEmpresas :any[] = []; 
+                let conductores = dataConductores.filter((f: any) => f["ClienteId"] === elem[0]);
+                let asset = dataUnidades.filter((f: any) => f["ClienteId"] === elem[0]);
+
+                conductoresEmpresas.push({ "ClienteId": elem[0], "NombreNormalizado": elem[1][0].NombreNormalizado, "Conductores": conductores.length, "Assets":asset.length})
+                return conductoresEmpresas;
+            });
+
+            let data = EmpCond.map((val:any) =>{
+                return val[0];
+            })
+            setdataEmpresasTabla(data);
+        }
+           
+    },[dataUnidades, dataEmpresas, dataConductores])
 
     //FUNCION DE CREAR LOS REQUERIMIENTOS
     const CrearRequerimiento = (row: any) => {
@@ -381,6 +420,95 @@ export default function HomePostVenta() {
             },
 
         ];
+        //CAMPOS EMPRESAS O CLIENTES
+        let CamposEmpresas: MRT_ColumnDef<any>[] =
+        [
+            {
+                accessorKey: 'NombreNormalizado',
+                header: 'Nombre',
+                enableHiding: false,
+                size: 10,
+                minSize: 10, //min size enforced during resizing
+                maxSize: 10,
+
+            },
+            {
+                accessorKey: 'Conductores',
+                header: 'Conductores',
+                enableHiding: false,
+                size: 10,
+                minSize: 10, //min size enforced during resizing
+                maxSize: 10,
+
+            },
+            {
+                accessorKey: 'Assets',
+                header: 'Vehiculos',
+                enableHiding: false,
+                size: 10,
+                minSize: 10, //min size enforced during resizing
+                maxSize: 10,
+
+            }
+        ];
+         //CAMPOS VEHICULOS SIN TX
+         let CamposVehiculosSinTX: MRT_ColumnDef<any>[] =
+         [
+             {
+                 accessorKey: 'registrationNumber',
+                 header: 'Nombre',
+                 Cell({ cell, column, row, table, }) {
+                    let DiasSinTX = (row.original.diffAVL == undefined ? row.original.DiasSinTx : row.original.diffAVL);
+                    return <span className="label labels-sm control-label" title={`El vehiculo ${row.original.registrationNumber} tiene ${DiasSinTX} sin tx`}>{row.original.registrationNumber}</span>; 
+                },
+                size: 5,
+                minSize: 5, //min size enforced during resizing
+                maxSize: 5,
+             },
+             {
+                accessorKey: 'diffAVL',
+                header: 'Cantidad',
+                enableHiding: false,
+                Cell({ cell, column, row, table, }) {
+                    let DiasSinTX = (row.original.diffAVL == undefined ? row.original.DiasSinTx : row.original.diffAVL);
+                    return <span className="label labels-sm control-label" title={`El vehiculo ${row.original.registrationNumber} tiene ${DiasSinTX} sin tx`}>{DiasSinTX}</span> ; 
+                },
+                size: 5,
+                minSize: 5, //min size enforced during resizing
+                maxSize: 5,
+            },
+            {
+                accessorKey: 'TFallas',
+                header: 'Fallas',
+                enableHiding: false,
+                Cell({ cell, column, row, table, }) {
+                    let DiasSinTX = (row.original.diffAVL == undefined ? row.original.DiasSinTx : row.original.diffAVL);
+                    return <span className="label labels-sm control-label" title={`El vehiculo ${row.original.registrationNumber} tiene ${DiasSinTX} sin tx   ${(row.original.TFallas != 0 ? `y tiene ${row.original.TFallas } fallas de señal`:"")} `}>{row.original.TFallas}</span> ; 
+                },
+                size: 5,
+                minSize: 5, //min size enforced during resizing
+                maxSize: 5,
+            },
+            {
+                accessorKey: 'DiasSinTx',
+                header: 'Acciones',
+               Cell({ cell, column, row, table, }) {
+                    return (
+                        <span className="float-end">
+                                <a
+                                    onClick={() => CrearRequerimiento(row)}
+                                    className="btn btn-primary btn-sm fw-bolder"
+                                    title={`Creación de requerimiento para el vehiculo ${row.original.registrationNumber}`}
+                                >
+                                    <i className="bi-clipboard-check"></i>
+                                </a>
+                        </span>)
+               },
+               size: 5,
+               minSize: 5, //min size enforced during resizing
+               maxSize: 5,
+            }
+         ];
     //PARA LOS COLORES EN LOS ESTADOS
     const RetornarEstado = (Estado: any) => {
         return (
@@ -474,14 +602,72 @@ export default function HomePostVenta() {
             //Cancelamos el cargando.
             setLoader(false);
         }
-        else
-            GetInfoDashBoardAdmin().then(
+        else{
+            let VehiculosSinTx: any[] = [];
+            //Para los clientes u empresas.
+            GetInfoDashBoardAdminClientes().then(
                 (result) => {
                     ConsultasAnidadas(result);
                 }).catch((e) => {
                     console.log("error", e)
                     setLoader(false);
                 });
+
+            GetInfoDashBoardAdminAsset().then(
+                (result) => {
+                    let data = result.data;
+                    const Assets = JSON.parse(data[0].Assets);
+                     //SETEO DE INDICADORES
+                    Indicadores.Assets = Assets.length;
+                    setDataUnidades(Assets);
+                }).catch((e) => {
+                    console.log("error", e)
+                    setLoader(false);
+                });
+            GetInfoDashBoardAdminConductores().then(
+                (result) => {
+                    let data = result.data;
+                    //LISTADO DE CONDUCTORES
+                    const Conductores = JSON.parse(data[0].Conductores);
+                     //SETEO DE INDICADORES
+                    Indicadores.Conductores = Conductores.length;
+                    setdataConductores(Conductores);
+                    //PARA AGRUPAR LOS CONDUCTORES
+                   
+                }).catch((e) => {
+                    console.log("error", e);
+                  
+                    setLoader(false);
+                });
+            GetInfoDashBoardAdminVehiculosSinTx().then(
+                (result) => {
+                    let data = result.data;
+                    //VEHICULOS SIN TX
+                    VehiculosSinTx = (data[0].VehiculosSinTx == null ? [] : JSON.parse(data[0].VehiculosSinTx));
+                    //Para indicar cual fue la ultima fecha de actualizacion.
+                    setTxUltimaActualizacion(moment(VehiculosSinTx[0].FechaTransmision).format(formatSimpleJsonColombia));
+                     //SETEO DE INDICADORES
+                    Indicadores.VehiculosSinTx = VehiculosSinTx.length;
+                    //Seteamos los valores de los vehiculos sin tx
+                    setDatatx(VehiculosSinTx);
+                }).catch((e) => {
+                    console.log("error", e)
+                    setLoader(false);
+                });
+            GetInfoDashBoardAdminTickets().then(
+                (result) => {
+                    let data = result.data;
+                //LISTADO DE TICKETS
+                const Ticket = (data[0].Ticket == null ? [] : JSON.parse(data[0].Ticket));
+                 //SETEO DE INDICADORES
+                Indicadores.Ticket = Ticket.length;
+                setdataTickets(Ticket);
+                }).catch((e) => {
+                    console.log("error", e)
+                    setLoader(false);
+                });
+        }
+        
         //PARA LOS TIPOS DE REQUERIMIENTOS
         GetLista().then((response: AxiosResponse<any>) => {
             if (response.statusText == "OK") {
@@ -511,35 +697,16 @@ export default function HomePostVenta() {
         Data = result.data;
         const data = result.data;
         let ClientesIds: any[] = [];
-        let VehiculosSinTx: any[] = [];
+       
         let requerimientos: any[] = [];
-        let Vehiculosrequerimientos: any[] = [];
-
+     
         if (data.length > 0) {
-            const Assets = JSON.parse(data[0].Assets);
-            setDataUnidades(Assets);
             //LSITADO DE CLIENTES O EMPRESAS
             const Clientes = JSON.parse(data[0].Clientes);
             ClientesIds = Clientes.map((e: any) => e.ClienteIdS);
-            setdataEmpresas(Clientes);
-            //LISTADO DE CONDUCTORES
-            const Conductores = JSON.parse(data[0].Conductores);
-            setdataConductores(Conductores);
-            //VEHICULOS SIN TX
-            VehiculosSinTx = (data[0].VehiculosSinTx == null ? [] : JSON.parse(data[0].VehiculosSinTx));
-            //Para indicar cual fue la ultima fecha de actualizacion.
-            setTxUltimaActualizacion(moment(VehiculosSinTx[0].FechaTransmision).format(formatSimpleJsonColombia));
-            //Seteamos los valores de los vehiculos sin tx
-            setDatatx(VehiculosSinTx);
-            //LISTADO DE TICKETS
-            const Ticket = (data[0].Ticket == null ? [] : JSON.parse(data[0].Ticket));
-            setdataTickets(Ticket);
-            Indicadores.Assets = Assets.length;
             //SETEO DE INDICADORES
             Indicadores.Clientes = Clientes.length;
-            Indicadores.Conductores = Conductores.length;
-            Indicadores.VehiculosSinTx = VehiculosSinTx.length;
-            Indicadores.Ticket = Ticket.length;
+            setdataEmpresas(Clientes);
         }
         //Obtengo los requimientos del sistema para revisar cuales vehiculos tienen algun requerimiento ya creado
         GettRequerimiento(FechaInicial, FechaFinal).then((response: AxiosResponse<any>) => {
@@ -549,6 +716,22 @@ export default function HomePostVenta() {
                 })
                 requerimientos = Cabeceras;
                 setRequerimientos(Cabeceras);
+                //PARA ST
+                let abiertos = FiltroData.getAbiertosTipo(response.data, "Servicio Tecnico");
+                let Asginados = FiltroData.getAsignadosTipo(response.data, "Servicio Tecnico");
+                let Soporte = FiltroData.getSoporteTipo(response.data, "Servicio Tecnico");
+                setCerrados(Cerrados.length.toString());
+                setAsignadosSt(Asginados.length.toString());
+                setAbiertos(abiertos.length.toString());
+                setEnSoporte(Soporte.length.toString())
+
+                //PARA SOPORTE
+                let abiertosSoporte = FiltroData.getAbiertosTipo(response.data, "Soporte");
+                let asignadosSoporte = FiltroData.getAsignadosTipo(response.data, "Soporte");
+                let enSoporteSoporte = FiltroData.getSoporteTipo(response.data, "Soporte");
+                setAbiertosSoporte(abiertosSoporte.length.toString())
+                setAsignadosSoporte(asignadosSoporte.length.toString())
+                setEnSoporteSoporte(enSoporteSoporte.length.toString())
             }
         }).catch(() => {
             console.log("Error de consulta de detalles listas");
@@ -574,35 +757,42 @@ export default function HomePostVenta() {
             //seteamos las variables
             setIndicadores(Indicadores);
             setDataAdmin(DatosCompletos);
-            //Saco a aparte todos los sin respuesta y operando normalmente de TX.
-            let filtro = FiltroDashBoardData.getSoloDatosNecesarios(VehiculosSinTx);
-            //Organizo el que tenga mayor cantidad de dias primero.
-            let muestraFinal = filtro.slice(0, MuestraTX);
-            //Los Ordeno de Mayor a menor
-            muestraFinal = FiltroDashBoardData.getOrdenados(muestraFinal);
-            //Ya consultados los requerimientos sacamos los vehiculos que tienen un requerimiento activo o creado.
-            requerimientos.map((val: any) => {
-                if (val.Estado == "Creado") {
-                    let a = JSON.parse(val.Cabecera);
-                    Vehiculosrequerimientos.push(a[0].assetid);
-                }
-            });
-            //Elimino los vehiculos con un requerimiento creado o activo
-            Vehiculosrequerimientos.map((item: any) => {
-                let index = muestraFinal.findIndex((element) => element.assetId == item);
-                if (index != -1)
-                    muestraFinal.splice(index, 1);
-            })
-            //Verifico si los Vehiculos o la muestra de los vehiculos tienen falla de señales.
-            if (result.data.length != 0)
-                FiltroDashBoardData.getVehiculosFallas(muestraFinal, result.data);
-            //Seteo toda la muestra final
-            setMuestra(muestraFinal);
+         
             //Cancelamos el cargando.
             setLoader(false);
         }).catch((e) => {
             console.log("error", e);
         });
+    }
+    //ESTA FUNCION HACE QUE SE EJECUTE LA TABLA DE LOS VEHICULOS SIN TX
+    //SE SACA APARTE PARA PODER MANEJARLO CON UN USESTATE
+    const PintarTablaVehiculosSinTX = (data:any[]) =>{
+            //PARA LOS VEHICULOS CON REQUERIMIENTOS
+            let Vehiculosrequerimientos: any[] = [];
+           //Saco a aparte todos los sin respuesta y operando normalmente de TX.
+           let filtro = FiltroDashBoardData.getSoloDatosNecesarios(data);
+           //Organizo el que tenga mayor cantidad de dias primero.
+           let muestraFinal = filtro.slice(0, MuestraTX);
+           //Los Ordeno de Mayor a menor
+           muestraFinal = FiltroDashBoardData.getOrdenados(muestraFinal);
+           //Ya consultados los requerimientos sacamos los vehiculos que tienen un requerimiento activo o creado.
+           Requerimientos.map((val: any) => {
+               if (val.Estado == "Creado") {
+                   let a = JSON.parse(val.Cabecera);
+                   Vehiculosrequerimientos.push(a[0].assetid);
+               }
+           });
+           //Elimino los vehiculos con un requerimiento creado o activo
+           Vehiculosrequerimientos.map((item: any) => {
+               let index = muestraFinal.findIndex((element) => element.assetId == item);
+               if (index != -1)
+                   muestraFinal.splice(index, 1);
+           })
+           //Verifico si los Vehiculos o la muestra de los vehiculos tienen falla de señales.
+           if (dataSeniales.length != 0)
+                FiltroDashBoardData.getVehiculosFallas(muestraFinal, dataSeniales);
+           //Seteo toda la muestra final
+           setMuestra(muestraFinal);
     }
     //Para reutilizar modal de tablas.  
     const TablaDatos = (TipoData: any, show: boolean) => {
@@ -621,19 +811,19 @@ export default function HomePostVenta() {
                 break;
             case '2':
                 DataLocal = dataUnidades;
-                EncabezadoLocal = CamposAsset
+                EncabezadoLocal =  CamposAsset
                 break;
             case '3':
                 DataLocal = dataSeniales;
-                EncabezadoLocal = CamposSenial
+                EncabezadoLocal =  CamposSenial
                 break;
             case '4':
                 DataLocal = dataConductores;
-                EncabezadoLocal = CamposConductores
-                break;
+                EncabezadoLocal =  CamposConductores
+                break;     
             default:
-                EncabezadoLocal = Campos;
-                DataLocal = dataTx;
+                EncabezadoLocal = CamposEmpresas;
+                DataLocal = dataEmpresasTabla;
                 break;
         }
         //RETORNA LO REALIZADO.
@@ -701,11 +891,22 @@ export default function HomePostVenta() {
     }
     return (
         <>
+         <PageTitle>Dashboard requerimientos</PageTitle>
             <BlockUi tag="div" keepInView blocking={loader ?? false} >
                 <div className="row g-0 g-xl-5 g-xxl-8">
+                    <div className="container">
+                        <div className="row">
+                            <div className="ms-3 text-center">
+                                <span className="text-muted m-3 animate-descripcion fw-bolder">{`Bienvenido  ${vUser.Nombres}, aquí encontrarás toda la información relevante de la semana.`} </span>
+                            </div>
+                        </div>
+                    </div>
                     {(indicadores) && (<>
                         <div className="col-xl-4 pt-5">
-                            <Indicador className=" shadow card-stretch  mb-5  mb-xxl-8" Titulo={`Total Empresa (${indicadores.Clientes})`}
+                            <Indicador onClick={() =>{
+                                setTipoReporte("0"); 
+                                setShow(true);
+                            }} className=" shadow card-stretch  mb-5  mb-xxl-8" Titulo={`Total Empresa (${indicadores.Clientes})`}
                                 Subtitulo=""
                                 path="/media/icons/duotone/Home/Home-heart.svg">
                                 {/* begin::Info */}
@@ -792,13 +993,43 @@ export default function HomePostVenta() {
                 <div className="">
                     <div className="row">
                         <div className="col-4">
-                           
                                 <div className="shadow rounded card">
                                     <div className="mt-5 mx-4">
-                                        <h5>Vehículos Sin Tx</h5>
-                                        <p className="text-muted">Últimos 15</p>
+                                        <h5>Vehículos Sin Tx y fallas de señal</h5>
+                                        <p className="text-muted">{`Últimos ${Muestra.length}`}</p>
                                     </div>
-                                    {Muestra.map((val: any, index: any) => {
+                                   { (Muestra.length) && (<MaterialReactTable
+                                                localization={MRT_Localization_ES}
+                                                displayColumnDefOptions={{
+                                                    'mrt-row-actions': {
+                                                        muiTableHeadCellProps: {
+                                                            align: 'center',
+                                                        },
+                                                        size: 100,
+                                                    },
+                                                }}
+                                                muiTableHeadCellProps={{
+                                                    sx: (theme) => ({
+                                                        fontSize: 14,
+                                                        fontStyle: 'bold',
+                                                        color: 'rgb(27, 66, 94)'
+                                                    }),
+                                                }}
+                                                columns={CamposVehiculosSinTX}
+                                                data={Muestra}
+                                                //enableColumnOrdering
+                                                enableTableHead={false}
+                                                enableTopToolbar={false}
+                                                enableStickyHeader
+                                                enableDensityToggle={false}
+                                                enablePagination={false}
+                                                enableRowVirtualization
+                                                muiTableContainerProps={{
+                                                    sx: { maxHeight: '500px' }, //give the table a max height
+                                                }}
+                                                initialState={{ density: 'compact' }}
+                                            />)}
+                                    {/* {Muestra.map((val: any, index: any) => {
                                         let DiasSinTX = (val.diffAVL == undefined ? val.DiasSinTx : val.diffAVL);
                                         // if(DiasSinTX >= 10)
                                         return (
@@ -865,7 +1096,7 @@ export default function HomePostVenta() {
                                         //         </a>
                                         //     </IndicadorSinTxBajo>
                                         // )
-                                    })}
+                                    })} */}
 
                                 </div>
                             
@@ -880,30 +1111,30 @@ export default function HomePostVenta() {
                                 <div className="container">
                                     <div className="row">
                                         <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4" >
-                                            <Generico className={"bg-light-success shadow"} texto={"Abiertos"} indicador={"10"}></Generico>
+                                            <Generico className={"bg-light-success shadow"} texto={"Abiertos"} indicador={Abiertos}></Generico>
                                         </div>
                                         <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                                            <Generico className={"bg-light-info shadow"} texto={"Soporte"} indicador={"5"}></Generico>
+                                            <Generico className={"bg-light-success shadow"} texto={"Soporte"} indicador={EnSoporte}></Generico>
                                         </div>
                                         <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                                            <Generico className={"bg-light-info shadow"} texto={"Asignados"} indicador={"2"}></Generico>
+                                            <Generico className={"bg-light-success shadow"} texto={"Asignados"} indicador={AsignadosSt}></Generico>
                                         </div>
                                     </div>
                                 </div>
-                              {/**   <div className="mt-7">
-                                    <h4>Requerimientos soportes</h4>
+                                {/* <div className="mt-5 mx-5">
+                                    <h5>Requerimientos soportes</h5>
                                     <p className="text-muted">Información de solicitudes realizadas al área de soporte.</p>
                                 </div>
                                 <div className="container">
                                     <div className="row">
                                         <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                                            <Generico className={"bg-light-info text-center"} texto={"Abiertos"} indicador={"2"}></Generico>
+                                            <Generico className={"badge bg-light-success"} texto={"Abiertos"} indicador={AbiertosSoporte}></Generico>
                                         </div>
                                         <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                                            <Generico className={"bg-light-info"} texto={"Soporte"} indicador={"1"}></Generico>
+                                            <Generico className={"badge bg-light-danger"} texto={"Soporte"} indicador={EnSoporteSoporte}></Generico>
                                         </div>
                                         <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                                            <Generico className={"bg-light-info"} texto={"Ingenieria"} indicador={"3"}></Generico>
+                                            <Generico className={"badge  bg-light-info"} texto={"Asignados"} indicador={AsignadosSoporte}></Generico>
                                         </div>
                                     </div>
                                 </div> */}

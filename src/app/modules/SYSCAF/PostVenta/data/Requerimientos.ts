@@ -119,7 +119,21 @@ export const FiltroData = {
         }, {})
         //retorno el array con los elementos a mostrar
         return l;
-    }
+    },
+    getAsignadosTipo: (data: any[], Tipo:any) => {
+        return data.filter(f => ["Asignado Soporte", "Asignado Agente", "Asignado ST"].includes((f.Estado)) && f.Tipo == Tipo);
+    },
+    getAbiertosTipo: (data: any[], Tipo:any) => {
+        return data.filter(f => ["Creado", "Reabierto"].includes((f.Estado)) && f.Tipo == Tipo);
+    },
+     //indicadores de cerrados
+     getCerradosTipo: (data: any[], Tipo:any) => {
+        return data.filter(f => ["Cerrado"].includes((f.Estado)) && f.Tipo == Tipo);
+    },
+     //Indicador de soporte
+     getSoporteTipo: (data: any[], Tipo:any) => {
+        return data.filter(f => ["Soporte, En Soporte, Rev Soporte"].includes((f.Estado)) && f.Tipo == Tipo);
+    },
 };
 
 // cuando se usa un filtro permite traer el unico valor de todas los valores del array
