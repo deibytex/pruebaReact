@@ -1,20 +1,21 @@
 import BlockUi from "@availity/block-ui";
 import { useEffect, useState } from "react";
 import { PageTitle } from "../../../../../../_start/layout/core";
-import { FiltroData, fncReporte, listTabsRequerimientos } from "../../data/Requerimientos";
+import { FiltroData, RequerimientoFunciones, fncReporte, listTabsRequerimientos } from "../../data/Requerimientos";
 import { DrawDynamicIconMuiMaterial } from "../../../../../../_start/helpers/components/IconsMuiDynamic";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import moment from "moment";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import { FiltrosReportes } from "../../Models/ModelRequerimientos";
-import { GettRequerimiento } from "../../data/PostVentaData";
+import { GetDetalleLista, GetLista, GettRequerimiento } from "../../data/PostVentaData";
 import { AxiosResponse } from "axios";
 import { DateRangePicker } from "rsuite";
 import { Button, Form, Modal } from "react-bootstrap-v5";
 import { locateFormatPercentNDijitos } from "../../../../../../_start/helpers/Helper";
 import { Box, IconButton, Tooltip, Typography } from "@mui/material";
-import { Details } from "@mui/icons-material";
+import { Assignment, Delete, Details, Edit } from "@mui/icons-material";
 import { DescargarExcel, DescargarExcelPersonalizado } from "../../../../../../_start/helpers/components/DescargarExcel";
+import { Trash } from "react-feather";
 export default function Creacion() {
     //ESPACIO PARA LAS CONST
     const [loader, setloader] = useState<boolean>(false);
@@ -35,6 +36,15 @@ export default function Creacion() {
     const [isCallData, setisCallData] = useState<boolean>(false);
     const [show, setshow] = useState<boolean>(false);
     const [ShowFiltros, setShowFiltros] = useState<boolean>(false);
+    const [showedit, setshowedit] = useState<boolean>(false);
+    
+    const [TipoRequerimientos, setTipoRequerimientos] = useState<any[]>([]);
+    const [TipoRequerimientosSeleccionado, setTipoRequerimientosSeleccionado] = useState<any>({ Nombre: "", Value: "" });
+    const [EstadoRequerimientos, setEstadoRequerimientos] = useState<any[]>([]);
+    const [EstadoRequerimientosSeleccionado, setEstadoRequerimientosSeleccionado] = useState<any>({ Nombre: "Creado", Value: "Estado" });
+    
+    const [Titulo, setTitulo] = useState<string>("Edición de requerimientos");
+    const [Consecutivo, setConsecutivo] = useState<string>("Edición de requerimientos");
     const FiltrosBase: FiltrosReportes = {
         FechaInicialInicial: moment().add(-30, 'days').startOf('day').toDate(),
         FechaFinalInicial: moment().startOf('day').toDate(),
@@ -62,8 +72,7 @@ export default function Creacion() {
     const [showTablaCerradas, setShowTablaCerradas] = useState<boolean>(false);
     const [showTablaAsginadas, setShowTablaAsignadas] = useState<boolean>(false);
     const [showTablaReporte, setShowTablaReporte] = useState<boolean>(false);
-    const [showTablaModal, setShowTablaModal] = useState<boolean>(false);
-    const [DatosGenerales, setDatosGenerales] = useState<any[]>([]);
+
 
     //ESPACIO PARA LOS ENCABEZADOS DE LAS TABLAS
     let Campos: MRT_ColumnDef<any>[] =
@@ -71,7 +80,7 @@ export default function Creacion() {
             {
                 accessorKey: 'nombrecliente',
                 header: 'Cliente',
-                Cell({ cell, column, row, table, }) {
+                Cell({ row, }) {
                     let Cabecera = JSON.parse(row.original.Cabecera);
                     return (Cabecera[0].nombrecliente == undefined ? "" : Cabecera[0].nombrecliente);
                 },
@@ -79,7 +88,7 @@ export default function Creacion() {
             {
                 accessorKey: 'Consecutivo',
                 header: 'Nro Requerimiento',
-                Cell({ cell, column, row, table, }) {
+                Cell({ row, }) {
                     //Lo divido en 2 para tener mejor claridad
                     let Inicio = String(row.original.Consecutivo).substring(0, 6);
                     let Final = String(row.original.Consecutivo).substring(6, String(row.original.Consecutivo).length);
@@ -89,7 +98,7 @@ export default function Creacion() {
             {
                 accessorKey: 'registrationNumber',
                 header: 'Vehiculo',
-                Cell({ cell, column, row, table, }) {
+                Cell({ row, }) {
                     let Cabecera = JSON.parse(row.original.Cabecera);
                     return (Cabecera[0].registrationNumber == undefined ? "" : Cabecera[0].registrationNumber);
                 },
@@ -98,14 +107,14 @@ export default function Creacion() {
             {
                 accessorKey: 'Estado',
                 header: 'Estado',
-                Cell({ cell, column, row, table, }) {
+                Cell({ row, }) {
                     return RetornarEstado(row.original.Estado);
                 }
             },
             {
                 accessorKey: 'agente',
                 header: 'Agente',
-                Cell({ cell, column, row, table, }) {
+                Cell({ row, }) {
                     let Cabecera = JSON.parse(row.original.Cabecera);
                     return (Cabecera[0].agente == undefined ? "" : Cabecera[0].agente);
                 },
@@ -113,7 +122,7 @@ export default function Creacion() {
             {
                 accessorKey: 'Fecha',
                 header: 'Fecha creacion',
-                Cell({ cell, column, row, table, }) {
+                Cell({ row, }) {
                     return moment(row.original.FechaCreacion).format("DD/MM/YYYY");
                 }
             },
@@ -144,7 +153,7 @@ export default function Creacion() {
             {
                 accessorKey: 'fecha',
                 header: 'Fecha',
-                Cell({ cell, column, row, table, }) {
+                Cell({ row, }) {
                     return moment(row.original.fecha, "DD-MM-YYYY").format("DD/MM/YYYY");
                 }
             },
@@ -215,6 +224,27 @@ export default function Creacion() {
                     setloader(false);
                     setIsError(true);
                 });
+            //PARA LOS TIPOS DE REQUERIMIENTOS
+            GetLista().then((response: AxiosResponse<any>) => {
+                if (response.statusText == "OK") {
+                    GetDetalleLista(response.data[0].ListaId.toString()).then((resp: AxiosResponse<any>) => {
+                        setTipoRequerimientos(resp.data.filter((val: any) => {
+                            if (val.Valor == "Tipo")
+                                return val;
+                        }));
+                        setEstadoRequerimientos(resp.data.filter((val: any) => {
+                            if (val.Valor == "Estado")
+                                return val;
+                        }));
+                    }).catch(() => {
+                        console.log("Error de consulta de detalles listas");
+                        setloader(false);
+                    });
+                }
+            }).catch(() => {
+                console.log("Registre los parametros en listas para poder conseguir los parametros para los tipos de requerimientos con la sigla GOIREQ");
+                setloader(false);
+            })
         }
         else
             FiltroDatos();
@@ -222,7 +252,6 @@ export default function Creacion() {
     //ESPACIO PARA LA FUNCION QUE APLICA LOS FILTROS
     const FiltroDatos = () => {
         let tabDefault = 0;
-        const tabla = TipoReporte[tabSel].tabla;
         let filtros = TipoReporte[tabSel].filtros;
         let FechaInicial: Date = filtros.FechaInicial;
         let FechaFinal: Date = filtros.FechaFinal;
@@ -337,21 +366,21 @@ export default function Creacion() {
             { "Estado": "Total resueltos", "Descripcion": "Total de requerimientos resueltos en los últimos 7 días.", "Valor": Resueltos.length }
         ]);
     };
-
+    //Clientes que ya tienen un requerimiento
     function SeleccionClientes() {
         return (
             <div className="input-group mb-3">
                 <span style={{ height: '40px' }} className="input-group-text mt-3" id="basic-addon1"><i className="bi-person-bounding-box"></i></span>
                 <Form.Select title="Filtra por clientes" style={{ height: '40px' }} className="input-sm form-select mb-3 mt-3 " onChange={(e) => {
                     // buscamos el objeto completo para tenerlo en el sistema
-                    let lstClientes = Clientes.filter((value: any, index: any) => {
-                        return value.ClienteId === Number.parseInt(e.currentTarget.value)
+                    let lstClientes = Clientes.filter((value: any) => {
+                        return Number.parseInt(value.ClienteId) === Number.parseInt(e.currentTarget.value)
                     })
                     setClienteSeleccionado((lstClientes[0] ? lstClientes[0] : { "Cliente": "Todos", " ClienteId": "Todos" }));
                 }} aria-label="Floating label select cliente">
                     <option value={"Todos"}>Todos</option>
                     {
-                        Clientes?.map((element: any, i: any) => {
+                        Clientes?.map((element: any) => {
                             let flag = (element.ClienteId === ClienteSeleccionado.ClienteId)
                             return (<option selected={flag} key={element.ClienteId} defaultValue={element.ClienteId} value={element.ClienteId}>{element.Cliente}</option>)
                         })
@@ -360,13 +389,14 @@ export default function Creacion() {
             </div>
         );
     }
+    //Pinta los agentes pero que ya esten registrados
     function SeleccionAgentes() {
         return (
             <div className="input-group mb-3">
                 <span style={{ height: '40px' }} className="input-group-text mt-3" id="basic-addon1"><i className="bi-person-vcard"></i></span>
                 <Form.Select title="Filtra por agentes" style={{ height: '40px' }} className="input-sm  mb-3 mt-3 " onChange={(e) => {
                     // buscamos el objeto completo para tenerlo en el sistema
-                    let lstagentes = Agentes.filter((value: any, index: any) => {
+                    let lstagentes = Agentes.filter((value: any) => {
                         return value.UsuarioId === e.currentTarget.value
                     })
                     setAgentesSeleccionado((lstagentes[0] ? lstagentes[0] : { "Agente": "Todos", " UsuarioId": "Todos" }));
@@ -374,7 +404,7 @@ export default function Creacion() {
                 }} aria-label="Default select example">
                     <option value={"Todos"}>Todos</option>
                     {
-                        Agentes?.map((element: any, i: any) => {
+                        Agentes?.map((element: any) => {
                             let flag = (element.UsuarioId === AgentesSeleccionado.UsuarioId)
                             return (<option selected={flag} key={element.UsuarioId} defaultValue={element.UsuarioId} value={element.UsuarioId}>{element.Agente}</option>)
                         })
@@ -383,14 +413,15 @@ export default function Creacion() {
             </div>
         );
     }
-
+    //Funcion que se utiliza para pintar los estados pero para el filtro ya que sino esta el estado en la tabla
+    //No lo muestra y si hay la necesidad de poner otro no lo encuentra.
     function SeleccionEstados() {
         return (
             <div className="input-group mb-3">
                 <span style={{ height: '40px' }} className="input-group-text mt-3" id="basic-addon1"><i className="bi-credit-card-2-front"></i></span>
                 <Form.Select title="Filtra por estados" style={{ height: '40px' }} className="input-sm  mb-3 mt-3 " onChange={(e) => {
                     // buscamos el objeto completo para tenerlo en el sistema
-                    let lstEstado = Estados.filter((value: any, index: any) => {
+                    let lstEstado = Estados.filter((value: any) => {
                         return value.Estado === e.currentTarget.value
                     })
                     setEstadoSeleccionado((lstEstado[0] ? lstEstado[0] : { "Estado": "Todos" }));
@@ -398,7 +429,7 @@ export default function Creacion() {
                 }} aria-label="Default select example">
                     <option value={"Todos"}>Todos</option>
                     {
-                        Estados?.map((element: any, i: any) => {
+                        Estados?.map((element: any) => {
                             let flag = (element.Estado === EstadoSeleccionado.Estado)
                             return (<option selected={flag} key={element.Estado} defaultValue={element.Estado} value={element.Estado}>{element.Estado}</option>)
                         })
@@ -413,6 +444,42 @@ export default function Creacion() {
         setDetallesDatos(Data);
         setshow(true);
     }
+    //PARA QUE PUEDAN SELECCIONAR UN ESTADO NUEVO.
+    function EstadosEditar() {
+        return (
+            <div className="input-group mb-3">
+                <span style={{ height: '40px' }} className="input-group-text mt-3" id="basic-addon1"><i className="bi-credit-card-2-front"></i></span>
+                <Form.Select title="Estados para asignación" style={{ height: '40px' }} className="input-sm  mb-3 mt-3 " onChange={(e) => {
+                    // buscamos el objeto completo para tenerlo en el sistema
+                    let lstEstado = EstadoRequerimientos.filter((value: any) => {
+                        return value.Nombre === e.currentTarget.value
+                    })
+                    setEstadoRequerimientosSeleccionado((lstEstado[0] ? lstEstado[0] : { "Estado": "Todos" }));
+                }} aria-label="Default select example">
+                    <option value={"Todos"}>Todos</option>
+                    {
+                        EstadoRequerimientos?.map((element: any) => {
+                            let flag = (element.Nombre === EstadoRequerimientosSeleccionado.Estado)
+                            return (<option selected={flag} key={element.Nombre} defaultValue={element.Nombre} value={element.Nombre}>{element.Nombre}</option>)
+                        })
+                    }
+                </Form.Select>
+            </div>
+
+        );
+    }
+    //PARA QUE PUEDAN SELECCIONAR UN AGENTE DIFERENTE Y NUEVO.
+    const EditarRequerimiento = (row:any) =>{
+        let Cabeceras = JSON.parse(row.original.Cabecera);
+        //Titulo
+      
+        //Lo divido en 2 para tener mejor claridad
+        let Inicio = String(row.original.Consecutivo).substring(0, 6);
+        let Final = String(row.original.Consecutivo).substring(6, String(row.original.Consecutivo).length);
+        setTitulo(`Requerimiento ${Inicio}-${Final}` );
+        setConsecutivo(`${Cabeceras[0].nombrecliente} - ${Cabeceras[0].registrationNumber}`);
+        setshowedit(true);
+    };
 
     function MontarTabla() {
         return <>
@@ -423,11 +490,11 @@ export default function Creacion() {
                         muiTableHeadCellProps: {
                             align: 'center',
                         },
-                        size: 100,
+                        size: 200,
                     },
                 }}
                 muiTableHeadCellProps={{
-                    sx: (theme) => ({
+                    sx: () => ({
                         fontSize: 14,
                         fontStyle: 'bold',
                         color: 'rgb(27, 66, 94)'
@@ -445,13 +512,36 @@ export default function Creacion() {
                 }}
                 enableEditing={true}
                 editingMode="modal"
-                renderRowActions={({ row, table }) => (
+                renderRowActions={({ row }) => (
                     <Box sx={{ display: 'flex', gap: '1rem' }}>
-                        <Tooltip arrow placement="left" title="Editar">
+                        {/* Para mostar los detallas */}
+                        <Tooltip arrow placement="left" title="Detalle de requerimientos">
                             <IconButton onClick={() => DetallesModal(row)}>
-                                <Details />
+                                <Details className="text-primary" />
                             </IconButton>
                         </Tooltip>
+                        {/* Para editar si cumple con la condicion */}
+                        <Tooltip arrow placement="top" title="Editar requerimiento">
+                            <IconButton onClick={() => EditarRequerimiento(row)}>
+                                <Edit className="text-warning" />
+                            </IconButton>
+                        </Tooltip>
+                        {/* Permite eliminar el requerimiento siempre y cuando sea en estado Creado de lo contrario no permite eliminarlo*/}
+                        {(FiltroData.getIsActivoMod(row,"Creado")) && (<Tooltip arrow placement="top" title="Eliminar requerimiento">
+                            <IconButton onClick={() => {
+                                RequerimientoFunciones.SetEliminarRequerimiento(row);
+                            }}>
+                                <Delete className="text-danger"/>
+                            </IconButton>
+                        </Tooltip>)}
+                         {/* Permite asignarlo siempre y cuando este en estado creado sino no lo asigna a soporte*/}
+                        {(FiltroData.getIsActivoMod(row,"Creado")) && (<Tooltip arrow placement="right" title="Asignar requerimiento">
+                            <IconButton onClick={() =>{
+                                 RequerimientoFunciones.SetAsignarRequerimiento(row);
+                            }}>
+                                <Assignment className="text-success" />
+                            </IconButton>
+                        </Tooltip>)}
                     </Box>
                 )
                 }
@@ -460,7 +550,7 @@ export default function Creacion() {
                     showAlertBanner: isError,
                     showProgressBars: isRefetching,
                 }}
-                renderTopToolbarCustomActions={({ table }) => (
+                renderTopToolbarCustomActions={() => (
                     <Box
                         sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
                     >
@@ -497,7 +587,7 @@ export default function Creacion() {
                                         <div key={`indicadores_${element.Estado}`} className="row card shadow-sm col-sm-3 col-md-3 col-xs-3 mx-auto"
                                             title={element.Descripcion}
                                             style={{
-                                                backgroundColor: "#d1e7dd"
+                                                backgroundColor: "#b6fffe "
                                                 // backgroundColor: `${(element.Estado == "Abiertos") ? "#f8d7da" : (element.Estado == "En Soporte") ? "#F89262" :
                                                 //     (element.Estado == "Total resueltos") ? "#d1e7dd" : "#cfe2ff"}`
                                             }}
@@ -527,7 +617,7 @@ export default function Creacion() {
                                 disabledDate={combine(allowedMaxDays(TipoReporte[tabSel].filtros.MaxDay), allowedRange(
                                     moment().add(-30, 'days').startOf('day').toDate(), moment().startOf('day').toDate()
                                 ))}
-                                onChange={(value, e) => {
+                                onChange={(value) => {
                                     if (value !== null) {
                                         ValidarFechas(
                                             [value[0],
@@ -640,7 +730,7 @@ export default function Creacion() {
                                     },
                                 }}
                                 muiTableHeadCellProps={{
-                                    sx: (theme) => ({
+                                    sx: () => ({
                                         fontSize: 14,
                                         fontStyle: 'bold',
                                         color: 'rgb(27, 66, 94)'
@@ -661,7 +751,7 @@ export default function Creacion() {
                                     showAlertBanner: isError,
                                     showProgressBars: isRefetching,
                                 }}
-                                renderTopToolbarCustomActions={({ table }) => (
+                                renderTopToolbarCustomActions={() => (
                                     <Box
                                         sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
                                     >
@@ -708,7 +798,7 @@ export default function Creacion() {
                                             },
                                         }}
                                         muiTableHeadCellProps={{
-                                            sx: (theme) => ({
+                                            sx: () => ({
                                                 fontSize: 14,
                                                 fontStyle: 'bold',
                                                 color: 'rgb(27, 66, 94)'
@@ -760,6 +850,53 @@ export default function Creacion() {
                         </div>
                     </div>
                 </Modal.Body>
+            </Modal>
+            <Modal show={showedit} onHide={setshowedit} size={"lg"}>
+                <Modal.Header closeButton>
+                    <Modal.Title>{Titulo}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="row">
+                        <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                        </div>
+                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                            <div className="text-center border border-5">
+                                <span className="mx-4 fs-3 text-muted">{Consecutivo}</span>
+                            </div>
+                        </div>
+                        <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                        </div>
+                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                            <div className="form-control-sm">
+                                <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Agentes: </label>
+                                <SeleccionAgentes></SeleccionAgentes>
+                            </div>
+                        </div>
+                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                            <div className="form-control-sm">
+                                <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Estados: </label>
+                                <EstadosEditar></EstadosEditar>
+                            </div>
+                        </div>
+                        <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                            <div className="form-control-sm">
+                                <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Observaciones: </label>
+                                <textarea className="form-control" rows={3}></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                <Button type="button" className="btn btn-sm" variant="primary" onClick={() => {
+                       RequerimientoFunciones.SetEdicionRequerimiento([]);
+                       setshowedit(false);
+                    }}>
+                        Guardar
+                    </Button>
+                    <Button type="button" className="btn btn-sm" variant="secondary" onClick={() =>setshowedit(false)}>
+                        Cancelar
+                    </Button>
+                </Modal.Footer>
             </Modal>
         </>
     )

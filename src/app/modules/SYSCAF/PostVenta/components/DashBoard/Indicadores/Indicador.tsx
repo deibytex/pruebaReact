@@ -8,9 +8,10 @@ type Props = {
     color?: string;
     path?:string;
     colorPath?:string;
+    onClick?:() => void;
 }
 
-export const Indicador : React.FC<Props> = ({children , Titulo, Subtitulo, className, innerPadding = "", color ="primary", path="/media/icons/duotone/Home/Library.svg", colorPath=""}) => {
+export const Indicador : React.FC<Props> = ({children , Titulo, Subtitulo, className, innerPadding = "", color ="primary", path="/media/icons/duotone/Home/Library.svg", colorPath="", onClick}) => {
 
     return (
         <div className={`card ${className}`}
@@ -38,6 +39,7 @@ export const Indicador : React.FC<Props> = ({children , Titulo, Subtitulo, class
                 <a
                   href="#"
                   className="fs-2 text-gray-800 text-hover-primary fw-bolder"
+                  onClick={onClick}
                 >
                   {Titulo}
                 </a>
