@@ -1,5 +1,6 @@
 import moment from "moment"
 import { FormatoColombiaDDMMYYY } from "../../../../../_start/helpers/Constants"
+import confirmarDialog from "../../../../../_start/helpers/components/ConfirmDialog"
 
 const tabReq1 = { icon: 'Equalizer', titulo: "Todos ", subtitulo: "" }
 const tabReq2 = { icon: 'Equalizer', titulo: "Asignados", subtitulo: "" }
@@ -134,9 +135,34 @@ export const FiltroData = {
      getSoporteTipo: (data: any[], Tipo:any) => {
         return data.filter(f => ["Soporte, En Soporte, Rev Soporte"].includes((f.Estado)) && f.Tipo == Tipo);
     },
+    getIsActivoMod:(row:any, estado:any) =>{
+        if(row.original.Estado != estado)
+            return false;
+        else
+            return true;
+    }
 };
-
 // cuando se usa un filtro permite traer el unico valor de todas los valores del array
 function UnicoArrayValores(value: any, index: any, self: any) {
     return self.indexOf(value) === index;
 }
+
+ //FUNCIONES PARA LOS REQUERIMIENTOS
+export const RequerimientoFunciones = {
+      // Indicadores asignados
+    SetEliminarRequerimiento: (data: any) => {
+        confirmarDialog(() => {
+
+        }, `¿Esta seguro que desea eliminar el registro?`, 'Aceptar');
+    },
+    SetEdicionRequerimiento: (data: any[]) => {
+        confirmarDialog(() => {
+
+        }, `¿Esta seguro que desea guardar el registro?`, 'Aceptar');
+    },
+    SetAsignarRequerimiento: (data: any) => {
+        confirmarDialog(() => {
+
+        }, `¿Esta seguro que desea asignar el registro?`, 'Aceptar');
+    },
+}   
