@@ -1,7 +1,7 @@
 import BlockUi from "@availity/block-ui";
 import { useEffect, useState } from "react";
 import { PageTitle } from "../../../../../../_start/layout/core";
-import { FiltroData, RequerimientoFunciones, fncReporte, listTabsRequerimientos } from "../../data/Requerimientos";
+import { DeleteRequerimiento, FiltroData, RequerimientoFunciones, SetRequerimiento, fncReporte, listTabsRequerimientos } from "../../data/Requerimientos";
 import { DrawDynamicIconMuiMaterial } from "../../../../../../_start/helpers/components/IconsMuiDynamic";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import moment from "moment";
@@ -11,12 +11,21 @@ import { GetDetalleLista, GetLista, GettRequerimiento } from "../../data/PostVen
 import { AxiosResponse } from "axios";
 import { DateRangePicker } from "rsuite";
 import { Button, Form, Modal } from "react-bootstrap-v5";
-import { locateFormatPercentNDijitos } from "../../../../../../_start/helpers/Helper";
+import { formatSimpleJsonColombia, locateFormatPercentNDijitos } from "../../../../../../_start/helpers/Helper";
 import { Box, IconButton, Tooltip, Typography } from "@mui/material";
 import { Assignment, Delete, Details, Edit } from "@mui/icons-material";
 import { DescargarExcel, DescargarExcelPersonalizado } from "../../../../../../_start/helpers/components/DescargarExcel";
 import { Trash } from "react-feather";
+import { Usuarios } from "../../mockData/indicadores";
+import { useSelector } from "react-redux";
+import { UserModelSyscaf } from "../../../../auth/models/UserModel";
+import { RootState } from "../../../../../../setup";
+import confirmarDialog, { confirmarDialogText, errorDialog, successDialog } from "../../../../../../_start/helpers/components/ConfirmDialog";
 export default function Creacion() {
+    const user = useSelector<RootState>(
+        ({ auth }) => auth.user
+    );
+    const vUser = user as UserModelSyscaf;
     //ESPACIO PARA LAS CONST
     const [loader, setloader] = useState<boolean>(false);
     const [lstIndicadores, setListIndicadores] = useState<any>([
@@ -25,6 +34,34 @@ export default function Creacion() {
         { "Estado": "Tasa de resolución", "Descripcion": "Tasa de resolución de los requerimientos de los últimos 7 días", "Valor": 0 },
         { "Estado": "Total resueltos", "Descripcion": "Total de requerimientos resueltos en los últimos 7 días.", "Valor": 0 }
     ]);
+    const [Id, setId] = useState<string>("");
+    //La final a Guardar
+    const [Cabecera, setCabecera] = useState<any>(
+        {
+            administrador: "",
+            UsuarioId: "",
+            assetid: "",
+            clienteid: "",
+            registrationNumber: "",
+            nombrecliente: "",
+            agente: ""
+        }
+    );
+    //Para saber cual es la que viene desde la tabla o DB
+    const [CabeceraIncial, setCabeceraInicial] = useState<any>(
+        {
+            administrador: "",
+            UsuarioId: "",
+            assetid: "",
+            clienteid: "",
+            registrationNumber: "",
+            nombrecliente: "",
+            agente: ""
+        }
+    );
+    //Para las observaciones Iniciales
+    const [ObsInicial, setObsInicial] = useState<any>();
+
     const [tabSel, settabSel] = useState<number>(0);
     const [isLoading, setIsLoading] = useState(false);
     const [isRefetching, setIsRefetching] = useState(false);
@@ -38,11 +75,12 @@ export default function Creacion() {
     const [ShowFiltros, setShowFiltros] = useState<boolean>(false);
     const [showedit, setshowedit] = useState<boolean>(false);
     
-    const [TipoRequerimientos, setTipoRequerimientos] = useState<any[]>([]);
     const [TipoRequerimientosSeleccionado, setTipoRequerimientosSeleccionado] = useState<any>({ Nombre: "", Value: "" });
     const [EstadoRequerimientos, setEstadoRequerimientos] = useState<any[]>([]);
     const [EstadoRequerimientosSeleccionado, setEstadoRequerimientosSeleccionado] = useState<any>({ Nombre: "Creado", Value: "Estado" });
     
+    const [UsuarioSeleccionado, setUsuarioSeleccionado] = useState<any>({ Nombres: "Seleccione", UserId: "0" });
+    const [ObservacionesModificar, setObservacionesModificar] = useState<string>("");
     const [Titulo, setTitulo] = useState<string>("Edición de requerimientos");
     const [Consecutivo, setConsecutivo] = useState<string>("Edición de requerimientos");
     const FiltrosBase: FiltrosReportes = {
@@ -138,14 +176,6 @@ export default function Creacion() {
                 accessorKey: 'Cantidad',
                 header: 'Cantidad',
             },
-            // {
-            //     accessorKey: 'Estado',
-            //     header: 'Estado',
-            //     // Cell({ cell, column, row, table, }) {
-            //     //     let Cabecera = JSON.parse(row.original.Cabecera);
-            //     //     return (Cabecera[0].registrationNumber == undefined ? "":Cabecera[0].registrationNumber);
-            //     // },
-            // }
         ];
     //PARA LOS DETALLES
     let Detalles: MRT_ColumnDef<any>[] =
@@ -228,10 +258,6 @@ export default function Creacion() {
             GetLista().then((response: AxiosResponse<any>) => {
                 if (response.statusText == "OK") {
                     GetDetalleLista(response.data[0].ListaId.toString()).then((resp: AxiosResponse<any>) => {
-                        setTipoRequerimientos(resp.data.filter((val: any) => {
-                            if (val.Valor == "Tipo")
-                                return val;
-                        }));
                         setEstadoRequerimientos(resp.data.filter((val: any) => {
                             if (val.Valor == "Estado")
                                 return val;
@@ -313,12 +339,9 @@ export default function Creacion() {
     }
     //ESPACIO PARA LOS USEEFFECT
     useEffect(() => {
-        let isApiSubscribed = true;
-        if (isApiSubscribed)
             ConsultasIniciales();
         //Elimina lo asincrono
         return () => {
-            isApiSubscribed = false;
             setDatosTabla([]);
             setDatosReporte([]);
         }
@@ -459,7 +482,7 @@ export default function Creacion() {
                     <option value={"Todos"}>Todos</option>
                     {
                         EstadoRequerimientos?.map((element: any) => {
-                            let flag = (element.Nombre === EstadoRequerimientosSeleccionado.Estado)
+                            let flag = (element.Nombre === EstadoRequerimientosSeleccionado.Nombre)
                             return (<option selected={flag} key={element.Nombre} defaultValue={element.Nombre} value={element.Nombre}>{element.Nombre}</option>)
                         })
                     }
@@ -468,19 +491,161 @@ export default function Creacion() {
 
         );
     }
+
+   //PARA QUE PUEDAN SELECCIONAR UN USUARIO NUEVO.
+   function AgentesEditar() {
+    return (
+        <div className="input-group mb-3">
+            <span style={{ height: '40px' }} className="input-group-text mt-3" id="basic-addon1"><i className="bi-credit-card-2-front"></i></span>
+            <Form.Select title="Agente para asignación" style={{ height: '40px' }} className="input-sm  mb-3 mt-3 " onChange={(e) => {
+                // buscamos el objeto completo para tenerlo en el sistema
+                let lstAgentes = Usuarios.filter((value: any) => {
+                    return value.UserId === e.currentTarget.value
+                })
+                setUsuarioSeleccionado((lstAgentes[0] ? lstAgentes[0] : { Nombres: "Seleccione", UserId: "0" }));
+            }} aria-label="Default select example">
+                <option value={"0"}>Selecione</option>
+                {
+                    Usuarios?.map((element: any) => {
+                        let flag = (element.UserId === UsuarioSeleccionado.UserId)
+                        return (<option selected={flag} key={element.UserId} defaultValue={element.UserId} value={element.UserId}>{element.Nombres}</option>)
+                    })
+                }
+            </Form.Select>
+        </div>
+
+    );
+    }
     //PARA QUE PUEDAN SELECCIONAR UN AGENTE DIFERENTE Y NUEVO.
     const EditarRequerimiento = (row:any) =>{
+        setObservacionesModificar("");
         let Cabeceras = JSON.parse(row.original.Cabecera);
-        //Titulo
-      
+        setCabeceraInicial(Cabeceras);
+        //Usuario
+        let Usuario = Cabeceras.map((e:any) =>e.UsuarioId);
+       let Seleccion =  Usuarios.filter((u:any) =>{
+            return u.UserId == Usuario[0];
+        });
+        setUsuarioSeleccionado(Seleccion[0]);
+        //Estado
+        let Estado = row.original.Estado;
+        let EstadoSelect = EstadoRequerimientos.filter((e:any) =>{
+            return e.Nombre == Estado;
+        })
+        setEstadoRequerimientosSeleccionado(EstadoSelect[0]);
         //Lo divido en 2 para tener mejor claridad
         let Inicio = String(row.original.Consecutivo).substring(0, 6);
         let Final = String(row.original.Consecutivo).substring(6, String(row.original.Consecutivo).length);
         setTitulo(`Requerimiento ${Inicio}-${Final}` );
         setConsecutivo(`${Cabeceras[0].nombrecliente} - ${Cabeceras[0].registrationNumber}`);
         setshowedit(true);
+        let Obs =  JSON.parse(row.original.Observaciones);
+        setObsInicial(Obs);
+        setTipoRequerimientosSeleccionado(
+            { 
+                Nombre: row.original.Tipo, 
+                Value: row.original.Tipo
+            }
+        );
+        setId(row.original.Id);
     };
+    //Para Crearlo y enviarlo al servidor
+    const Guardar = () =>{
+        if(ObservacionesModificar == null || ObservacionesModificar == undefined  || ObservacionesModificar == ""){
+            errorDialog("Debe ingresar una observación","");
+            return false;
+        };
 
+        let _Cabecera = {
+            administrador: UsuarioSeleccionado.Nombres,
+            UsuarioId: UsuarioSeleccionado.UserId,
+            assetid: CabeceraIncial[0].assetid,
+            clienteid: CabeceraIncial[0].clienteid.toString(),
+            registrationNumber: CabeceraIncial[0].registrationNumber,
+            nombrecliente: CabeceraIncial[0].nombrecliente,
+            agente: UsuarioSeleccionado.Nombres
+        }
+        setCabecera(_Cabecera);
+        let _obs = ObsInicial;
+        _obs.push(
+            { 
+                fecha: moment().format(formatSimpleJsonColombia), 
+                observacion: ObservacionesModificar, 
+                usuario: vUser.Nombres, 
+                estado: EstadoRequerimientosSeleccionado.Nombre 
+            }
+        )
+    
+        let Campos = {};
+        Campos["Cabecera"] = JSON.stringify([_Cabecera]);
+        Campos["Observaciones"] = JSON.stringify(_obs);
+        Campos["Estado"] = EstadoRequerimientosSeleccionado.Nombre;
+        Campos["Id"] = Id;
+        confirmarDialog(() => {
+            setloader(true)
+            SetRequerimiento(Campos).then((response:AxiosResponse<any>) =>{
+                if(response.statusText == "OK"){
+                    successDialog(response.data[0][""],'');
+                    setshowedit(false);
+                    let data:any = DatosTabla.map((val:any) =>{
+                        if(val.Id == Id){
+                            val.Cabecera = Campos['Cabecera'];
+                            val.Estado = Campos['Estado'];
+                            val.Observaciones = Campos['Observaciones'];
+                        }
+                        return val;
+                    });
+                    let Tiporeporte = [...TipoReporteBase];
+                    Tiporeporte[tabSel].Data = data;
+                    setTipoReporte(Tiporeporte);
+                    FiltroDatos();
+                    PintarIndicadores(data);
+                    setloader(false);
+                }
+                    
+            }).catch(({error}) =>{
+                console.log("Error", error)
+                setshowedit(false);
+            });
+        }, `¿Esta seguro que desea editar el registro?`, 'Guardar');
+    }
+    const EliminarRequerimiento = (row:any) =>{
+        let Observaciones = JSON.parse(row.original.Observaciones);
+        confirmarDialogText((e:any) => {
+            setloader(true)
+            Observaciones.push({
+                "fecha": moment().format(formatSimpleJsonColombia), 
+                "observacion":e.value,
+                "usuario": vUser.Nombres, 
+                "estado":"Eliminado"
+            })
+            let Campos = {};
+            Campos["Observaciones"] = JSON.stringify(Observaciones);
+            Campos["Estado"] = "Eliminado";
+            Campos["Id"] = row.original.Id;
+            DeleteRequerimiento(Campos).then((response:AxiosResponse<any>) =>{
+                if(response.statusText == "OK"){
+                    successDialog(response.data[0][""],'');
+                    let data:any = DatosTabla.map((val:any) =>{
+                        if(val.Id != row.original.Id)
+                            return val;
+                    }).filter((e) =>e);
+                    let Tiporeporte = [...TipoReporteBase];
+                    Tiporeporte[tabSel].Data = data;
+                    setTipoReporte(Tiporeporte);
+                    PintarIndicadores(data);
+                    setDatosTabla(data);
+                    setloader(false);
+                }
+            }).catch((error) =>{
+                console.log("Error: ", error);
+                setloader(false);
+            });
+            console.log(e.value);
+        },"¿Esta seguro que desea eliminar el registro?","a",'Si, Eliminar')
+    }
+
+    
     function MontarTabla() {
         return <>
             <MaterialReactTable
@@ -529,7 +694,7 @@ export default function Creacion() {
                         {/* Permite eliminar el requerimiento siempre y cuando sea en estado Creado de lo contrario no permite eliminarlo*/}
                         {(FiltroData.getIsActivoMod(row,"Creado")) && (<Tooltip arrow placement="top" title="Eliminar requerimiento">
                             <IconButton onClick={() => {
-                                RequerimientoFunciones.SetEliminarRequerimiento(row);
+                                EliminarRequerimiento(row);
                             }}>
                                 <Delete className="text-danger"/>
                             </IconButton>
@@ -859,17 +1024,15 @@ export default function Creacion() {
                     <div className="row">
                         <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
                         </div>
-                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                            <div className="text-center border border-5">
-                                <span className="mx-4 fs-3 text-muted">{Consecutivo}</span>
-                            </div>
+                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 text-center">
+                            <span className="mx-4 fs-3 text-muted">{Consecutivo}</span>
                         </div>
                         <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
                         </div>
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                             <div className="form-control-sm">
                                 <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Agentes: </label>
-                                <SeleccionAgentes></SeleccionAgentes>
+                                <AgentesEditar></AgentesEditar>
                             </div>
                         </div>
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
@@ -881,15 +1044,16 @@ export default function Creacion() {
                         <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
                             <div className="form-control-sm">
                                 <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Observaciones: </label>
-                                <textarea className="form-control" rows={3}></textarea>
+                                <textarea className="form-control" rows={3} value={ObservacionesModificar} onChange={(e) =>{
+                                    setObservacionesModificar(e.target.value);
+                                }}></textarea>
                             </div>
                         </div>
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
                 <Button type="button" className="btn btn-sm" variant="primary" onClick={() => {
-                       RequerimientoFunciones.SetEdicionRequerimiento([]);
-                       setshowedit(false);
+                      Guardar()
                     }}>
                         Guardar
                     </Button>

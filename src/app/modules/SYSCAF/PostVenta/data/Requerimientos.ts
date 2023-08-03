@@ -1,6 +1,8 @@
 import moment from "moment"
 import { FormatoColombiaDDMMYYY } from "../../../../../_start/helpers/Constants"
-import confirmarDialog from "../../../../../_start/helpers/components/ConfirmDialog"
+import confirmarDialog, { errorDialog, successDialog } from "../../../../../_start/helpers/components/ConfirmDialog"
+import { Post_GetConsultasDinamicasUser } from "../../../../../_start/helpers/Axios/DWHService"
+import { AxiosResponse } from "axios"
 
 const tabReq1 = { icon: 'Equalizer', titulo: "Todos ", subtitulo: "" }
 const tabReq2 = { icon: 'Equalizer', titulo: "Asignados", subtitulo: "" }
@@ -15,6 +17,34 @@ export const fncReporte = [
         }
     }
 ]
+
+//=====================================================================================================================================
+//Guarda los requerimientos
+export function SetRequerimiento(Datos:any){
+    var params: { [id: string]: string | null | undefined; } = {};
+    params["Cabecera"] = Datos.Cabecera;
+    params["Observaciones"] = Datos.Observaciones;
+    params["Estado"] = Datos.Estado;
+    params["Id"] = String(Datos.Id);
+    return Post_GetConsultasDinamicasUser({
+        NombreConsulta: "ModificarRequerimiento", Clase: "GOIQueryHelper",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, params)
+}
+
+//Elimina los requerimientos
+export function DeleteRequerimiento(Datos:any){
+    var params: { [id: string]: string | null | undefined; } = {};
+    params["Observaciones"] = Datos.Observaciones;
+    params["Estado"] = Datos.Estado;
+    params["Id"] = String(Datos.Id);
+    return Post_GetConsultasDinamicasUser({
+        NombreConsulta: "EliminarRequerimiento", Clase: "GOIQueryHelper",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, params)
+}
 
 //======================================================================================================================================
 export const FiltroData = {
@@ -32,7 +62,7 @@ export const FiltroData = {
     },
     //Indicador de soporte
     getSoporte: (data: any[]) => {
-        return data.filter(f => ["Soporte, En Soporte, Rev Soporte"].includes((f.Estado)));
+        return data.filter(f => ["Soporte", "En Soporte", "Rev Soporte"].includes((f.Estado)));
     },
     //Es el reporte total
     getReporte: function (data: any[]) {
@@ -140,6 +170,14 @@ export const FiltroData = {
             return false;
         else
             return true;
+    },
+    getvalidar:(Observacion:any) =>{
+      if(Observacion == null || Observacion == undefined){
+        errorDialog("Debe ingresar una observación","");
+        return false;
+      }
+        
+        return true;
     }
 };
 // cuando se usa un filtro permite traer el unico valor de todas los valores del array
@@ -150,16 +188,7 @@ function UnicoArrayValores(value: any, index: any, self: any) {
  //FUNCIONES PARA LOS REQUERIMIENTOS
 export const RequerimientoFunciones = {
       // Indicadores asignados
-    SetEliminarRequerimiento: (data: any) => {
-        confirmarDialog(() => {
-
-        }, `¿Esta seguro que desea eliminar el registro?`, 'Aceptar');
-    },
-    SetEdicionRequerimiento: (data: any[]) => {
-        confirmarDialog(() => {
-
-        }, `¿Esta seguro que desea guardar el registro?`, 'Aceptar');
-    },
+   
     SetAsignarRequerimiento: (data: any) => {
         confirmarDialog(() => {
 
