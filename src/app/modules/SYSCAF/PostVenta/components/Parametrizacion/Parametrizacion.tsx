@@ -1,19 +1,44 @@
 import { useState } from "react";
 import { UpdateRequerimientos } from "./modals/modalRequerimientos";
+import { UpdateDLP } from "./modals/ModalDLP";
+import { UpdateTickets } from "./modals/ModalSeñalesTicket";
 
 export default function Parametrizacion() {
 
 
     const [show, setShow] = useState(false);
-    const [tituloModalCorreos, settituloModalCorreos] = useState('');
+    const [show2, setShow2] = useState(false);
+    const [show3, setShow3] = useState(false);
+    const [tituloModalParametrizacion, settituloModalParametrizacion] = useState('');
     
     const handleClose = () => {
-        settituloModalCorreos('');        
+        settituloModalParametrizacion('');        
         setShow(false);        
     };
 
     const showModal = () => {
+        settituloModalParametrizacion('Parametrizar Requerimientos')
         setShow(true);
+    }
+
+    const handleClose2 = () => {
+        settituloModalParametrizacion('');        
+        setShow2(false);        
+    };
+
+    const showModal2 = () => {
+        settituloModalParametrizacion('Parametrizar DLP')
+        setShow2(true);
+    }
+
+    const handleClose3 = () => {
+        settituloModalParametrizacion('');        
+        setShow3(false);        
+    };
+
+    const showModal3 = () => {
+        settituloModalParametrizacion('Parametrizar DLP')
+        setShow3(true);
     }
 
     return (
@@ -25,7 +50,7 @@ export default function Parametrizacion() {
                 <div className="row g-5">
                     <div className="col-sm-4">
                         <a
-                            href="#"
+                            onClick={showModal}
                             className="card card-custom bg-light-primary hoverable shadow-none min-h-125px mb-5"
                         >
                             <div className="card-body d-flex flex-column flex-center text-center">
@@ -40,7 +65,7 @@ export default function Parametrizacion() {
                     </div>
 
                     <div className="col-sm-4">
-                        <a className="card card-custom bg-light-warning hoverable shadow-none min-h-125px mb-5">
+                        <a onClick={showModal2} className="card card-custom bg-light-warning hoverable shadow-none min-h-125px mb-5">
                             <div className="card-body d-flex flex-column flex-center text-center">
                                 <h3 className="fs-3 mb-2 text-dark fw-bolder">
                                     DLP
@@ -53,7 +78,7 @@ export default function Parametrizacion() {
                     </div>
                     <div className="col-sm-4">
                         <a
-                            href="#"
+                            onClick={showModal3}
                             className="card card-custom bg-light-success hoverable shadow-none min-h-125px mb-5"
                         >
                             <div className="card-body d-flex flex-column flex-center text-center">
@@ -69,7 +94,10 @@ export default function Parametrizacion() {
                     {/* end::Row */}
                 </div>
             </div>
-            <UpdateRequerimientos show={true} handleClose={handleClose} title={tituloModalCorreos} />
+            <UpdateRequerimientos show={show} handleClose={handleClose} title={tituloModalParametrizacion} />
+            <UpdateDLP show={show2} handleClose={handleClose2} title={tituloModalParametrizacion} />
+            <UpdateTickets show={show3} handleClose={handleClose3} title={tituloModalParametrizacion} />
+            
 
         </>
     )
