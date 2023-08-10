@@ -119,3 +119,75 @@ export const TotalFallas : any[] = [
         "TFallas": 1
     }
 ]
+
+export const Usuarios : any[] = 
+[
+    {"UserId":"69a2c135-beab-4d08-9396-2888f874a1c0","Nombres":"Juan David Vergara","EsGestor":true},
+    {"UserId":"90b20d5c-3efa-4fe0-8706-abd39d73644c","Nombres":"Stanley Munzon","EsGestor":true},
+    {"UserId":"a915f906-4f72-4139-a0cf-f2961f3cc5f1","Nombres":"Camilo Matiz","EsGestor":true},
+    {"UserId":"b1085fff-f517-413e-9dc0-5588785870ce","Nombres":"Soporte Syscaf","EsGestor":true},
+    {"UserId":"ebb0d5ff-8a68-4759-bf34-9343e541f070","Nombres":"Cristian Garcia","EsGestor":true},
+    {"UserId":"b872ff45-01fe-43b0-9417-07c9e128c2a1","Nombres":"Deiby Johan Lopez ","EsGestor":true}
+]
+
+export const EstadosRequerimientos : any[] =
+[
+    {
+        "tipo": "admin",
+        "label": "Creado",
+        "valor": "1",
+        "flujo": "[3,6]",
+        "activo": 1
+    },
+    {
+        "tipo": "admin",
+        "label": "Reabierto",
+        "valor": "2",
+        "flujo": "[4]",
+        "activo" : 1
+    },
+    {
+        "tipo": "soporte",
+        "label": "Creado - Sin Asignar",
+        "valor": "3",
+        "flujo": "[4]",
+        "activo" : 1
+    },
+    {
+        "tipo": "soporte",
+        "label": "Creado - Asignado",
+        "valor": "4",
+        "flujo": "[5]",
+        "activo" : 1
+    },
+    {
+        "tipo": "soporte",
+        "label": "En Progreso",
+        "valor": "5",
+        "flujo": "[8]"
+    },{
+        "tipo": "admin",
+        "label": "Eliminado",
+        "valor": "6",
+        "flujo": "[]"
+    },
+    {
+        "tipo": "admin",
+        "label": "En Soporte",
+        "valor": "7",
+        "flujo": "[]"
+    },
+    {
+        "tipo": "admin",
+        "label": "Resuelto",
+        "valor": "8",
+        "flujo": "[2]"
+    },
+    {
+        "tipo": "admin",
+        "label": "Asignado - Agente Soporte",
+        "valor": "9",
+        "flujo": "[8]"
+    }
+    
+]

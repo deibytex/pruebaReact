@@ -1,22 +1,30 @@
 import BlockUi from "@availity/block-ui";
 import { useEffect, useState } from "react";
 import { PageTitle } from "../../../../../../_start/layout/core";
-import { FiltroData, RequerimientoFunciones, fncReporte, listTabsRequerimientos } from "../../data/Requerimientos";
+import { DeleteRequerimiento, FiltroData, GetRequerimientos, RequerimientoFunciones, SetRequerimiento, fncReporte, listTabsRequerimientos } from "../../data/Requerimientos";
 import { DrawDynamicIconMuiMaterial } from "../../../../../../_start/helpers/components/IconsMuiDynamic";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import moment from "moment";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import { FiltrosReportes } from "../../Models/ModelRequerimientos";
-import { GetDetalleLista, GetLista, GettRequerimiento } from "../../data/PostVentaData";
+import { FiltroDashBoardData } from "../../data/PostVentaData";
 import { AxiosResponse } from "axios";
 import { DateRangePicker } from "rsuite";
 import { Button, Form, Modal } from "react-bootstrap-v5";
-import { locateFormatPercentNDijitos } from "../../../../../../_start/helpers/Helper";
+import { formatSimpleJsonColombia, locateFormatPercentNDijitos } from "../../../../../../_start/helpers/Helper";
 import { Box, IconButton, Tooltip, Typography } from "@mui/material";
 import { Assignment, Delete, Details, Edit } from "@mui/icons-material";
 import { DescargarExcel, DescargarExcelPersonalizado } from "../../../../../../_start/helpers/components/DescargarExcel";
-import { Trash } from "react-feather";
+import { EstadosRequerimientos, Usuarios } from "../../mockData/indicadores";
+import { useSelector } from "react-redux";
+import { UserModelSyscaf } from "../../../../auth/models/UserModel";
+import { RootState } from "../../../../../../setup";
+import confirmarDialog, { confirmarDialogText, errorDialog, successDialog } from "../../../../../../_start/helpers/components/ConfirmDialog";
 export default function Creacion() {
+    const user = useSelector<RootState>(
+        ({ auth }) => auth.user
+    );
+    const vUser = user as UserModelSyscaf;
     //ESPACIO PARA LAS CONST
     const [loader, setloader] = useState<boolean>(false);
     const [lstIndicadores, setListIndicadores] = useState<any>([
@@ -25,6 +33,22 @@ export default function Creacion() {
         { "Estado": "Tasa de resolución", "Descripcion": "Tasa de resolución de los requerimientos de los últimos 7 días", "Valor": 0 },
         { "Estado": "Total resueltos", "Descripcion": "Total de requerimientos resueltos en los últimos 7 días.", "Valor": 0 }
     ]);
+    const [Id, setId] = useState<string>("");
+    //Para saber cual es la que viene desde la tabla o DB
+    const [CabeceraIncial, setCabeceraInicial] = useState<any>(
+        {
+            administrador: "",
+            UsuarioId: "",
+            assetid: "",
+            clienteid: "",
+            registrationNumber: "",
+            nombrecliente: "",
+            agente: ""
+        }
+    );
+    //Para las observaciones Iniciales
+    const [ObsInicial, setObsInicial] = useState<any>();
+
     const [tabSel, settabSel] = useState<number>(0);
     const [isLoading, setIsLoading] = useState(false);
     const [isRefetching, setIsRefetching] = useState(false);
@@ -37,12 +61,14 @@ export default function Creacion() {
     const [show, setshow] = useState<boolean>(false);
     const [ShowFiltros, setShowFiltros] = useState<boolean>(false);
     const [showedit, setshowedit] = useState<boolean>(false);
-    
-    const [TipoRequerimientos, setTipoRequerimientos] = useState<any[]>([]);
+    const [ShowAsignacion, setShowAsignacion] = useState<boolean>(false);
+
     const [TipoRequerimientosSeleccionado, setTipoRequerimientosSeleccionado] = useState<any>({ Nombre: "", Value: "" });
     const [EstadoRequerimientos, setEstadoRequerimientos] = useState<any[]>([]);
-    const [EstadoRequerimientosSeleccionado, setEstadoRequerimientosSeleccionado] = useState<any>({ Nombre: "Creado", Value: "Estado" });
-    
+    const [EstadoRequerimientosSeleccionado, setEstadoRequerimientosSeleccionado] = useState<any>({ label: "Todos", valor: "0" });
+
+    const [UsuarioSeleccionado, setUsuarioSeleccionado] = useState<any>({ Nombres: "Seleccione", UserId: "0" });
+    const [ObservacionesModificar, setObservacionesModificar] = useState<string>("");
     const [Titulo, setTitulo] = useState<string>("Edición de requerimientos");
     const [Consecutivo, setConsecutivo] = useState<string>("Edición de requerimientos");
     const FiltrosBase: FiltrosReportes = {
@@ -57,6 +83,7 @@ export default function Creacion() {
     const TipoReporteBase = [
         { reporte: "Todos", tabla: "tblTodos", tipoConsulta: "Todos", tituloFiltro: "Todos", filtros: { ...FiltrosBase, MaxDay: 30 }, Data: [], tipo: "Todos", Consultar: true },
         { reporte: "Asignados", tabla: "tblsAsignados", tipoConsulta: "asignados", tituloFiltro: "Asignados", filtros: { ...FiltrosBase, MaxDay: 30 }, Data: [], tipo: "Asignados" },
+        { reporte: "Noasignados", tabla: "tblsNoasignados", tipoConsulta: "Noasignados", tituloFiltro: "Noasignados", filtros: { ...FiltrosBase, MaxDay: 30 }, Data: [], tipo: "Noasignados" },
         { reporte: "Cerrados", tabla: "tblCerrados", tipoConsulta: "cerrados", tituloFiltro: "Cerrados", filtros: { ...FiltrosBase, MaxDay: 7 }, Data: [], tipo: "Cerrados" },
         { reporte: "Reporte", tabla: "tblReporte", tipoConsulta: "reporte", tituloFiltro: "Reporte", filtros: { ...FiltrosBase, MaxDay: 7 }, Data: [], tipo: "Reporte" },
     ]
@@ -71,9 +98,12 @@ export default function Creacion() {
     const [showTablaTodos, setShowTablaTodos] = useState<boolean>(false);
     const [showTablaCerradas, setShowTablaCerradas] = useState<boolean>(false);
     const [showTablaAsginadas, setShowTablaAsignadas] = useState<boolean>(false);
+    const [showTablaSinAsginar, setshowTablaSinAsginar] = useState<boolean>(false);
     const [showTablaReporte, setShowTablaReporte] = useState<boolean>(false);
-
-
+    let EstadosColores = EstadosRequerimientos.map((e:any) =>{
+        return {"label":e.label, "color":(e.tipo =="admin" ?"badge bg-warning":(e.tipo == "soporte" ? "badge bg-info" :"badge bg-primary" ) )};
+    })
+    const [Flujos, setFlujos] = useState<any>([]);
     //ESPACIO PARA LOS ENCABEZADOS DE LAS TABLAS
     let Campos: MRT_ColumnDef<any>[] =
         [
@@ -94,6 +124,7 @@ export default function Creacion() {
                     let Final = String(row.original.Consecutivo).substring(6, String(row.original.Consecutivo).length);
                     return (`${Inicio}-${Final}`);
                 },
+                size:140
             },
             {
                 accessorKey: 'registrationNumber',
@@ -102,13 +133,15 @@ export default function Creacion() {
                     let Cabecera = JSON.parse(row.original.Cabecera);
                     return (Cabecera[0].registrationNumber == undefined ? "" : Cabecera[0].registrationNumber);
                 },
+                size:130
             },
 
             {
                 accessorKey: 'Estado',
                 header: 'Estado',
                 Cell({ row, }) {
-                    return RetornarEstado(row.original.Estado);
+                    let estado = FiltroData.getEstadosJson(row.original.Estado);
+                    return RetornarEstado(estado);
                 }
             },
             {
@@ -116,14 +149,14 @@ export default function Creacion() {
                 header: 'Agente',
                 Cell({ row, }) {
                     let Cabecera = JSON.parse(row.original.Cabecera);
-                    return (Cabecera[0].agente == undefined ? "" : Cabecera[0].agente);
+                    return (Cabecera[0].agente == undefined ? "" : <span className="fw-bolder text-primary">{Cabecera[0].agente}</span>);
                 },
             },
             {
                 accessorKey: 'Fecha',
                 header: 'Fecha creacion',
                 Cell({ row, }) {
-                    return moment(row.original.FechaCreacion).format("DD/MM/YYYY");
+                    return moment(row.original.FechaCreacion).format("DD/MM/YYYY HH:MM");
                 }
             },
         ];
@@ -138,14 +171,6 @@ export default function Creacion() {
                 accessorKey: 'Cantidad',
                 header: 'Cantidad',
             },
-            // {
-            //     accessorKey: 'Estado',
-            //     header: 'Estado',
-            //     // Cell({ cell, column, row, table, }) {
-            //     //     let Cabecera = JSON.parse(row.original.Cabecera);
-            //     //     return (Cabecera[0].registrationNumber == undefined ? "":Cabecera[0].registrationNumber);
-            //     // },
-            // }
         ];
     //PARA LOS DETALLES
     let Detalles: MRT_ColumnDef<any>[] =
@@ -154,7 +179,7 @@ export default function Creacion() {
                 accessorKey: 'fecha',
                 header: 'Fecha',
                 Cell({ row, }) {
-                    return moment(row.original.fecha, "DD-MM-YYYY").format("DD/MM/YYYY");
+                    return moment(row.original.fecha, "DD-MM-YYYY").format("DD/MM/YYYY HH:MM");
                 }
             },
             {
@@ -163,17 +188,23 @@ export default function Creacion() {
             },
             {
                 accessorKey: 'usuario',
-                header: 'Agente',
+                header: 'Usuario',
             },
 
             {
                 accessorKey: 'estado',
                 header: 'Estado',
+                Cell({ cell, column, row, table, }) {
+                    return FiltroData.getEstadosJson((row.original.estado != undefined ? row.original.estado:""));
+                },
             }
         ];
     //FUNCION PARA RETORNAR UN ESTADO GRAFICAMENTE
     const RetornarEstado = (data: any) => {
-        return <span className={`${(data == "Creado" || data == "Reabierto" ? "badge bg-warning" : (data == "Asignado Soporte" || data == "Asignado Agente" || data == "Asignado ST") ? "badge bg-info" : (data == "Cerrado") ? "badge bg-success" : "badge bg-primary")}`}>{data}</span>
+       let color =  EstadosColores.filter((e) =>{
+            return e.label == data;
+        })
+      return <span className={`${color[0].color}`}>{data}</span>
     }
     //ESPACIO PARA LAS CONSULTAS INICIALES
     const ConsultasIniciales = () => {
@@ -184,7 +215,7 @@ export default function Creacion() {
             setIsRefetching(true);
             let FechaInicial = TipoReporte[0].filtros.FechaInicial;
             let FechaFinal = TipoReporte[0].filtros.FechaFinal;
-            GettRequerimiento(FechaInicial, FechaFinal).then(
+            GetRequerimientos(FechaInicial, FechaFinal, vUser.perfil).then(
                 (response: AxiosResponse<any>
                 ) => {
                     //Para filtar los Clientes
@@ -224,27 +255,10 @@ export default function Creacion() {
                     setloader(false);
                     setIsError(true);
                 });
-            //PARA LOS TIPOS DE REQUERIMIENTOS
-            GetLista().then((response: AxiosResponse<any>) => {
-                if (response.statusText == "OK") {
-                    GetDetalleLista(response.data[0].ListaId.toString()).then((resp: AxiosResponse<any>) => {
-                        setTipoRequerimientos(resp.data.filter((val: any) => {
-                            if (val.Valor == "Tipo")
-                                return val;
-                        }));
-                        setEstadoRequerimientos(resp.data.filter((val: any) => {
-                            if (val.Valor == "Estado")
-                                return val;
-                        }));
-                    }).catch(() => {
-                        console.log("Error de consulta de detalles listas");
-                        setloader(false);
-                    });
-                }
-            }).catch(() => {
-                console.log("Registre los parametros en listas para poder conseguir los parametros para los tipos de requerimientos con la sigla GOIREQ");
-                setloader(false);
-            })
+
+            let Estados = EstadosRequerimientos;
+            setEstadoRequerimientos(Estados);
+            setEstadoRequerimientosSeleccionado(Estados[0]);
         }
         else
             FiltroDatos();
@@ -275,28 +289,47 @@ export default function Creacion() {
             case 0:
             default:
                 //PintarIndicadores(datosfiltrados);
-                setDatosTabla(datosfiltrados)
+                let FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,vUser.Id);
+                setDatosTabla((FiltradoGestor == undefined ? []:FiltradoGestor));
                 setShowTablaTodos(true);
                 setShowTablaCerradas(false);
                 setShowTablaAsignadas(false);
                 setShowTablaReporte(false);
+                setshowTablaSinAsginar(false);
                 break;
             case 1:
-                setDatosTabla(FiltroData.getAsignados(datosfiltrados));
+                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,vUser.Id);
+                setDatosTabla(FiltroData.getAsignados((FiltradoGestor == undefined ? []:FiltradoGestor),
+                    "Creado - Asignado"));
                 setShowTablaTodos(false);
                 setShowTablaCerradas(false);
                 setShowTablaAsignadas(true);
                 setShowTablaReporte(false);
+                setshowTablaSinAsginar(false);
                 break;
             case 2:
-                setDatosTabla(FiltroData.getCerrados(datosfiltrados));
+                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,vUser.Id);
+                    setDatosTabla(FiltroData.getNoAsignados((FiltradoGestor == undefined ? []:FiltradoGestor),
+                       "Creado, Creado - Sin Asignar"));
+                    setshowTablaSinAsginar(true);
+                    setShowTablaTodos(false);
+                    setShowTablaCerradas(false);
+                    setShowTablaAsignadas(false);
+                    setShowTablaReporte(false);
+                    break;
+            case 3:
+                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,vUser.Id);
+                setDatosTabla(FiltroData.getCerrados((FiltradoGestor == undefined ? []:FiltradoGestor),
+                    "Resuelto"));
                 setShowTablaTodos(false);
                 setShowTablaCerradas(true);
                 setShowTablaAsignadas(false);
                 setShowTablaReporte(false);
+                setshowTablaSinAsginar(false);
                 break;
-            case 3:
-                let reporte = FiltroData.getReporte(datosfiltrados);
+            case 4:
+                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,vUser.Id);
+                let reporte = FiltroData.getReporte((FiltradoGestor == undefined ? []:FiltradoGestor));
                 let DatosReporte: any[] = [];
                 Object.entries(reporte).map((elem: any) => {
                     DatosReporte.push({ "registrationNumber": elem[0], "Cantidad": elem[1].length })
@@ -306,6 +339,7 @@ export default function Creacion() {
                 setShowTablaCerradas(false);
                 setShowTablaAsignadas(false);
                 setShowTablaReporte(true);
+                setshowTablaSinAsginar(false);
                 break;
         }
 
@@ -313,12 +347,9 @@ export default function Creacion() {
     }
     //ESPACIO PARA LOS USEEFFECT
     useEffect(() => {
-        let isApiSubscribed = true;
-        if (isApiSubscribed)
-            ConsultasIniciales();
+        ConsultasIniciales();
         //Elimina lo asincrono
         return () => {
-            isApiSubscribed = false;
             setDatosTabla([]);
             setDatosReporte([]);
         }
@@ -354,10 +385,10 @@ export default function Creacion() {
     }
     //FUNCION PARA PINTAR LOS VALORES DE LOS INDICADORES
     const PintarIndicadores = (datosfiltrados: any) => {
-        let Abiertos = FiltroData.getAbiertos(datosfiltrados);
-        let Soporte = FiltroData.getSoporte(datosfiltrados);
+        let Abiertos = FiltroData.getAbiertos(datosfiltrados, "Creado");
+        let Soporte = FiltroData.getSoporte(datosfiltrados, "En Soporte");
         let TotalRequerimientos = datosfiltrados.length;
-        let Resueltos = FiltroData.getCerrados(datosfiltrados);
+        let Resueltos = FiltroData.getCerrados(datosfiltrados, "Resuelto");
         let Resolucion = (TotalRequerimientos == 0 ? 0 : Resueltos.length / TotalRequerimientos);
         setListIndicadores([
             { "Estado": "Abiertos", "Descripcion": "Total de Requerimientos Abiertos", "Valor": Abiertos.length },
@@ -452,15 +483,44 @@ export default function Creacion() {
                 <Form.Select title="Estados para asignación" style={{ height: '40px' }} className="input-sm  mb-3 mt-3 " onChange={(e) => {
                     // buscamos el objeto completo para tenerlo en el sistema
                     let lstEstado = EstadoRequerimientos.filter((value: any) => {
-                        return value.Nombre === e.currentTarget.value
+                        return value.valor === e.currentTarget.value
                     })
                     setEstadoRequerimientosSeleccionado((lstEstado[0] ? lstEstado[0] : { "Estado": "Todos" }));
                 }} aria-label="Default select example">
                     <option value={"Todos"}>Todos</option>
                     {
-                        EstadoRequerimientos?.map((element: any) => {
-                            let flag = (element.Nombre === EstadoRequerimientosSeleccionado.Estado)
-                            return (<option selected={flag} key={element.Nombre} defaultValue={element.Nombre} value={element.Nombre}>{element.Nombre}</option>)
+                        EstadoRequerimientos?.filter((l:any)=>{
+                            let siguiente = Flujos.replaceAll("[","").replaceAll("]","");
+                            let division = siguiente.split(",");
+                            return (division[0] != "" ?  [EstadoRequerimientosSeleccionado.valor, ...division].includes(l.valor): l);
+                        }).map((element: any) => {
+                            let flag = (element.valor === EstadoRequerimientosSeleccionado.valor)
+                            return (<option selected={flag} key={element.valor} defaultValue={element.valor} value={element.valor}>{element.label}</option>)
+                        })
+                    }
+                </Form.Select>
+            </div>
+
+        );
+    }
+
+    //PARA QUE PUEDAN SELECCIONAR UN USUARIO NUEVO.
+    function AgentesEditar() {
+        return (
+            <div className="input-group mb-3">
+                <span style={{ height: '40px' }} className="input-group-text mt-3" id="basic-addon1"><i className="bi-credit-card-2-front"></i></span>
+                <Form.Select title="Agente para asignación" style={{ height: '40px' }} className="input-sm  mb-3 mt-3 " onChange={(e) => {
+                    // buscamos el objeto completo para tenerlo en el sistema
+                    let lstAgentes = Usuarios.filter((value: any) => {
+                        return value.UserId === e.currentTarget.value
+                    })
+                    setUsuarioSeleccionado((lstAgentes[0] ? lstAgentes[0] : { Nombres: "Seleccione", UserId: "0" }));
+                }} aria-label="Default select example">
+                    <option value={"0"}>Selecione</option>
+                    {
+                        Usuarios?.map((element: any) => {
+                            let flag = (element.UserId === UsuarioSeleccionado.UserId)
+                            return (<option selected={flag} key={element.UserId} defaultValue={element.UserId} value={element.UserId}>{element.Nombres}</option>)
                         })
                     }
                 </Form.Select>
@@ -469,18 +529,230 @@ export default function Creacion() {
         );
     }
     //PARA QUE PUEDAN SELECCIONAR UN AGENTE DIFERENTE Y NUEVO.
-    const EditarRequerimiento = (row:any) =>{
+    const EditarRequerimiento = (row: any) => {
+        setObservacionesModificar("");
         let Cabeceras = JSON.parse(row.original.Cabecera);
-        //Titulo
-      
+        setCabeceraInicial(Cabeceras);
+        //Usuario
+        let Usuario = Cabeceras.map((e: any) => e.UsuarioId);
+        let Seleccion = Usuarios.filter((u: any) => {
+            return u.UserId == Usuario[0];
+        });
+        setUsuarioSeleccionado(Seleccion[0]);
+        //Estado
+        let Estado = (FiltroDashBoardData.EsJson(row.original.Estado) ? JSON.parse(row.original.Estado) : row.original.Estado);
+        let EstadoSelect = EstadoRequerimientos.filter((e: any) => {
+            return e.label == (Estado.label == undefined ? Estado : Estado.label);
+        });
+        let a = EstadoSelect.map((data:any) => {
+            return data.flujo;
+        }).filter((w) =>w);
+        console.log(a[0]);
+        setFlujos(a[0]);
+        setEstadoRequerimientosSeleccionado((EstadoSelect.length == 0 ? { "label": "Todos", "valor": "0" } : EstadoSelect[0]));
         //Lo divido en 2 para tener mejor claridad
         let Inicio = String(row.original.Consecutivo).substring(0, 6);
         let Final = String(row.original.Consecutivo).substring(6, String(row.original.Consecutivo).length);
-        setTitulo(`Requerimiento ${Inicio}-${Final}` );
+        setTitulo(`Requerimiento ${Inicio}-${Final}`);
         setConsecutivo(`${Cabeceras[0].nombrecliente} - ${Cabeceras[0].registrationNumber}`);
         setshowedit(true);
+        let Obs = JSON.parse(row.original.Observaciones);
+        setObsInicial(Obs);
+        setTipoRequerimientosSeleccionado(
+            {
+                Nombre: row.original.Tipo,
+                Value: row.original.Tipo
+            }
+        );
+        setId(row.original.Id);
     };
+    //Para Crearlo y enviarlo al servidor
+    const Guardar = () => {
+        if (ObservacionesModificar == null || ObservacionesModificar == undefined || ObservacionesModificar == "") {
+            errorDialog("Debe ingresar una observación", "");
+            return false;
+        };
 
+        let _Cabecera = {
+            administrador: UsuarioSeleccionado.Nombres,
+            UsuarioId: UsuarioSeleccionado.UserId,
+            assetid: CabeceraIncial[0].assetid,
+            clienteid: CabeceraIncial[0].clienteid.toString(),
+            registrationNumber: CabeceraIncial[0].registrationNumber,
+            nombrecliente: CabeceraIncial[0].nombrecliente,
+            agente: UsuarioSeleccionado.Nombres
+        }
+        // setCabecera(_Cabecera);
+        let _obs = ObsInicial;
+        _obs.push(
+            {
+                fecha: moment().format("DD/MM/YYYY HH:MM"),
+                observacion: ObservacionesModificar,
+                usuario: vUser.Nombres,
+                estado: JSON.stringify({ "label": EstadoRequerimientosSeleccionado.label, "valor": EstadoRequerimientosSeleccionado.valor })
+            }
+        )
+
+        let Campos = {};
+        Campos["Cabecera"] = JSON.stringify([_Cabecera]);
+        Campos["Observaciones"] = JSON.stringify(_obs);
+        Campos["Estado"] = JSON.stringify({ "label": EstadoRequerimientosSeleccionado.label, "valor": EstadoRequerimientosSeleccionado.valor });
+        Campos["Id"] = Id;
+        confirmarDialog(() => {
+            setloader(true)
+            SetRequerimiento(Campos).then((response: AxiosResponse<any>) => {
+                if (response.statusText == "OK") {
+                    successDialog(response.data[0][""], '');
+                    setshowedit(false);
+                    let data: any = DatosTabla.map((val: any) => {
+                        if (val.Id == Id) {
+                            val.Cabecera = Campos['Cabecera'];
+                            val.Estado = Campos['Estado'];
+                            val.Observaciones = Campos['Observaciones'];
+                        }
+                        return val;
+                    });
+                    let Tiporeporte = [...TipoReporteBase];
+                    Tiporeporte[tabSel].Data = data;
+                    setTipoReporte(Tiporeporte);
+                    FiltroDatos();
+                    PintarIndicadores(data);
+                    setloader(false);
+                }
+
+            }).catch(({ error }) => {
+                console.log("Error", error)
+                setshowedit(false);
+            });
+        }, `¿Esta seguro que desea editar el registro?`, 'Guardar');
+    }
+    const Asignacion = (row:any) =>{
+        let Cabeceras = JSON.parse(row.original.Cabecera);
+        setCabeceraInicial(Cabeceras);
+        //Usuario
+        let Usuario = Cabeceras.map((e: any) => e.UsuarioId);
+        let Seleccion = Usuarios.filter((u: any) => {
+            return u.UserId == Usuario[0];
+        });
+        setUsuarioSeleccionado(Seleccion[0]);
+        //Estado
+        let Estado = (FiltroDashBoardData.EsJson(row.original.Estado) ? JSON.parse(row.original.Estado) : row.original.Estado);
+        let EstadoSelect = EstadoRequerimientos.filter((e: any) => {
+            return e.label == (Estado.label == undefined ? Estado : Estado.label);
+        });
+        let a = EstadoSelect.map((data:any) => {
+            return data.flujo;
+        }).filter((w) =>w);
+        setFlujos(a[0]);
+        setEstadoRequerimientosSeleccionado((EstadoSelect.length == 0 ? { "label": "Todos", "valor": "0" } : EstadoSelect[0]));
+        //Lo divido en 2 para tener mejor claridad
+        let Inicio = String(row.original.Consecutivo).substring(0, 6);
+        let Final = String(row.original.Consecutivo).substring(6, String(row.original.Consecutivo).length);
+        setTitulo(`Requerimiento ${Inicio}-${Final}`);
+        setConsecutivo(`${Cabeceras[0].nombrecliente} - ${Cabeceras[0].registrationNumber}`);
+        setShowAsignacion(true);
+        let Obs = JSON.parse(row.original.Observaciones);
+        setObsInicial(Obs);
+        setTipoRequerimientosSeleccionado(
+            {
+                Nombre: row.original.Tipo,
+                Value: row.original.Tipo
+            }
+        );
+        setId(row.original.Id);
+    }
+    const GuardarAsginacion = () =>{
+        let _Cabecera = {
+            administrador: UsuarioSeleccionado.Nombres,
+            UsuarioId: UsuarioSeleccionado.UserId,
+            assetid: CabeceraIncial[0].assetid,
+            clienteid: CabeceraIncial[0].clienteid.toString(),
+            registrationNumber: CabeceraIncial[0].registrationNumber,
+            nombrecliente: CabeceraIncial[0].nombrecliente,
+            agente: UsuarioSeleccionado.Nombres
+        }
+        // setCabecera(_Cabecera);
+        let _obs = ObsInicial;
+        let estado =  JSON.stringify(EstadoRequerimientos.map((val:any) =>{
+            return (val.label == "Asignado - Agente Soporte"? { "label": val.label, "valor": val.valor } : undefined )
+        }).filter((e) =>e)[0]);
+        _obs.push(
+            {
+                fecha: moment().format("DD/MM/YYYY HH:MM"),
+                observacion: "Asginación de requerimiento agente de soporte. ",
+                usuario: vUser.Nombres,
+                estado: estado
+            }
+        )
+
+        let Campos = {};
+        Campos["Cabecera"] = JSON.stringify([_Cabecera]);
+        Campos["Observaciones"] = JSON.stringify(_obs);
+        Campos["Estado"] = estado;
+        Campos["Id"] = Id;
+        confirmarDialog(() => {
+            setloader(true)
+            SetRequerimiento(Campos).then((response: AxiosResponse<any>) => {
+                if (response.statusText == "OK") {
+                    successDialog(response.data[0][""], '');
+                    setshowedit(false);
+                    let data: any = DatosTabla.map((val: any) => {
+                        if (val.Id == Id) {
+                            val.Cabecera = Campos['Cabecera'];
+                            val.Estado = Campos['Estado'];
+                            val.Observaciones = Campos['Observaciones'];
+                        }
+                        return val;
+                    });
+                    let Tiporeporte = [...TipoReporteBase];
+                    Tiporeporte[tabSel].Data = data;
+                    setTipoReporte(Tiporeporte);
+                    FiltroDatos();
+                    PintarIndicadores(data);
+                    setloader(false);
+                }
+
+            }).catch(({ error }) => {
+                console.log("Error", error)
+                setshowedit(false);
+            });
+        }, `¿Esta seguro que desea asignar el requerimiento al agente?`, 'Si');
+    }
+    const EliminarRequerimiento = (row: any) => {
+        let Observaciones = JSON.parse(row.original.Observaciones);
+        confirmarDialogText((e: any) => {
+            setloader(true)
+            Observaciones.push({
+                "fecha": moment().format("DD/MM/YYYY HH:MM"),
+                "observacion": e.value,
+                "usuario": vUser.Nombres,
+                "estado": '{"label": "Eliminado","valor": "6"}'
+            })
+            let Campos = {};
+            Campos["Observaciones"] = JSON.stringify(Observaciones);
+            Campos["Estado"] = "Eliminado";
+            Campos["Id"] = row.original.Id;
+            DeleteRequerimiento(Campos).then((response: AxiosResponse<any>) => {
+                if (response.statusText == "OK") {
+                    successDialog(response.data[0][""], '');
+                    let data: any = DatosTabla.map((val: any) => {
+                        if (val.Id != row.original.Id)
+                            return val;
+                    }).filter((e) => e);
+                    let Tiporeporte = [...TipoReporteBase];
+                    Tiporeporte[tabSel].Data = data;
+                    setTipoReporte(Tiporeporte);
+                    PintarIndicadores(data);
+                    setDatosTabla(data);
+                    setloader(false);
+                }
+            }).catch((error) => {
+                console.log("Error: ", error);
+                setloader(false);
+            });
+            console.log(e.value);
+        }, "¿Esta seguro que desea eliminar el registro?", "a", 'Si, Eliminar')
+    }
     function MontarTabla() {
         return <>
             <MaterialReactTable
@@ -490,7 +762,7 @@ export default function Creacion() {
                         muiTableHeadCellProps: {
                             align: 'center',
                         },
-                        size: 200,
+                        size: 185,
                     },
                 }}
                 muiTableHeadCellProps={{
@@ -527,17 +799,17 @@ export default function Creacion() {
                             </IconButton>
                         </Tooltip>
                         {/* Permite eliminar el requerimiento siempre y cuando sea en estado Creado de lo contrario no permite eliminarlo*/}
-                        {(FiltroData.getIsActivoMod(row,"Creado")) && (<Tooltip arrow placement="top" title="Eliminar requerimiento">
+                        {(FiltroData.getIsActivoMod(row, "Creado")) && (<Tooltip arrow placement="top" title="Eliminar requerimiento">
                             <IconButton onClick={() => {
-                                RequerimientoFunciones.SetEliminarRequerimiento(row);
+                                EliminarRequerimiento(row);
                             }}>
-                                <Delete className="text-danger"/>
+                                <Delete className="text-danger" />
                             </IconButton>
                         </Tooltip>)}
-                         {/* Permite asignarlo siempre y cuando este en estado creado sino no lo asigna a soporte*/}
-                        {(FiltroData.getIsActivoMod(row,"Creado")) && (<Tooltip arrow placement="right" title="Asignar requerimiento">
-                            <IconButton onClick={() =>{
-                                 RequerimientoFunciones.SetAsignarRequerimiento(row);
+                        {/* Permite asignarlo siempre y cuando este en estado creado sino no lo asigna a soporte*/}
+                        {(FiltroData.getIsActivoMod(row, "Creado") && FiltroData.getIsUsuarioSoporte(row.original.UsuarioId)) && (<Tooltip arrow placement="right" title="Asignar requerimiento">
+                            <IconButton onClick={() => {
+                                Asignacion(row);
                             }}>
                                 <Assignment className="text-success" />
                             </IconButton>
@@ -555,7 +827,7 @@ export default function Creacion() {
                         sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
                     >
                         <button title="Reporte a excel" style={{ display: (tabSel <= 2) ? "inline-block" : "none" }} className="  btn btn-sm btn-primary" type="button" onClick={() => {
-                            DescargarExcel(DatosTabla,Campos, `Reporte de requerimientos${(tabSel == 0 ? "": (tabSel == 1 ? " asignados":(tabSel ==2 ? " cerrados":"")))}`)
+                            DescargarExcel(DatosTabla, Campos, `Reporte de requerimientos${(tabSel == 0 ? "" : (tabSel == 1 ? " asignados" : (tabSel == 2 ? " cerrados" : "")))}`)
                         }}>
                             <i className="bi-file-earmark-excel"></i></button>
 
@@ -569,214 +841,233 @@ export default function Creacion() {
         <>
             <PageTitle>Interfaz de requerimientos</PageTitle>
             <BlockUi tag="div" keepInView blocking={loader ?? false}  >
-                {/* Este espacio es la cabecera de la pagina */}
-                <div className="card">
-                    <div className="d-flex justify-content-between mb-2">
-                        <div className="mx-auto">
-                            <div className="ms-3 text-center">
-                                <h3 className="mb-0">Interfaz de requerimientos</h3>
-                                <span className="text-muted m-3">Consolidado e Indicadores</span>
+                <div style={{ display: `inline` }}>
+                    {/* Este espacio es la cabecera de la pagina */}
+                    <div className="card">
+                        <div className="d-flex justify-content-between mb-2">
+                            <div className="mx-auto">
+                                <div className="ms-3 text-center">
+                                    <h3 className="mb-0">Interfaz de requerimientos</h3>
+                                    <span className="text-muted m-3">Consolidado e Indicadores</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="row col-sm-12 col-md-12 col-xs-12 mx-auto">
+                                {
+                                    (lstIndicadores.map((element: any) => {
+                                        return (
+                                            <div key={`indicadores_${element.Estado}`} className="row card shadow-sm col-sm-3 col-md-3 col-xs-3 mx-auto"
+                                                title={element.Descripcion}
+                                                style={{
+                                                    backgroundColor: "#b6fffe "
+                                                    // backgroundColor: `${(element.Estado == "Abiertos") ? "#f8d7da" : (element.Estado == "En Soporte") ? "#F89262" :
+                                                    //     (element.Estado == "Total resueltos") ? "#d1e7dd" : "#cfe2ff"}`
+                                                }}
+                                            >
+                                                <div className="m-3 text-center">
+                                                    <h2 className={`mb-0`}><span id={element.Estado}>{element.Valor}</span></h2>
+                                                    <span className={`text-muted`}>{element.Estado}</span>
+                                                </div>
+                                            </div>
+                                        )
+                                    }))
+                                }
                             </div>
                         </div>
                     </div>
-                    <div className="row">
-                        <div className="row col-sm-12 col-md-12 col-xs-12 mx-auto">
-                            {
-                                (lstIndicadores.map((element: any) => {
-                                    return (
-                                        <div key={`indicadores_${element.Estado}`} className="row card shadow-sm col-sm-3 col-md-3 col-xs-3 mx-auto"
-                                            title={element.Descripcion}
-                                            style={{
-                                                backgroundColor: "#b6fffe "
-                                                // backgroundColor: `${(element.Estado == "Abiertos") ? "#f8d7da" : (element.Estado == "En Soporte") ? "#F89262" :
-                                                //     (element.Estado == "Total resueltos") ? "#d1e7dd" : "#cfe2ff"}`
-                                            }}
-                                        >
-                                            <div className="m-3 text-center">
-                                                <h2 className={`mb-0`}><span id={element.Estado}>{element.Valor}</span></h2>
-                                                <span className={`text-muted`}>{element.Estado}</span>
-                                            </div>
+                    <div className="card shadow-sm d-flex flex-row  justify-content-between">
+
+                        <div className="d-flex justify-content-start ">
+                            <label className="control-label label  label-sm m-2 mt-6" style={{ fontWeight: 'bold' }}>Fechas: </label>
+                            {(combine && allowedRange && allowedMaxDays) && (
+                                <div className="input-group mb-3">
+                                    <span style={{ height: '40px' }} className="input-group-text mt-3" id="basic-addon1"><i className=" bi-calendar2-date"></i></span>
+                                    <DateRangePicker size="lg" className="mt-3" format="dd/MM/yyyy" value={[TipoReporte[tabSel].filtros.FechaInicial, TipoReporte[tabSel].filtros.FechaFinal]}
+                                        // hoverRange={
+                                        //     TipoReporte[tabSel].tipo == "Todos" ? `month` : undefined //date =>  [subDays(date, 3), addDays(date,3)]
+                                        // }
+                                        disabledDate={combine(allowedMaxDays(TipoReporte[tabSel].filtros.MaxDay), allowedRange(
+                                            moment().add(-30, 'days').startOf('day').toDate(), moment().startOf('day').toDate()
+                                        ))}
+                                        onChange={(value) => {
+                                            if (value !== null) {
+                                                ValidarFechas(
+                                                    [value[0],
+                                                    value[1]]
+                                                );
+                                            }
+                                        }}
+                                    />
+                                </div>
+
+                            )}
+                            <Button title="Filtros de Clientes, Agentes y Estados" className="mb-6 mx-2 mt-4 btn btn-sm btn-primary" onClick={() => { setShowFiltros(true) }}><i className="bi-filter"></i></Button>
+                            <Button title="Consultar reporte por los filtros aplicados" className="mb-6 mx-2 mt-4 btn btn-sm btn-primary" onClick={() => { ConsultasIniciales() }}><i className="bi-search"></i></Button>
+                        </div>
+                        <div className="d-flex justify-content-end mt-2 m-2">
+                            <div style={{ float: 'right' }}>
+                                {/* Espacio para un filtro */}
+                            </div>
+                        </div>
+                    </div>
+                    {/* Fin del encabezado */}
+                    <div className="row w-100">
+                        <ul className="nav nav-tabs nav-pills nav-pills-custom">
+                            {listTabsRequerimientos.map((tab, idx) => {
+                                return (<li className="nav-item mb-3" key={`tabenc_${idx}`}>
+                                    <a
+                                        onClick={() => settabSel(idx)}
+                                        className={`nav-link w-224px  h-70px ${tabSel === idx ? "active btn-active-light" : ""
+                                            } fw-bolder me-2`}
+                                        id={`tab${idx}`}
+                                    >
+                                        <div className="nav-icon me-3">
+                                            <DrawDynamicIconMuiMaterial name={tab.icon} isactive={(tabSel === idx)} />
                                         </div>
-                                    )
-                                }))
+                                        <div className="ps-1">
+                                            <span className="nav-text text-gray-600 fw-bolder fs-6">
+                                                {tab.titulo}
+                                            </span>
+                                            <span className="text-muted fw-bold d-block pt-1">
+                                                {tab.subtitulo}
+                                            </span>
+                                        </div>
+                                    </a>
+                                </li>
+                                )
+                            })}
+                        </ul>
+                    </div>
+                    <div className="tab-content">
+                        <div className={`tab-pane fade ${tabSel === 0 ? "show active" : ""}`} id="tab0_content" >
+                            {(tabSel === 0) && (showTablaTodos) && (DatosTabla.length != 0) && (
+                                <MontarTabla></MontarTabla>
+                            )
+                            }
+                            {
+                                <div style={{
+                                    display: `${(tabSel === 0 && DatosTabla.length === 0 ? "flex" : "none")}`,
+                                    textAlign: 'center'
+                                }}>
+                                    <div className="text-center text-muted fw-bolder" style={{ lineHeight: '200px', margin: 'auto', fontSize: "20px" }}>
+                                        No hay datos que mostrar
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+                        <div className={`tab-pane fade ${tabSel === 1 ? "show active" : ""}`} id="tab1_content" >
+                            {/* begin::Cards */}
+                            {(tabSel === 1) && (showTablaAsginadas) && (DatosTabla.length != 0) && (
+                                <MontarTabla></MontarTabla>
+                            )}
+                            {
+                                <div style={{
+                                    display: `${(tabSel === 1 && DatosTabla.length === 0 ? "flex" : "none")}`,
+                                    textAlign: 'center'
+                                }}>
+                                    <div className="text-center text-muted fw-bolder" style={{ lineHeight: '200px', margin: 'auto', fontSize: "20px" }}>
+                                        No hay datos que mostrar
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <div className={`tab-pane fade ${tabSel === 2 ? "show active" : ""}`} id="tab2_content">
+                            {/* begin::Cards */}
+                            {(tabSel === 2) && (showTablaSinAsginar) && (DatosTabla.length != 0) && (
+                                <MontarTabla></MontarTabla>
+                            )}
+                            {
+                                <div style={{
+                                    display: `${(tabSel === 2 && DatosTabla.length === 0 ? "flex" : "none")}`,
+                                    textAlign: 'center'
+                                }}>
+                                    <div className="text-center text-muted fw-bolder" style={{ lineHeight: '200px', margin: 'auto', fontSize: "20px" }}>
+                                        No hay datos que mostrar
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <div className={`tab-pane fade ${tabSel === 3 ? "show active" : ""}`} id="tab2_content">
+                            {/* begin::Cards */}
+                            {(tabSel === 3) && (showTablaCerradas) && (DatosTabla.length != 0) && (
+                                <MontarTabla></MontarTabla>
+                            )}
+                            {
+                                <div style={{
+                                    display: `${(tabSel === 3 && DatosTabla.length === 0 ? "flex" : "none")}`,
+                                    textAlign: 'center'
+                                }}>
+                                    <div className="text-center text-muted fw-bolder" style={{ lineHeight: '200px', margin: 'auto', fontSize: "20px" }}>
+                                        No hay datos que mostrar
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <div className={`tab-pane fade ${tabSel === 4 ? "show active" : ""}`} id="tab3_content">
+                            {/* begin::Cards */}
+                            {(tabSel === 4) && (showTablaReporte) && (DatosReporte.length != 0) && (
+                                <MaterialReactTable
+                                    localization={MRT_Localization_ES}
+                                    displayColumnDefOptions={{
+                                        'mrt-row-actions': {
+                                            muiTableHeadCellProps: {
+                                                align: 'center',
+                                            },
+                                            size: 100,
+                                        },
+                                    }}
+                                    muiTableHeadCellProps={{
+                                        sx: () => ({
+                                            fontSize: 14,
+                                            fontStyle: 'bold',
+                                            color: 'rgb(27, 66, 94)'
+                                        }),
+                                    }}
+                                    columns={CamposReporte}
+                                    data={DatosReporte}
+                                    enableColumnOrdering
+                                    enableStickyHeader
+                                    enableDensityToggle={false}
+                                    enablePagination={false}
+                                    enableRowVirtualization
+                                    muiTableContainerProps={{
+                                        sx: { maxHeight: '400px' }, //give the table a max height
+                                    }}
+                                    state={{
+                                        isLoading: isLoading,
+                                        showAlertBanner: isError,
+                                        showProgressBars: isRefetching,
+                                    }}
+                                    renderTopToolbarCustomActions={() => (
+                                        <Box
+                                            sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
+                                        >
+                                            <button title="Reporte a excel" style={{ display: "inline-block" }} className="btn btn-sm btn-primary" type="button" onClick={() => {
+                                                DescargarExcel(DatosReporte, CamposReporte, "Reporte requerimientos agrupados")
+                                            }}>
+                                                <i className="bi-file-earmark-excel"></i></button>
+
+                                        </Box>
+                                    )}
+                                    initialState={{ density: 'compact' }}
+                                />
+                            )}
+                            {
+                                <div style={{
+                                    display: `${(tabSel === 4 && DatosReporte.length === 0 ? "flex" : "none")}`,
+                                    textAlign: 'center'
+                                }}>
+                                    <div className="text-center text-muted fw-bolder" style={{ lineHeight: '200px', margin: 'auto', fontSize: "20px" }}>
+                                        No hay datos que mostrar
+                                    </div>
+                                </div>
                             }
                         </div>
                     </div>
                 </div>
-                <div className="card shadow-sm d-flex flex-row  justify-content-between">
 
-                    <div className="d-flex justify-content-start ">
-                        <label className="control-label label  label-sm m-2 mt-6" style={{ fontWeight: 'bold' }}>Fechas: </label>
-                        {(combine && allowedRange && allowedMaxDays) && (
-                            <div className="input-group mb-3">
-                            <span style={{ height: '40px' }} className="input-group-text mt-3" id="basic-addon1"><i className=" bi-calendar2-date"></i></span>
-                            <DateRangePicker size="lg" className="mt-3" format="dd/MM/yyyy" value={[TipoReporte[tabSel].filtros.FechaInicial, TipoReporte[tabSel].filtros.FechaFinal]}
-                                // hoverRange={
-                                //     TipoReporte[tabSel].tipo == "Todos" ? `month` : undefined //date =>  [subDays(date, 3), addDays(date,3)]
-                                // }
-                                disabledDate={combine(allowedMaxDays(TipoReporte[tabSel].filtros.MaxDay), allowedRange(
-                                    moment().add(-30, 'days').startOf('day').toDate(), moment().startOf('day').toDate()
-                                ))}
-                                onChange={(value) => {
-                                    if (value !== null) {
-                                        ValidarFechas(
-                                            [value[0],
-                                            value[1]]
-                                        );
-                                    }
-                                }}
-                            />
-                        </div>
-                            
-                        )}
-                        <Button title="Filtros de Clientes, Agentes y Estados" className="mb-6 mx-2 mt-4 btn btn-sm btn-primary" onClick={() => { setShowFiltros(true) }}><i className="bi-filter"></i></Button>
-                        <Button title="Consultar reporte por los filtros aplicados" className="mb-6 mx-2 mt-4 btn btn-sm btn-primary" onClick={() => { ConsultasIniciales() }}><i className="bi-search"></i></Button>
-                    </div>
-                    <div className="d-flex justify-content-end mt-2 m-2">
-                        <div style={{ float: 'right' }}>
-                            {/* Espacio para un filtro */}
-                        </div>
-                    </div>
-                </div>
-                {/* Fin del encabezado */}
-                <div className="row w-100">
-                    <ul className="nav nav-tabs nav-pills nav-pills-custom">
-                        {listTabsRequerimientos.map((tab, idx) => {
-                            return (<li className="nav-item mb-3" key={`tabenc_${idx}`}>
-                                <a
-                                    onClick={() => settabSel(idx)}
-                                    className={`nav-link w-224px  h-70px ${tabSel === idx ? "active btn-active-light" : ""
-                                        } fw-bolder me-2`}
-                                    id={`tab${idx}`}
-                                >
-                                    <div className="nav-icon me-3">
-                                        <DrawDynamicIconMuiMaterial name={tab.icon} isactive={(tabSel === idx)} />
-                                    </div>
-                                    <div className="ps-1">
-                                        <span className="nav-text text-gray-600 fw-bolder fs-6">
-                                            {tab.titulo}
-                                        </span>
-                                        <span className="text-muted fw-bold d-block pt-1">
-                                            {tab.subtitulo}
-                                        </span>
-                                    </div>
-                                </a>
-                            </li>
-                            )
-                        })}
-                    </ul>
-                </div>
-                <div className="tab-content">
-                    <div className={`tab-pane fade ${tabSel === 0 ? "show active" : ""}`} id="tab0_content" >
-                        {(tabSel === 0) && (showTablaTodos) && (DatosTabla.length != 0) && (
-                            <MontarTabla></MontarTabla>
-                        )
-                        }
-                        {
-                            <div style={{
-                                display: `${(tabSel === 0 && DatosTabla.length === 0 ? "flex" : "none")}`,
-                                textAlign: 'center'
-                            }}>
-                                <div className="text-center text-muted fw-bolder" style={{ lineHeight: '200px', margin: 'auto', fontSize: "20px" }}>
-                                    No hay datos que mostrar
-                                </div>
-                            </div>
-                        }
-
-                    </div>
-                    <div className={`tab-pane fade ${tabSel === 1 ? "show active" : ""}`} id="tab1_content" >
-                        {/* begin::Cards */}
-                        {(tabSel === 1) && (showTablaAsginadas) && (DatosTabla.length != 0) && (
-                            <MontarTabla></MontarTabla>
-                        )}
-                        {
-                            <div style={{
-                                display: `${(tabSel === 1 && DatosTabla.length === 0 ? "flex" : "none")}`,
-                                textAlign: 'center'
-                            }}>
-                                <div className="text-center text-muted fw-bolder" style={{ lineHeight: '200px', margin: 'auto', fontSize: "20px" }}>
-                                    No hay datos que mostrar
-                                </div>
-                            </div>
-                        }
-                    </div>
-                    <div className={`tab-pane fade ${tabSel === 2 ? "show active" : ""}`} id="tab2_content">
-                        {/* begin::Cards */}
-                        {(tabSel === 2) && (showTablaCerradas) && (DatosTabla.length != 0) && (
-                            <MontarTabla></MontarTabla>
-                        )}
-                        {
-                            <div style={{
-                                display: `${(tabSel === 2 && DatosTabla.length === 0 ? "flex" : "none")}`,
-                                textAlign: 'center'
-                            }}>
-                                <div className="text-center text-muted fw-bolder" style={{ lineHeight: '200px', margin: 'auto', fontSize: "20px" }}>
-                                    No hay datos que mostrar
-                                </div>
-                            </div>
-                        }
-                    </div>
-                    <div className={`tab-pane fade ${tabSel === 3 ? "show active" : ""}`} id="tab3_content">
-                        {/* begin::Cards */}
-                        {(tabSel === 3) && (showTablaReporte) && (DatosReporte.length != 0) && (
-                            <MaterialReactTable
-                                localization={MRT_Localization_ES}
-                                displayColumnDefOptions={{
-                                    'mrt-row-actions': {
-                                        muiTableHeadCellProps: {
-                                            align: 'center',
-                                        },
-                                        size: 100,
-                                    },
-                                }}
-                                muiTableHeadCellProps={{
-                                    sx: () => ({
-                                        fontSize: 14,
-                                        fontStyle: 'bold',
-                                        color: 'rgb(27, 66, 94)'
-                                    }),
-                                }}
-                                columns={CamposReporte}
-                                data={DatosReporte}
-                                enableColumnOrdering
-                                enableStickyHeader
-                                enableDensityToggle={false}
-                                enablePagination={false}
-                                enableRowVirtualization
-                                muiTableContainerProps={{
-                                    sx: { maxHeight: '400px' }, //give the table a max height
-                                }}
-                                state={{
-                                    isLoading: isLoading,
-                                    showAlertBanner: isError,
-                                    showProgressBars: isRefetching,
-                                }}
-                                renderTopToolbarCustomActions={() => (
-                                    <Box
-                                        sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
-                                    >
-                                        <button title="Reporte a excel"  style={{ display:  "inline-block"}} className="btn btn-sm btn-primary" type="button" onClick={() => {
-                                            DescargarExcel(DatosReporte,CamposReporte, "Reporte requerimientos agrupados")
-                                        }}>
-                                            <i className="bi-file-earmark-excel"></i></button>
-                
-                                    </Box>
-                                )}
-                                initialState={{ density: 'compact' }}
-                            />
-                        )}
-                        {
-                            <div style={{
-                                display: `${(tabSel === 3 && DatosReporte.length === 0 ? "flex" : "none")}`,
-                                textAlign: 'center'
-                            }}>
-                                <div className="text-center text-muted fw-bolder" style={{ lineHeight: '200px', margin: 'auto', fontSize: "20px" }}>
-                                    No hay datos que mostrar
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </div>
             </BlockUi>
             <Modal show={show} onHide={setshow} size={"lg"}>
                 <Modal.Header closeButton>
@@ -859,17 +1150,15 @@ export default function Creacion() {
                     <div className="row">
                         <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
                         </div>
-                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                            <div className="text-center border border-5">
-                                <span className="mx-4 fs-3 text-muted">{Consecutivo}</span>
-                            </div>
+                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 text-center">
+                            <span className="mx-4 fs-3 text-muted">{Consecutivo}</span>
                         </div>
                         <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
                         </div>
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                             <div className="form-control-sm">
                                 <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Agentes: </label>
-                                <SeleccionAgentes></SeleccionAgentes>
+                                <AgentesEditar></AgentesEditar>
                             </div>
                         </div>
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
@@ -881,19 +1170,46 @@ export default function Creacion() {
                         <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
                             <div className="form-control-sm">
                                 <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Observaciones: </label>
-                                <textarea className="form-control" rows={3}></textarea>
+                                <textarea className="form-control" rows={3} value={ObservacionesModificar} onChange={(e) => {
+                                    setObservacionesModificar(e.target.value);
+                                }}></textarea>
                             </div>
                         </div>
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
-                <Button type="button" className="btn btn-sm" variant="primary" onClick={() => {
-                       RequerimientoFunciones.SetEdicionRequerimiento([]);
-                       setshowedit(false);
+                    <Button type="button" className="btn btn-sm" variant="primary" onClick={() => {
+                        Guardar()
                     }}>
                         Guardar
                     </Button>
-                    <Button type="button" className="btn btn-sm" variant="secondary" onClick={() =>setshowedit(false)}>
+                    <Button type="button" className="btn btn-sm" variant="secondary" onClick={() => setshowedit(false)}>
+                        Cancelar
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+            {/* ModalAsignacion */}
+            <Modal show={ShowAsignacion} onHide={setShowAsignacion} size={"lg"}>
+                <Modal.Header closeButton>
+                    <Modal.Title>{Titulo}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="row">
+                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                            <div className="form-control-sm">
+                                <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Agente: </label>
+                                <AgentesEditar></AgentesEditar>
+                            </div>
+                        </div>
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button type="button" className="btn btn-sm" variant="primary" onClick={() => {
+                        GuardarAsginacion()
+                    }}>
+                        Guardar
+                    </Button>
+                    <Button type="button" className="btn btn-sm" variant="secondary" onClick={() => setShowAsignacion(false)}>
                         Cancelar
                     </Button>
                 </Modal.Footer>

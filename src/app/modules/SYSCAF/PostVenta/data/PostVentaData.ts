@@ -140,5 +140,13 @@ export const FiltroDashBoardData = {
             p[name].push(c);
             return p;
         }, {})
+    },
+    EsJson:(dato:any) =>{
+        try {
+            JSON.parse(dato);
+        } catch (e) {
+            return false;
+        }
+        return true;
     }
  }

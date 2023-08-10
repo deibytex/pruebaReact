@@ -35,7 +35,7 @@ export default function HomePostVenta() {
     const [TipoRequerimientos, setTipoRequerimientos] = useState<any[]>([]);
     const [TipoRequerimientosSeleccionado, setTipoRequerimientosSeleccionado] = useState<any>({ Nombre: "", Value: "" });
     const [EstadoRequerimientos, setEstadoRequerimientos] = useState<any[]>([]);
-    const [EstadoRequerimientosSeleccionado, setEstadoRequerimientosSeleccionado] = useState<any>({ Nombre: "Creado", Value: "Estado" });
+    const [EstadoRequerimientosSeleccionado, setEstadoRequerimientosSeleccionado] = useState<any>({ "label": "Creado", "valor": "1" });
     const [Observaciones, setObservaciones] = useState<string>("");
     const [TituloModal, setTituloModal] = useState<string>("");
     const [TituloTicket, setTituloTicket] = useState<string>("Listado de tickets por estado");
@@ -123,7 +123,7 @@ export default function HomePostVenta() {
     useEffect(() =>{
         if(dataTx.length != 0)
             PintarTablaVehiculosSinTX(dataTx);
-    },[dataTx])
+    },[dataTx, Requerimientos])
 
       //PARA CREAR UNA DATA CON CONDUCTORES, ASSETS, Y CLIENTES
       useEffect(() =>{
@@ -235,7 +235,7 @@ export default function HomePostVenta() {
         Campos["Tipo"] = TipoRequerimientosSeleccionado.Nombre;
         Campos["Cabecera"] = JSON.stringify([Cabecera]);
         Campos["Observaciones"] = JSON.stringify(Obervaciones);
-        Campos["Estado"] = EstadoRequerimientosSeleccionado.Nombre;
+        Campos["Estado"] = JSON.stringify(EstadoRequerimientosSeleccionado);
         confirmarDialog(() => {
             setLoader(true)
             SetRequerimiento(Campos).then((response: AxiosResponse<any>) => {
@@ -717,18 +717,18 @@ export default function HomePostVenta() {
                 requerimientos = Cabeceras;
                 setRequerimientos(Cabeceras);
                 //PARA ST
-                let abiertos = FiltroData.getAbiertosTipo(response.data, "Servicio Tecnico");
-                let Asginados = FiltroData.getAsignadosTipo(response.data, "Servicio Tecnico");
-                let Soporte = FiltroData.getSoporteTipo(response.data, "Servicio Tecnico");
+                let abiertos = FiltroData.getAbiertosTipo(response.data, `Resuelto`, "Servicio Tecnico");
+                let Asginados = FiltroData.getAsignadosTipo(response.data,"Creado - Asignado", "Servicio Tecnico");
+                let Soporte = FiltroData.getSoporteTipo(response.data,"", "Servicio Tecnico");
                 setCerrados(Cerrados.length.toString());
                 setAsignadosSt(Asginados.length.toString());
                 setAbiertos(abiertos.length.toString());
                 setEnSoporte(Soporte.length.toString())
 
                 //PARA SOPORTE
-                let abiertosSoporte = FiltroData.getAbiertosTipo(response.data, "Soporte");
-                let asignadosSoporte = FiltroData.getAsignadosTipo(response.data, "Soporte");
-                let enSoporteSoporte = FiltroData.getSoporteTipo(response.data, "Soporte");
+                let abiertosSoporte = FiltroData.getAbiertosTipo(response.data,"", "Soporte");
+                let asignadosSoporte = FiltroData.getAsignadosTipo(response.data,"", "Soporte");
+                let enSoporteSoporte = FiltroData.getSoporteTipo(response.data,"", "Soporte");
                 setAbiertosSoporte(abiertosSoporte.length.toString())
                 setAsignadosSoporte(asignadosSoporte.length.toString())
                 setEnSoporteSoporte(enSoporteSoporte.length.toString())
@@ -764,6 +764,7 @@ export default function HomePostVenta() {
             console.log("error", e);
         });
     }
+
     //ESTA FUNCION HACE QUE SE EJECUTE LA TABLA DE LOS VEHICULOS SIN TX
     //SE SACA APARTE PARA PODER MANEJARLO CON UN USESTATE
     const PintarTablaVehiculosSinTX = (data:any[]) =>{
@@ -777,14 +778,15 @@ export default function HomePostVenta() {
            muestraFinal = FiltroDashBoardData.getOrdenados(muestraFinal);
            //Ya consultados los requerimientos sacamos los vehiculos que tienen un requerimiento activo o creado.
            Requerimientos.map((val: any) => {
-               if (val.Estado == "Creado") {
-                   let a = JSON.parse(val.Cabecera);
-                   Vehiculosrequerimientos.push(a[0].assetid);
-               }
+                let estado = (FiltroDashBoardData.EsJson(val.Estado)  ? JSON.parse(val.Estado):val.Estado);
+                if ((estado.label == undefined  ? estado:estado.label) != "Resuelto") {
+                    let a = JSON.parse(val.Cabecera);
+                    Vehiculosrequerimientos.push(a[0].assetid);
+                }
            });
            //Elimino los vehiculos con un requerimiento creado o activo
            Vehiculosrequerimientos.map((item: any) => {
-               let index = muestraFinal.findIndex((element) => element.assetId == item);
+               let index = muestraFinal.findIndex((element) => element.AssetId == item);
                if (index != -1)
                    muestraFinal.splice(index, 1);
            })
