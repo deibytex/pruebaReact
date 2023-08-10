@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap-v5"
-import confirmarDialog from "../../../../../../../_start/helpers/components/ConfirmDialog";
+import confirmarDialog, { errorDialog, successDialog } from "../../../../../../../_start/helpers/components/ConfirmDialog";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import { isError } from "util";
 import { ColumnFiltersState, SortingState, PaginationState } from "@tanstack/react-table";
+import { getConfiguracion, setConfiguracion } from "../../../data/parametrizacionData";
+import { FechaServidor } from "../../../../../../../_start/helpers/Helper";
 
 
 
@@ -15,9 +17,14 @@ type Props = {
 };
 
 export const UpdateRequerimientos: React.FC<Props> = ({ show, handleClose, title }) => {
-    // const { ListaNotifacionId, CorreoId, Correo, TipoCorreo, detalleListas, CorreosTx, setCorreo, setTipoCorreo, setCorreosTx } = useDataCorreosTx();
+    // const { ListaNotifacionId, CorreoId, Correo, tipoCorreo, detalleListas, CorreosTx, setCorreo, settipoCorreo, setCorreosTx } = useDataCorreosTx();
     const [errorRequerimientos, seterrorRequerimientos] = useState<any>("");
-    const [Tipo, setTipo] = useState<any>(0);
+    const [tipo, settipo] = useState<any>(0);
+    const [flujo, setflujo] = useState<any>(0);
+    const [valor, setvalor] = useState("");
+    const [label, setlabel] = useState("");
+
+    const [tipoMovimiento, settipoMovimiento] = useState("");
 
     const [Data, setData] = useState<any[]>([]);
 
@@ -40,34 +47,50 @@ export const UpdateRequerimientos: React.FC<Props> = ({ show, handleClose, title
     [
       {
         accessorKey: 'tipo',
-        header: 'Tipo',
+        header: 'tipo',
         size: 100
       },
       {
         accessorKey: 'label',
-        header: 'Label',
+        header: 'label',
         size: 100
       },
       {
         accessorKey: 'valor',
-        header: 'Valor',
+        header: 'valor',
         size: 100
       },
       {
         accessorKey: 'flujo',
-        header: 'Flujo',
+        header: 'flujo',
         size: 100
       }
 
     ];
 
-    function SelectTipo() {
+      //primer cargue carga userid
+  useEffect(() => {
+    getConfiguracion('1');
+  }, [])
+
+  useEffect(() => {
+
+    getConfiguracion('1').then((response) => {
+      setData(JSON.parse(response.data[0].Configuracion) as any[]);
+      
+      console.log(JSON.parse(response.data[0].Configuracion));
+
+    });
+    
+  }, [])
+
+    function Selecttipo() {
         return (
-            <Form.Select className=" mb-3 " name="tipo" value={Tipo} onChange={(e) => {
+            <Form.Select className=" mb-3 " name="tipo" value={tipo} onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
 
                 //validar con yuli si se puede obtener el key desde aquí                 
-                setTipo(e.currentTarget.value as any);
+                settipo(e.currentTarget.value as any);
             }}>
                 <option value={0}>Selecione tipo</option>
                 <option value={1}>Admin</option>
@@ -80,11 +103,11 @@ export const UpdateRequerimientos: React.FC<Props> = ({ show, handleClose, title
 
     function SelectFlujo() {
         return (
-            <Form.Select className=" mb-3 " name="tipo" value={Tipo} onChange={(e) => {
+            <Form.Select className=" mb-3 " name="tipo" value={flujo} onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
 
                 //validar con yuli si se puede obtener el key desde aquí                 
-                setTipo(e.currentTarget.value as any);
+                setflujo(e.currentTarget.value as any);
             }}>
                 <option value={0}>Selecione flujo</option>
                 <option value={1}>Reabierto</option>
@@ -94,50 +117,72 @@ export const UpdateRequerimientos: React.FC<Props> = ({ show, handleClose, title
         );
     }
 
-    const UpdateRequerimientos = () => {
+    
+
+    const setRequerimientos = (tipo: any) => {
+
         let parametrosRequerimientos: any = {};
+        let movimientos: any = {};
+        let mensaje: any = "";
+        let tipoMovimiento: any = "";
+
+
+       if (tipo == 1) {
+        mensaje = "Se agrega nueva configuración";
+        tipoMovimiento = "Creación";
+       } 
 
         parametrosRequerimientos = {
-            AlertaId: 1,
-            fechaapertura: 2,
-            fechagestion: 3,
-            value: 4,
-            EsCerrado: 5
+            tipo,
+            label,
+            valor,
+            flujo
         };
+
+        movimientos = {
+          fecha: FechaServidor(),
+          usuario: 1,
+          tipo: tipoMovimiento,
+          mensaje
+      };
+
+        console.log('[' + JSON.stringify(movimientos) + ']');
+
         confirmarDialog(() => {
-            // if (title == "Agregar correo") {
-            //     setCorreoTx(Correo, TipoCorreo, ListaNotifacionId).then((response) => {
-            //         successDialog("Operación Éxitosa", "");
-            //         setCorreosTx([...CorreosTx, response.data[0]]);
-            //         handleClose();
-            //     }).catch((error) => {
-            //         errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
-            //     });
-            // }
-            // else {
-            //     UpdateRequerimientossTx(Correo, TipoCorreo, CorreoId).then((response) => {
+            if (title == "Parametrizar Requerimientos") {
+              setConfiguracion('1', '[' + JSON.stringify(parametrosRequerimientos) + ']', '[' + JSON.stringify(movimientos) + ']').then((response) => {
+                    successDialog("Operación Éxitosa", "");
+                    setData([...Data, JSON.parse(JSON.stringify(parametrosRequerimientos))] as any[]);
+                    handleClose();
+                }).catch((error) => {
+                    errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
+                });
+            }
+            else {
+                // setRequerimientossTx(Correo, tipoCorreo, CorreoId).then((response) => {
 
-            //         if (response.statusText == "OK") {
-            //             let correosedit = (CorreosTx as CorreosTx[]).map(function (dato) {
-            //                 if (dato.CorreoTxIdS == CorreoId) {
-            //                     dato.correo = Correo;
-            //                     dato.tipoCorreo = TipoCorreo;
-            //                     dato.TipoEnvio = (detalleListas as DetalleListas[]).filter(lis => lis.DetalleListaId == TipoCorreo)[0].Nombre;
-            //                 }
-            //                 return dato;
-            //             });
-            //             setCorreosTx(correosedit); 
-            //             successDialog("Operación Éxitosa", "");
-            //             handleClose();
-            //         }
-            //         else
-            //             errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
-            //     }).catch((error) => {
-            //         errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
-            //     });
-            // }
+                //     if (response.statusText == "OK") {
+                //         let correosedit = (CorreosTx as CorreosTx[]).map(function (dato) {
+                //             if (dato.CorreoTxIdS == CorreoId) {
+                //                 dato.correo = Correo;
+                //                 dato.tipoCorreo = tipoCorreo;
+                //                 dato.tipoEnvio = (detalleListas as DetalleListas[]).filter(lis => lis.DetalleListaId == tipoCorreo)[0].Nombre;
+                //             }
+                //             return dato;
+                //         });
+                //         setCorreosTx(correosedit); 
+                //         successDialog("Operación Éxitosa", "");
+                //         handleClose();
+                //     }
+                //     else
+                //         errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
+                // }).catch((error) => {
+                //     errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
+                // });
+                console.log('otro');
+            }
 
-        }, title == "Agregar correo" ? `Esta seguro que desea agregar el correo` : `Esta seguro que modificar el correo`
+        }, title == "Agregar configuración" ? `Esta seguro que desea agregar la configuracion` : `Esta seguro que modificar`
             , "Guardar");
 
     };
@@ -155,18 +200,18 @@ export const UpdateRequerimientos: React.FC<Props> = ({ show, handleClose, title
                 <Modal.Body>
                     <div className="row">
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                            <label className="control-label label label-sm  m-3" htmlFor="requerimientos" style={{ fontWeight: 'bold' }}>Tipo:</label>
-                            <SelectTipo />
+                            <label className="control-label label label-sm  m-3" htmlFor="requerimientos" style={{ fontWeight: 'bold' }}>tipo:</label>
+                            <Selecttipo />
                         </div>
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                             <label className="control-label label label-sm  m-3" htmlFor="requerimientos" style={{ fontWeight: 'bold' }}>Label:</label>
-                            <input className="form-control  input input-sm mb-3" placeholder="Ingrese Label" type="text" />
+                            <input className="form-control  input input-sm mb-3" placeholder="Ingrese Label" type="text" value={label}  onChange={(e) => {setlabel(e.target.value);}}/>
                         </div>                        
                     </div>
                     <div className="row">
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                             <label className="control-label label label-sm  m-3" htmlFor="requerimientos" style={{ fontWeight: 'bold' }}>Valor:</label>
-                            <input className="form-control  input input-sm mb-3" placeholder="Ingrese Valor" type="text" />
+                            <input className="form-control  input input-sm mb-3" placeholder="Ingrese Valor" type="text" value={valor}  onChange={(e) => {setvalor(e.target.value);}}/>
                         </div>
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                             <label className="control-label label label-sm  m-3" htmlFor="requerimientos" style={{ fontWeight: 'bold' }}>Flujo:</label>
@@ -224,7 +269,7 @@ export const UpdateRequerimientos: React.FC<Props> = ({ show, handleClose, title
         </Modal.Body>
                 <Modal.Footer>
                     <Button type="button" variant="primary" onClick={() => {
-                        UpdateRequerimientos();
+                        setRequerimientos(1);                        
                     }}>
                         Guardar
                     </Button>
