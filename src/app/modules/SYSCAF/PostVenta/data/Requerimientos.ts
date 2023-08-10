@@ -3,12 +3,17 @@ import { FormatoColombiaDDMMYYY } from "../../../../../_start/helpers/Constants"
 import confirmarDialog, { errorDialog, successDialog } from "../../../../../_start/helpers/components/ConfirmDialog"
 import { Post_GetConsultasDinamicasUser } from "../../../../../_start/helpers/Axios/DWHService"
 import { AxiosResponse } from "axios"
+import { FiltroDashBoardData } from "./PostVentaData"
+import { Usuarios } from "../mockData/indicadores"
 
 const tabReq1 = { icon: 'Equalizer', titulo: "Todos ", subtitulo: "" }
 const tabReq2 = { icon: 'Equalizer', titulo: "Asignados", subtitulo: "" }
+//Soporte
+const tabReq5 = { icon: 'Equalizer', titulo: "No Asignados", subtitulo: "" }
 const tabReq3 = { icon: 'Equalizer', titulo: "Cerradas", subtitulo: "" }
 const tabReq4 = { icon: 'Equalizer', titulo: "Reportes ", subtitulo: "" }
-export const listTabsRequerimientos: any[] = [tabReq1, tabReq2, tabReq3, tabReq4]
+
+export const listTabsRequerimientos: any[] = [tabReq1, tabReq2, tabReq5, tabReq3, tabReq4 ]
 export const fncReporte = [
     {
         name: "Fecha",
@@ -46,23 +51,38 @@ export function DeleteRequerimiento(Datos:any){
     }, params)
 }
 
+//Trae los requerimientos
+export function GetRequerimientos(FechaInicial:any,FechaFinal:any, Perfil:any ){
+    var params: { [id: string]: string | null | undefined; } = {};
+    params["FechaInicial"] = FechaInicial;
+    params["FechaFinal"] = FechaFinal;
+    params["PerfilId"] = String(Perfil);
+    return Post_GetConsultasDinamicasUser({
+        NombreConsulta: "GetRequerimientosInterfaz", Clase: "GOIQueryHelper",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, params)
+}
 //======================================================================================================================================
 export const FiltroData = {
     // Indicadores asignados
-    getAsignados: (data: any[]) => {
-        return data.filter(f => ["Asignado Soporte", "Asignado Agente", "Asignado ST"].includes((f.Estado)));
+    getAsignados: (data: any[],Estado: any) => {
+        return data.filter(f => [Estado].includes(((FiltroDashBoardData.EsJson(f.Estado)  == true ? JSON.parse(f.Estado).label : f.Estado))));
+    },
+    getNoAsignados: (data: any[],Estado: any) => {
+        return data.filter(f =>[...Estado.split(",")].includes( ((FiltroDashBoardData.EsJson(f.Estado)  == true ? JSON.parse(f.Estado).label : f.Estado))));
     },
     //indicadores de cerrados
-    getCerrados: (data: any[]) => {
-        return data.filter(f => ["Cerrado"].includes((f.Estado)));
+    getCerrados: (data: any[],Estado: any) => {
+        return data.filter(f => [Estado].includes(((FiltroDashBoardData.EsJson(f.Estado)  == true ? JSON.parse(f.Estado).label : f.Estado))));
     },
     //Indicador de abiertos
-    getAbiertos: (data: any[]) => {
-        return data.filter(f => ["Creado", "Reabierto"].includes((f.Estado)));
+    getAbiertos: (data: any[],Estado: any) => {
+        return data.filter(f => [Estado].includes(((FiltroDashBoardData.EsJson(f.Estado)  == true ? JSON.parse(f.Estado).label : f.Estado))));
     },
     //Indicador de soporte
-    getSoporte: (data: any[]) => {
-        return data.filter(f => ["Soporte", "En Soporte", "Rev Soporte"].includes((f.Estado)));
+    getSoporte: (data: any[],Estado: any) => {
+        return data.filter(f => [Estado].includes(((FiltroDashBoardData.EsJson(f.Estado)  == true ? JSON.parse(f.Estado).label : f.Estado))));
     },
     //Es el reporte total
     getReporte: function (data: any[]) {
@@ -151,22 +171,23 @@ export const FiltroData = {
         //retorno el array con los elementos a mostrar
         return l;
     },
-    getAsignadosTipo: (data: any[], Tipo:any) => {
-        return data.filter(f => ["Asignado Soporte", "Asignado Agente", "Asignado ST"].includes((f.Estado)) && f.Tipo == Tipo);
+    getAsignadosTipo: (data: any[], Estado:any, Tipo:any) => {
+        return data.filter(f => [Estado].includes((f.Estado)) && f.Tipo == Tipo);
     },
-    getAbiertosTipo: (data: any[], Tipo:any) => {
-        return data.filter(f => ["Creado", "Reabierto"].includes((f.Estado)) && f.Tipo == Tipo);
+    getAbiertosTipo: (data: any[], Estado:any,Tipo:any) => {
+        return data.filter(f => ![Estado].includes((f.Estado)) && f.Tipo == Tipo);
     },
      //indicadores de cerrados
-     getCerradosTipo: (data: any[], Tipo:any) => {
-        return data.filter(f => ["Cerrado"].includes((f.Estado)) && f.Tipo == Tipo);
+     getCerradosTipo: (data: any[],Estado:any, Tipo:any) => {
+        return data.filter(f => [Estado].includes((f.Estado)) && f.Tipo == Tipo);
     },
      //Indicador de soporte
-     getSoporteTipo: (data: any[], Tipo:any) => {
-        return data.filter(f => ["Soporte, En Soporte, Rev Soporte"].includes((f.Estado)) && f.Tipo == Tipo);
+     getSoporteTipo: (data: any[],Estado:any, Tipo:any) => {
+        return data.filter(f => [Estado].includes((f.Estado)) && f.Tipo == Tipo);
     },
     getIsActivoMod:(row:any, estado:any) =>{
-        if(row.original.Estado != estado)
+        let Estado =  (FiltroDashBoardData.EsJson(row.original.Estado)  ? JSON.parse(row.original.Estado):row.original.Estado);
+        if((Estado.label == undefined  ? Estado:Estado.label) != estado)
             return false;
         else
             return true;
@@ -178,6 +199,30 @@ export const FiltroData = {
       }
         
         return true;
+    },
+    getIsUsuarioSoporte:(Usuario:any) =>{
+        let Existe = Usuarios.filter((f:any) =>f.UserId == Usuario);
+       return (Existe.length != 0 ? true:false);
+    },
+    getFiltroGestor : (data:any[], Usuario:any) =>{
+        let UsuarioFound = Usuarios.filter((f:any) =>f.UserId == Usuario);
+        if(UsuarioFound.length != 0){
+            if(UsuarioFound[0].EsGestor ==  true){
+                return data
+            }
+            else
+                return data.filter((val:any) =>{
+                    let Estado =  (FiltroDashBoardData.EsJson(val.Estado)  == true ? JSON.parse(val.Estado).label : val.Estado);
+                    if(Estado == "Creado" || Estado == "Creado - Sin Asignar" || val.UsuarioId == Usuario){
+                        return val;
+                    }
+                 
+                })
+        }
+    },
+    getEstadosJson : (Estado:any) =>{
+        let estado = (FiltroDashBoardData.EsJson(Estado)  == true ? JSON.parse(Estado) : Estado);
+        return(estado.label == undefined ? estado : estado.label);
     }
 };
 // cuando se usa un filtro permite traer el unico valor de todas los valores del array

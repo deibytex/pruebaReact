@@ -130,3 +130,64 @@ export const Usuarios : any[] =
     {"UserId":"b872ff45-01fe-43b0-9417-07c9e128c2a1","Nombres":"Deiby Johan Lopez ","EsGestor":true}
 ]
 
+export const EstadosRequerimientos : any[] =
+[
+    {
+        "tipo": "admin",
+        "label": "Creado",
+        "valor": "1",
+        "flujo": "[3,6]",
+        "activo": 1
+    },
+    {
+        "tipo": "admin",
+        "label": "Reabierto",
+        "valor": "2",
+        "flujo": "[4]",
+        "activo" : 1
+    },
+    {
+        "tipo": "soporte",
+        "label": "Creado - Sin Asignar",
+        "valor": "3",
+        "flujo": "[4]",
+        "activo" : 1
+    },
+    {
+        "tipo": "soporte",
+        "label": "Creado - Asignado",
+        "valor": "4",
+        "flujo": "[5]",
+        "activo" : 1
+    },
+    {
+        "tipo": "soporte",
+        "label": "En Progreso",
+        "valor": "5",
+        "flujo": "[8]"
+    },{
+        "tipo": "admin",
+        "label": "Eliminado",
+        "valor": "6",
+        "flujo": "[]"
+    },
+    {
+        "tipo": "admin",
+        "label": "En Soporte",
+        "valor": "7",
+        "flujo": "[]"
+    },
+    {
+        "tipo": "admin",
+        "label": "Resuelto",
+        "valor": "8",
+        "flujo": "[2]"
+    },
+    {
+        "tipo": "admin",
+        "label": "Asignado - Agente Soporte",
+        "valor": "9",
+        "flujo": "[8]"
+    }
+    
+]
