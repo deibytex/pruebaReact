@@ -1,7 +1,7 @@
 import BlockUi from "@availity/block-ui";
 import { useEffect, useState } from "react";
 import { PageTitle } from "../../../../../../_start/layout/core";
-import { DeleteRequerimiento, FiltroData, GetRequerimientos, RequerimientoFunciones, SetNotificaciones, SetRequerimiento, fncReporte, listTabsRequerimientos } from "../../data/Requerimientos";
+import { DeleteRequerimiento, FiltroData, GetRequerimientos, SetNotificaciones, SetRequerimiento, listTabsRequerimientos } from "../../data/Requerimientos";
 import { DrawDynamicIconMuiMaterial } from "../../../../../../_start/helpers/components/IconsMuiDynamic";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import moment from "moment";
@@ -11,15 +11,15 @@ import { FiltroDashBoardData } from "../../data/PostVentaData";
 import { AxiosResponse } from "axios";
 import { DateRangePicker, useToaster, Notification } from "rsuite";
 import { Button, Form, Modal } from "react-bootstrap-v5";
-import { formatSimpleJsonColombia, locateFormatPercentNDijitos } from "../../../../../../_start/helpers/Helper";
-import { Box, IconButton, Tooltip, Typography } from "@mui/material";
-import { Assignment, Check, DeckTwoTone, Delete, Details, DetailsRounded, DetailsSharp, Edit } from "@mui/icons-material";
-import { DescargarExcel, DescargarExcelPersonalizado } from "../../../../../../_start/helpers/components/DescargarExcel";
+import { locateFormatPercentNDijitos } from "../../../../../../_start/helpers/Helper";
+import { Box, IconButton, Tooltip } from "@mui/material";
+import { Assignment,  DeckTwoTone, Delete, Edit } from "@mui/icons-material";
+import { DescargarExcel} from "../../../../../../_start/helpers/components/DescargarExcel";
 import { EstadosRequerimientos, Usuarios } from "../../mockData/indicadores";
 import { useSelector } from "react-redux";
 import { UserModelSyscaf } from "../../../../auth/models/UserModel";
 import { RootState } from "../../../../../../setup";
-import confirmarDialog, { confirmarDialogText, errorDialog, successDialog } from "../../../../../../_start/helpers/components/ConfirmDialog";
+import confirmarDialog, { confirmarDialogText, successDialog } from "../../../../../../_start/helpers/components/ConfirmDialog";
 export default function Creacion() {
     const toaster = useToaster();
 
@@ -1227,8 +1227,6 @@ export default function Creacion() {
                 </Modal.Header>
                 <Modal.Body>
                     <div className="row">
-                        {/* <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
-                        </div> */}
                         <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 text-center">
                             <div className="row">
                                 <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
@@ -1281,6 +1279,16 @@ export default function Creacion() {
                 </Modal.Header>
                 <Modal.Body>
                     <div className="row">
+                    <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 text-center">
+                            <div className="row">
+                                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                                    <span className="mx-4 fs-6 fw-bolder">Cliente: </span><span className="mx-4 fs-5 text-muted">{Consecutivo}</span>
+                                </div>
+                                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                                    <span className="mx-4 fs-6 fw-bolder">Creado por: </span><span className="mx-4 fs-6 text-muted">{Admin.Administrador}</span>
+                                </div>
+                            </div>
+                        </div>
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                             <div className="form-control-sm">
                                 <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Agente: </label>
