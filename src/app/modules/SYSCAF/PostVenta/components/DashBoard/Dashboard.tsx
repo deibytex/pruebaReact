@@ -18,7 +18,18 @@ import { Generico } from "./Indicadores/Generico";
 import { FiltroData } from "../../data/Requerimientos";
 import { PageTitle } from "../../../../../../_start/layout/core";
 import './style/dahsboard.css';
+import { useToaster, Notification } from "rsuite";
 export default function HomePostVenta() {
+    const toaster = useToaster();
+
+    const message = (type: any, titulo: string, mensaje: React.ReactNode) => {
+      return (<Notification className="bg-light-danger" type={type} header={titulo}
+        closable duration={10000}>
+        {mensaje}
+      </Notification>)
+    }
+
+    
     //Esta es para tomar la cantidad de muestra de vehiculos de transmision.
     const MuestraTX = 1000;
     const [show, setShow] = useState(false);
@@ -33,7 +44,7 @@ export default function HomePostVenta() {
     const [dataEmpresas, setdataEmpresas] = useState<any[]>([]);
     const [dataEmpresasTabla, setdataEmpresasTabla] = useState<any[]>([]);
     const [TipoRequerimientos, setTipoRequerimientos] = useState<any[]>([]);
-    const [TipoRequerimientosSeleccionado, setTipoRequerimientosSeleccionado] = useState<any>({ Nombre: "", Value: "" });
+    const [TipoRequerimientosSeleccionado, setTipoRequerimientosSeleccionado] = useState<any>({ Nombre: "", Valor: "" });
     const [EstadoRequerimientos, setEstadoRequerimientos] = useState<any[]>([]);
     const [EstadoRequerimientosSeleccionado, setEstadoRequerimientosSeleccionado] = useState<any>({ "label": "Creado", "valor": "1" });
     const [Observaciones, setObservaciones] = useState<string>("");
@@ -65,13 +76,14 @@ export default function HomePostVenta() {
 
         {
             administrador: "",
-            UsuarioId: "",
+            UsuarioAdministradorId:"",
             assetid: "",
             clienteid: "",
             registrationNumber: "",
             description: "",
             nombrecliente: "",
-            agente: ""
+            agente: "",
+            UsuarioId: "",
         }
     );
     var Indicadores = {
@@ -154,13 +166,14 @@ export default function HomePostVenta() {
         if (data.estado == "Operando Normalmente") {
             setCabecera({
                 administrador: vUser.Nombres,
-                UsuarioId: vUser.Id,
+                UsuarioAdministradorId:vUser.Id,
                 assetid: String(data.AssetId == undefined ? data.assetId : data.AssetId),
                 clienteid: String(data.ClienteId == undefined ? data.clienteIdS : data.ClienteId),
                 registrationNumber: data.registrationNumber,
                 description: data.assetsDescription,
                 nombrecliente: (data.clienteNombre == undefined ? data.clientenNombre : data.clienteNombre),
-                agente: vUser.Nombres
+                agente: null,
+                UsuarioId: null,
             });
             setShowr(true);
             setShow(false);
@@ -171,13 +184,14 @@ export default function HomePostVenta() {
                 SetEstadoSyscaf((data.assetId == undefined ? data.AssetId.toString() : data.assetId.toString()), "7").then((response: AxiosResponse) => {
                     setCabecera({
                         administrador: vUser.Nombres,
-                        UsuarioId: vUser.Id,
+                        UsuarioAdministradorId : vUser.Id,
                         assetid: (data.AssetId == undefined ? data.assetId : data.AssetId),
                         clienteid: (data.ClienteId == undefined ? data.clienteIdS : data.ClienteId),
                         registrationNumber: data.registrationNumber,
                         description: data.assetsDescription,
                         nombrecliente: (data.clientenNombre == undefined ? data.clienteNombre : data.clientenNombre),
-                        agente: vUser.Nombres
+                        agente: null,
+                        UsuarioId: null,
                     });
                     setShowr(true);
                     setShow(false);
@@ -230,6 +244,20 @@ export default function HomePostVenta() {
     }
     //Se guardan los requirimientos
     const EnviarRequerimiento = () => {
+        if(TipoRequerimientosSeleccionado.Valor == "" || TipoRequerimientosSeleccionado.Valor == undefined || TipoRequerimientosSeleccionado.Valor == null)
+        {
+            toaster.push(message('error', "Creación requerimiento", "El tipo es requerido"), {
+                placement: 'topCenter'
+              });
+            return false;
+        }
+        if(Observaciones == "" || Observaciones == undefined || Observaciones == null)
+        {
+            toaster.push(message('error', "Creación requerimiento", "Ingrese una observación"), {
+                placement: 'topCenter'
+              });
+            return false;
+        }
         let Obervaciones = [{ fecha: moment().format(formatSimpleJsonColombia), observacion: Observaciones, usuario: vUser.Nombres, estado: EstadoRequerimientosSeleccionado.Nombre }]
         let Campos = {};
         Campos["Tipo"] = TipoRequerimientosSeleccionado.Nombre;

@@ -136,7 +136,7 @@ export const EstadosRequerimientos : any[] =
         "tipo": "admin",
         "label": "Creado",
         "valor": "1",
-        "flujo": "[3,6]",
+        "flujo": "[3,4,6]",
         "activo": 1
     },
     {
@@ -148,23 +148,23 @@ export const EstadosRequerimientos : any[] =
     },
     {
         "tipo": "soporte",
-        "label": "Creado - Sin Asignar",
+        "label": "Soporte - Sin Asignar",
         "valor": "3",
         "flujo": "[4]",
         "activo" : 1
     },
     {
         "tipo": "soporte",
-        "label": "Creado - Asignado",
+        "label": "Soporte - Asignado",
         "valor": "4",
         "flujo": "[5]",
         "activo" : 1
     },
     {
         "tipo": "soporte",
-        "label": "En Progreso",
+        "label": "Soporte - en progreso",
         "valor": "5",
-        "flujo": "[8]"
+        "flujo": "[7,8]"
     },{
         "tipo": "admin",
         "label": "Eliminado",
@@ -172,22 +172,16 @@ export const EstadosRequerimientos : any[] =
         "flujo": "[]"
     },
     {
-        "tipo": "admin",
-        "label": "En Soporte",
+        "tipo": "st",
+        "label": "ST Asignado",
         "valor": "7",
         "flujo": "[]"
     },
     {
-        "tipo": "admin",
-        "label": "Resuelto",
+        "tipo": "soporte",
+        "label": "Soporte - Resuelto",
         "valor": "8",
         "flujo": "[2]"
     },
-    {
-        "tipo": "admin",
-        "label": "Asignado - Agente Soporte",
-        "valor": "9",
-        "flujo": "[8]"
-    }
     
 ]

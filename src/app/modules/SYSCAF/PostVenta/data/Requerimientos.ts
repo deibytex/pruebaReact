@@ -1,10 +1,10 @@
 import moment from "moment"
 import { FormatoColombiaDDMMYYY } from "../../../../../_start/helpers/Constants"
-import confirmarDialog, { errorDialog, successDialog } from "../../../../../_start/helpers/components/ConfirmDialog"
+import confirmarDialog, { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog"
 import { Post_GetConsultasDinamicasUser } from "../../../../../_start/helpers/Axios/DWHService"
-import { AxiosResponse } from "axios"
 import { FiltroDashBoardData } from "./PostVentaData"
 import { Usuarios } from "../mockData/indicadores"
+import { Post_getconsultadinamicas } from "../../../../../_start/helpers/Axios/CoreService"
 
 const tabReq1 = { icon: 'Equalizer', titulo: "Todos ", subtitulo: "" }
 const tabReq2 = { icon: 'Equalizer', titulo: "Asignados", subtitulo: "" }
@@ -63,26 +63,40 @@ export function GetRequerimientos(FechaInicial:any,FechaFinal:any, Perfil:any ){
         RecordsPorPagina: null
     }, params)
 }
+//Notifica
+export function SetNotificaciones(Datos:any){
+    var params: { [id: string]: string | null | undefined; } = {};
+    params["UsuarioId"] = Datos.UsuarioId;
+    params["RequerimientoId"] = String(Datos.RequerimientoId);
+    params["Descripcion"] = Datos.Descripcion;
+    params["NotificarCorreo"] = Datos.NotificarCorreo;
+    params["NotificarPortal"] = Datos.NotificarPortal;
+    return Post_getconsultadinamicas({
+        NombreConsulta: "SetNotificacionesRequerimiento", Clase: "GOIQueryHelper",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, params)
+}
 //======================================================================================================================================
 export const FiltroData = {
     // Indicadores asignados
     getAsignados: (data: any[],Estado: any) => {
-        return data.filter(f => [Estado].includes(((FiltroDashBoardData.EsJson(f.Estado)  == true ? JSON.parse(f.Estado).label : f.Estado))));
+        return data.filter(f => [...Estado.split(",")].includes(((FiltroDashBoardData.EsJson(f.Estado)  == true ? JSON.parse(f.Estado).label : f.Estado))));
     },
     getNoAsignados: (data: any[],Estado: any) => {
         return data.filter(f =>[...Estado.split(",")].includes( ((FiltroDashBoardData.EsJson(f.Estado)  == true ? JSON.parse(f.Estado).label : f.Estado))));
     },
     //indicadores de cerrados
     getCerrados: (data: any[],Estado: any) => {
-        return data.filter(f => [Estado].includes(((FiltroDashBoardData.EsJson(f.Estado)  == true ? JSON.parse(f.Estado).label : f.Estado))));
+        return data.filter(f => [...Estado.split(",")].includes(((FiltroDashBoardData.EsJson(f.Estado)  == true ? JSON.parse(f.Estado).label : f.Estado))));
     },
     //Indicador de abiertos
     getAbiertos: (data: any[],Estado: any) => {
-        return data.filter(f => [Estado].includes(((FiltroDashBoardData.EsJson(f.Estado)  == true ? JSON.parse(f.Estado).label : f.Estado))));
+        return data.filter(f => [...Estado.split(",")].includes(((FiltroDashBoardData.EsJson(f.Estado)  == true ? JSON.parse(f.Estado).label : f.Estado))));
     },
     //Indicador de soporte
     getSoporte: (data: any[],Estado: any) => {
-        return data.filter(f => [Estado].includes(((FiltroDashBoardData.EsJson(f.Estado)  == true ? JSON.parse(f.Estado).label : f.Estado))));
+        return data.filter(f => [...Estado.split(",")].includes(((FiltroDashBoardData.EsJson(f.Estado)  == true ? JSON.parse(f.Estado).label : f.Estado))));
     },
     //Es el reporte total
     getReporte: function (data: any[]) {
@@ -172,18 +186,18 @@ export const FiltroData = {
         return l;
     },
     getAsignadosTipo: (data: any[], Estado:any, Tipo:any) => {
-        return data.filter(f => [Estado].includes((f.Estado)) && f.Tipo == Tipo);
+        return data.filter(f => [...Estado.split(",")].includes((f.Estado)) && f.Tipo == Tipo);
     },
     getAbiertosTipo: (data: any[], Estado:any,Tipo:any) => {
-        return data.filter(f => ![Estado].includes((f.Estado)) && f.Tipo == Tipo);
+        return data.filter(f => ![...Estado.split(",")].includes((f.Estado)) && f.Tipo == Tipo);
     },
      //indicadores de cerrados
      getCerradosTipo: (data: any[],Estado:any, Tipo:any) => {
-        return data.filter(f => [Estado].includes((f.Estado)) && f.Tipo == Tipo);
+        return data.filter(f => [...Estado.split(",")].includes((f.Estado)) && f.Tipo == Tipo);
     },
      //Indicador de soporte
      getSoporteTipo: (data: any[],Estado:any, Tipo:any) => {
-        return data.filter(f => [Estado].includes((f.Estado)) && f.Tipo == Tipo);
+        return data.filter(f => [...Estado.split(",")].includes((f.Estado)) && f.Tipo == Tipo);
     },
     getIsActivoMod:(row:any, estado:any) =>{
         let Estado =  (FiltroDashBoardData.EsJson(row.original.Estado)  ? JSON.parse(row.original.Estado):row.original.Estado);
