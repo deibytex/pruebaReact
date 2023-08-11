@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap-v5"
 import confirmarDialog from "../../../../../../../_start/helpers/components/ConfirmDialog";
+import { Box, IconButton, Tooltip } from "@mui/material";
+import { Delete, Update } from "@mui/icons-material";
+import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
+import { MRT_Localization_ES } from "material-react-table/locales/es";
+import { isError } from "util";
+import { ColumnFiltersState, SortingState, PaginationState } from "@tanstack/react-table";
 
 
 
@@ -14,6 +20,57 @@ export const UpdateDLP: React.FC<Props> = ({ show, handleClose, title }) => {
     // const { ListaNotifacionId, CorreoId, Correo, TipoCorreo, detalleListas, CorreosTx, setCorreo, setTipoCorreo, setCorreosTx } = useDataCorreosTx();
     const [errorDLP, seterrorDLP] = useState<any>("");
     const [Tipo, setTipo] = useState<any>(0);
+    const [rowCount, setRowCount] = useState(0);
+    const [Data, setData] = useState<any[]>([]);
+    
+
+      //table state
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [globalFilter, setGlobalFilter] = useState('');
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRefetching, setIsRefetching] = useState(false);
+
+  let listadoCampos: MRT_ColumnDef<any>[] =
+
+  [
+    {
+      accessorKey: 'Caterogia',
+      header: 'Caterogia',
+      size: 100
+    },
+    {
+      accessorKey: 'label',
+      header: 'label',
+      size: 100
+    },
+    {
+      accessorKey: 'tipo',
+      header: 'tipo',
+      size: 100
+    },
+    {
+      accessorKey: 'observaciones',
+      header: 'observaciones',
+      size: 100
+    },
+    {
+      accessorKey: 'Valores',
+      header: 'Valores',
+      size: 100
+    },
+    {
+      accessorKey: 'Obligatorio',
+      header: 'Obligatorio',
+      size: 100
+    }
+
+  ];
 
     function SelectCategoria() {
         return (
@@ -121,19 +178,10 @@ export const UpdateDLP: React.FC<Props> = ({ show, handleClose, title }) => {
                     </div>
                     <div className="row">
 
-                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                    <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                             <label className="control-label label label-sm  m-3" htmlFor="requerimientos" style={{ fontWeight: 'bold' }}>Valores:</label>
-                            <div className="">
-                                <input className=" m-3"
-                                    type="checkbox"
-                                    checked={true}
-                                    onChange={(e) =>
-                                        console.log(e)
-                                        // setGeneraIMG(e.target.checked)
-                                    }
-                                />
-                            </div>
-                        </div>
+                            <input className="form-control  input input-sm mb-3" placeholder="Ingrese Valor" type="text" />
+                        </div>   
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                             <label className="control-label label label-sm  m-3" htmlFor="requerimientos" style={{ fontWeight: 'bold' }}>Es Obligatorio:</label>
                             <div className="">
@@ -151,6 +199,81 @@ export const UpdateDLP: React.FC<Props> = ({ show, handleClose, title }) => {
 
                     
                 </Modal.Body>
+                <Modal.Body>
+          <div>
+            <MaterialReactTable
+              localization={MRT_Localization_ES}
+              displayColumnDefOptions={{
+                'mrt-row-actions': {
+                  muiTableHeadCellProps: {
+                    align: 'center',
+                  },
+                  size: 120,
+                },
+              }}
+              columns={listadoCampos}
+              data={Data}
+              // editingMode="modal" //default         
+              enableTopToolbar={false}
+              enableColumnOrdering
+              enableEditing
+              enablePagination={false}
+              // enableEditing
+              /* onEditingRowSave={handleSaveRowEdits}
+                  onEditingRowCancel={handleCancelRowEdits}*/
+              muiToolbarAlertBannerProps={
+                isError
+                  ? {
+                    color: 'error',
+                    children: 'Error al cargar información',
+                  }
+                  : undefined
+              }
+              onColumnFiltersChange={setColumnFilters}
+              onGlobalFilterChange={setGlobalFilter}
+              onPaginationChange={setPagination}
+              onSortingChange={setSorting}
+              rowCount={rowCount}
+
+              state={{
+                columnFilters,
+                globalFilter,
+                isLoading,
+                pagination,
+                showAlertBanner: isError,
+                showProgressBars: isRefetching,
+                sorting,
+              }}
+
+              renderRowActions={({ row, table }) => (
+                <>
+                    <Box sx={{ display: 'flex', gap: '1rem' }}>
+                        <Tooltip arrow placement="left" title="modificar">
+                            <IconButton
+                                onClick={() => {
+                                    // modalSetCorreo(row.original.CorreoTxIdS, row.original.tipoCorreo, row.original.correo);
+                                }}
+                            >
+                                <Update />
+                            </IconButton>
+                        </Tooltip>
+
+                        <Tooltip arrow placement="left" title="eliminar">
+                            <IconButton
+                                onClick={() => {
+                                    // deleteCorreo(row);
+                                }}
+                            >
+                                <Delete />
+                            </IconButton>
+                        </Tooltip>
+                    </Box>
+                </>
+            )
+            }
+            />
+          </div>
+        </Modal.Body>
                 <Modal.Footer>
                     <Button type="button" variant="primary" onClick={() => {
                         updateCorreo();

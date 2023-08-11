@@ -91,6 +91,36 @@ export default function Parametrizacion() {
                             </div>
                         </a>
                     </div>
+                    <div className="col-sm-4">
+                        <a
+                            onClick={showModal3}
+                            className="card card-custom bg-light-success hoverable shadow-none min-h-125px mb-5"
+                        >
+                            <div className="card-body d-flex flex-column flex-center text-center">
+                                <h3 className="fs-3 mb-2 text-dark fw-bolder">
+                                    Grupo
+                                </h3>
+                                <p className="mb-0 text-gray-600">
+                                    Soporte
+                                </p>
+                            </div>
+                        </a>
+                    </div>
+                    <div className="col-sm-4">
+                        <a
+                            onClick={showModal3}
+                            className="card card-custom bg-light-success hoverable shadow-none min-h-125px mb-5"
+                        >
+                            <div className="card-body d-flex flex-column flex-center text-center">
+                                <h3 className="fs-3 mb-2 text-dark fw-bolder">
+                                    Grupo
+                                </h3>
+                                <p className="mb-0 text-gray-600">
+                                    ST
+                                </p>
+                            </div>
+                        </a>
+                    </div>
                     {/* end::Row */}
                 </div>
             </div>
