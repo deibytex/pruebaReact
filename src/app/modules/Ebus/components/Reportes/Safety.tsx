@@ -591,7 +591,7 @@ export default function ReporteSafety() {
         let sumScores = 0;
         let SumDistancia = 0;
 
-
+       
         Object.entries(agrupadofecha).map((elem: any) => {
 
             labels.push(elem[0]);
