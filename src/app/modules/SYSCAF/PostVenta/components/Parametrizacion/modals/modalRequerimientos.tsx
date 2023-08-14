@@ -7,9 +7,11 @@ import { isError } from "util";
 import { ColumnFiltersState, SortingState, PaginationState } from "@tanstack/react-table";
 import { getConfiguracion, setConfiguracion } from "../../../data/parametrizacionData";
 import { FechaServidor } from "../../../../../../../_start/helpers/Helper";
-import { tipoRequerimientos } from "../../../mockData/parametrizacion";
 import { Box, IconButton, Tooltip } from "@mui/material";
 import { Delete, Update } from "@mui/icons-material";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../../../../setup";
+import { UserModelSyscaf } from "../../../../../auth/models/UserModel";
 
 
 
@@ -20,13 +22,37 @@ type Props = {
 };
 
 export const UpdateRequerimientos: React.FC<Props> = ({ show, handleClose, title }) => {
-  // const { ListaNotifacionId, CorreoId, Correo, tipoCorreo, detalleListas, CorreosTx, setCorreo, settipoCorreo, setCorreosTx } = useDataCorreosTx();
+
+  const isAuthorized = useSelector<RootState>(
+    ({ auth }) => auth.user
+  );
+
+  const model = (isAuthorized as UserModelSyscaf);
+ 
   const [errorRequerimientos, seterrorRequerimientos] = useState<any>("");
-  const [tipo, settipo] = useState<any>(0);
-  const [flujo, setflujo] = useState<any>(0);
+  const [tipo, settipo] = useState("");
+  const [flujo, setflujo] = useState("");
   const [valor, setvalor] = useState("");
   const [label, setlabel] = useState("");
+  const [labelsinEditar, setlabelsinEditar] = useState("");
 
+  const [showModal, setshowModal] = useState(false);
+
+  const handleClose2 = () => {
+    settituloModalParametrizacion('');
+    settipo("");
+    setflujo("");
+    setlabel("");
+    setvalor("");
+    setshowModal(false);
+  };
+
+  const showModals = () => {
+    settituloModalParametrizacion('Editar Requerimientos')
+    setshowModal(true);
+  }
+
+  const [tituloModalParametrizacion, settituloModalParametrizacion] = useState('');
   const [Data, setData] = useState<any[]>([]);
 
   //table state
@@ -69,16 +95,14 @@ export const UpdateRequerimientos: React.FC<Props> = ({ show, handleClose, title
 
     ];
 
-  //primer cargue carga userid
-  useEffect(() => {
-    getConfiguracion('1');
-  }, [])
+
 
   useEffect(() => {
 
     getConfiguracion('1').then((response) => {
-      console.log(response.data[0]);
-      setData(JSON.parse(response.data[0].Configuracion) as any[]);
+
+      JSON.parse(response.data[0].Configuracion) ? setData(JSON.parse(response.data[0].Configuracion) as any[])
+        : setData([]);
 
     });
 
@@ -89,19 +113,14 @@ export const UpdateRequerimientos: React.FC<Props> = ({ show, handleClose, title
       <Form.Select className=" mb-3 " name="tipo" value={tipo} onChange={(e) => {
         // buscamos el objeto completo para tenerlo en el sistema
 
-        //validar con yuli si se puede obtener el key desde aquí                 
+
         settipo(e.currentTarget.value as any);
       }}>
         <option value={0}>Selecione tipo</option>
-        {(JSON.parse(JSON.stringify(tipoRequerimientos))).map((cli: any) => {
+        <option value={'Admin'}>Admin</option>
+        <option value={'Soporte'}>Soporte</option>
+        <option value={'ST'}>ST</option>
 
-          return (
-            <option key={cli.valor} value={cli.valor
-            }>
-              {cli.nombre}
-            </option>
-          );
-        })}
 
       </Form.Select>
     );
@@ -116,10 +135,11 @@ export const UpdateRequerimientos: React.FC<Props> = ({ show, handleClose, title
         setflujo(e.currentTarget.value as any);
       }}>
         <option value={0}>Selecione flujo</option>
+
         {(JSON.parse(JSON.stringify(Data))).map((cli: any) => {
 
           return (
-            <option key={cli.valor} value={cli.valor
+            <option key={cli.label} value={cli.label
             }>
               {cli.label}
             </option>
@@ -130,6 +150,21 @@ export const UpdateRequerimientos: React.FC<Props> = ({ show, handleClose, title
     );
   }
 
+  const modalSetParametrizacion = (row: any) => {
+
+    setlabelsinEditar(row.label);
+    settipo(row.tipo);
+    setlabel(row.label);
+    setvalor(row.valor);
+    setflujo(row.flujo);
+    showModals();
+  }
+
+  const deleteParametrizacion = (row: any) => {
+
+    setlabelsinEditar(row.label);
+    setRequerimientos("3");
+  }
 
 
   const setRequerimientos = (tipoModificacion: any) => {
@@ -140,9 +175,17 @@ export const UpdateRequerimientos: React.FC<Props> = ({ show, handleClose, title
     let tipoMovimiento: any = "";
 
 
-    if (tipoModificacion == 1) {
+    if (tipoModificacion == "1") {
       mensaje = "Se agrega nueva configuración";
       tipoMovimiento = "Creación";
+    }
+    else if (tipoModificacion == "2") {
+      mensaje = "Se edita configuración";
+      tipoMovimiento = "Edición";
+    }
+    else{
+      mensaje = "Se elimina configuración";
+      tipoMovimiento = "Eliminacion";
     }
 
     parametrosRequerimientos = {
@@ -152,53 +195,62 @@ export const UpdateRequerimientos: React.FC<Props> = ({ show, handleClose, title
       flujo
     };
 
+    setlabelsinEditar(label);
+
     movimientos = {
       fecha: FechaServidor(),
-      usuario: 1,
+      usuario: model.Nombres,
       tipo: tipoMovimiento,
       mensaje
     };
 
-
     confirmarDialog(() => {
-      if (title == "Parametrizar Requerimientos") {
-        setConfiguracion('1', '[' + JSON.stringify(parametrosRequerimientos) + ']', '[' + JSON.stringify(movimientos) + ']').then((response) => {
+      if (tipoModificacion == "1") {
+        setConfiguracion('1', '[' + JSON.stringify(parametrosRequerimientos) + ']', '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
           successDialog("Operación Éxitosa", "");
           setData([...Data, JSON.parse(JSON.stringify(parametrosRequerimientos))] as any[]);
-          handleClose();
-          settipo(0);
-          setflujo(0);
+          settipo("");
+          setflujo("");
           setlabel("");
           setvalor("");
         }).catch((error) => {
           errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
         });
       }
-      else {
-        // setRequerimientossTx(Correo, tipoCorreo, CorreoId).then((response) => {
+      else if (tipoModificacion == "2" || tipoModificacion == "3"){
+        let conf = Data.filter(lis => lis.label != labelsinEditar);
+        
 
-        //     if (response.statusText == "OK") {
-        //         let correosedit = (CorreosTx as CorreosTx[]).map(function (dato) {
-        //             if (dato.CorreoTxIdS == CorreoId) {
-        //                 dato.correo = Correo;
-        //                 dato.tipoCorreo = tipoCorreo;
-        //                 dato.tipoEnvio = (detalleListas as DetalleListas[]).filter(lis => lis.DetalleListaId == tipoCorreo)[0].Nombre;
-        //             }
-        //             return dato;
-        //         });
-        //         setCorreosTx(correosedit); 
-        //         successDialog("Operación Éxitosa", "");
-        //         handleClose();
-        //     }
-        //     else
-        //         errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
-        // }).catch((error) => {
-        //     errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
-        // });
-        console.log('otro');
+        console.log(conf);
+        console.log(labelsinEditar);
+
+        parametrosRequerimientos = {
+          tipo,
+          label,
+          valor,
+          flujo
+        };
+
+        if (tipoModificacion == "2")
+        conf.push(parametrosRequerimientos);
+       
+     
+
+        setConfiguracion('1', JSON.stringify(conf), '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
+          successDialog("Operación Éxitosa", "");
+          setData(JSON.parse(JSON.stringify(conf)) as any[]);
+          settipo("");
+          setflujo("");
+          setlabel("");
+          setvalor("");
+          handleClose2();
+        }).catch((error) => {
+          errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
+        });
       }
 
-    }, title == "Agregar configuración" ? `Esta seguro que desea agregar la configuracion` : `Esta seguro que modificar`
+    }, tipoModificacion == "1" ? `Esta seguro que desea agregar la configuracion` : tipoModificacion == "2"  ? `Esta seguro de modificar la configurción`
+            : `Esta seguro de eliminar la configurción`
       , "Guardar");
 
   };
@@ -285,40 +337,82 @@ export const UpdateRequerimientos: React.FC<Props> = ({ show, handleClose, title
 
               renderRowActions={({ row, table }) => (
                 <>
-                    <Box sx={{ display: 'flex', gap: '1rem' }}>
-                        <Tooltip arrow placement="left" title="modificar">
-                            <IconButton
-                                onClick={() => {
-                                    // modalSetCorreo(row.original.CorreoTxIdS, row.original.tipoCorreo, row.original.correo);
-                                }}
-                            >
-                                <Update />
-                            </IconButton>
-                        </Tooltip>
+                  <Box sx={{ display: 'flex', gap: '1rem' }}>
+                    <Tooltip arrow placement="left" title="modificar">
+                      <IconButton
+                         onClick={() => {
+                          modalSetParametrizacion(row.original);
+                      }}
+                      >
+                        <Update />
+                      </IconButton>
+                    </Tooltip>
 
-                        <Tooltip arrow placement="left" title="eliminar">
-                            <IconButton
-                                onClick={() => {
-                                    // deleteCorreo(row);
-                                }}
-                            >
-                                <Delete />
-                            </IconButton>
-                        </Tooltip>
-                    </Box>
+                    <Tooltip arrow placement="left" title="eliminar">
+                      <IconButton
+                        onClick={() => {
+                          deleteParametrizacion(row.original);
+                        }}
+                      >
+                        <Delete />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
                 </>
-            )
-            }
+              )
+              }
             />
           </div>
         </Modal.Body>
         <Modal.Footer>
           <Button type="button" variant="primary" onClick={() => {
-            setRequerimientos(1);
+            setRequerimientos("1");
           }}>
             Guardar
           </Button>
           <Button type="button" variant="secondary" onClick={handleClose}>
+            Cancelar
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <Modal
+        show={showModal}
+        onHide={handleClose2}
+        size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>{tituloModalParametrizacion}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="row">
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+              <label className="control-label label label-sm  m-3" htmlFor="requerimientos" style={{ fontWeight: 'bold' }}>Tipo:</label>
+              <Selecttipo />
+            </div>
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+              <label className="control-label label label-sm  m-3" htmlFor="requerimientos" style={{ fontWeight: 'bold' }}>Label:</label>
+              <input className="form-control  input input-sm mb-3" placeholder="Ingrese Label" type="text" value={label} onChange={(e) => { setlabel(e.target.value); }} />
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+              <label className="control-label label label-sm  m-3" htmlFor="requerimientos" style={{ fontWeight: 'bold' }}>Valor:</label>
+              <input className="form-control  input input-sm mb-3" placeholder="Ingrese Valor" type="text" value={valor} onChange={(e) => { setvalor(e.target.value); }} />
+            </div>
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+              <label className="control-label label label-sm  m-3" htmlFor="requerimientos" style={{ fontWeight: 'bold' }}>Flujo:</label>
+              <SelectFlujo />
+            </div>
+          </div>
+
+
+        </Modal.Body>
+        <Modal.Footer>
+          <Button type="button" variant="primary" onClick={() => {
+            setRequerimientos("2");
+          }}>
+            Guardar
+          </Button>
+          <Button type="button" variant="secondary" onClick={handleClose2}>
             Cancelar
           </Button>
         </Modal.Footer>

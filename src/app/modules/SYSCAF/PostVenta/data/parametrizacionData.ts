@@ -1,10 +1,11 @@
 import { Post_ExecProcedureByTipoConsulta, Post_getconsultadinamicas } from "../../../../../_start/helpers/Axios/CoreService";
 
-export  function setConfiguracion(Id: string, Configuraciones: string , Movimientos: string ){
+export  function setConfiguracion(Id: string, Configuraciones: string , Movimientos: string, tipo: string ){
     var params: { [id: string]: string | null; } = {};
     params["id"] = Id;
     params["data"] = Configuraciones;
     params["movimientos"] = Movimientos;
+    params["tipo"] = tipo;
     
     // hacemos la consulta 
     return  Post_ExecProcedureByTipoConsulta({    

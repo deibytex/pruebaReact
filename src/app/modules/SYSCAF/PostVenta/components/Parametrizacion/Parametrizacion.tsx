@@ -45,7 +45,7 @@ export default function Parametrizacion() {
         <>
 
             <div className="col-lg-12">
-                <h3 className="fw-bolder mb-8">Quick Links</h3>
+                <h3 className="fw-bolder mb-8">Parametrzación</h3>
                 {/* begin::Row */}
                 <div className="row g-5">
                     <div className="col-sm-4">
@@ -76,6 +76,7 @@ export default function Parametrizacion() {
                             </div>
                         </a>
                     </div>
+                    
                     <div className="col-sm-4">
                         <a
                             onClick={showModal3}
@@ -91,6 +92,8 @@ export default function Parametrizacion() {
                             </div>
                         </a>
                     </div>
+
+                    <h3 className="fw-bolder mb-8">Usuarios</h3>
                     <div className="col-sm-4">
                         <a
                             onClick={showModal3}
