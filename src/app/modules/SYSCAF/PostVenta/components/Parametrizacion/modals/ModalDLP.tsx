@@ -182,13 +182,8 @@ export const UpdateDLP: React.FC<Props> = ({ show, handleClose, title }) => {
         showModals();
       }
 
-      const deleteDLP = (row: any) => {
 
-        setlabelsinEditar(row.label);
-        setDLP("3");
-      }
-
-    const setDLP = (tipoModificacion: any) => {
+    const setDLP = (tipoModificacion: any, labelEditar?: any) => {
 
         let parametrosDLP: any = {};
         let movimientos: any = {};
@@ -246,7 +241,8 @@ export const UpdateDLP: React.FC<Props> = ({ show, handleClose, title }) => {
             });
           }
           else if (tipoModificacion == "2" || tipoModificacion == "3"){
-            let conf = Data.filter(lis => lis.label != labelsinEditar);
+
+            let conf = Data.filter(lis => lis.label != (tipoModificacion == "2" ? labelsinEditar : labelEditar));
             
     
             parametrosDLP = {
@@ -412,7 +408,7 @@ export const UpdateDLP: React.FC<Props> = ({ show, handleClose, title }) => {
                                         <Tooltip arrow placement="left" title="eliminar">
                                             <IconButton
                                                 onClick={() => {
-                                                    deleteDLP(row.original);
+                                                    setDLP("3", row.original.label);
                                                 }}
                                             >
                                                 <Delete />
@@ -427,7 +423,7 @@ export const UpdateDLP: React.FC<Props> = ({ show, handleClose, title }) => {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button type="button" variant="primary" onClick={() => {
-                       setDLP("1");
+                       setDLP("1", null);
                     }}>
                         Guardar
                     </Button>
@@ -501,7 +497,7 @@ export const UpdateDLP: React.FC<Props> = ({ show, handleClose, title }) => {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button type="button" variant="primary" onClick={() => {
-                       setDLP("2");
+                       setDLP("2", null);
                     }}>
                         Guardar
                     </Button>

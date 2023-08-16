@@ -67,6 +67,11 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
         setshowModal(false);
     };
 
+    const showModals = () => {
+        settituloModalTickets('Editar Listado DLP')
+        setshowModal(true);
+      }
+
     let listadoCampos: MRT_ColumnDef<any>[] =
 
         [
@@ -81,57 +86,24 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
                 size: 100
             },
             {
-                accessorKey: 'valor',
-                header: 'Días Tickets',
-                size: 80
-                // ,
-                // Cell({ cell, column, row, table, }) {
-        
-                //   return (
-                //     <>
-                //       {
-                //         JSON.parse(row.original.valor).length
-                //       }
-                //     </>
-        
-                //   )
-                // },
+                accessorKey: 'diasTickets',
+                header: 'Días tickets',
+                size: 100
             },
-            // {
-            //     accessorKey: 'valor',
-            //     header: 'Días señales',
-            //     size: 80
-            //     // ,
-            //     // Cell({ cell, column, row, table, }) {
-        
-            //     //   return (
-            //     //     <>
-            //     //       {
-            //     //         JSON.parse(row.original.valor).length
-            //     //       }
-            //     //     </>
-        
-            //     //   )
-            //     // },
-            // },
-            // {
-            //     accessorKey: 'valor',
-            //     header: 'Notificar',
-            //     size: 80
-            //     // ,
-            //     // Cell({ cell, column, row, table, }) {
-        
-            //     //   return (
-            //     //     <>
-            //     //       {
-            //     //         JSON.parse(row.original.valor).length
-            //     //       }
-            //     //     </>
-        
-            //     //   )
-            //     // },
-            // }
-
+            {
+                accessorKey: 'diasSenales',
+                header: 'Días señales',
+                size: 100
+            },
+            {
+                accessorKey: 'notificar',
+                header: 'Notificar',
+                size: 50,
+                Cell({ cell, column, row, table, }) {
+                  return (cell.getValue() == true) ? <span >Si</span>
+                        : <span>No</span>
+                },
+            },
         ];
 
         useEffect(() => {
@@ -147,11 +119,6 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
         
           }, [])
 
-          useEffect(() => {
-
-           console.log(Data);
-        
-          }, [Data])
 
     function SelectTipo() {
         return (
@@ -162,13 +129,27 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
                 settipo(e.currentTarget.value as any);
             }}>
                 <option value={0}>Selecione tipo</option>
-                <option value={1}>Sistema</option>
+                <option value={'Sistema'}>Sistema</option>
+                <option value={'Señales'}>Señales</option>  
 
             </Form.Select>
         );
     }
 
-    const setTickets = (tipoModificacion: any) => {
+    const modalSetDias = (row: any) => {
+
+        setnombresinEditar(row.nombre);
+        settipo(row.tipo);
+        setdiasSenales(row.diasSenales);
+        setdiasTickets(row.diasTickets);
+        setnombre(row.nombre);
+        setnotificar(row.notificar);
+        showModals();
+      }
+
+      
+
+    const setTickets = (tipoModificacion: any, nombreEditar?: any) => {
 
         let parametrosTickets: any = {};
         let movimientos: any = {};
@@ -192,11 +173,9 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
         parametrosTickets = {
             tipo,
             nombre,
-            valor: {
-                diasTickets,
-                diasSenales,
-                notificar
-            }
+            diasTickets,
+            diasSenales,
+            notificar
         };
 
         setnombresinEditar(nombre);
@@ -223,17 +202,16 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
                 });
             }
             else if (tipoModificacion == "2" || tipoModificacion == "3") {
-                let conf = Data.filter(lis => lis.nombre != nombresinEditar);
+                let conf = Data.filter(lis => lis.nombre != (tipoModificacion == "2" ? nombresinEditar : nombreEditar));
 
-
+                console.log(nombreEditar);
+                console.log(nombresinEditar);
                 parametrosTickets = {
                     tipo,
                     nombre,
-                    valor: {
-                        diasTickets,
-                        diasSenales,
-                        notificar
-                    }
+                    diasTickets,
+                    diasSenales,
+                    notificar
                 };
 
                 if (tipoModificacion == "2")
@@ -279,18 +257,18 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
                         </div>
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                             <label className="control-label label label-sm  m-3" htmlFor="señales" style={{ fontWeight: 'bold' }}>Nombre:</label>
-                            <input className="form-control  input input-sm mb-3" placeholder="Ingrese nombre" type="text" />
+                            <input className="form-control  input input-sm mb-3" placeholder="Ingrese nombre" type="text"  value={nombre} onChange={(e) => { setnombre(e.target.value); }}/>
                         </div>
                     </div>
                     <div className="row">
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                             <label className="control-label label label-sm  m-3" htmlFor="señales" style={{ fontWeight: 'bold' }}>Días Señales:</label>
-                            <input className="form-control  input input-sm mb-3" placeholder="Ingrese días" type="text" />
+                            <input className="form-control  input input-sm mb-3" placeholder="Ingrese días" type="text"  value={diasSenales} onChange={(e) => { setdiasSenales(e.target.value); }} />
                         </div>
 
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                             <label className="control-label label label-sm  m-3" htmlFor="señales" style={{ fontWeight: 'bold' }}>Días Tickets:</label>
-                            <input className="form-control  input input-sm mb-3" placeholder="Ingrese días" type="text" />
+                            <input className="form-control  input input-sm mb-3" placeholder="Ingrese días" type="text"  value={diasTickets} onChange={(e) => { setdiasTickets(e.target.value); }}/>
                         </div>
                     </div>
                     <div className="row">
@@ -304,7 +282,6 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
                                     checked={notificar}
                                     onChange={(e) =>
                                         setnotificar(e.target.checked)
-                                        // setGeneraIMG(e.target.checked)
                                     }
                                 />
                             </div>
@@ -365,7 +342,7 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
                                         <Tooltip arrow placement="left" title="modificar">
                                             <IconButton
                                                 onClick={() => {
-                                                    // modalSetCorreo(row.original.CorreoTxIdS, row.original.tipoCorreo, row.original.correo);
+                                                    modalSetDias(row.original);
                                                 }}
                                             >
                                                 <Update />
@@ -375,7 +352,7 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
                                         <Tooltip arrow placement="left" title="eliminar">
                                             <IconButton
                                                 onClick={() => {
-                                                    // deleteCorreo(row);
+                                                    setTickets('3', row.original.nombre);
                                                 }}
                                             >
                                                 <Delete />
@@ -390,7 +367,7 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
                 </Modal.Body>
                 <Modal.Footer>
                     <Button type="button" variant="primary" onClick={() => {
-                        setTickets("1");
+                        setTickets("1", null);
                     }}>
                         Guardar
                     </Button>
@@ -415,18 +392,18 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
                         </div>
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                             <label className="control-label label label-sm  m-3" htmlFor="señales" style={{ fontWeight: 'bold' }}>Nombre:</label>
-                            <input className="form-control  input input-sm mb-3" placeholder="Ingrese nombre" type="text" />
+                            <input className="form-control  input input-sm mb-3" placeholder="Ingrese nombre" type="text"  value={nombre} onChange={(e) => { setnombre(e.target.value); }}/>
                         </div>
                     </div>
                     <div className="row">
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                             <label className="control-label label label-sm  m-3" htmlFor="señales" style={{ fontWeight: 'bold' }}>Días Señales:</label>
-                            <input className="form-control  input input-sm mb-3" placeholder="Ingrese días" type="text" />
+                            <input className="form-control  input input-sm mb-3" placeholder="Ingrese días" type="text"  value={diasSenales} onChange={(e) => { setdiasSenales(e.target.value); }} />
                         </div>
 
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                             <label className="control-label label label-sm  m-3" htmlFor="señales" style={{ fontWeight: 'bold' }}>Días Tickets:</label>
-                            <input className="form-control  input input-sm mb-3" placeholder="Ingrese días" type="text" />
+                            <input className="form-control  input input-sm mb-3" placeholder="Ingrese días" type="text"  value={diasTickets} onChange={(e) => { setdiasTickets(e.target.value); }}/>
                         </div>
                     </div>
                     <div className="row">
@@ -440,7 +417,6 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
                                     checked={notificar}
                                     onChange={(e) =>
                                         setnotificar(e.target.checked)
-                                        // setGeneraIMG(e.target.checked)
                                     }
                                 />
                             </div>
@@ -449,9 +425,10 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
 
 
                 </Modal.Body>
+
                 <Modal.Footer>
                     <Button type="button" variant="primary" onClick={() => {
-                        setTickets("2");
+                        setTickets("2", null);
                     }}>
                         Guardar
                     </Button>

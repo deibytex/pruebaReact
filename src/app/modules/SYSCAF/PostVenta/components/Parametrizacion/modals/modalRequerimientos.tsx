@@ -160,14 +160,8 @@ export const UpdateRequerimientos: React.FC<Props> = ({ show, handleClose, title
     showModals();
   }
 
-  const deleteParametrizacion = (row: any) => {
 
-    setlabelsinEditar(row.label);
-    setRequerimientos("3");
-  }
-
-
-  const setRequerimientos = (tipoModificacion: any) => {
+  const setRequerimientos = (tipoModificacion: any, labelEditar?: any) => {
 
     let parametrosRequerimientos: any = {};
     let movimientos: any = {};
@@ -218,11 +212,8 @@ export const UpdateRequerimientos: React.FC<Props> = ({ show, handleClose, title
         });
       }
       else if (tipoModificacion == "2" || tipoModificacion == "3"){
-        let conf = Data.filter(lis => lis.label != labelsinEditar);
+        let conf = Data.filter(lis => lis.label != (tipoModificacion == "2" ? labelsinEditar: labelEditar));
         
-
-        console.log(conf);
-        console.log(labelsinEditar);
 
         parametrosRequerimientos = {
           tipo,
@@ -351,7 +342,7 @@ export const UpdateRequerimientos: React.FC<Props> = ({ show, handleClose, title
                     <Tooltip arrow placement="left" title="eliminar">
                       <IconButton
                         onClick={() => {
-                          deleteParametrizacion(row.original);
+                          setRequerimientos("3", row.original.label);
                         }}
                       >
                         <Delete />
@@ -366,7 +357,7 @@ export const UpdateRequerimientos: React.FC<Props> = ({ show, handleClose, title
         </Modal.Body>
         <Modal.Footer>
           <Button type="button" variant="primary" onClick={() => {
-            setRequerimientos("1");
+            setRequerimientos("1", null);
           }}>
             Guardar
           </Button>
@@ -408,7 +399,7 @@ export const UpdateRequerimientos: React.FC<Props> = ({ show, handleClose, title
         </Modal.Body>
         <Modal.Footer>
           <Button type="button" variant="primary" onClick={() => {
-            setRequerimientos("2");
+            setRequerimientos("2", null);
           }}>
             Guardar
           </Button>
