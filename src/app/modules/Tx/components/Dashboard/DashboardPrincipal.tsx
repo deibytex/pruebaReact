@@ -88,14 +88,14 @@ export default function DashboardPrincipal() {
     useEffect(() => {
         if (SemanaSeleccionada != undefined) {
             if (TabActive == "Tab1") {
-                let Data = (DataAcumulado != undefined ? [...DataAcumulado] : []);
+                
                 if (showChurn) {
-                    if (ConsultarAcumulado || Consulta)
-                        ConsultarAcumuladoSnapShot();
-                    else
-                        setDataAcumulado(Data);
+                    // if (ConsultarAcumulado || Consulta)
+                    //     ConsultarAcumuladoSnapShot();
+                    // else
+                    //     setDataAcumulado(Data);
 
-                    Data = (DataChurn != undefined ? [...DataChurn] : []);
+                    let  Data = (DataChurn != undefined ? [...DataChurn] : []);
 
                     if (ConsultaChurn || Consulta)
                         ConsultarAcumuladoChurn();

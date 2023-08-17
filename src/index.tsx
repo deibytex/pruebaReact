@@ -17,6 +17,7 @@ import 'react-dual-listbox/lib/react-dual-listbox.css';
 
 import 'rsuite/dist/rsuite.min.css';
 import 'react-dual-listbox/lib/react-dual-listbox.css';
+import { useEffect } from "react";
 
 /**
  * Base URL of the website.
@@ -39,6 +40,9 @@ const { PUBLIC_URL } = process.env;
  * @see https://github.com/axios/axios#interceptors
  */
 _redux.setupAxios(axios, store);
+
+
+
 
 ReactDOM.render(
   <Provider store={store}>

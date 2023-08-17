@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { shallowEqual, useSelector } from "react-redux";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { RootState } from "../setup";
@@ -10,6 +10,7 @@ import { PublicRoutes } from "./routing/PublicRoutes";
 import { createTheme, ThemeProvider } from '@mui/material';
 import { CustomProvider } from "rsuite"
 import esEs from 'rsuite/locales/es_ES';
+import { UserModelSyscaf } from "./modules/auth/models/UserModel";
 // "rsuite": "^5.34.0",
 type Props = {
   basename: string;
@@ -31,6 +32,17 @@ const App: React.FC<Props> = ({ basename }) => {
       }),
     [],
   );
+
+  // const accessToken = useSelector<RootState>(
+  //   ({ auth }) => auth.accessToken,
+  //   shallowEqual
+  // );
+  // if (isTokenExpiredError(errorResponse)) {
+  //   document.location.replace('/logout');
+  //   //return resetTokenAndReattemptRequest(errorResponse, store);
+  // }
+  const model = (isAuthorized as UserModelSyscaf);
+  console.log('model EXP', model?.exp)
 
   return (
     <BrowserRouter basename={basename}>
