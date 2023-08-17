@@ -1,7 +1,7 @@
 import moment from "moment"
 import { FormatoColombiaDDMMYYY } from "../../../../../_start/helpers/Constants"
 import confirmarDialog, { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog"
-import { Post_GetConsultasDinamicasUser } from "../../../../../_start/helpers/Axios/DWHService"
+import { Post_GetConsultasDinamicas, Post_GetConsultasDinamicasUser, Post_getDynamicProcedureDWH } from "../../../../../_start/helpers/Axios/DWHService"
 import { FiltroDashBoardData } from "./PostVentaData"
 import { Usuarios } from "../mockData/indicadores"
 import { Post_getconsultadinamicas } from "../../../../../_start/helpers/Axios/CoreService"
@@ -77,6 +77,30 @@ export function SetNotificaciones(Datos:any){
         RecordsPorPagina: null
     }, params)
 }
+//Encabezado
+export function GetEncabezado(AssetId:any){
+    var params: { [id: string]: string | null | undefined; } = {};
+    params["AssetId"] =AssetId;
+    return Post_GetConsultasDinamicasUser({
+        NombreConsulta: "GetEncabezado", Clase: "GOIQueryHelper",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, params)
+}
+export function GetEncabezadoFallas(FechaInicial:any, FechaSinTx:any, ClienteIds:any  ){
+    var params: { [id: string]: string | null | undefined; } = {};
+    params["FechaInicial"] =FechaInicial;
+    params["FechaFinal"] =FechaSinTx;
+    params["ClienteIds"] =String(ClienteIds);
+    return Post_getDynamicProcedureDWH({
+        NombreConsulta: "GetFallaEncabezado", Clase: "GOIQueryHelper",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, params)
+}
+
+
+
 //======================================================================================================================================
 export const FiltroData = {
     // Indicadores asignados
