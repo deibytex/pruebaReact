@@ -22,7 +22,7 @@ import { RootState } from "../../../../setup";
 import { UserModelSyscaf } from "../../auth/models/UserModel";
 import moment from "moment";
 import { CheckboxGroup, Checkbox, useToaster, Notification } from "rsuite";
-import { FormatoColombiaDDMMYYYHHmmss } from "../../../../_start/helpers/Constants";
+import { FormatoColombiaDDMMYYY, FormatoColombiaDDMMYYYHHmmss } from "../../../../_start/helpers/Constants";
 type Props = {
 
   isActive: boolean;
@@ -73,8 +73,11 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
   const [Data, setData] = useState<any[]>([]);
   const [esgestionado, setesgestionado] = useState(false);
+
   const [Placa, setPlaca] = useState("");
   const [Alerta, setAlerta] = useState("");
+  const [fechaEvento, setfechaEvento] = useState("");
+  const [totalEventos, settotalEventos] = useState("");
 
   const [DataDetalleEventos, setDataDetalleEventos] = useState<any[]>([]);
 
@@ -523,6 +526,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
           (response) => {
 
             setalertas(response.data);
+            showModal();
 
           });
         toaster.push(message('success', "Asignar Gestor", "Gestor Asignado"), {
@@ -544,6 +548,8 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
     setesgestionado(row.EstadoGestion);
     setPlaca(row.vehiculo);
     setAlerta(row.TipoAlerta);
+    setfechaEvento(moment(JSON.parse(row.DetalladoEventos).at(-1).EventDateTime as Date).format(FormatoColombiaDDMMYYY));
+    settotalEventos(JSON.parse(row.DetalladoEventos).length)
 
     showModal();
   }
@@ -581,88 +587,11 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
       setobervacionGestionlast("");
     }
 
-
   };
-
-  const ordenarData = (tipo: string) => {
-
-
-    console.log(tipo);
-    if (tipo.toString() === '1') {
-      let a = dataAlertasfiltrada.sort(function (a: any, b: any) { return a.Criticidad - b.Criticidad });
-
-      
-      setDataAlertasfiltrada(a);
-      console.log(dataAlertasfiltrada);
-    }
-    else {
-      let a = [...dataAlertasfiltrada].sort((a: any, b: any) =>  a.EventDateTime - b.EventDateTime );
-      setDataAlertas(a);
-      console.log(a);
-      console.log(dataAlertasfiltrada);
-    }
-
-  }
-
 
   return (
 
     <>
-      <div className="row">
-        <div className="col-sm-3 col-md-3 col-xs-3">
-          <h6 className="m-1">Riesgo: </h6>
-          <CheckboxGroup inline className="m-3" name="checkboxList" value={value} onChange={handleChange}>
-            {RiesgoSelected.map(item => (
-              <Checkbox key={item.name} value={item.valor}>
-                {item.name}
-              </Checkbox>
-            ))}
-          </CheckboxGroup>
-        </div>
-
-
-       
-      </div>
-      <div className="row">
-      <div className="col-sm-3 col-md-3 col-xs-3">
-          <h6 className="m-1">Gestion: </h6>
-          <CheckboxGroup inline className="m-3" name="checkboxList" value={value2} onChange={handleChange2}>
-            {GestionSelected.map(item => (
-              <Checkbox key={item.name} value={item.valor}>
-                {item.name}
-              </Checkbox>
-            ))}
-          </CheckboxGroup>
-        </div>
-      </div>
-      <div className="row">
-        
-        <div className="col-sm-3 col-md-3 col-xs-3">
-          <h6 className="m-1">Alertas: </h6>
-          <CheckboxGroup inline className="m-3" name="checkboxList" value={value3} onChange={handleChange3}>
-            {AlarmasSelected.map(item => (
-              <Checkbox key={item.name} value={item.name}>
-                {item.name}
-              </Checkbox>
-            ))}
-          </CheckboxGroup>
-        </div>
-      </div>
-      <div className="row">
-      <div className="col-sm-3 col-md-3 col-xs-3 m-1">
-          <h6 className="m-1">Ordenar: </h6>
-          <Form.Select onChange={(e) => {
-            // buscamos el objeto completo para tenerlo en el sistema                  
-            ordenarData(e.currentTarget.value)
-
-          }}>
-            <option >Seleccione</option>
-            <option key={1} value={1}>Riesgo</option>
-            <option key={2} value={2}>Fecha</option>
-
-          </Form.Select>
-        </div>
-      </div>
 
       <MaterialReactTable
         localization={MRT_Localization_ES}
@@ -762,100 +691,6 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         })
         }
         enableExpandAll={false}
-        renderDetailPanel={({ row }) => (
-
-          <Tabs
-            defaultActiveKey="gestion"
-            className="mb-3"
-          // justify
-          // onClick={() => {
-          //   console.log('hola', row);
-          // }} 
-          >
-            <Tab eventKey="gestion" title={`Informacion Básica`} >
-
-              <Box
-                sx={{
-                  display: 'grid',
-                  margin: 'auto',
-                  gridTemplateColumns: '1fr 1fr',
-                  width: '100%',
-                }}
-              >
-                <div className="row  col-sm-12 col-md-12 col-xs-12">
-                  <div className="col-6">
-                    <h6 className=" text-primary m-1 "> Fecha Apertura: <span>{FechaApertura}</span></h6>
-                  </div>
-                  <div className="col-6">
-                    <h6 className=" m-1 text-primary"> Ultima Gestión: {FechaGestion} </h6>
-                  </div>
-
-
-
-                  <textarea className="form-control input m-2" id={'obervacion'} rows={3} value={obervacionGestionlast} disabled></textarea>
-
-                </div>
-              </Box>
-            </Tab>
-            <Tab eventKey="Contacto" title={`Información de contacto`}>
-              <Box
-                sx={{
-                  display: 'grid',
-                  margin: 'auto',
-                  gridTemplateColumns: '1fr 1fr',
-                  width: '100%'
-                }}
-
-              >
-                <div>
-
-                  <MaterialReactTable
-                    localization={MRT_Localization_ES}
-                    displayColumnDefOptions={{
-                      'mrt-row-actions': {
-                        muiTableHeadCellProps: {
-                          align: 'center'
-                        }
-                      },
-                    }}
-                    columns={columnasContacto}
-                    data={dataContacto}
-                    enableTopToolbar
-                    enableColumnOrdering
-                    enableFilters
-                    enablePagination={false}
-                    enableColumnFilters={false}
-                    muiToolbarAlertBannerProps={
-                      isError
-                        ? {
-                          color: 'error',
-                          children: 'Error al cargar información',
-                        }
-                        : undefined
-                    }
-                    onColumnFiltersChange={setColumnFilters}
-                    onGlobalFilterChange={setGlobalFilter}
-                    onPaginationChange={setPagination}
-                    onSortingChange={setSorting}
-                    rowCount={rowCount2}
-                    initialState={{ density: 'compact' }}
-                    state={{
-                      columnFilters,
-                      globalFilter,
-                      isLoading,
-                      pagination,
-                      showAlertBanner: isError,
-                      showProgressBars: isRefetching,
-                      sorting,
-                    }}
-                  />
-                </div>
-
-              </Box>
-            </Tab>
-          </Tabs>
-
-        )}
         initialState={{ density: 'compact' }}
         state={{
           columnFilters,
@@ -873,7 +708,8 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         onHide={handleClose}
         size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Alerta <span className="text-success">{`${Alerta}`}</span> - <span className="text-success">{`${Placa}`}</span></Modal.Title>
+          <Modal.Title >Alerta <span className="text-success">{`${Alerta}`}</span> - Placa <span className="text-success">{`${Placa}`} </span> 
+          - Fecha Ultimo Evento <span className="text-success">{`${fechaEvento}`} </span> - Cantidad Eventos <span className="text-success">{`${totalEventos}`} </span>  </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className="row">
@@ -898,6 +734,13 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
                 setObservacion('Cierre Gestión', 'true');
               }}>
                 Cerrar Gestion
+              </Button> : <></>}
+            </div>
+            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+              {esgestionado == true ? <Button type="button" variant="danger" onClick={() => {
+                setObservacion('Cierre Gestión', 'true');
+              }}>
+                Reabrir Gestión
               </Button> : <></>}
             </div>
           </div>
