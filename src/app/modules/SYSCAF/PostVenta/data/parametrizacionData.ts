@@ -28,3 +28,17 @@ export  function getConfiguracion(Id: string ){
     RecordsPorPagina :null}, 
     params);
 };
+
+
+export  function getUsuarios(clienteId: string ){
+  var params: { [id: string]: string | null; } = {};
+  params["clienteId"] = clienteId;
+
+  // hacemos la consulta 
+  return  Post_getconsultadinamicas({    
+    Clase : "PortalQueryHelper",  
+    NombreConsulta: "getUserByClientId", 
+    Pagina :null, 
+    RecordsPorPagina :null}, 
+    params);
+};

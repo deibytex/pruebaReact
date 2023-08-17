@@ -11,7 +11,7 @@ import { FechaServidor } from "../../../../../../../_start/helpers/Helper";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../../../../setup";
 import { UserModelSyscaf } from "../../../../../auth/models/UserModel";
-import { getConfiguracion, setConfiguracion } from "../../../data/parametrizacionData";
+import { getConfiguracion, getUsuarios, setConfiguracion } from "../../../data/parametrizacionData";
 import { setGestor } from "../../../../../Fatigue/data/dashBoardData";
 
 
@@ -31,14 +31,15 @@ export const UpdateUsuarios: React.FC<Props> = ({ show, handleClose, title }) =>
 
     const [errorDLP, seterrorDLP] = useState<any>("");
     const [nombre, setnombre] = useState("");
-    const [id, setid] = useState("");
+    const [userid, setuserid] = useState("");
     const [esGestor, setesGestor] = useState<boolean>(false);
 
-    const [nombresinEditar, setnombresinEditar] = useState("");
+    const [usersinEditar, setusersinEditar] = useState("");
     const [tituloModalTickets, settituloModalTickets] = useState('');
 
     const [rowCount, setRowCount] = useState(0);
     const [Data, setData] = useState<any[]>([]);
+    const [usuarios, setusuarios] = useState<any[]>([]);
 ;
     const [showModal, setshowModal] = useState(false);
 
@@ -58,7 +59,7 @@ export const UpdateUsuarios: React.FC<Props> = ({ show, handleClose, title }) =>
         settituloModalTickets('');
 
         setnombre("");
-        setid("");
+        setuserid("");
         setnombre("");
         setesGestor(false);
 
@@ -99,66 +100,83 @@ export const UpdateUsuarios: React.FC<Props> = ({ show, handleClose, title }) =>
              
         
             });
+
+            getUsuarios('-1').then((response) => {
+        
+                setusuarios(response.data)              
+          
+              });
         
           }, [title])
 
+          useEffect(() => {
 
-    function SelectTipo() {
+            let nombre = (usuarios).filter(nom => nom.Id == userid)[0];
+
+            setnombre(nombre != undefined ? nombre.Nombres : '');
+        
+          }, [userid])
+
+
+    function SelectUsuario() {
         return (
-            <Form.Select className=" mb-3 " name="tipo" value={id} onChange={(e) => {
+            <Form.Select className=" mb-3 " name="tipo" value={userid} onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
 
                 //validar con yuli si se puede obtener el key desde aquí                 
-                setnombre(e.currentTarget.value as any);
+                setuserid(e.currentTarget.value as any);
             }}>
-                <option value={0}>Selecione tipo</option>
-                <option value={'Sistema'}>Sistema</option>
-                <option value={'Señales'}>Señales</option>  
+                  <option value={0}>Selecione Usuario</option>
+                {(usuarios).map((u) => {
+                    return (
+                        <option key={u.Id} value={u.Id}>
+                            {u.Nombres}
+                        </option>
+                    );
+                })} 
 
             </Form.Select>
         );
     }
 
-    const modalSetDias = (row: any) => {
+    const modalSetUsuarios = (row: any) => {
 
-        setnombresinEditar(row.nombre);
-        setnombre(row.tipo);
-        setid(row.diasSenales);
+        setuserid(row.UserId);
         setnombre(row.nombre);
-        setesGestor(row.notificar);
+        setesGestor(row.esGestor);
         showModals();
       }
 
       
 
-    const setTickets = (tipoModificacion: any, nombreEditar?: any) => {
+    const setUsers = (tipoModificacion: any, userEditar?: any) => {
 
-        let parametrosTickets: any = {};
+        let usuariosSoporte: any = {};
         let movimientos: any = {};
         let mensaje: any = "";
         let tipoMovimiento: any = "";
 
 
         if (tipoModificacion == "1") {
-            mensaje = "Se agrega nueva configuración";
+            mensaje = "Se agrega nuevo usuario";
             tipoMovimiento = "Creación";
         }
         else if (tipoModificacion == "2") {
-            mensaje = "Se edita configuración";
+            mensaje = "Se edita usuario";
             tipoMovimiento = "Edición";
         }
         else {
-            mensaje = "Se elimina configuración";
+            mensaje = "Se elimina usuario";
             tipoMovimiento = "Eliminacion";
         }
 
-        parametrosTickets = {
-            UserId: id,
+        usuariosSoporte = {
+            UserId: userid,
             nombre,
             esGestor
         };
 
-        setnombresinEditar(nombre);
+        setusersinEditar(userid);
 
         movimientos = {
             fecha: FechaServidor(),
@@ -169,28 +187,28 @@ export const UpdateUsuarios: React.FC<Props> = ({ show, handleClose, title }) =>
 
         confirmarDialog(() => {
             if (tipoModificacion == "1") {
-                setConfiguracion(title == 'Parametrizar Usuarios ST' ? '1002' : '1003', '[' + JSON.stringify(parametrosTickets) + ']', '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
+                setConfiguracion(title == 'Parametrizar Usuarios ST' ? '1002' : '1003', '[' + JSON.stringify(usuariosSoporte) + ']', '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
                     successDialog("Operación Éxitosa", "");
-                    setData([...Data, JSON.parse(JSON.stringify(parametrosTickets))] as any[]);
+                    setData([...Data, JSON.parse(JSON.stringify(usuariosSoporte))] as any[]);
                     setnombre("");
-                    setid("");
+                    setuserid("");
                     setesGestor(false);
                 }).catch((error) => {
                     errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
                 });
             }
             else if (tipoModificacion == "2" || tipoModificacion == "3") {
-                let conf = Data.filter(lis => lis.nombre != (tipoModificacion == "2" ? nombresinEditar : nombreEditar));
+                let conf = Data.filter(lis => lis.UserId != (tipoModificacion == "2" ? usersinEditar : userEditar));
 
                 
-                parametrosTickets = {
-                    UserId: id,
+                usuariosSoporte = {
+                    UserId: userid,
                     nombre,
                     esGestor
                 };
 
                 if (tipoModificacion == "2")
-                    conf.push(parametrosTickets);
+                    conf.push(usuariosSoporte);
 
 
 
@@ -198,7 +216,7 @@ export const UpdateUsuarios: React.FC<Props> = ({ show, handleClose, title }) =>
                     successDialog("Operación Éxitosa", "");
                     setData(JSON.parse(JSON.stringify(conf)) as any[]);
                     setnombre("");
-                    setid("");
+                    setuserid("");
                     setesGestor(false);
                     handleClose2();
                 }).catch((error) => {
@@ -226,7 +244,7 @@ export const UpdateUsuarios: React.FC<Props> = ({ show, handleClose, title }) =>
                     <div className="row">
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                             <label className="control-label label label-sm  m-3" htmlFor="señales" style={{ fontWeight: 'bold' }}>Usuario:</label>
-                            <SelectTipo />
+                            <SelectUsuario />
                         </div>
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                             <label className="control-label label label-sm  m-3" htmlFor="dlp" style={{ fontWeight: 'bold' }}>Es Gestor:</label>
@@ -295,7 +313,7 @@ export const UpdateUsuarios: React.FC<Props> = ({ show, handleClose, title }) =>
                                         <Tooltip arrow placement="left" title="modificar">
                                             <IconButton
                                                 onClick={() => {
-                                                    modalSetDias(row.original);
+                                                    modalSetUsuarios(row.original);
                                                 }}
                                             >
                                                 <Update />
@@ -305,7 +323,7 @@ export const UpdateUsuarios: React.FC<Props> = ({ show, handleClose, title }) =>
                                         <Tooltip arrow placement="left" title="eliminar">
                                             <IconButton
                                                 onClick={() => {
-                                                    setTickets('3', row.original.nombre);
+                                                    setUsers('3', row.original.UserId);
                                                 }}
                                             >
                                                 <Delete />
@@ -320,7 +338,7 @@ export const UpdateUsuarios: React.FC<Props> = ({ show, handleClose, title }) =>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button type="button" variant="primary" onClick={() => {
-                        setTickets("1", null);
+                        setUsers("1", null);
                     }}>
                         Guardar
                     </Button>
@@ -341,7 +359,7 @@ export const UpdateUsuarios: React.FC<Props> = ({ show, handleClose, title }) =>
                     <div className="row">
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                             <label className="control-label label label-sm  m-3" htmlFor="señales" style={{ fontWeight: 'bold' }}>Usuario:</label>
-                            <SelectTipo />
+                            <SelectUsuario />
                         </div>
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                             <label className="control-label label label-sm  m-3" htmlFor="dlp" style={{ fontWeight: 'bold' }}>Es Gestor:</label>
@@ -360,7 +378,7 @@ export const UpdateUsuarios: React.FC<Props> = ({ show, handleClose, title }) =>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button type="button" variant="primary" onClick={() => {
-                        setTickets("2", null);
+                        setUsers("2", null);
                     }}>
                         Guardar
                     </Button>
