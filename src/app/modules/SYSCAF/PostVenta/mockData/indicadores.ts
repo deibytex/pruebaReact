@@ -127,7 +127,7 @@ export const Usuarios : any[] =
     {"UserId":"a915f906-4f72-4139-a0cf-f2961f3cc5f1","Nombres":"Camilo Matiz","EsGestor":true},
     {"UserId":"b1085fff-f517-413e-9dc0-5588785870ce","Nombres":"Soporte Syscaf","EsGestor":true},
     {"UserId":"ebb0d5ff-8a68-4759-bf34-9343e541f070","Nombres":"Cristian Garcia","EsGestor":true},
-    {"UserId":"b872ff45-01fe-43b0-9417-07c9e128c2a1","Nombres":"Deiby Johan Lopez ","EsGestor":true}
+    {"UserId":"b872ff45-01fe-43b0-9417-07c9e128c2a1","Nombres":"Deiby Johan Lopez ","EsGestor":false}
 ]
 
 export const EstadosRequerimientos : any[] =
@@ -185,3 +185,137 @@ export const EstadosRequerimientos : any[] =
     },
     
 ]
+export const ListadoDLP = 
+[
+    {
+        "id":"1",
+        "order": "0",
+        "categoria": "transmision",
+        "label": "¿La falla de transmision es por un problema masivo?",
+        "valores": "si/no",
+        "tipo": "check",
+        "observaciones": "no",
+        "esobligatorio":"si"
+    },
+    {
+        "id":"2",
+        "order": "1",
+        "categoria": "transmision",
+        "label": "¿ha realizado PAL a la sim Card?",
+        "valores": "si/no",
+        "tipo": "check",
+        "observaciones": "si-obligatorio",
+        "esobligatorio":"no"
+    },
+    {
+        "id":"3",
+        "order": "2",
+        "categoria": "transmision",
+        "label": "¿ha realizado revisión del motor?",
+        "valores": "si/no",
+        "tipo": "check",
+        "observaciones": "si",
+        "esobligatorio":"si"
+    },
+
+
+
+    {
+        "id":"3",
+        "order": "2",
+        "categoria": "transmision",
+        "label": "¿ha realizado revisión del motor?",
+        "valores": "si/no",
+        "tipo": "check",
+        "observaciones": "si",
+        "esobligatorio":"si"
+    },
+    {
+        "id":"3",
+        "order": "2",
+        "categoria": "transmision",
+        "label": "¿ha realizado revisión del motor?",
+        "valores": "si/no",
+        "tipo": "check",
+        "observaciones": "si",
+        "esobligatorio":"si"
+    },
+    {
+        "id":"4",
+        "order": "3",
+        "categoria": "transmision",
+        "label": "¿ha realizado revisión del motor?",
+        "valores": "si/no",
+        "tipo": "check",
+        "observaciones": "si",
+        "esobligatorio":"si"
+    },
+    {
+        "id":"5",
+        "order": "4",
+        "categoria": "transmision",
+        "label": "¿ha realizado revisión del motor?",
+        "valores": "si/no",
+        "tipo": "check",
+        "observaciones": "si",
+        "esobligatorio":"si"
+    },
+    {
+        "id":"6",
+        "order": "5",
+        "categoria": "transmision",
+        "label": "¿ha realizado revisión del motor?",
+        "valores": "si/no",
+        "tipo": "check",
+        "observaciones": "si",
+        "esobligatorio":"si"
+    },
+    {
+        "id":"7",
+        "order": "6",
+        "categoria": "transmision",
+        "label": "¿ha realizado revisión del motor?",
+        "valores": "si/no",
+        "tipo": "check",
+        "observaciones": "si",
+        "esobligatorio":"si"
+    },
+
+    {
+        "id":"8",
+        "order": "7",
+        "categoria": "transmision",
+        "label": "¿ha realizado revisión del motor?",
+        "valores": "si/no",
+        "tipo": "check",
+        "observaciones": "si",
+        "esobligatorio":"si"
+    },
+
+    {
+        "id":"9",
+        "order": "8",
+        "categoria": "transmision",
+        "label": "¿ha realizado revisión del motor?",
+        "valores": "si/no",
+        "tipo": "check",
+        "observaciones": "si",
+        "esobligatorio":"si"
+    },
+
+
+
+
+
+    {
+        "id":"4",
+        "order": "0",
+        "categoria": "señales",
+        "label": "¿ha realizado revision del equipo?",
+        "valores": "si/no",
+        "tipo": "text",
+        "observaciones": "si-obligatorio",
+        "esobligatorio":"no"
+    }
+]
+    
