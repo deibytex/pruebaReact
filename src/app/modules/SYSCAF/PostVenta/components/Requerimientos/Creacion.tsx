@@ -284,7 +284,7 @@ export default function Creacion() {
                         value={row.original.Respuesta}
                         onChange={Click}
                         />:
-                        <input type="text"   id={`${row.original.id}`}  value={row.original.Respuesta}  onChange={Click} className="form-control input input-sm" placeholder="Ingrese una respuesta"></input> )}
+                        <input type="text"   id={`${row.original.id}`}  value={row.original.Respuesta}  onChange={change} className="form-control input input-sm" placeholder="Ingrese una respuesta"></input> )}
                         </div> 
                 },
             },
@@ -315,6 +315,13 @@ export default function Creacion() {
             let listado = [...ListadoDLPRespuesta];
             setListadoDLPRespuesta(listado.map((a: any) => {
                 a.Respuesta = (a.id==e.currentTarget.attributes['id'].value ?e.target.checked: a.Respuesta);
+                return a;
+            }));
+        }
+        const change = (e:any) =>{
+            let listado = [...ListadoDLPRespuesta];
+            setListadoDLPRespuesta(listado.map((a: any) => {
+                a.Respuesta = (a.id==e.currentTarget.attributes['id'].value ?e.target.value: a.Respuesta);
                 return a;
             }));
         }
@@ -486,7 +493,7 @@ export default function Creacion() {
         // te traes la informaci'on almacenada y verificas que no tenga datos
         let listado = [...ListadoDLP];
         setListadoDLPRespuesta(listado.map((a: any) => {
-            a.Respuesta = false;
+            a.Respuesta = (a.tipo =="check" ? false:"") ;
             a.RespuestaObservacion = "";
             if (Diagnostico.length > 0) {
                 let find = Diagnostico.find((f: any) => f.id == a.id);
@@ -1080,15 +1087,15 @@ export default function Creacion() {
     }
     const GuardarOtro = () =>{
         console.log(FiltroData.getEsCompletado(ListadoDLPRespuesta).length);
-        // let _Cabecera = {
-        //     administrador: Admin.Administrador,
-        //     UsuarioId: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.UserId) ,
-        //     assetid: CabeceraIncial[0].assetid,
-        //     clienteid: CabeceraIncial[0].clienteid.toString(),
-        //     registrationNumber: CabeceraIncial[0].registrationNumber,
-        //     nombrecliente: CabeceraIncial[0].nombrecliente,
-        //     agente: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.Nombres) 
-        // }
+        let _Cabecera = {
+            administrador: Admin.Administrador,
+            UsuarioId: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.UserId) ,
+            assetid: CabeceraIncial[0].assetid,
+            clienteid: CabeceraIncial[0].clienteid.toString(),
+            registrationNumber: CabeceraIncial[0].registrationNumber,
+            nombrecliente: CabeceraIncial[0].nombrecliente,
+            agente: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.Nombres) 
+        }
         // setCabecera(_Cabecera);
         let _obs = ObsInicial;
         _obs.push(
@@ -1112,7 +1119,6 @@ export default function Creacion() {
                     setshowedit(false);
                     let data: any = DatosTabla.map((val: any) => {
                         if (val.Id == Id) {
-                            val.Cabecera = Campos['Cabecera'];
                             val.Estado = Campos['Estado'];
                             val.Diagnostico = Campos['Diagnostico']
                             val.Observaciones = Campos['Observaciones'];
