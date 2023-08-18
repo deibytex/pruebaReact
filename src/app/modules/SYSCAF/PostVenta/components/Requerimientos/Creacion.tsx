@@ -13,14 +13,13 @@ import { DateRangePicker, useToaster, Notification, Checkbox } from "rsuite";
 import { Button, Form, FormControl, FormGroup, Modal } from "react-bootstrap-v5";
 import { locateFormatPercentNDijitos } from "../../../../../../_start/helpers/Helper";
 import { Box, IconButton, Tooltip } from "@mui/material";
-import { Assignment,  CallToActionSharp,  CheckBox,  ConstructionOutlined,  DeckTwoTone, Delete, Edit } from "@mui/icons-material";
+import { Assignment,  CallToActionSharp,  CheckBox,  ConstructionOutlined,  DeckTwoTone, Delete, Edit, ViewAgenda } from "@mui/icons-material";
 import { DescargarExcel} from "../../../../../../_start/helpers/components/DescargarExcel";
 import { EstadosRequerimientos, ListadoDLP, Usuarios } from "../../mockData/indicadores";
 import { useSelector } from "react-redux";
 import { UserModelSyscaf } from "../../../../auth/models/UserModel";
 import { RootState } from "../../../../../../setup";
 import confirmarDialog, { confirmarDialogText, successDialog } from "../../../../../../_start/helpers/components/ConfirmDialog";
-import { set } from "rsuite/esm/utils/dateUtils";
 export default function Creacion() {
     const toaster = useToaster();
     const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -54,8 +53,9 @@ export default function Creacion() {
         { "Estado": "Tasa de resolución", "Descripcion": "Tasa de resolución de los requerimientos de los últimos 7 días", "Valor": 0 },
         { "Estado": "Total resueltos", "Descripcion": "Total de requerimientos resueltos en los últimos 7 días.", "Valor": 0 }
     ]);
+    const [cajas, setCajas] = useState<string>("3");
     const [Id, setId] = useState<string>("");
-    const [Respuestas, setRespuestas] = useState<any[]>([]);
+    const [IsDiagnostico, setIsDiagnostico] = useState<boolean>(false);
     const [val, setval] = useState<string>("");
 
     //Para el diagnostico
@@ -91,7 +91,9 @@ export default function Creacion() {
     const [showedit, setshowedit] = useState<boolean>(false);
     const [GrandeModal, setGrandeModal] = useState<any>('');
     const [ShowAsignacion, setShowAsignacion] = useState<boolean>(false);
+    const [ShowModalDiag, setShowModalDiag] = useState<boolean>(false);
     const [Encabezado, setEncabezado] = useState<any>({});
+    const [InfDiag, setInfDiag] = useState<any[]>([]);
     const [TipoRequerimientosSeleccionado, setTipoRequerimientosSeleccionado] = useState<any>({ Nombre: "", Value: "" });
     const [EstadoRequerimientos, setEstadoRequerimientos] = useState<any[]>([]);
     const [EstadoRequerimientosSeleccionado, setEstadoRequerimientosSeleccionado] = useState<any>({ label: "Seleccione", valor: "0" });
@@ -723,6 +725,7 @@ export default function Creacion() {
         //&& !UserCount[0].EsGestor
         (vUser.perfil == PerfilEmpleado  && EstadoSelect[0].valor =="5" ?EncabezadoConsulta(Cabeceras[0].assetid):EncabezadoSinconsulta());
         (vUser.perfil == PerfilEmpleado && EstadoSelect[0].valor =="5" ?setGrandeModal("xl"):setGrandeModal("lg"));
+        setIsDiagnostico(false);
         setshowedit(true)
         let Obs = JSON.parse(row.original.Observaciones);
         setObsInicial(Obs);
@@ -959,8 +962,41 @@ export default function Creacion() {
             console.log("Error: ", error)
         });
     };
+    //Muestra el diggnostico de requerimiento
+    const VerRequerimiento = (row:any) =>{
+      let _Diagnostico:any[]=[];
+        let IsValido  =   (row.original.Diagnostico == null ? toaster.push(message('success', "Completado", "Requerimiento resuelto pero no hay un diagnostico que mostrar"), {
+            placement: 'topCenter'
+        }): JSON.parse(row.original.Diagnostico));
+        
+        if(Array.isArray(IsValido)){
+            setIsDiagnostico(true);
+            _Diagnostico = JSON.parse(row.original.Diagnostico);
+            setInfDiag(_Diagnostico);
+            EncabezadoConsulta(JSON.parse(row.original.Cabecera)[0].assetid);
+            let Cantidad = _Diagnostico.length;
+            let rows = (Cantidad/3);
+            let caja = (12/rows);
+            setCajas(`${caja.toFixed(0)}`);
+            console.log("Registros: ", Cantidad, " Rows: ", rows, " cajas: ", caja);
+      
+
+            setShowModalDiag(true);
+        }
+         
+    
+        
+        console.log((Array.isArray(IsValido) == true?"Si":"No" ));
+    }
     //Para montar la tabla
     function MontarTabla() {
+        //Completado estado
+        let estadoCompletado  = JSON.stringify(EstadoRequerimientos.filter((e:any) =>{
+            return e.valor=="8";
+        }).map((f:any) =>{
+            return {"label":f.label, "valor":f.valor}
+        })[0]);
+
         return <>
             <MaterialReactTable
                 localization={MRT_Localization_ES}
@@ -1005,8 +1041,18 @@ export default function Creacion() {
                                 <Edit  className="text-warning" />
                             </IconButton>
                         </Tooltip>)}
-                  
-                        
+                        {/* Permite ver el diagnostico del requerimiento */}
+                        {(vUser.perfil == PerfilEmpleado || vUser.perfil == PerfilSuperAdmin || vUser.perfil == PerfilAdminFlota) 
+                            && 
+                            (
+                                row.original.Estado == estadoCompletado
+                            )
+                            
+                        && (<Tooltip arrow placement="top" title="Ver diagnóstico de requerimiento">
+                            <IconButton onClick={() => VerRequerimiento(row)}>
+                                <ViewAgenda  className="text-info" />
+                            </IconButton>
+                        </Tooltip>)}
                         {/* Permite eliminar el requerimiento siempre y cuando sea en estado Creado de lo contrario no permite eliminarlo*/}
                         {(FiltroData.getIsActivoMod(row, EventosCreados) && vUser.perfil === PerfilAdminFlota ) && (<Tooltip arrow placement="top" title="Eliminar requerimiento">
                             <IconButton onClick={() => {
@@ -1048,7 +1094,7 @@ export default function Creacion() {
     }
     //Obtiene un encabezado
     const EncabezadoConsulta = (id:any) =>{
-        setGrandeModal('xl');
+        (!IsDiagnostico??setGrandeModal('xl'));
         setloader(true);
         let DatosEncabezados:any[] = [];
         let Señales:any[]=[];
@@ -1075,7 +1121,7 @@ export default function Creacion() {
                 });
             }
         }).catch(({error}) =>{
-            setshowedit(true);
+            (!IsDiagnostico??setshowedit(true));
             setloader(false);
             console.log("Error: ", error);
         });
@@ -1101,9 +1147,9 @@ export default function Creacion() {
         _obs.push(
             {
                 fecha: moment().format("DD/MM/YYYY HH:MM"),
-                observacion: ObservacionesModificar,
+                observacion: `Se realiza el diagnostico y se ${(FiltroData.getEsCompletado(ListadoDLPRespuesta).length == 0 ? "completa el diagnostico quedando resuelto" : "guarda sin completar el diagnostico")}`,
                 usuario: vUser.Nombres,
-                estado: JSON.stringify((FiltroData.getEsCompletado(ListadoDLPRespuesta).length == 0 ?  EstadosRequerimientos.filter((e:any)=>e.valor == "8" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}}):EstadosRequerimientos.filter((e:any)=>e.valor == "5" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}})))
+                estado: JSON.stringify((FiltroData.getEsCompletado(ListadoDLPRespuesta).length == 0 ?  EstadosRequerimientos.filter((e:any)=>e.valor == "8" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}})[0]:EstadosRequerimientos.filter((e:any)=>e.valor == "5" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}})[0]))
             }
         )
         let Campos = {};
@@ -1626,6 +1672,105 @@ export default function Creacion() {
                         Cancelar
                     </Button>
                 </Modal.Footer>
+            </Modal>
+
+            {/* Modal para diagnostico */}
+            <Modal show={ShowModalDiag} onHide={setShowModalDiag} size={"xl"}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Informe de diagnóstico</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {/* Encabezado */}
+                    <div className="card">
+                        <div className="row">
+                            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Cliente: </label>
+                                </div>
+                                <span className="mx-4 fs-5 text-muted">{Encabezado.Cliente}</span>
+                            </div>
+                            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Placa: </label>
+                                </div>
+                                <span className="mx-4 fs-6 text-muted">{Encabezado.RegistrationNumber}</span>
+                            </div>
+                            <div className="col-sm-5 col-xl-5 col-md-5 col-lg-5">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Admintrador (es) : </label>
+                                </div>
+                                <span className="mx-4 fs-5 text-muted">{(Encabezado.Administrador != undefined ?JSON.parse(Encabezado.Administrador).map((e: any) => e.Nombres).join() :[].map((e: any) => e.Nombres).join())}</span>
+                            </div>
+                            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Sitio: </label>
+                                </div>
+                                <span className="mx-4 fs-6 text-muted">{Encabezado.Sitio}</span>
+                            </div>
+                            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Días sin Tx: </label>
+                                </div>
+                                <span className="mx-4 fs-5 text-muted">{Encabezado.DiasSinTx}</span>
+                            </div>
+
+                            <div className="col-sm-5 col-xl-5 col-md-5 col-lg-5">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Descripción: </label>
+                                </div>
+                                <span className="mx-4 fs-6 text-muted">{Encabezado.AssetDescription}</span>
+                            </div>
+                            {
+                                (Encabezado.Fallas != 0) && (<div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                    <div className="">
+                                        <label className="mx-4 fs-6 fw-bolder">Fallas : </label>
+                                    </div>
+                                    <span className="mx-4 fs-6 text-muted">{Encabezado.Fallas}</span>
+                                </div>)
+                            }
+                        </div>
+                    </div>
+                    {/* Cuerpo */}
+                    <div className="card" style={{overflowY:'scroll',height: '300px'}}>
+                            <div className="row">
+                                {
+                                    console.log(InfDiag.reduce((k:any,c:any) =>{
+                                        let name = c.categoria;
+                                        k[name] = k[name] ?? [];
+                                        k[name].push(c);
+                                        return k;
+                                    },{}))
+                                }
+                                {
+                                    (InfDiag.length != 0) && (Object.entries(InfDiag.reduce((k:any,c:any) =>{
+                                        let name = c.categoria;
+                                        k[name] = k[name] ?? [];
+                                        k[name].push(c);
+                                        return k;
+                                    },{})).map((val:any,index:any) =>{
+                                        return  <div className="row m-5">
+                                            <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                                                <span className="text-center fw-bolder text-primary"> {val[0].toUpperCase()}</span>
+                                            </div>
+                                            {val[1].map((item:any) =>{
+                                                return <div key={item} className="col-sm-3 col-xl-3 col-md-3 col-lg-3 mt-5">
+                                                <div key={item.order+index} className="">
+                                                    <label  key={item.order +index +1 } className="control-label label-sm fw-bolder">{`${parseInt(item.order)+1}. ${item.label}`}</label>
+                                                </div>
+                                                <span key={item.order +index +2} className="mx-4 fs-6 text-muted">{(item.Respuesta == true ? "Si":(item.Respuesta  == false ? "No":item.Respuesta))}</span>
+                                                <div key={item.order+index+3}  className="">
+                                                    <span key={item.order+ index +4} className="mx-4 fs-6 text-muted">{item.RespuestaObservacion}</span>
+                                                </div>
+                                            </div>
+                                            })}
+                                            
+                                        </div>
+                                    }))
+                                }
+                           </div>
+                            
+                    </div>
+                </Modal.Body>
             </Modal>
         </>
     )
