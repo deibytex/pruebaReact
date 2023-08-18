@@ -708,9 +708,16 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         onHide={handleClose}
         size="lg">
         <Modal.Header closeButton>
-          <Modal.Title >Alerta <span className="text-success">{`${Alerta}`}</span> - Placa <span className="text-success">{`${Placa}`} </span> 
-          - Fecha Ultimo Evento <span className="text-success">{`${fechaEvento}`} </span> - Cantidad Eventos <span className="text-success">{`${totalEventos}`} </span>  </Modal.Title>
+          <Modal.Title>
+            Gestionar Alerta
+          </Modal.Title>
         </Modal.Header>
+        <Modal.Body>
+        Alerta: <span className="text-success">{`${Alerta}`} </span> 
+        Placa: <span className="text-success">{`${Placa}`} </span> 
+        Fecha Ultimo Evento: <span className="text-success">{`${fechaEvento}`} </span> 
+        Cantidad Eventos <span className="text-success">{`${totalEventos}`} </span>  
+        </Modal.Body>
         <Modal.Body>
           <div className="row">
             <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
@@ -720,8 +727,8 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
               </div>
             </div>
           </div>
-          <p></p>
-          <div className="row">
+          
+          <div className="row m-4">
             <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
               <Button type="button" variant="primary" onClick={() => {
                 setObservacion(obervacionGestion, 'false');
