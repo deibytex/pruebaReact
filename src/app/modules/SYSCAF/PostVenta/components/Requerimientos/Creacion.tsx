@@ -1,7 +1,7 @@
 import BlockUi from "@availity/block-ui";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PageTitle } from "../../../../../../_start/layout/core";
-import { DeleteRequerimiento, FiltroData, GetEncabezado, GetEncabezadoFallas, GetRequerimientos, SetNotificaciones, SetRequerimiento, listTabsRequerimientos } from "../../data/Requerimientos";
+import { DeleteRequerimiento, FiltroData, GetEncabezado, GetEncabezadoFallas, GetRequerimientos, SetDiagnostico, SetNotificaciones, SetRequerimiento, listTabsRequerimientos } from "../../data/Requerimientos";
 import { DrawDynamicIconMuiMaterial } from "../../../../../../_start/helpers/components/IconsMuiDynamic";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import moment from "moment";
@@ -23,6 +23,7 @@ import confirmarDialog, { confirmarDialogText, successDialog } from "../../../..
 import { set } from "rsuite/esm/utils/dateUtils";
 export default function Creacion() {
     const toaster = useToaster();
+    const tableContainerRef = useRef<HTMLDivElement>(null);
 
     const message = (type: any, titulo: string, mensaje: React.ReactNode) => {
       return (<Notification className="bg-light-danger" type={type} header={titulo}
@@ -88,7 +89,7 @@ export default function Creacion() {
     const [show, setshow] = useState<boolean>(false);
     const [ShowFiltros, setShowFiltros] = useState<boolean>(false);
     const [showedit, setshowedit] = useState<boolean>(false);
-    const [GrandeModal, setGrandeModal] = useState<any>('lg');
+    const [GrandeModal, setGrandeModal] = useState<any>('');
     const [ShowAsignacion, setShowAsignacion] = useState<boolean>(false);
     const [Encabezado, setEncabezado] = useState<any>({});
     const [TipoRequerimientosSeleccionado, setTipoRequerimientosSeleccionado] = useState<any>({ Nombre: "", Value: "" });
@@ -262,20 +263,28 @@ export default function Creacion() {
                 accessorKey: 'label',
                 header: 'Pregunta',
                 Cell({ cell, column, row, table, }) {
-                 
-                   
-                    return <div><label className="control-label label label-sm fw-bolder text-primary">{row.original.label}</label>{row.original.esobligatorio  == "si" ? <span className="text-danger">*</span>:<span></span>} {
+                    return <label className="control-label label label-sm fw-bolder text-primary preguntas">{row.original.label}</label>
+                },
+            },
+            {
+                accessorKey: 'Respuesta',
+                header: 'Respuesta',
+                size:10,
+                Cell({ cell, column, row, table, }) {
+                    return <div>{
                             (row.original.tipo == "check" ?
                         <input 
+                        className="Respuestas"
                         type="checkbox"
                         style={{borderColor:'#eb3626'}}
-                        // id={`${row.original.id}`} 
-                        // title={row.original.label}
+                        id={`${row.original.id}`} 
+                        title={row.original.label}
                         // data-rel={`${row.original.categoria}${row.original.order}`} 
+                        defaultChecked={row.original.Respuesta}
                         value={row.original.Respuesta}
                         onChange={Click}
                         />:
-                        <input type="text" className="form-control input input-sm" placeholder="Ingrese una respuesta"></input> )}
+                        <input type="text"   id={`${row.original.id}`}  value={row.original.Respuesta}  onChange={Click} className="form-control input input-sm" placeholder="Ingrese una respuesta"></input> )}
                         </div> 
                 },
             },
@@ -291,10 +300,10 @@ export default function Creacion() {
                 Cell({ cell, column, row, table, }) {
                     return <div> {
                                     (row.original.observaciones == "si" ? 
-                                        <input type="text" className="form-control input input-sm" id={`obs-${row.original.Id}`} placeholder="Observación"></input>
+                                        <input type="text" className="form-control input input-sm" data-rel={`${row.original.id}`} value={row.original.RespuestaObservacion} onChange={CambioObs} placeholder="Observación"></input>
                                         :
                                 (row.original.observaciones == "si-obligatorio" ?
-                                    <input type="text" className="form-control input input-sm" id={`obs-${row.original.Id}`} placeholder="Observación obligatoria"></input>
+                                    <input type="text" className="form-control input input-sm" data-rel={`${row.original.id}`} value={row.original.RespuestaObservacion} onChange={CambioObs} placeholder="Observación obligatoria"></input>
                                     :
                                 <div></div>
                                 ))
@@ -304,15 +313,17 @@ export default function Creacion() {
         ];
         const Click = (e:any) =>{
             let listado = [...ListadoDLPRespuesta];
-            let d:any[] = [];
-            d = listado.map((a:any, b:any) =>{
-                if(a.id == e.currentTarget.attributes['id'].value){
-                    a.Respuesta = e.target.checked;
-                }
+            setListadoDLPRespuesta(listado.map((a: any) => {
+                a.Respuesta = (a.id==e.currentTarget.attributes['id'].value ?e.target.checked: a.Respuesta);
                 return a;
-            });
-           // setListadoDLPRespuesta(d);
-            console.log(d);
+            }));
+        }
+        const CambioObs = (e:any) =>{
+            let listado = [...ListadoDLPRespuesta];
+            setListadoDLPRespuesta(listado.map((a: any) => {
+                a.RespuestaObservacion = (a.id==e.currentTarget.attributes['data-rel'].value ?e.target.value: a.RespuestaObservacion);
+                return a;
+            }));
         }
     //FUNCION PARA RETORNAR UN ESTADO GRAFICAMENTE
     const RetornarEstado = (data: any) => {
@@ -471,35 +482,23 @@ export default function Creacion() {
     }, [tabSel, AgentesSeleccionado, ClienteSeleccionado, EstadoSeleccionado])
 
    // A ver si funciona
-    useEffect(() =>{
-        if(Diagnostico.length == 0){
-            let listado = [...ListadoDLP];
-            setListadoDLPRespuesta(listado.map((val:any, index:any) =>{
-                if(val.Respuesta == undefined){
-                    val.Respuesta = false;
-                }
-                return val;
-            }))
-        }else
-        {
-            let listado = [...ListadoDLP];
-          let d:any[] =[];
-           listado.map((a:any, b:any) =>{
-            d.push(Diagnostico.map((val:any) =>{
-                if( val.id == a.id)
-                    a.Respuesta = val.Respuesta
-                    return a;
-                }));
-            });
-            let c = d.map((e:any) =>{
-                return e[0];
-            })
-            console.log(c);
-            setListadoDLPRespuesta(c);
-        }
-       
-        
-    },[Diagnostico]);
+    useEffect(() => {
+        // te traes la informaci'on almacenada y verificas que no tenga datos
+        let listado = [...ListadoDLP];
+        setListadoDLPRespuesta(listado.map((a: any) => {
+            a.Respuesta = false;
+            a.RespuestaObservacion = "";
+            if (Diagnostico.length > 0) {
+                let find = Diagnostico.find((f: any) => f.id == a.id);
+                a.Respuesta = find.Respuesta;
+                a.RespuestaObservacion = find.RespuestaObservacion;
+            }
+            return a;
+        }));
+    }, [Diagnostico]);
+    // useEffect(() =>{
+    //     (GrandeModal != '' ? setshowedit(true):setshowedit(false));
+    // },[GrandeModal])
     //FUNCION PARA VALIDAR LAS FECHAS
     let ValidarFechas = (Range: Date[]) => {
         let Tiporeporte = [...TipoReporte];
@@ -615,6 +614,7 @@ export default function Creacion() {
 
         );
     }
+    //Detalles del modal.
     const DetallesModal = (row: any) => {
         let Data = JSON.parse(row.original.Observaciones);
         setDetallesDatos(Data);
@@ -648,7 +648,6 @@ export default function Creacion() {
 
         );
     }
-
     //PARA QUE PUEDAN SELECCIONAR UN USUARIO NUEVO.
     function AgentesEditar() {
         return (
@@ -714,8 +713,10 @@ export default function Creacion() {
         //
         //
         //=======================================================================================================================================================
-        (vUser.perfil == PerfilEmpleado && !UserCount[0].EsGestor && EstadoSelect[0].valor =="5" ?EncabezadoConsulta(Cabeceras[0].assetid):EncabezadoSinconsulta());
-      
+        //&& !UserCount[0].EsGestor
+        (vUser.perfil == PerfilEmpleado  && EstadoSelect[0].valor =="5" ?EncabezadoConsulta(Cabeceras[0].assetid):EncabezadoSinconsulta());
+        (vUser.perfil == PerfilEmpleado && EstadoSelect[0].valor =="5" ?setGrandeModal("xl"):setGrandeModal("lg"));
+        setshowedit(true)
         let Obs = JSON.parse(row.original.Observaciones);
         setObsInicial(Obs);
         setTipoRequerimientosSeleccionado(
@@ -727,191 +728,6 @@ export default function Creacion() {
         setId(row.original.Id);
         setAdmin(_admin[0]);
     };
-
-    const ModalEtiquetas = () =>{
-       return <div className="row">
-                <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 text-center">
-                    <div className="row">
-                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                            <span className="mx-4 fs-6 fw-bolder">Cliente: </span><span className="mx-4 fs-5 text-muted">{Consecutivo}</span>
-                        </div>
-                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                            <span className="mx-4 fs-6 fw-bolder">Creado por: </span><span className="mx-4 fs-6 text-muted">{Admin.Administrador}</span>
-                        </div>
-                    </div>
-                </div>
-                {/* <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
-                </div> */}
-                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                    <div className="form-control-sm">
-                        <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Agente: </label>
-                        <AgentesEditar></AgentesEditar>
-                    </div>
-                </div>
-                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                    <div className="form-control-sm">
-                        <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Estados: </label>
-                        <EstadosEditar></EstadosEditar>
-                    </div>
-                </div>
-                <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
-                    <div className="form-control-sm">
-                        <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Observaciones: </label>
-                        <textarea className="form-control" rows={3} value={ObservacionesModificar} onChange={(e) => {
-                            setObservacionesModificar(e.target.value);
-                        }}></textarea>
-                    </div>
-                </div>
-            </div>
-    }
-     const ModalProgreso = () =>{
-        let administradores = (Encabezado.Administrador != undefined ?JSON.parse(Encabezado.Administrador):[]) ;
-        return   <div className="container">
-                <div className="row">
-                    <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                        <div className="">
-                            <label className="mx-4 fs-6 fw-bolder">Cliente: </label>
-                        </div>
-                        <span className="mx-4 fs-5 text-muted">{Encabezado.Cliente}</span>
-                    </div>
-                    <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
-                        <div className="">
-                            <label className="mx-4 fs-6 fw-bolder">Placa: </label>
-                        </div>
-                        <span className="mx-4 fs-6 text-muted">{Encabezado.RegistrationNumber}</span>
-                    </div>
-                    <div className="col-sm-5 col-xl-5 col-md-5 col-lg-5">
-                        <div className="">
-                            <label className="mx-4 fs-6 fw-bolder">Admintrador (es) : </label>
-                        </div>
-                      <span className="mx-4 fs-5 text-muted">{administradores.map((e:any)=> e.Nombres).join()}</span>
-                    </div>
-                    <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                        <div className="">
-                            <label className="mx-4 fs-6 fw-bolder">Sitio: </label>
-                        </div>
-                        <span className="mx-4 fs-6 text-muted">{Encabezado.Sitio}</span>
-                    </div>
-                    <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
-                        <div className="">
-                            <label className="mx-4 fs-6 fw-bolder">Días sin Tx: </label>
-                        </div>
-                        <span className="mx-4 fs-5 text-muted">{Encabezado.DiasSinTx}</span>
-                    </div>
-                  
-                    <div className="col-sm-5 col-xl-5 col-md-5 col-lg-5">
-                        <div className="">
-                            <label className="mx-4 fs-6 fw-bolder">Descripción: </label>
-                        </div>
-                        <span className="mx-4 fs-6 text-muted">{Encabezado.AssetDescription}</span>
-                    </div>
-                    {
-                        (Encabezado.Fallas != 0) && (<div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                            <div className="">
-                                <label className="mx-4 fs-6 fw-bolder">Fallas : </label>
-                            </div>
-                            <span className="mx-4 fs-6 text-muted">{Encabezado.Fallas}</span>
-                    </div>)
-                    }
-                </div>
-                <div className="row">
-                    <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
-                        {(ListadoDLP.length != 0) && (<MaterialReactTable
-                          localization={MRT_Localization_ES}
-                         muiTableHeadCellProps={{
-                            sx: () => ({
-                                fontSize: 14,
-                                fontStyle: 'bold',
-                                color: 'rgb(27, 66, 94)'
-                            }),
-                        }}
-                            columns={ColumnasPreguntas}
-                            data={ListadoDLPRespuesta}
-                            enableColumnResizing
-                            enableDensityToggle={false}
-                            enablePagination={false}
-                            enableRowVirtualization
-                            enableGrouping
-                            enableStickyHeader
-                            enableStickyFooter
-                            initialState={{
-                                density: 'compact',
-                                expanded: true, //expand all groups by default
-                                grouping: ['categoria'], //an array of columns to group by by default (can be multiple)
-                                sorting: [{ id: 'order', desc: false }], //sort by state by default
-                                columnVisibility: { order: false }
-                            }}
-                            muiToolbarAlertBannerChipProps={{ color: 'primary' }}
-                            muiTableContainerProps={{ sx: { maxHeight: 400 } }}
-                            />)}
-                    </div>
-                    
-                        
-                </div>
-                {/* { 
-
-
-
-
-
-
-
-
-                    // (Object.entries(lista)).length != 0 && (
-                    //     Object.entries(lista).map((elem: any,index:any) => {
-                    //         return<div key={elem[0]} className="mt-5">
-                    //         <div key={index} className="">
-                    //             <div key={index+2} className="card">
-                    //                 <div className="card border border-primary">
-                    //                     <span  className ="text-muted fs-7 fw-bolder m-5" key={index+1}>{elem[0].toUpperCase()}</span>
-                    //                 {
-                    //                 elem[1].map((e:any, indexE:any) =>{
-                    //                    return(<div key={parseInt(e.order)+1} className="form-control" >
-                    //                             <div key={parseInt(e.order)+2} className="row">
-                    //                                 <div style={{borderColor:'#eb3626', border:'2 px solid'}} key={parseInt(e.order)+3}  className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                    //                                     <label className="control-label label label-sm fw-bolder" htmlFor={e.categoria+e.order} key={indexE}>{e.label}</label>{(e.esobligatorio =="si" ? <span className="text-danger">*</span>:<span></span>)}
-                    //                                     <div className="form-control" key={parseInt(e.order)+4}>
-                    //                                        {(e.tipo == "check" ?
-                    //                                             <Checkbox className="" style={{borderColor:'#eb3626'}} id={e.categoria+e.order} title={e.label} onClick={() => console.log("Check")}/>:
-                    //                                             <input type="text" className="form-control input input-sm" placeholder="Ingrese una respuesta"></input> )}
-                    //                                     </div>
-                    //                                 </div>
-                    //                                 <div key={parseInt(e.order)+5}  className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                    //                                     {
-                    //                                          (e.observaciones == "si" ? 
-                    //                                          <div> 
-                    //                                              <label className="conrol-label label label-sm">Observación</label>
-                    //                                              <div className="form-control">
-                    //                                                  <input type="text" className="form-control input input-sm" id={`obs`} placeholder="Ingrese una respuesta"></input>
-                    //                                              </div>
-                    //                                          </div>:
-                    //                                         (e.observaciones == "si-obligatorio" ?
-                    //                                             <div> 
-                    //                                                 <label className="conrol-label label label-sm">Observación</label><span title="Es obligatorio" className="text-danger">*</span>
-                    //                                                 <div className="form-control">
-                    //                                                     <input type="text" className="form-control input input-sm" id={`obs`} placeholder="Ingrese una respuesta"></input>
-                    //                                                 </div>
-                    //                                             </div>:
-                    //                                         <div></div>
-                    //                                         ))
-                    //                                     }
-                    //                                 </div>
-                    //                             </div>
-                    //                     </div>)
-                    //                 })
-                    //                }
-                    //                 </div>
-                                    
-                                  
-                    //             </div>
-                    //         </div>
-                    //     </div>
-                    //     })
-                    // )
-                }*/}
-                    
-            </div>
-     }
     //Para Crearlo y enviarlo al servidor
     const Guardar = () => {
         if (ObservacionesModificar == null || ObservacionesModificar == undefined || ObservacionesModificar == "") {
@@ -1225,6 +1041,7 @@ export default function Creacion() {
     }
     //Obtiene un encabezado
     const EncabezadoConsulta = (id:any) =>{
+        setGrandeModal('xl');
         setloader(true);
         let DatosEncabezados:any[] = [];
         let Señales:any[]=[];
@@ -1244,15 +1061,12 @@ export default function Creacion() {
                                 return val;
                         })
                     setEncabezado(Señales[0]);
-                    ModalProgreso();
                     setloader(false)
                 }).catch(({err}) =>{
                     console.log(err);
                     setloader(false);
                 });
             }
-            setGrandeModal('xl');
-            setshowedit(true);
         }).catch(({error}) =>{
             setshowedit(true);
             setloader(false);
@@ -1261,14 +1075,77 @@ export default function Creacion() {
     }
     const EncabezadoSinconsulta = () =>{
         setloader(true);
-        ModalEtiquetas();
         setGrandeModal('lg');
         setloader(false)
-        setshowedit(true);
     }
     const GuardarOtro = () =>{
-        console.log("guarda en otro lado");
+        console.log(FiltroData.getEsCompletado(ListadoDLPRespuesta).length);
+        // let _Cabecera = {
+        //     administrador: Admin.Administrador,
+        //     UsuarioId: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.UserId) ,
+        //     assetid: CabeceraIncial[0].assetid,
+        //     clienteid: CabeceraIncial[0].clienteid.toString(),
+        //     registrationNumber: CabeceraIncial[0].registrationNumber,
+        //     nombrecliente: CabeceraIncial[0].nombrecliente,
+        //     agente: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.Nombres) 
+        // }
+        // setCabecera(_Cabecera);
+        let _obs = ObsInicial;
+        _obs.push(
+            {
+                fecha: moment().format("DD/MM/YYYY HH:MM"),
+                observacion: ObservacionesModificar,
+                usuario: vUser.Nombres,
+                estado: JSON.stringify((FiltroData.getEsCompletado(ListadoDLPRespuesta).length == 0 ?  EstadosRequerimientos.filter((e:any)=>e.valor == "8" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}}):EstadosRequerimientos.filter((e:any)=>e.valor == "5" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}})))
+            }
+        )
+        let Campos = {};
+        Campos["Diagnostico"] = JSON.stringify(ListadoDLPRespuesta);
+        Campos["Observaciones"] = JSON.stringify(_obs);
+        Campos["Estado"] = JSON.stringify((FiltroData.getEsCompletado(ListadoDLPRespuesta).length == 0 ?  EstadosRequerimientos.filter((e:any)=>e.valor == "8" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}})[0]:EstadosRequerimientos.filter((e:any)=>e.valor == "5" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}})[0])); 
+        Campos["Id"] = Id;
+        confirmarDialog(() => {
+            setloader(true)
+            SetDiagnostico(Campos).then((response: AxiosResponse<any>) => {
+                if (response.statusText == "OK") {
+                    successDialog(response.data[0][""], '');
+                    setshowedit(false);
+                    let data: any = DatosTabla.map((val: any) => {
+                        if (val.Id == Id) {
+                            val.Cabecera = Campos['Cabecera'];
+                            val.Estado = Campos['Estado'];
+                            val.Diagnostico = Campos['Diagnostico']
+                            val.Observaciones = Campos['Observaciones'];
+                        }
+                        return val;
+                    });
+                    let Tiporeporte = [...TipoReporteBase];
+                    Tiporeporte[tabSel].Data = data;
+                    setTipoReporte(Tiporeporte);
+                    FiltroDatos();
+                    PintarIndicadores(data);
+                    // if(vUser.perfil == PerfilEmpleado && UserCount[0].EsGestor && EstadoRequerimientosSeleccionadoAnterior.label != Asignados &&  EstadoRequerimientosSeleccionado.label == Asignados){
+                    //     let dataNotificacion = {};
+                    //     dataNotificacion['UsuarioId'] = UsuarioSeleccionado.UserId;
+                    //     dataNotificacion['RequerimientoId'] = Id;
+                    //     dataNotificacion['Descripcion']= TextoNotificacion.replace("{UsuarioDestino}",`${UsuarioSeleccionado.Nombres}`).replace("{Admin}",`${Admin.Administrador}`).replace("{Consecutivo}",`${ConsecutivoNotificacion}`);
+                    //     dataNotificacion['NotificarCorreo']= NotificarCorreo;
+                    //     dataNotificacion['NotificarPortal']= NotificarPortal;
+                    //     Notificar(dataNotificacion)
+                    // }
+                    setloader(false);
+                }
+
+            }).catch(({ error }) => {
+                console.log("Error", error)
+                setshowedit(false);
+            });
+        }, `¿Esta seguro que desea guardar el registro ${(FiltroData.getEsCompletado(ListadoDLPRespuesta).length == 0 ? "" : "sin completar")}?`, 'Guardar');
     };
+    const SeteoObservaciones = (e:any) =>{
+        e.stopPropagation();
+        setObservacionesModificar(e.target.value);
+    }
     return (
         <>
             <PageTitle>Interfaz de requerimientos</PageTitle>
@@ -1497,6 +1374,9 @@ export default function Creacion() {
                         </div>
                     </div>
                 </div>
+                <div className="card text-center" style={{ display: (UserCount.length == 0 ?'inline':'none' )}}>
+                        <span className="text-muted fs-2">{`${vUser.Nombres}`} no esta registrado en la configuración</span>
+                </div>
             </BlockUi>
             <Modal show={show} onHide={setshow} size={"lg"}>
                 <Modal.Header closeButton>
@@ -1576,9 +1456,122 @@ export default function Creacion() {
                     <Modal.Title>{Titulo}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    {
-                       (showedit) && (GrandeModal== "xl" ? <ModalProgreso></ModalProgreso>  :<ModalEtiquetas></ModalEtiquetas>)  
-                    }
+                    <div className="row" style={{display:(GrandeModal== "lg"? "online":"none")}}>
+                        <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 text-center">
+                            <div className="row">
+                                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                                    <span className="mx-4 fs-6 fw-bolder">Cliente: </span><span className="mx-4 fs-5 text-muted">{Consecutivo}</span>
+                                </div>
+                                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                                    <span className="mx-4 fs-6 fw-bolder">Creado por: </span><span className="mx-4 fs-6 text-muted">{Admin.Administrador}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                            <div className="form-control-sm">
+                                <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Agente: </label>
+                                <AgentesEditar></AgentesEditar>
+                            </div>
+                        </div>
+                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                            <div className="form-control-sm">
+                                <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Estados: </label>
+                                <EstadosEditar></EstadosEditar>
+                            </div>
+                        </div>
+                        <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                            <div className="form-control-sm">
+                                <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Observaciones: </label>
+                                <textarea className="form-control" rows={3} value={ObservacionesModificar} onChange={
+                                    SeteoObservaciones
+                                    }></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="container" style={{display:(GrandeModal== "xl" ? "online":"none")}}>
+                        <div className="row">
+                            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Cliente: </label>
+                                </div>
+                                <span className="mx-4 fs-5 text-muted">{Encabezado.Cliente}</span>
+                            </div>
+                            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Placa: </label>
+                                </div>
+                                <span className="mx-4 fs-6 text-muted">{Encabezado.RegistrationNumber}</span>
+                            </div>
+                            <div className="col-sm-5 col-xl-5 col-md-5 col-lg-5">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Admintrador (es) : </label>
+                                </div>
+                                <span className="mx-4 fs-5 text-muted">{(Encabezado.Administrador != undefined ?JSON.parse(Encabezado.Administrador).map((e: any) => e.Nombres).join() :[].map((e: any) => e.Nombres).join())}</span>
+                            </div>
+                            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Sitio: </label>
+                                </div>
+                                <span className="mx-4 fs-6 text-muted">{Encabezado.Sitio}</span>
+                            </div>
+                            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Días sin Tx: </label>
+                                </div>
+                                <span className="mx-4 fs-5 text-muted">{Encabezado.DiasSinTx}</span>
+                            </div>
+
+                            <div className="col-sm-5 col-xl-5 col-md-5 col-lg-5">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Descripción: </label>
+                                </div>
+                                <span className="mx-4 fs-6 text-muted">{Encabezado.AssetDescription}</span>
+                            </div>
+                            {
+                                (Encabezado.Fallas != 0) && (<div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                    <div className="">
+                                        <label className="mx-4 fs-6 fw-bolder">Fallas : </label>
+                                    </div>
+                                    <span className="mx-4 fs-6 text-muted">{Encabezado.Fallas}</span>
+                                </div>)
+                            }
+                        </div>
+                        <div className="row">
+                            <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                                {(ListadoDLPRespuesta.length != 0) && (<MaterialReactTable
+                                    localization={MRT_Localization_ES}
+                                    muiTableHeadCellProps={{
+                                        sx: () => ({
+                                            fontSize: 14,
+                                            fontStyle: 'bold',
+                                            color: 'rgb(27, 66, 94)'
+                                        }),
+                                    }}
+                                    columns={ColumnasPreguntas}
+                                    data={ListadoDLPRespuesta}
+                                    enableColumnResizing
+                                    enableDensityToggle={false}
+                                    enablePagination={false}
+                                    enableRowVirtualization
+                                    enableGrouping
+                                    enableStickyHeader
+                                    enableStickyFooter
+                                    initialState={{
+                                        density: 'compact',
+                                        expanded: true, //expand all groups by default
+                                        grouping: ['categoria'], //an array of columns to group by by default (can be multiple)
+                                        sorting: [{ id: 'order', desc: false }], //sort by state by default
+                                        columnVisibility: { order: false }
+                                    }}
+                                    muiToolbarAlertBannerChipProps={{ color: 'primary' }}
+                                    muiTableContainerProps={{ 
+                                        ref: tableContainerRef, //get access to the table container element
+                                        sx: { maxHeight: 400 }
+                                     }}
+                                />)}
+                            </div>
+                        </div>
+                    </div>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button type="button" className="btn btn-sm" variant="primary" onClick={() => {

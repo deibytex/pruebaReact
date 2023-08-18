@@ -98,7 +98,19 @@ export function GetEncabezadoFallas(FechaInicial:any, FechaSinTx:any, ClienteIds
         RecordsPorPagina: null
     }, params)
 }
-
+//Se guarda el diagnostico
+export function SetDiagnostico(Datos:any){
+    var params: { [id: string]: string | null | undefined; } = {};
+    params["Diagnostico"] = Datos.Diagnostico;
+    params["Observaciones"] = Datos.Observaciones;
+    params["Estado"] = Datos.Estado;
+    params["Id"] = String(Datos.Id);
+    return Post_GetConsultasDinamicasUser({
+        NombreConsulta: "setDiagnostico", Clase: "GOIQueryHelper",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, params)
+}
 
 
 //======================================================================================================================================
@@ -261,6 +273,14 @@ export const FiltroData = {
     getEstadosJson : (Estado:any) =>{
         let estado = (FiltroDashBoardData.EsJson(Estado)  == true ? JSON.parse(Estado) : Estado);
         return(estado.label == undefined ? estado : estado.label);
+    },
+    getEsCompletado : (data:any[]) =>{
+        return data.filter((val:any) =>{
+            if(val.esobligatorio == "si" && val.Respuesta == false)
+              return val;
+            else if(val.observaciones == "si-obligatorio" && val.RespuestaObservacion == "" || val.RespuestaObservacion == null || val.RespuestaObservacion == undefined )
+                return val;
+        })
     }
 };
 // cuando se usa un filtro permite traer el unico valor de todas los valores del array
@@ -278,3 +298,6 @@ export const RequerimientoFunciones = {
         }, `¿Esta seguro que desea asignar el registro?`, 'Aceptar');
     },
 }   
+
+
+//Espacios pAra las Columnas
