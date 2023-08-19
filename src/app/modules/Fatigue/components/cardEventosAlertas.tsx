@@ -22,7 +22,7 @@ import { RootState } from "../../../../setup";
 import { UserModelSyscaf } from "../../auth/models/UserModel";
 import moment from "moment";
 import { CheckboxGroup, Checkbox, useToaster, Notification } from "rsuite";
-import { FormatoColombiaDDMMYYY, FormatoColombiaDDMMYYYHHmmss } from "../../../../_start/helpers/Constants";
+import { FormatoColombiaDDMMYYY, FormatoColombiaDDMMYYYHHmm, FormatoColombiaDDMMYYYHHmmss } from "../../../../_start/helpers/Constants";
 type Props = {
 
   isActive: boolean;
@@ -140,11 +140,11 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
       x.isSelected = value.includes(x.valor);
       return x;
     });
-    
+
     setValue(value);
     setRiesgoSelected(aux);
 
-    
+
 
     const filteredArray = dataAlertas.filter((item: any) => value.indexOf(item.Criticidad) > -1);
 
@@ -228,7 +228,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
   ]
 
- 
+
   let preSeleccionadosAlarmas = defaultAlarmasSelected.filter(x => x.isSelected).map(x => x.name);
 
   const [value3, setValue3] = useState<any[]>(preSeleccionadosAlarmas);
@@ -266,21 +266,21 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
   //primer cargue carga userid
   useEffect(() => {
-    
+
     if (dataAlertasfiltrada.length > 0) {
-    
-    const filteredArray1 = dataAlertas.filter((item: any) => value.indexOf(item.Criticidad) > -1);
-    const filteredArray2 = filteredArray1.filter((item: any) => value2.indexOf(`${item.EstadoGestion}`) > -1);
-    const filteredArray3 = filteredArray2.filter((item: any) => value3.indexOf(item.TipoAlerta) > -1);
-    setDataAlertasCombinadas(filteredArray3);
+
+      const filteredArray1 = dataAlertas.filter((item: any) => value.indexOf(item.Criticidad) > -1);
+      const filteredArray2 = filteredArray1.filter((item: any) => value2.indexOf(`${item.EstadoGestion}`) > -1);
+      const filteredArray3 = filteredArray2.filter((item: any) => value3.indexOf(item.TipoAlerta) > -1);
+      setDataAlertasCombinadas(filteredArray3);
     }
-    
+
 
   }, [dataAlertasfiltrada, dataAlertas])
 
 
 
- //listado campos tablas
+  //listado campos tablas
   const columnasTabla: MRT_ColumnDef<any>[]
     = [
       {
@@ -338,7 +338,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
               : (cell.getValue() == false) ? <span className="badge bg-primary">En Gestion</span>
                 : <span>{row.original.EstadoGestion}</span>
         },
-      }, 
+      },
       {
         accessorKey: 'gestor',
         header: 'Analista',
@@ -350,7 +350,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
     ];
 
- 
+
   const columnasContacto: MRT_ColumnDef<any>[]
     = [
       {
@@ -431,7 +431,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
     ];
 
-    //pintar modal observaciones
+  //pintar modal observaciones
   useEffect(() => {
 
     if (observaciones != "" && observaciones != null) {
@@ -491,10 +491,12 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         getAlertas(clienteIds as string).then((response) => {
           setalertas(response.data);
 
+
         });
         if (escerrado == "true") {
           handleClose();
         }
+        else setesgestionado(false);
 
 
 
@@ -503,8 +505,9 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
           placement: 'topCenter'
         });
       });
-    }, escerrado == "false" ? `Esta seguro que desea agregar el comentario` : `Esta seguro que terminar la gestión`
-      , escerrado == "false" ? "Guardar" : "Terminar")
+    }, escerrado == "false" && observacion != 'Se reabre Gestión' ? `Esta seguro que desea agregar el comentario` : escerrado == 'true' ? `Esta seguro de terminar la gestión`
+      : `Esta seguro de reabrir la gestión`, escerrado == "false" && observacion != 'Se reabre Gestión'
+       ? "Guardar" : escerrado == 'true' ? "Terminar" : "Reabrir")
   }
 
   //gestión gestor
@@ -526,6 +529,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
           (response) => {
 
             setalertas(response.data);
+            setData([JSON.parse(JSON.stringify(GestorObervaciones))] as any[]);
             showModal();
 
           });
@@ -548,7 +552,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
     setesgestionado(row.EstadoGestion);
     setPlaca(row.vehiculo);
     setAlerta(row.TipoAlerta);
-    setfechaEvento(moment(JSON.parse(row.DetalladoEventos).at(-1).EventDateTime as Date).format(FormatoColombiaDDMMYYY));
+    setfechaEvento(moment(JSON.parse(row.DetalladoEventos).at(-1).EventDateTime as Date).format(FormatoColombiaDDMMYYYHHmm));
     settotalEventos(JSON.parse(row.DetalladoEventos).length)
 
     showModal();
@@ -558,6 +562,8 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
     setPlaca(row.vehiculo);
     setAlerta(row.TipoAlerta);
     setdetalleEventos(row.DetalladoEventos);
+    setfechaEvento(moment(JSON.parse(row.DetalladoEventos).at(-1).EventDateTime as Date).format(FormatoColombiaDDMMYYYHHmm));
+    settotalEventos(JSON.parse(row.DetalladoEventos).length)
 
     showModal2();
   }
@@ -713,10 +719,10 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-        Alerta: <span className="text-success">{`${Alerta}`} </span> 
-        Placa: <span className="text-success">{`${Placa}`} </span> 
-        Fecha Ultimo Evento: <span className="text-success">{`${fechaEvento}`} </span> 
-        Cantidad Eventos <span className="text-success">{`${totalEventos}`} </span>  
+          Alerta: <span className="text-success">{`${Alerta}`} </span>
+          Placa: <span className="text-success">{`${Placa}`} </span>
+          Fecha Ultimo Evento: <span className="text-success">{`${fechaEvento}`} </span>
+          Cantidad Eventos <span className="text-success">{`${totalEventos}`} </span>
         </Modal.Body>
         <Modal.Body>
           <div className="row">
@@ -727,29 +733,31 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
               </div>
             </div>
           </div>
-          
+
           <div className="row m-4">
-            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+
+            {(esgestionado != true) && (<div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
               <Button type="button" variant="primary" onClick={() => {
                 setObservacion(obervacionGestion, 'false');
               }}>
                 Guardar
-              </Button>
-            </div>
-            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
-              {esgestionado == false ? <Button type="button" variant="danger" onClick={() => {
-                setObservacion('Cierre Gestión', 'true');
-              }}>
-                Cerrar Gestion
-              </Button> : <></>}
-            </div>
-            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
-              {esgestionado == true ? <Button type="button" variant="danger" onClick={() => {
-                setObservacion('Cierre Gestión', 'true');
+              </Button></div>)}
+
+
+            {(esgestionado == false) && (<div className="col-sm-3 col-xl-3 col-md-3 col-lg-3"><Button type="button" variant="danger" onClick={() => {
+              setObservacion('Cierre Gestión', 'true');
+            }}>
+              Cerrar Gestion
+            </Button></div>)}
+
+
+            {(esgestionado == true) && (<div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+              <Button type="button" variant="danger" onClick={() => {
+                setObservacion('Se reabre Gestión', 'false');
               }}>
                 Reabrir Gestión
-              </Button> : <></>}
-            </div>
+              </Button> </div>)}
+
           </div>
 
         </Modal.Body>
@@ -811,8 +819,14 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         onHide={handleClose2}
         size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Alerta <span className="text-success">{`${Alerta}`}</span> - <span className="text-success">{`${Placa}`}</span></Modal.Title>
+          <Modal.Title>Detallado Eventos</Modal.Title>
         </Modal.Header>
+        <Modal.Body>
+          Alerta: <span className="text-success">{`${Alerta}`} </span>
+          Placa: <span className="text-success">{`${Placa}`} </span>
+          Fecha Ultimo Evento: <span className="text-success">{`${fechaEvento}`} </span>
+          Cantidad Eventos <span className="text-success">{`${totalEventos}`} </span>
+        </Modal.Body>
         <Modal.Body>
           <div>
             <MaterialReactTable
