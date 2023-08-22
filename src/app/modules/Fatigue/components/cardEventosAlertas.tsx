@@ -490,8 +490,6 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         setobervacionGestion("");
         getAlertas(clienteIds as string).then((response) => {
           setalertas(response.data);
-
-
         });
         if (escerrado == "true") {
           handleClose();
@@ -507,7 +505,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
       });
     }, escerrado == "false" && observacion != 'Se reabre Gestión' ? `Esta seguro que desea agregar el comentario` : escerrado == 'true' ? `Esta seguro de terminar la gestión`
       : `Esta seguro de reabrir la gestión`, escerrado == "false" && observacion != 'Se reabre Gestión'
-       ? "Guardar" : escerrado == 'true' ? "Terminar" : "Reabrir")
+      ? "Guardar" : escerrado == 'true' ? "Terminar" : "Reabrir")
   }
 
   //gestión gestor
@@ -724,89 +722,145 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
           Fecha Ultimo Evento: <span className="text-success">{`${fechaEvento}`} </span>
           Cantidad Eventos <span className="text-success">{`${totalEventos}`} </span>
         </Modal.Body>
-        <Modal.Body>
-          <div className="row">
-            <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
-              <div className="">
-                <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Adicionar Comentario:</label>
-                <textarea className="form-control  input input-sm " id={'obervacionueva'} onChange={getobservacion} rows={3} value={obervacionGestion}></textarea>
+        <Tabs
+          defaultActiveKey="gestion"
+          className="mb-3"
+        // justify
+        // onClick={() => {
+        //   console.log('hola', row);
+        // }} 
+        >
+          <Tab eventKey="gestion" title={`Gestión`} >
+            <Modal.Body>
+              <div className="row">
+                <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                  <div className="">
+                    <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Adicionar Comentario:</label>
+                    <textarea className="form-control  input input-sm " id={'obervacionueva'} onChange={getobservacion} rows={3} value={obervacionGestion}></textarea>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
 
-          <div className="row m-4">
+              <div className="row m-4">
 
-            {(esgestionado != true) && (<div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
-              <Button type="button" variant="primary" onClick={() => {
-                setObservacion(obervacionGestion, 'false');
-              }}>
-                Guardar
-              </Button></div>)}
+                {(esgestionado != true) && (<div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                  <Button type="button" variant="primary" onClick={() => {
+                    setObservacion(obervacionGestion, 'false');
+                  }}>
+                    Guardar
+                  </Button></div>)}
 
 
-            {(esgestionado == false) && (<div className="col-sm-3 col-xl-3 col-md-3 col-lg-3"><Button type="button" variant="danger" onClick={() => {
-              setObservacion('Cierre Gestión', 'true');
-            }}>
-              Cerrar Gestion
-            </Button></div>)}
+                {(esgestionado == false) && (<div className="col-sm-3 col-xl-3 col-md-3 col-lg-3"><Button type="button" variant="danger" onClick={() => {
+                  setObservacion('Cierre Gestión', 'true');
+                }}>
+                  Cerrar Gestion
+                </Button></div>)}
 
 
-            {(esgestionado == true) && (<div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
-              <Button type="button" variant="danger" onClick={() => {
-                setObservacion('Se reabre Gestión', 'false');
-              }}>
-                Reabrir Gestión
-              </Button> </div>)}
+                {(esgestionado == true) && (<div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                  <Button type="button" variant="danger" onClick={() => {
+                    setObservacion('Se reabre Gestión', 'false');
+                  }}>
+                    Reabrir Gestión
+                  </Button> </div>)}
 
-          </div>
+              </div>
 
-        </Modal.Body>
-        <Modal.Body>
-          <div>
-            <MaterialReactTable
-              localization={MRT_Localization_ES}
-              displayColumnDefOptions={{
-                'mrt-row-actions': {
-                  muiTableHeadCellProps: {
-                    align: 'center',
-                  },
-                  size: 120,
-                },
-              }}
-              columns={listadoCampos}
-              data={Data}
-              // editingMode="modal" //default         
-              enableTopToolbar={false}
-              enableColumnOrdering
-              // enableEditing
-              /* onEditingRowSave={handleSaveRowEdits}
-                  onEditingRowCancel={handleCancelRowEdits}*/
-              muiToolbarAlertBannerProps={
-                isError
-                  ? {
-                    color: 'error',
-                    children: 'Error al cargar información',
+            </Modal.Body>
+            <Modal.Body>
+              <div>
+                <MaterialReactTable
+                  localization={MRT_Localization_ES}
+                  displayColumnDefOptions={{
+                    'mrt-row-actions': {
+                      muiTableHeadCellProps: {
+                        align: 'center',
+                      },
+                      size: 120,
+                    },
+                  }}
+                  columns={listadoCampos}
+                  data={Data}
+                  // editingMode="modal" //default         
+                  enableTopToolbar={false}
+                  enableColumnOrdering
+                  // enableEditing
+                  /* onEditingRowSave={handleSaveRowEdits}
+                      onEditingRowCancel={handleCancelRowEdits}*/
+                  muiToolbarAlertBannerProps={
+                    isError
+                      ? {
+                        color: 'error',
+                        children: 'Error al cargar información',
+                      }
+                      : undefined
                   }
-                  : undefined
-              }
-              onColumnFiltersChange={setColumnFilters}
-              onGlobalFilterChange={setGlobalFilter}
-              onPaginationChange={setPagination}
-              onSortingChange={setSorting}
-              rowCount={rowCount}
+                  onColumnFiltersChange={setColumnFilters}
+                  onGlobalFilterChange={setGlobalFilter}
+                  onPaginationChange={setPagination}
+                  onSortingChange={setSorting}
+                  rowCount={rowCount}
 
-              state={{
-                columnFilters,
-                globalFilter,
-                isLoading,
-                pagination,
-                showAlertBanner: isError,
-                showProgressBars: isRefetching,
-                sorting,
-              }}
-            />
-          </div>
-        </Modal.Body>
+                  state={{
+                    columnFilters,
+                    globalFilter,
+                    isLoading,
+                    pagination,
+                    showAlertBanner: isError,
+                    showProgressBars: isRefetching,
+                    sorting,
+                  }}
+                />
+              </div>
+            </Modal.Body>
+          </Tab>
+          <Tab eventKey="Contacto" title={`Contactos`}>
+            <Modal.Body>
+              <MaterialReactTable
+                localization={MRT_Localization_ES}
+                displayColumnDefOptions={{
+                  'mrt-row-actions': {
+                    muiTableHeadCellProps: {
+                      align: 'center'
+                    }
+                  },
+                }}
+                columns={columnasContacto}
+                data={dataContacto}
+                enableTopToolbar
+                enableColumnOrdering
+                enableFilters
+                enablePagination={false}
+                enableColumnFilters={false}
+                muiToolbarAlertBannerProps={
+                  isError
+                    ? {
+                      color: 'error',
+                      children: 'Error al cargar información',
+                    }
+                    : undefined
+                }
+                onColumnFiltersChange={setColumnFilters}
+                onGlobalFilterChange={setGlobalFilter}
+                onPaginationChange={setPagination}
+                onSortingChange={setSorting}
+                rowCount={rowCount2}
+                initialState={{ density: 'compact' }}
+                state={{
+                  columnFilters,
+                  globalFilter,
+                  isLoading,
+                  pagination,
+                  showAlertBanner: isError,
+                  showProgressBars: isRefetching,
+                  sorting,
+                }}
+              />
+            </Modal.Body>
+          </Tab>
+        </Tabs>
+
         <Modal.Footer>
           <Button type="button" variant="secondary" onClick={handleClose}>
             Cancelar
