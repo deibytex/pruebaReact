@@ -27,10 +27,11 @@ type Props = {
 
   isActive: boolean;
   isDetails: boolean;
+  filtro: number;
 
 }
 
-const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
+const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) => {
 
   const isAuthorized = useSelector<RootState>(
     ({ auth }) => auth.user
@@ -109,40 +110,12 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
   // inicio filtros
   //WARNING NO CONSERVA FILTRO
-  const defaultRiesgoSelected: any[] = [
-    {
-      name: 'Alto',
-      data: [],
-      valor: 'Riesgo alto',
-      isSelected: true
-    },
-    {
-      name: 'Moderado',
-      data: [],
-      valor: 'Riesgo moderado',
-      isSelected: true
-    },
-    {
-      name: 'Bajo',
-      data: [],
-      valor: 'Riesgo bajo',
-      isSelected: true
-    }
-  ]
 
-  let preSeleccionadosriesgo = defaultRiesgoSelected.filter(x => x.isSelected).map(x => x.valor);
 
-  const [value, setValue] = useState<any[]>(preSeleccionadosriesgo);
 
   const handleChange = (value: any[]) => {
 
-    let aux = defaultRiesgoSelected.map((x: any) => {
-      x.isSelected = value.includes(x.valor);
-      return x;
-    });
 
-    setValue(value);
-    setRiesgoSelected(aux);
 
 
 
@@ -153,45 +126,14 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
   };
 
-  const [RiesgoSelected, setRiesgoSelected] = useState(defaultRiesgoSelected);
+  
 
-  const defaultGestionSelected: any[] = [
-    {
-      name: 'No Gestionados',
-      data: [],
-      valor: 'null',
-      isSelected: true
-    },
-    {
-      name: 'Gestionados No Cerrados',
-      data: [],
-      isSelected: true,
-      valor: 'false'
-    },
-    {
-      name: 'Gestionados',
-      data: [],
-      isSelected: true,
-      valor: 'true'
-    }
 
-  ]
 
-  let preSeleccionadosgestion = defaultGestionSelected.filter(x => x.isSelected).map(x => x.valor);
 
-  const [value2, setValue2] = useState<any[]>(preSeleccionadosgestion);
 
-  const [GestionSelected, setGestionSelected] = useState(defaultGestionSelected);
 
   const handleChange2 = (value2: any[]) => {
-
-    let aux = defaultGestionSelected.map((x: any) => {
-      x.isSelected = value2.includes(x.valor);
-      return x;
-    });
-
-    setValue2(value2);
-    setGestionSelected(aux);
 
 
     const filteredArray = dataAlertas.filter((item: any) => value2.indexOf(`${item.EstadoGestion}`) > -1);
@@ -199,51 +141,11 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
     setRowCount(filteredArray.length);
   };
 
-  const defaultAlarmasSelected: any[] = [
-    {
-      name: 'ADAS',
-      data: [],
-      isSelected: true
-    },
-    {
-      name: 'Fatiga',
-      data: [],
-      isSelected: true
-    },
-    {
-      name: 'Distracción',
-      data: [],
-      isSelected: true
-    },
-    {
-      name: 'Seguridad',
-      data: [],
-      isSelected: true
-    },
-    {
-      name: 'Diagnóstico',
-      data: [],
-      isSelected: true
-    }
-
-  ]
-
-
-  let preSeleccionadosAlarmas = defaultAlarmasSelected.filter(x => x.isSelected).map(x => x.name);
-
-  const [value3, setValue3] = useState<any[]>(preSeleccionadosAlarmas);
-
-  const [AlarmasSelected, setAlarmasSelected] = useState(defaultAlarmasSelected);
 
   const handleChange3 = (value3: any[]) => {
 
-    let aux = defaultAlarmasSelected.map((x: any) => {
-      x.isSelected = value3.includes(x.name);
-      return x;
-    });
 
-    setValue3(value3);
-    setAlarmasSelected(aux);
+
 
     const filteredArray = dataAlertas.filter((item: any) => value3.indexOf(item.TipoAlerta) > -1);
 
@@ -259,24 +161,38 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
   //WARNING NO FUNCIONA
   useEffect(() => {
-    setRiesgoSelected(defaultRiesgoSelected);
-    setDataAlertas(alertas.sort(function (a: any, b: any) { return a.EventDateTime - b.EventDateTime }));
-    setRowCount(alertas.length);
+
+    let dataFiltrada = [];
+    
+    filtro == 0 ? dataFiltrada = alertas.filter((item: any) => "Riesgo alto".indexOf(item.Criticidad) > -1) 
+    :  filtro == 1 ? dataFiltrada = alertas.filter((item: any) => "Riesgo moderado".indexOf(item.Criticidad) > -1) 
+    : filtro == 2 ? dataFiltrada = alertas.filter((item: any) => "Riesgo bajo".indexOf(item.Criticidad) > -1) 
+    : filtro == 3 ? dataFiltrada = alertas.filter((item: any) => "false".indexOf(`${item.EstadoGestion}`) > -1) 
+    : dataFiltrada = alertas.filter((item: any) => "true".indexOf(`${item.EstadoGestion}`) > -1);
+
+    setDataAlertas(dataFiltrada);
+    setRowCount(dataFiltrada.length);
+
+    console.log(dataFiltrada);
+
+
   }, [alertas])
 
-  //primer cargue carga userid
+  //primer cargue 
   useEffect(() => {
 
-    if (dataAlertasfiltrada.length > 0) {
+    if (dataAlertas.length > 0) {
 
-      const filteredArray1 = dataAlertas.filter((item: any) => value.indexOf(item.Criticidad) > -1);
-      const filteredArray2 = filteredArray1.filter((item: any) => value2.indexOf(`${item.EstadoGestion}`) > -1);
-      const filteredArray3 = filteredArray2.filter((item: any) => value3.indexOf(item.TipoAlerta) > -1);
-      setDataAlertasCombinadas(filteredArray3);
+
+
+      // const filteredArray1 = dataAlertas.filter((item: any) => value.indexOf(item.Criticidad) > -1);
+      // const filteredArray2 = filteredArray1.filter((item: any) => value2.indexOf(`${item.EstadoGestion}`) > -1);
+      // const filteredArray3 = filteredArray2.filter((item: any) => value3.indexOf(item.TipoAlerta) > -1);
+      // setDataAlertasCombinadas(filteredArray3);
     }
 
 
-  }, [dataAlertasfiltrada, dataAlertas])
+  }, [dataAlertas])
 
 
 
@@ -319,10 +235,11 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         size: 80,
         Cell({ cell, column, row, table, }) {
 
+          let cantidad: number = JSON.parse(row.original.DetalladoEventos).length;
           return (
             <>
               {
-                JSON.parse(row.original.DetalladoEventos).length
+                cantidad
               }
             </>
 
@@ -509,8 +426,14 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
   }
 
   //gestión gestor
-  const setGestorPreoperacional = (alertaId: number) => {
+  const setGestorPreoperacional = (row: any) => {
 
+    let alertaId: number = row.AlertaId;
+
+    setPlaca(row.vehiculo);
+    setAlerta(row.TipoAlerta);
+    setfechaEvento(moment(JSON.parse(row.DetalladoEventos).at(-1).EventDateTime as Date).format(FormatoColombiaDDMMYYYHHmm));
+    settotalEventos(JSON.parse(row.DetalladoEventos).length)
     //areglo temporal primera muestra menos 5 horas tras actulizar se arregla
     let GestorObervaciones: any = {};
     GestorObervaciones = {
@@ -566,15 +489,15 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
     showModal2();
   }
 
-  //Función para ir al mapa de marcial
-  const IrToMap = (row: any) => {
-    setloader(true);
-    let Data = new Array()
-    Data = [...Data, ...JSON.parse(row.original.DetalladoEventos)]
-    setDataDetalladoFiltrado(Data);
-    setFiltrado(true)
-    setActiveTab('#tab2');
-  };
+  // //Función para ir al mapa de marcial
+  // const IrToMap = (row: any) => {
+  //   setloader(true);
+  //   let Data = new Array()
+  //   Data = [...Data, ...JSON.parse(row.original.DetalladoEventos)]
+  //   setDataDetalladoFiltrado(Data);
+  //   setFiltrado(true)
+  //   setActiveTab('#tab2');
+  // };
 
   const infBasica = (row: any) => {
     let datos = [JSON.parse(row.Observaciones)]
@@ -658,7 +581,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
               <Tooltip arrow placement="left" title="Gestionar">
                 <IconButton
                   onClick={() => {
-                    setGestorPreoperacional(row.original.AlertaId);
+                    setGestorPreoperacional(row.original);
                   }}
                 >
                   <VerifiedUser />
@@ -673,27 +596,18 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
                 <List />
               </IconButton>
             </Tooltip>
-            {/* Para el mapa  Marcial*/}
+            {/* //Para el mapa  Marcial
             <Tooltip arrow placement="top" title="Ver en el mapa">
               <IconButton onClick={(e: any) => {
                 IrToMap(row);
               }} >
                 <Map />
               </IconButton>
-            </Tooltip>
-
-
+            </Tooltip> */}
           </Box>
         )
         }
 
-        muiExpandButtonProps={({ row }) => ({
-          onClick: () => {
-            //al expandir consulta el admin antes no
-            infBasica(row.original);
-          }
-        })
-        }
         enableExpandAll={false}
         initialState={{ density: 'compact' }}
         state={{
@@ -717,10 +631,22 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Alerta: <span className="text-success">{`${Alerta}`} </span>
-          Placa: <span className="text-success">{`${Placa}`} </span>
-          Fecha Ultimo Evento: <span className="text-success">{`${fechaEvento}`} </span>
-          Cantidad Eventos <span className="text-success">{`${totalEventos}`} </span>
+          <div className="row">
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+              Alerta: <span className="text-success">{`${Alerta}`} </span>
+            </div>
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+              Placa: <span className="text-success">{`${Placa}`} </span>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+              Fecha Ultimo Evento: <span className="text-success">{`${fechaEvento}`} </span>
+            </div>
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+              Cantidad Eventos: <span className="text-success">{`${totalEventos}`} </span>
+            </div>
+          </div>
         </Modal.Body>
         <Tabs
           defaultActiveKey="gestion"
@@ -876,10 +802,22 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
           <Modal.Title>Detallado Eventos</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Alerta: <span className="text-success">{`${Alerta}`} </span>
-          Placa: <span className="text-success">{`${Placa}`} </span>
-          Fecha Ultimo Evento: <span className="text-success">{`${fechaEvento}`} </span>
-          Cantidad Eventos <span className="text-success">{`${totalEventos}`} </span>
+          <div className="row">
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+              Alerta: <span className="text-success">{`${Alerta}`} </span>
+            </div>
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+              Placa: <span className="text-success">{`${Placa}`} </span>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+              Fecha Ultimo Evento: <span className="text-success">{`${fechaEvento}`} </span>
+            </div>
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+              Cantidad Eventos: <span className="text-success">{`${totalEventos}`} </span>
+            </div>
+          </div>
         </Modal.Body>
         <Modal.Body>
           <div>
