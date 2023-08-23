@@ -22,6 +22,7 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "", tipo
   const color2 = getCSSVariableValue("--bs-warning");
   const color3 = getCSSVariableValue("--bs-primary");
   const color4 = getCSSVariableValue("--bs-danger");
+  const color5 = getCSSVariableValue("--bs-blue");
 
 
   let arrayChart: number[] = [];
@@ -32,6 +33,7 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "", tipo
   const { vehiculosOperacion, alertas } = useDataFatigue();
 
   const [criticidad, setcriticidad] = useState<any>({});
+  const [alertasAgrupadas, setalertasAgrupadas] = useState<any>({});
 
   //Pintamos indicador 2 donna
   useEffect(() => {
@@ -52,11 +54,31 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "", tipo
       });
     }
 
+    let dataFiltrada = alertas.filter((item: any) => "Riesgo alto".indexOf(item.Criticidad) > -1);
+
+    let agrupadoAlertas = dataFiltrada
+      .reduce((p: any, c: any) => {
+        let name = c.TipoAlerta;
+        p[name] = p[name] ?? [];
+        p[name].push(c);
+        return p;
+      }, {});
+
+    if (Object.keys(agrupadoAlertas).length > 0) {
+      setalertasAgrupadas({
+        "ADAS": agrupadoAlertas['ADAS'] == undefined ? 0 : agrupadoAlertas['ADAS'].length,
+        "Distracción": agrupadoAlertas['Distracción'] == undefined ? 0 : agrupadoAlertas['Distracción'].length,
+        "Diagnóstico": agrupadoAlertas['Diagnóstico'] == undefined ? 0 : agrupadoAlertas['Diagnóstico'].length,
+        "Fatiga": agrupadoAlertas['Fatiga'] == undefined ? 0 : agrupadoAlertas['Fatiga'].length,
+        "Seguridad": agrupadoAlertas['Seguridad'] == undefined ? 0 : agrupadoAlertas['Seguridad'].length
+      });
+    }
+
   }, [alertas]);
 
 
 
-  let objectdata = (tipoData == 1) ? vehiculosOperacion : criticidad;
+  let objectdata = (tipoData == 1) ? vehiculosOperacion : (tipoData == 2) ? criticidad: alertasAgrupadas;
 
   // segun el tipo se determina que informacion se necesita
 
@@ -66,13 +88,17 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "", tipo
 
 
   // se determina de que tipo se necesita la informacion para mostrarla en los indicadores
-  labelsArray = Object.keys((tipoData == 1) ? objectdata : objectdata);
+  labelsArray = Object.keys(objectdata);
   if (tipoData == 1) {
     colorsArray = [color1, color3];
     colorsArrayLabels = ["success", "primary"];
   } else if (tipoData == 2) {
     colorsArray = [color4, color2, color3];
-    colorsArrayLabels = ["danger", "warning", "success"];
+    colorsArrayLabels = ["danger", "warning", "primary"];
+  }
+  else {
+    colorsArray = [color1, color2, color3, color4, color5];
+    colorsArrayLabels = ["success", "warning", "primary", "danger", "blue"];
   }
 
 
@@ -126,8 +152,8 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "", tipo
         <div className="d-flex justify-content-around">
 
           {
-            Object.entries((tipoData == 1) ? objectdata : objectdata).map((entry, index) => {
-              let totalCategoria = (tipoData == 1) ? entry[1] : entry[1];
+            Object.entries(objectdata).map((entry, index) => {
+              let totalCategoria = entry[1];
               return (
                 <div key={`chardonavehiculo_${totalCategoria}-${entry[0]} m-1`}>
                   <span className="fw-bolder text-gray-800 fs-8">{`${totalCategoria}-${entry[0]}`}</span>

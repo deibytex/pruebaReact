@@ -224,6 +224,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
       }, 2000)
     }
   }, [DataDetallado])
+  
   return (
     <div className={`card ${className}`}>
       <BlockUi tag="div" keepInView blocking={loader ?? false}  >
@@ -247,23 +248,10 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
                   return (<li className="nav-item mb-3" key={`tabenc_${idx}`}>
                     <a
                       onClick={() => setTab(idx)}
-                      className={`nav-link w-225px h-70px ${activeTab === `#tab${idx}` ? "active btn-active-light" : ""
-                        } fw-bolder me-2`}
+                      className={`nav-link w-140px h-50px ${activeTab === `#tab${idx}` ? "active btn-active-light" : ""
+                        } fw-bolder me-3`}
                       id={`tab${idx}`}
                     >
-                      <div className="nav-icon me-3">
-                        <img
-                          alt=""
-                          src={toAbsoluteUrl(tab.icon)}
-                          className="default"
-                        />
-
-                        <img
-                          alt=""
-                          src={toAbsoluteUrl(tab.iconColored)}
-                          className="active"
-                        />
-                      </div>
                       <div className="ps-1">
                         <span className="nav-text text-gray-600 fw-bolder fs-6">
                           {tab.titulo}
@@ -296,27 +284,76 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
 
                   {
                     // verificamos que exista datos para poder ingresar los datos en el contenedor 
-                    (<CardContainerEventos isActive={true} isDetails={false} />)
+                    (<CardContainerEventos isActive={true} isDetails={false} filtro={0} />)
                   }
                 </div>
                 </div>
                 <div
-                  className={`tab-pane fade ${activeTab === "#tab2" ? "show active" : ""
-                    }`}
-                  id="tab2_content"
-                >
-                  <div className="card">
-                    <div className="card-body">
-                      {(DataDetallado?.length != 0) && (Map) && (activeTab == "#tab2") && (<MapTab></MapTab>)}
-                    </div>
-                  </div>
+                className={`tab-pane fade ${activeTab === "#tab2" ? "show active" : ""
+                  }`}
+                id="tab2_content"
+              >
+                {/* begin::Content */}
+                {/* begin::Cards */}
+                <div className="overflow-auto">
+
+                  {
+                    // verificamos que exista datos para poder ingresar los datos en el contenedor 
+                    (<CardContainerEventos isActive={true} isDetails={false} filtro={1} />)
+                  }
+                </div>
+                </div>
+                <div
+                className={`tab-pane fade ${activeTab === "#tab3" ? "show active" : ""
+                  }`}
+                id="tab3_content"
+              >
+                {/* begin::Content */}
+                {/* begin::Cards */}
+                <div className="overflow-auto">
+
+                  {
+                    // verificamos que exista datos para poder ingresar los datos en el contenedor 
+                    (<CardContainerEventos isActive={true} isDetails={false} filtro={2} />)
+                  }
+                </div>
+                </div>
+                <div
+                className={`tab-pane fade ${activeTab === "#tab4" ? "show active" : ""
+                  }`}
+                id="tab4_content"
+              >
+                {/* begin::Content */}
+                {/* begin::Cards */}
+                <div className="overflow-auto">
+
+                  {
+                    // verificamos que exista datos para poder ingresar los datos en el contenedor 
+                    (<CardContainerEventos isActive={true} isDetails={false} filtro={3} />)
+                  }
+                </div>
+                </div>
+                <div
+                className={`tab-pane fade ${activeTab === "#tab5" ? "show active" : ""
+                  }`}
+                id="tab5_content"
+              >
+                {/* begin::Content */}
+                {/* begin::Cards */}
+                <div className="overflow-auto">
+
+                  {
+                    // verificamos que exista datos para poder ingresar los datos en el contenedor 
+                    (<CardContainerEventos isActive={true} isDetails={false} filtro={4} />)
+                  }
+                </div>
                 </div>
 
 
                 <div
-                  className={`tab-pane fade ${activeTab === "#tab3" ? "show active" : ""
+                  className={`tab-pane fade ${activeTab === "#tab6" ? "show active" : ""
                     }`}
-                  id="tab3_content"
+                  id="tab6_content"
                 >
                   {/* begin::Cards */}
                   <div className="overflow-auto">

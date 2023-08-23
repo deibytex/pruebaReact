@@ -22,15 +22,16 @@ import { RootState } from "../../../../setup";
 import { UserModelSyscaf } from "../../auth/models/UserModel";
 import moment from "moment";
 import { CheckboxGroup, Checkbox, useToaster, Notification } from "rsuite";
-import { FormatoColombiaDDMMYYY, FormatoColombiaDDMMYYYHHmmss } from "../../../../_start/helpers/Constants";
+import { FormatoColombiaDDMMYYY, FormatoColombiaDDMMYYYHHmm, FormatoColombiaDDMMYYYHHmmss } from "../../../../_start/helpers/Constants";
 type Props = {
 
   isActive: boolean;
   isDetails: boolean;
+  filtro: number;
 
 }
 
-const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
+const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) => {
 
   const isAuthorized = useSelector<RootState>(
     ({ auth }) => auth.user
@@ -109,42 +110,14 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
   // inicio filtros
   //WARNING NO CONSERVA FILTRO
-  const defaultRiesgoSelected: any[] = [
-    {
-      name: 'Alto',
-      data: [],
-      valor: 'Riesgo alto',
-      isSelected: true
-    },
-    {
-      name: 'Moderado',
-      data: [],
-      valor: 'Riesgo moderado',
-      isSelected: true
-    },
-    {
-      name: 'Bajo',
-      data: [],
-      valor: 'Riesgo bajo',
-      isSelected: true
-    }
-  ]
 
-  let preSeleccionadosriesgo = defaultRiesgoSelected.filter(x => x.isSelected).map(x => x.valor);
 
-  const [value, setValue] = useState<any[]>(preSeleccionadosriesgo);
 
   const handleChange = (value: any[]) => {
 
-    let aux = defaultRiesgoSelected.map((x: any) => {
-      x.isSelected = value.includes(x.valor);
-      return x;
-    });
-    
-    setValue(value);
-    setRiesgoSelected(aux);
 
-    
+
+
 
     const filteredArray = dataAlertas.filter((item: any) => value.indexOf(item.Criticidad) > -1);
 
@@ -153,45 +126,14 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
   };
 
-  const [RiesgoSelected, setRiesgoSelected] = useState(defaultRiesgoSelected);
+  
 
-  const defaultGestionSelected: any[] = [
-    {
-      name: 'No Gestionados',
-      data: [],
-      valor: 'null',
-      isSelected: true
-    },
-    {
-      name: 'Gestionados No Cerrados',
-      data: [],
-      isSelected: true,
-      valor: 'false'
-    },
-    {
-      name: 'Gestionados',
-      data: [],
-      isSelected: true,
-      valor: 'true'
-    }
 
-  ]
 
-  let preSeleccionadosgestion = defaultGestionSelected.filter(x => x.isSelected).map(x => x.valor);
 
-  const [value2, setValue2] = useState<any[]>(preSeleccionadosgestion);
 
-  const [GestionSelected, setGestionSelected] = useState(defaultGestionSelected);
 
   const handleChange2 = (value2: any[]) => {
-
-    let aux = defaultGestionSelected.map((x: any) => {
-      x.isSelected = value2.includes(x.valor);
-      return x;
-    });
-
-    setValue2(value2);
-    setGestionSelected(aux);
 
 
     const filteredArray = dataAlertas.filter((item: any) => value2.indexOf(`${item.EstadoGestion}`) > -1);
@@ -199,51 +141,11 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
     setRowCount(filteredArray.length);
   };
 
-  const defaultAlarmasSelected: any[] = [
-    {
-      name: 'ADAS',
-      data: [],
-      isSelected: true
-    },
-    {
-      name: 'Fatiga',
-      data: [],
-      isSelected: true
-    },
-    {
-      name: 'Distracción',
-      data: [],
-      isSelected: true
-    },
-    {
-      name: 'Seguridad',
-      data: [],
-      isSelected: true
-    },
-    {
-      name: 'Diagnóstico',
-      data: [],
-      isSelected: true
-    }
-
-  ]
-
- 
-  let preSeleccionadosAlarmas = defaultAlarmasSelected.filter(x => x.isSelected).map(x => x.name);
-
-  const [value3, setValue3] = useState<any[]>(preSeleccionadosAlarmas);
-
-  const [AlarmasSelected, setAlarmasSelected] = useState(defaultAlarmasSelected);
 
   const handleChange3 = (value3: any[]) => {
 
-    let aux = defaultAlarmasSelected.map((x: any) => {
-      x.isSelected = value3.includes(x.name);
-      return x;
-    });
 
-    setValue3(value3);
-    setAlarmasSelected(aux);
+
 
     const filteredArray = dataAlertas.filter((item: any) => value3.indexOf(item.TipoAlerta) > -1);
 
@@ -259,28 +161,40 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
   //WARNING NO FUNCIONA
   useEffect(() => {
-    setRiesgoSelected(defaultRiesgoSelected);
-    setDataAlertas(alertas.sort(function (a: any, b: any) { return a.EventDateTime - b.EventDateTime }));
-    setRowCount(alertas.length);
+
+    let dataFiltrada = [];
+    
+    filtro == 0 ? dataFiltrada = alertas.filter((item: any) => "Riesgo alto".indexOf(item.Criticidad) > -1) 
+    :  filtro == 1 ? dataFiltrada = alertas.filter((item: any) => "Riesgo moderado".indexOf(item.Criticidad) > -1) 
+    : filtro == 2 ? dataFiltrada = alertas.filter((item: any) => "Riesgo bajo".indexOf(item.Criticidad) > -1) 
+    : filtro == 3 ? dataFiltrada = alertas.filter((item: any) => "false".indexOf(`${item.EstadoGestion}`) > -1) 
+    : dataFiltrada = alertas.filter((item: any) => "true".indexOf(`${item.EstadoGestion}`) > -1);
+
+    setDataAlertas(dataFiltrada);
+    setRowCount(dataFiltrada.length);
+
+
   }, [alertas])
 
-  //primer cargue carga userid
+  //primer cargue 
   useEffect(() => {
-    
-    if (dataAlertasfiltrada.length > 0) {
-    
-    const filteredArray1 = dataAlertas.filter((item: any) => value.indexOf(item.Criticidad) > -1);
-    const filteredArray2 = filteredArray1.filter((item: any) => value2.indexOf(`${item.EstadoGestion}`) > -1);
-    const filteredArray3 = filteredArray2.filter((item: any) => value3.indexOf(item.TipoAlerta) > -1);
-    setDataAlertasCombinadas(filteredArray3);
+
+    if (dataAlertas.length > 0) {
+
+
+
+      // const filteredArray1 = dataAlertas.filter((item: any) => value.indexOf(item.Criticidad) > -1);
+      // const filteredArray2 = filteredArray1.filter((item: any) => value2.indexOf(`${item.EstadoGestion}`) > -1);
+      // const filteredArray3 = filteredArray2.filter((item: any) => value3.indexOf(item.TipoAlerta) > -1);
+      // setDataAlertasCombinadas(filteredArray3);
     }
-    
-
-  }, [dataAlertasfiltrada, dataAlertas])
 
 
+  }, [dataAlertas])
 
- //listado campos tablas
+
+
+  //listado campos tablas
   const columnasTabla: MRT_ColumnDef<any>[]
     = [
       {
@@ -319,10 +233,11 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         size: 80,
         Cell({ cell, column, row, table, }) {
 
+          let cantidad: number = JSON.parse(row.original.DetalladoEventos).length;
           return (
             <>
               {
-                JSON.parse(row.original.DetalladoEventos).length
+                cantidad
               }
             </>
 
@@ -338,7 +253,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
               : (cell.getValue() == false) ? <span className="badge bg-primary">En Gestion</span>
                 : <span>{row.original.EstadoGestion}</span>
         },
-      }, 
+      },
       {
         accessorKey: 'gestor',
         header: 'Analista',
@@ -350,7 +265,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
     ];
 
- 
+
   const columnasContacto: MRT_ColumnDef<any>[]
     = [
       {
@@ -431,7 +346,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
 
     ];
 
-    //pintar modal observaciones
+  //pintar modal observaciones
   useEffect(() => {
 
     if (observaciones != "" && observaciones != null) {
@@ -490,11 +405,11 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         setobervacionGestion("");
         getAlertas(clienteIds as string).then((response) => {
           setalertas(response.data);
-
         });
         if (escerrado == "true") {
           handleClose();
         }
+        else setesgestionado(false);
 
 
 
@@ -503,13 +418,20 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
           placement: 'topCenter'
         });
       });
-    }, escerrado == "false" ? `Esta seguro que desea agregar el comentario` : `Esta seguro que terminar la gestión`
-      , escerrado == "false" ? "Guardar" : "Terminar")
+    }, escerrado == "false" && observacion != 'Se reabre Gestión' ? `Esta seguro que desea agregar el comentario` : escerrado == 'true' ? `Esta seguro de terminar la gestión`
+      : `Esta seguro de reabrir la gestión`, escerrado == "false" && observacion != 'Se reabre Gestión'
+      ? "Guardar" : escerrado == 'true' ? "Terminar" : "Reabrir")
   }
 
   //gestión gestor
-  const setGestorPreoperacional = (alertaId: number) => {
+  const setGestorPreoperacional = (row: any) => {
 
+    let alertaId: number = row.AlertaId;
+
+    setPlaca(row.vehiculo);
+    setAlerta(row.TipoAlerta);
+    setfechaEvento(moment(JSON.parse(row.DetalladoEventos).at(-1).EventDateTime as Date).format(FormatoColombiaDDMMYYYHHmm));
+    settotalEventos(JSON.parse(row.DetalladoEventos).length)
     //areglo temporal primera muestra menos 5 horas tras actulizar se arregla
     let GestorObervaciones: any = {};
     GestorObervaciones = {
@@ -526,6 +448,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
           (response) => {
 
             setalertas(response.data);
+            setData([JSON.parse(JSON.stringify(GestorObervaciones))] as any[]);
             showModal();
 
           });
@@ -548,7 +471,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
     setesgestionado(row.EstadoGestion);
     setPlaca(row.vehiculo);
     setAlerta(row.TipoAlerta);
-    setfechaEvento(moment(JSON.parse(row.DetalladoEventos).at(-1).EventDateTime as Date).format(FormatoColombiaDDMMYYY));
+    setfechaEvento(moment(JSON.parse(row.DetalladoEventos).at(-1).EventDateTime as Date).format(FormatoColombiaDDMMYYYHHmm));
     settotalEventos(JSON.parse(row.DetalladoEventos).length)
 
     showModal();
@@ -558,19 +481,21 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
     setPlaca(row.vehiculo);
     setAlerta(row.TipoAlerta);
     setdetalleEventos(row.DetalladoEventos);
+    setfechaEvento(moment(JSON.parse(row.DetalladoEventos).at(-1).EventDateTime as Date).format(FormatoColombiaDDMMYYYHHmm));
+    settotalEventos(JSON.parse(row.DetalladoEventos).length)
 
     showModal2();
   }
 
-  //Función para ir al mapa de marcial
-  const IrToMap = (row: any) => {
-    setloader(true);
-    let Data = new Array()
-    Data = [...Data, ...JSON.parse(row.original.DetalladoEventos)]
-    setDataDetalladoFiltrado(Data);
-    setFiltrado(true)
-    setActiveTab('#tab2');
-  };
+  // //Función para ir al mapa de marcial
+  // const IrToMap = (row: any) => {
+  //   setloader(true);
+  //   let Data = new Array()
+  //   Data = [...Data, ...JSON.parse(row.original.DetalladoEventos)]
+  //   setDataDetalladoFiltrado(Data);
+  //   setFiltrado(true)
+  //   setActiveTab('#tab2');
+  // };
 
   const infBasica = (row: any) => {
     let datos = [JSON.parse(row.Observaciones)]
@@ -654,7 +579,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
               <Tooltip arrow placement="left" title="Gestionar">
                 <IconButton
                   onClick={() => {
-                    setGestorPreoperacional(row.original.AlertaId);
+                    setGestorPreoperacional(row.original);
                   }}
                 >
                   <VerifiedUser />
@@ -669,27 +594,18 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
                 <List />
               </IconButton>
             </Tooltip>
-            {/* Para el mapa  Marcial*/}
+            {/* //Para el mapa  Marcial
             <Tooltip arrow placement="top" title="Ver en el mapa">
               <IconButton onClick={(e: any) => {
                 IrToMap(row);
               }} >
                 <Map />
               </IconButton>
-            </Tooltip>
-
-
+            </Tooltip> */}
           </Box>
         )
         }
 
-        muiExpandButtonProps={({ row }) => ({
-          onClick: () => {
-            //al expandir consulta el admin antes no
-            infBasica(row.original);
-          }
-        })
-        }
         enableExpandAll={false}
         initialState={{ density: 'compact' }}
         state={{
@@ -708,90 +624,167 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         onHide={handleClose}
         size="lg">
         <Modal.Header closeButton>
-          <Modal.Title >Alerta <span className="text-success">{`${Alerta}`}</span> - Placa <span className="text-success">{`${Placa}`} </span> 
-          - Fecha Ultimo Evento <span className="text-success">{`${fechaEvento}`} </span> - Cantidad Eventos <span className="text-success">{`${totalEventos}`} </span>  </Modal.Title>
+          <Modal.Title>
+            Gestionar Alerta
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className="row">
-            <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
-              <div className="">
-                <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Adicionar Comentario:</label>
-                <textarea className="form-control  input input-sm " id={'obervacionueva'} onChange={getobservacion} rows={3} value={obervacionGestion}></textarea>
-              </div>
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+              Alerta: <span className="text-success">{`${Alerta}`} </span>
+            </div>
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+              Placa: <span className="text-success">{`${Placa}`} </span>
             </div>
           </div>
-          <p></p>
           <div className="row">
-            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
-              <Button type="button" variant="primary" onClick={() => {
-                setObservacion(obervacionGestion, 'false');
-              }}>
-                Guardar
-              </Button>
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+              Fecha Ultimo Evento: <span className="text-success">{`${fechaEvento}`} </span>
             </div>
-            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
-              {esgestionado == false ? <Button type="button" variant="danger" onClick={() => {
-                setObservacion('Cierre Gestión', 'true');
-              }}>
-                Cerrar Gestion
-              </Button> : <></>}
-            </div>
-            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
-              {esgestionado == true ? <Button type="button" variant="danger" onClick={() => {
-                setObservacion('Cierre Gestión', 'true');
-              }}>
-                Reabrir Gestión
-              </Button> : <></>}
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+              Cantidad Eventos: <span className="text-success">{`${totalEventos}`} </span>
             </div>
           </div>
-
         </Modal.Body>
-        <Modal.Body>
-          <div>
-            <MaterialReactTable
-              localization={MRT_Localization_ES}
-              displayColumnDefOptions={{
-                'mrt-row-actions': {
-                  muiTableHeadCellProps: {
-                    align: 'center',
-                  },
-                  size: 120,
-                },
-              }}
-              columns={listadoCampos}
-              data={Data}
-              // editingMode="modal" //default         
-              enableTopToolbar={false}
-              enableColumnOrdering
-              // enableEditing
-              /* onEditingRowSave={handleSaveRowEdits}
-                  onEditingRowCancel={handleCancelRowEdits}*/
-              muiToolbarAlertBannerProps={
-                isError
-                  ? {
-                    color: 'error',
-                    children: 'Error al cargar información',
+        <Tabs
+          defaultActiveKey="gestion"
+          className="mb-3"
+        // justify
+        // onClick={() => {
+        //   console.log('hola', row);
+        // }} 
+        >
+          <Tab eventKey="gestion" title={`Gestión`} >
+            <Modal.Body>
+              <div className="row">
+                <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                  <div className="">
+                    <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Adicionar Comentario:</label>
+                    <textarea className="form-control  input input-sm " id={'obervacionueva'} onChange={getobservacion} rows={3} value={obervacionGestion}></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <div className="row m-4">
+
+                {(esgestionado != true) && (<div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                  <Button type="button" variant="primary" onClick={() => {
+                    setObservacion(obervacionGestion, 'false');
+                  }}>
+                    Guardar
+                  </Button></div>)}
+
+
+                {(esgestionado == false) && (<div className="col-sm-3 col-xl-3 col-md-3 col-lg-3"><Button type="button" variant="danger" onClick={() => {
+                  setObservacion('Cierre Gestión', 'true');
+                }}>
+                  Cerrar Gestion
+                </Button></div>)}
+
+
+                {(esgestionado == true) && (<div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                  <Button type="button" variant="danger" onClick={() => {
+                    setObservacion('Se reabre Gestión', 'false');
+                  }}>
+                    Reabrir Gestión
+                  </Button> </div>)}
+
+              </div>
+
+            </Modal.Body>
+            <Modal.Body>
+              <div>
+                <MaterialReactTable
+                  localization={MRT_Localization_ES}
+                  displayColumnDefOptions={{
+                    'mrt-row-actions': {
+                      muiTableHeadCellProps: {
+                        align: 'center',
+                      },
+                      size: 120,
+                    },
+                  }}
+                  columns={listadoCampos}
+                  data={Data}
+                  // editingMode="modal" //default         
+                  enableTopToolbar={false}
+                  enableColumnOrdering
+                  // enableEditing
+                  /* onEditingRowSave={handleSaveRowEdits}
+                      onEditingRowCancel={handleCancelRowEdits}*/
+                  muiToolbarAlertBannerProps={
+                    isError
+                      ? {
+                        color: 'error',
+                        children: 'Error al cargar información',
+                      }
+                      : undefined
                   }
-                  : undefined
-              }
-              onColumnFiltersChange={setColumnFilters}
-              onGlobalFilterChange={setGlobalFilter}
-              onPaginationChange={setPagination}
-              onSortingChange={setSorting}
-              rowCount={rowCount}
+                  onColumnFiltersChange={setColumnFilters}
+                  onGlobalFilterChange={setGlobalFilter}
+                  onPaginationChange={setPagination}
+                  onSortingChange={setSorting}
+                  rowCount={rowCount}
 
-              state={{
-                columnFilters,
-                globalFilter,
-                isLoading,
-                pagination,
-                showAlertBanner: isError,
-                showProgressBars: isRefetching,
-                sorting,
-              }}
-            />
-          </div>
-        </Modal.Body>
+                  state={{
+                    columnFilters,
+                    globalFilter,
+                    isLoading,
+                    pagination,
+                    showAlertBanner: isError,
+                    showProgressBars: isRefetching,
+                    sorting,
+                  }}
+                />
+              </div>
+            </Modal.Body>
+          </Tab>
+          <Tab eventKey="Contacto" title={`Contactos`}>
+            <Modal.Body>
+              <MaterialReactTable
+                localization={MRT_Localization_ES}
+                displayColumnDefOptions={{
+                  'mrt-row-actions': {
+                    muiTableHeadCellProps: {
+                      align: 'center'
+                    }
+                  },
+                }}
+                columns={columnasContacto}
+                data={dataContacto}
+                enableTopToolbar
+                enableColumnOrdering
+                enableFilters
+                enablePagination={false}
+                enableColumnFilters={false}
+                muiToolbarAlertBannerProps={
+                  isError
+                    ? {
+                      color: 'error',
+                      children: 'Error al cargar información',
+                    }
+                    : undefined
+                }
+                onColumnFiltersChange={setColumnFilters}
+                onGlobalFilterChange={setGlobalFilter}
+                onPaginationChange={setPagination}
+                onSortingChange={setSorting}
+                rowCount={rowCount2}
+                initialState={{ density: 'compact' }}
+                state={{
+                  columnFilters,
+                  globalFilter,
+                  isLoading,
+                  pagination,
+                  showAlertBanner: isError,
+                  showProgressBars: isRefetching,
+                  sorting,
+                }}
+              />
+            </Modal.Body>
+          </Tab>
+        </Tabs>
+
         <Modal.Footer>
           <Button type="button" variant="secondary" onClick={handleClose}>
             Cancelar
@@ -804,8 +797,26 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails }) => {
         onHide={handleClose2}
         size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>Alerta <span className="text-success">{`${Alerta}`}</span> - <span className="text-success">{`${Placa}`}</span></Modal.Title>
+          <Modal.Title>Detallado Eventos</Modal.Title>
         </Modal.Header>
+        <Modal.Body>
+          <div className="row">
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+              Alerta: <span className="text-success">{`${Alerta}`} </span>
+            </div>
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+              Placa: <span className="text-success">{`${Placa}`} </span>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+              Fecha Ultimo Evento: <span className="text-success">{`${fechaEvento}`} </span>
+            </div>
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+              Cantidad Eventos: <span className="text-success">{`${totalEventos}`} </span>
+            </div>
+          </div>
+        </Modal.Body>
         <Modal.Body>
           <div>
             <MaterialReactTable
