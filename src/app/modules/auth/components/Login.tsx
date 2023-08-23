@@ -55,6 +55,9 @@ export function Login() {
             setLoading(false);
             dispatch(auth.actions.login(data.data.token, data.data.refreshToken));
             dispatch(auth.actions.setUser(decoded));
+
+            localStorage.setItem("token", data.data.token);
+            localStorage.setItem("refresh", data.data.refreshToken)
           })
           .catch((e) => {          
             setLoading(false);

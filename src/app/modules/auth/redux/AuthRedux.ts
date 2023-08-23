@@ -106,8 +106,7 @@ export function* saga() {
   });
  
   yield takeLatest(actionTypes.UserRequested, function* userRequested() {
-    const { data: user } = yield getMenuByUser();
-    console.log(JSON.parse(user[0].Menu));
+    const { data: user } = yield getMenuByUser();  
     
     yield put(actions.fulfillUser(JSON.parse(user[0].Menu)));
   });

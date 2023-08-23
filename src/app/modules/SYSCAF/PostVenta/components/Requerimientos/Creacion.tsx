@@ -13,8 +13,8 @@ import { DateRangePicker, useToaster, Notification, Checkbox } from "rsuite";
 import { Button, Form, FormControl, FormGroup, Modal } from "react-bootstrap-v5";
 import { locateFormatPercentNDijitos } from "../../../../../../_start/helpers/Helper";
 import { Box, IconButton, Tooltip } from "@mui/material";
-import { Assignment,  CallToActionSharp,  CheckBox,  ConstructionOutlined,  DeckTwoTone, Delete, Edit } from "@mui/icons-material";
-import { DescargarExcel} from "../../../../../../_start/helpers/components/DescargarExcel";
+import { Assignment, CallToActionSharp, CheckBox, ConstructionOutlined, DeckTwoTone, Delete, Edit } from "@mui/icons-material";
+import { DescargarExcel } from "../../../../../../_start/helpers/components/DescargarExcel";
 import { EstadosRequerimientos, ListadoDLP, Usuarios } from "../../mockData/indicadores";
 import { useSelector } from "react-redux";
 import { UserModelSyscaf } from "../../../../auth/models/UserModel";
@@ -25,26 +25,27 @@ export default function Creacion() {
     const toaster = useToaster();
 
     const message = (type: any, titulo: string, mensaje: React.ReactNode) => {
-      return (<Notification className="bg-light-danger" type={type} header={titulo}
-        closable duration={10000}>
-        {mensaje}
-      </Notification>)
+        return (<Notification className="bg-light-danger" type={type} header={titulo}
+            closable duration={10000}>
+            {mensaje}
+        </Notification>)
     }
-    
+
     const user = useSelector<RootState>(
         ({ auth }) => auth.user
     );
     const vUser = user as UserModelSyscaf;
+     console.log(vUser)
     //Para saber que usuario ingreso a la cuenta,
     const [UserCount, setUserCount] = useState<any>(
-        Usuarios.filter((e:any) =>{
+        Usuarios.filter((e: any) => {
             return e.UserId == vUser.Id;
         })
     );
     // DESCRIPCION PARA EL ENVIO DE NOTIFICACIONES.
-    const [TextoNotificacion,setTextoNoticacion] = useState<string>("Hola {UsuarioDestino}, Estás siendo notificado porque el administrador {Admin} te ha asignado el requerimiento {Consecutivo}. Por favor, revisa información. Saludos cordiales.");
-    const [NotificarCorreo,setNotificarCorreo] = useState<string>("1");
-    const [NotificarPortal,setNotificarPortal] = useState<string>("1");
+    const [TextoNotificacion, setTextoNoticacion] = useState<string>("Hola {UsuarioDestino}, Estás siendo notificado porque el administrador {Admin} te ha asignado el requerimiento {Consecutivo}. Por favor, revisa información. Saludos cordiales.");
+    const [NotificarCorreo, setNotificarCorreo] = useState<string>("1");
+    const [NotificarPortal, setNotificarPortal] = useState<string>("1");
     //ESPACIO PARA LAS CONST
     const [loader, setloader] = useState<boolean>(false);
     const [lstIndicadores, setListIndicadores] = useState<any>([
@@ -58,7 +59,7 @@ export default function Creacion() {
     const [val, setval] = useState<string>("");
 
     //Para el diagnostico
-     let DiagnosticoCon:any[]= [];
+    let DiagnosticoCon: any[] = [];
     const [Diagnostico, setDiagnostico] = useState<any[]>([]);
     const [ConsecutivoNotificacion, setConsecutivoNotificacion] = useState<string>("");
     //Para saber cual es la que viene desde la tabla o DB
@@ -75,7 +76,7 @@ export default function Creacion() {
     );
     //Para las observaciones Iniciales
     const [ObsInicial, setObsInicial] = useState<any>();
-    const [ListadoDLPRespuesta,setListadoDLPRespuesta] = useState<any[]>([])
+    const [ListadoDLPRespuesta, setListadoDLPRespuesta] = useState<any[]>([])
     const [tabSel, settabSel] = useState<number>(0);
     const [isLoading, setIsLoading] = useState(false);
     const [isRefetching, setIsRefetching] = useState(false);
@@ -99,7 +100,7 @@ export default function Creacion() {
     const [ObservacionesModificar, setObservacionesModificar] = useState<string>("");
     const [Titulo, setTitulo] = useState<string>("Edición de requerimientos");
     const [Consecutivo, setConsecutivo] = useState<string>("Edición de requerimientos");
-    const [Admin, setAdmin] = useState<any>({"Administrador":"", "Id":""});
+    const [Admin, setAdmin] = useState<any>({ "Administrador": "", "Id": "" });
     const FiltrosBase: FiltrosReportes = {
         FechaInicialInicial: moment().add(-30, 'days').startOf('day').toDate(),
         FechaFinalInicial: moment().startOf('day').toDate(),
@@ -129,32 +130,32 @@ export default function Creacion() {
     const [showTablaAsginadas, setShowTablaAsignadas] = useState<boolean>(false);
     const [showTablaSinAsginar, setshowTablaSinAsginar] = useState<boolean>(false);
     const [showTablaReporte, setShowTablaReporte] = useState<boolean>(false);
-    let EstadosColores = EstadosRequerimientos.map((e:any) =>{
-        return {"label":e.label, "color":(e.tipo =="admin" ?"badge bg-warning":(e.tipo == "soporte" ? "badge bg-info" :"badge bg-primary" ) )};
+    let EstadosColores = EstadosRequerimientos.map((e: any) => {
+        return { "label": e.label, "color": (e.tipo == "admin" ? "badge bg-warning" : (e.tipo == "soporte" ? "badge bg-info" : "badge bg-primary")) };
     })
     //Para los flujos
     const [Flujos, setFlujos] = useState<any>([]);
     const [disable, setdisable] = useState<boolean>(false);
-/*============================================================================================================================================================================== */
-/** ESpacio para los tipos de estados a usar por el momento usare estos porque fueron los que se habian definido si en un posterior evento se dinamiza cambiar por estos.        */
-/*============================================================================================================================================================================== */
-    const EventosCreados =   EstadosRequerimientos.filter(f => !["8","6"].includes(f.valor)).map((e:any) =>e.label).join();
-    const EventosEnSoporte = EstadosRequerimientos.filter(f => ["3","4","5"].includes(f.valor)).map((e:any) =>e.label).join();
-    const Asignados = EstadosRequerimientos.filter((e:any) =>{
+    /*============================================================================================================================================================================== */
+    /** ESpacio para los tipos de estados a usar por el momento usare estos porque fueron los que se habian definido si en un posterior evento se dinamiza cambiar por estos.        */
+    /*============================================================================================================================================================================== */
+    const EventosCreados = EstadosRequerimientos.filter(f => !["8", "6"].includes(f.valor)).map((e: any) => e.label).join();
+    const EventosEnSoporte = EstadosRequerimientos.filter(f => ["3", "4", "5"].includes(f.valor)).map((e: any) => e.label).join();
+    const Asignados = EstadosRequerimientos.filter((e: any) => {
         return e.valor == "4"
     })[0].label;
-    const SinAsignar  = EstadosRequerimientos.filter((e:any) =>{
+    const SinAsignar = EstadosRequerimientos.filter((e: any) => {
         return e.valor == "3"
     })[0].label;
-    const Resueltos = EstadosRequerimientos.filter((e:any) =>{
+    const Resueltos = EstadosRequerimientos.filter((e: any) => {
         return e.valor == "8"
     })[0].label;
     const PerfilSuperAdmin = "117";
     const PerfilAdminFlota = "118";
-    const PerfilEmpleado = "117";
-/*============================================================================================================================================================================== */
-/** ESpacio para los tipos de estados a usar por el momento usare estos porque fueron los que se habian definido si en un posterior evento se dinamiza cambiar por estos.        */
-/*============================================================================================================================================================================== */
+    const PerfilEmpleado = "116";
+    /*============================================================================================================================================================================== */
+    /** ESpacio para los tipos de estados a usar por el momento usare estos porque fueron los que se habian definido si en un posterior evento se dinamiza cambiar por estos.        */
+    /*============================================================================================================================================================================== */
     //ESPACIO PARA LOS ENCABEZADOS DE LAS TABLAS
     let Campos: MRT_ColumnDef<any>[] =
         [
@@ -175,7 +176,7 @@ export default function Creacion() {
                     let Final = String(row.original.Consecutivo).substring(6, String(row.original.Consecutivo).length);
                     return (`${Inicio}-${Final}`);
                 },
-                size:140
+                size: 140
             },
             {
                 accessorKey: 'registrationNumber',
@@ -184,7 +185,7 @@ export default function Creacion() {
                     let Cabecera = JSON.parse(row.original.Cabecera);
                     return (Cabecera[0].registrationNumber == undefined ? "" : Cabecera[0].registrationNumber);
                 },
-                size:130
+                size: 130
             },
 
             {
@@ -246,80 +247,80 @@ export default function Creacion() {
                 accessorKey: 'estado',
                 header: 'Estado',
                 Cell({ cell, column, row, table, }) {
-                    return FiltroData.getEstadosJson((row.original.estado != undefined ? row.original.estado:""));
+                    return FiltroData.getEstadosJson((row.original.estado != undefined ? row.original.estado : ""));
                 },
             }
         ];
-       
-        let ColumnasPreguntas: MRT_ColumnDef<any>[] =
+
+    let ColumnasPreguntas: MRT_ColumnDef<any>[] =
         [
             {
                 accessorKey: 'categoria',
                 header: 'Categoria',
-                size:10
+                size: 10
             },
             {
                 accessorKey: 'label',
                 header: 'Pregunta',
                 Cell({ cell, column, row, table, }) {
-                 
-                   
-                    return <div><label className="control-label label label-sm fw-bolder text-primary">{row.original.label}</label>{row.original.esobligatorio  == "si" ? <span className="text-danger">*</span>:<span></span>} {
-                            (row.original.tipo == "check" ?
-                        <input 
-                        type="checkbox"
-                        style={{borderColor:'#eb3626'}}
-                        // id={`${row.original.id}`} 
-                        // title={row.original.label}
-                        // data-rel={`${row.original.categoria}${row.original.order}`} 
-                        value={row.original.Respuesta}
-                        onChange={Click}
-                        />:
-                        <input type="text" className="form-control input input-sm" placeholder="Ingrese una respuesta"></input> )}
-                        </div> 
+
+
+                    return <div><label className="control-label label label-sm fw-bolder text-primary">{row.original.label}</label>{row.original.esobligatorio == "si" ? <span className="text-danger">*</span> : <span></span>} {
+                        (row.original.tipo == "check" ?
+                            <input
+                                type="checkbox"
+                                style={{ borderColor: '#eb3626' }}
+                                // id={`${row.original.id}`} 
+                                // title={row.original.label}
+                                // data-rel={`${row.original.categoria}${row.original.order}`} 
+                                value={row.original.Respuesta}
+                                onChange={Click}
+                            /> :
+                            <input type="text" className="form-control input input-sm" placeholder="Ingrese una respuesta"></input>)}
+                    </div>
                 },
             },
             {
                 accessorKey: 'order',
                 header: 'orden',
-                enableHiding:true,
-                
+                enableHiding: true,
+
             },
             {
                 accessorKey: 'observaciones',
                 header: 'Observación',
                 Cell({ cell, column, row, table, }) {
                     return <div> {
-                                    (row.original.observaciones == "si" ? 
-                                        <input type="text" className="form-control input input-sm" id={`obs-${row.original.Id}`} placeholder="Observación"></input>
-                                        :
-                                (row.original.observaciones == "si-obligatorio" ?
-                                    <input type="text" className="form-control input input-sm" id={`obs-${row.original.Id}`} placeholder="Observación obligatoria"></input>
-                                    :
+                        (row.original.observaciones == "si" ?
+                            <input type="text" className="form-control input input-sm" id={`obs-${row.original.Id}`} placeholder="Observación"></input>
+                            :
+                            (row.original.observaciones == "si-obligatorio" ?
+                                <input type="text" className="form-control input input-sm" id={`obs-${row.original.Id}`} placeholder="Observación obligatoria"></input>
+                                :
                                 <div></div>
-                                ))
-                            }</div>
+                            ))
+                    }</div>
                 },
             },
         ];
-        const Click = (e:any) =>{
-            let listado = [...ListadoDLPRespuesta];
-            let d:any[] = [];
-            d = listado.map((a:any, b:any) =>{
-                if(a.id == e.currentTarget.attributes['id'].value){
-                    a.Respuesta = e.target.checked;
-                }
-                return a;
-            });
-           // setListadoDLPRespuesta(d);
-            console.log(d);
-        }
+    const Click = (e: any) => {
+        let listado = [...ListadoDLPRespuesta];
+        let d: any[] = [];
+        d = listado.map((a: any, b: any) => {
+            if (a.id == e.currentTarget.attributes['id'].value) {
+                a.Respuesta = e.target.checked;
+            }
+            return a;
+        });
+         setListadoDLPRespuesta(d);
+        console.log(d);
+    }
     //FUNCION PARA RETORNAR UN ESTADO GRAFICAMENTE
     const RetornarEstado = (data: any) => {
-       let color =  EstadosColores.filter((e) =>{
+        let color = EstadosColores.filter((e) => {
             return e.label == data;
         })
-      return <span className={`${color[0].color}`}>{data}</span>
+        return <span className={`${color[0].color}`}>{data}</span>
     }
     //ESPACIO PARA LAS CONSULTAS INICIALES
     const ConsultasIniciales = () => {
@@ -404,8 +405,8 @@ export default function Creacion() {
             case 0:
             default:
                 //PintarIndicadores(datosfiltrados);
-                let FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,vUser.Id);
-                setDatosTabla((FiltradoGestor == undefined ? []:FiltradoGestor));
+                let FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados, vUser.Id);
+                setDatosTabla((FiltradoGestor == undefined ? [] : FiltradoGestor));
                 setShowTablaTodos(true);
                 setShowTablaCerradas(false);
                 setShowTablaAsignadas(false);
@@ -413,9 +414,9 @@ export default function Creacion() {
                 setshowTablaSinAsginar(false);
                 break;
             case 1:
-                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,vUser.Id);
-                setDatosTabla(FiltroData.getAsignados((FiltradoGestor == undefined ? []:FiltradoGestor),
-                Asignados));
+                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados, vUser.Id);
+                setDatosTabla(FiltroData.getAsignados((FiltradoGestor == undefined ? [] : FiltradoGestor),
+                    Asignados));
                 setShowTablaTodos(false);
                 setShowTablaCerradas(false);
                 setShowTablaAsignadas(true);
@@ -423,19 +424,19 @@ export default function Creacion() {
                 setshowTablaSinAsginar(false);
                 break;
             case 2:
-                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,vUser.Id);
-                    setDatosTabla(FiltroData.getNoAsignados((FiltradoGestor == undefined ? []:FiltradoGestor),
-                       `${EventosCreados}, ${SinAsignar}`));
-                    setshowTablaSinAsginar(true);
-                    setShowTablaTodos(false);
-                    setShowTablaCerradas(false);
-                    setShowTablaAsignadas(false);
-                    setShowTablaReporte(false);
-                    break;
+                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados, vUser.Id);
+                setDatosTabla(FiltroData.getNoAsignados((FiltradoGestor == undefined ? [] : FiltradoGestor),
+                    `${EventosCreados}, ${SinAsignar}`));
+                setshowTablaSinAsginar(true);
+                setShowTablaTodos(false);
+                setShowTablaCerradas(false);
+                setShowTablaAsignadas(false);
+                setShowTablaReporte(false);
+                break;
             case 3:
-                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,vUser.Id);
-                setDatosTabla(FiltroData.getCerrados((FiltradoGestor == undefined ? []:FiltradoGestor),
-                Resueltos));
+                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados, vUser.Id);
+                setDatosTabla(FiltroData.getCerrados((FiltradoGestor == undefined ? [] : FiltradoGestor),
+                    Resueltos));
                 setShowTablaTodos(false);
                 setShowTablaCerradas(true);
                 setShowTablaAsignadas(false);
@@ -443,8 +444,8 @@ export default function Creacion() {
                 setshowTablaSinAsginar(false);
                 break;
             case 4:
-                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,vUser.Id);
-                let reporte = FiltroData.getReporte((FiltradoGestor == undefined ? []:FiltradoGestor));
+                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados, vUser.Id);
+                let reporte = FiltroData.getReporte((FiltradoGestor == undefined ? [] : FiltradoGestor));
                 let DatosReporte: any[] = [];
                 Object.entries(reporte).map((elem: any) => {
                     DatosReporte.push({ "registrationNumber": elem[0], "Cantidad": elem[1].length })
@@ -470,36 +471,22 @@ export default function Creacion() {
         }
     }, [tabSel, AgentesSeleccionado, ClienteSeleccionado, EstadoSeleccionado])
 
-   // A ver si funciona
-    useEffect(() =>{
-        if(Diagnostico.length == 0){
-            let listado = [...ListadoDLP];
-            setListadoDLPRespuesta(listado.map((val:any, index:any) =>{
-                if(val.Respuesta == undefined){
-                    val.Respuesta = false;
-                }
-                return val;
-            }))
-        }else
-        {
-            let listado = [...ListadoDLP];
-          let d:any[] =[];
-           listado.map((a:any, b:any) =>{
-            d.push(Diagnostico.map((val:any) =>{
-                if( val.id == a.id)
-                    a.Respuesta = val.Respuesta
-                    return a;
-                }));
-            });
-            let c = d.map((e:any) =>{
-                return e[0];
-            })
-            console.log(c);
-            setListadoDLPRespuesta(c);
-        }
-       
-        
-    },[Diagnostico]);
+    // A ver si funciona
+    useEffect(() => {
+        // te traes la informacion almacenada y verificas que no tenga datos
+        let listado = [...ListadoDLP];
+
+        setListadoDLPRespuesta(listado.map((a: any) => {
+            a.Respuesta = false;
+            if (Diagnostico.length > 0) {
+                let find = Diagnostico.find((f: any) => f.id == a.id);
+                a.Respuesta = find.Respuesta;
+            }
+            return a;
+        }));
+
+
+    }, [Diagnostico]);
     //FUNCION PARA VALIDAR LAS FECHAS
     let ValidarFechas = (Range: Date[]) => {
         let Tiporeporte = [...TipoReporte];
@@ -531,7 +518,7 @@ export default function Creacion() {
     //FUNCION PARA PINTAR LOS VALORES DE LOS INDICADORES
     const PintarIndicadores = (datosfiltrados: any) => {
         let Abiertos = FiltroData.getAbiertos(datosfiltrados, EventosCreados);
-        let Soporte = FiltroData.getSoporte(datosfiltrados,EventosEnSoporte);
+        let Soporte = FiltroData.getSoporte(datosfiltrados, EventosEnSoporte);
         let TotalRequerimientos = datosfiltrados.length;
         let _Resueltos = FiltroData.getCerrados(datosfiltrados, Resueltos);
         let Resolucion = (TotalRequerimientos == 0 ? 0 : _Resueltos.length / TotalRequerimientos);
@@ -634,10 +621,10 @@ export default function Creacion() {
                 }} aria-label="Default select example">
                     <option value={"Seleccione"}>Todos</option>
                     {
-                        EstadoRequerimientos?.filter((l:any)=>{
-                            let siguiente = Flujos.replaceAll("[","").replaceAll("]","");
+                        EstadoRequerimientos?.filter((l: any) => {
+                            let siguiente = Flujos.replaceAll("[", "").replaceAll("]", "");
                             let division = siguiente.split(",");
-                            return (division[0] != "" ?  [EstadoRequerimientosSeleccionado.valor, ...division].includes(l.valor): l);
+                            return (division[0] != "" ? [EstadoRequerimientosSeleccionado.valor, ...division].includes(l.valor) : l);
                         }).map((element: any) => {
                             let flag = (element.valor === EstadoRequerimientosSeleccionado.valor)
                             return (<option selected={flag} key={element.valor} defaultValue={element.valor} value={element.valor}>{element.label}</option>)
@@ -654,7 +641,7 @@ export default function Creacion() {
         return (
             <div className="input-group mb-3">
                 <span style={{ height: '40px' }} className="input-group-text mt-3" id="basic-addon1"><i className="bi-credit-card-2-front"></i></span>
-                <Form.Select disabled={(vUser.perfil === PerfilAdminFlota || (!UserCount[0].EsGestor && disable) ? true:false)} title="Agente para asignación" style={{ height: '40px' }} className="input-sm  mb-3 mt-3 " onChange={(e) => {
+                <Form.Select disabled={(vUser.perfil === PerfilAdminFlota || (!UserCount[0].EsGestor && disable) ? true : false)} title="Agente para asignación" style={{ height: '40px' }} className="input-sm  mb-3 mt-3 " onChange={(e) => {
                     // buscamos el objeto completo para tenerlo en el sistema
                     let lstAgentes = Usuarios.filter((value: any) => {
                         return value.UserId === e.currentTarget.value
@@ -675,30 +662,30 @@ export default function Creacion() {
     }
     //PARA QUE PUEDAN SELECCIONAR UN AGENTE DIFERENTE Y NUEVO.
     const EditarRequerimiento = (row: any) => {
-       //Para saber cual es el diagnostico
-        setDiagnostico(row.original.Diagnostico == null ? []: JSON.parse(row.original.Diagnostico));
+        //Para saber cual es el diagnostico
+        setDiagnostico(row.original.Diagnostico == null ? [] : JSON.parse(row.original.Diagnostico));
         setloader(true);
         setObservacionesModificar("");
         let Cabeceras = JSON.parse(row.original.Cabecera);
         setCabeceraInicial(Cabeceras);
         //Usuario
         let Usuario = Cabeceras.map((e: any) => (e.UsuarioId));
-        let _admin = Cabeceras.map((e: any) => ({"Administrador":e.administrador,"Id":e.UsuarioAdministradorId }) );
+        let _admin = Cabeceras.map((e: any) => ({ "Administrador": e.administrador, "Id": e.UsuarioAdministradorId }));
         let Seleccion = Usuarios.filter((u: any) => {
             return u.UserId == Usuario[0];
         });
-        setUsuarioSeleccionado((Seleccion.length !=0 ?  Seleccion[0]:{ Nombres: "Seleccione", UserId: "0" }));
+        setUsuarioSeleccionado((Seleccion.length != 0 ? Seleccion[0] : { Nombres: "Seleccione", UserId: "0" }));
         //Estado
         let Estado = (FiltroDashBoardData.EsJson(row.original.Estado) ? JSON.parse(row.original.Estado) : row.original.Estado);
         let EstadoSelect = EstadoRequerimientos.filter((e: any) => {
             return e.label == (Estado.label == undefined ? Estado : Estado.label);
         });
         //Para que no pueda asignarle el req a otro asesor. sino la primera vez a el.
-        setdisable((EstadoSelect.length != 0 && EstadoSelect[0].label != EventosCreados ? true:false ));
+        setdisable((EstadoSelect.length != 0 && EstadoSelect[0].label != EventosCreados ? true : false));
 
-        let a = EstadoSelect.map((data:any) => {
+        let a = EstadoSelect.map((data: any) => {
             return data.flujo;
-        }).filter((w) =>w);
+        }).filter((w) => w);
         setEstadoRequerimientosSeleccionadoAnterior((EstadoSelect.length == 0 ? { "label": "Todos", "valor": "0" } : EstadoSelect[0]));
         setFlujos(a[0]);
         setEstadoRequerimientosSeleccionado((EstadoSelect.length == 0 ? { "label": "Todos", "valor": "0" } : EstadoSelect[0]));
@@ -714,8 +701,8 @@ export default function Creacion() {
         //
         //
         //=======================================================================================================================================================
-        (vUser.perfil == PerfilEmpleado && !UserCount[0].EsGestor && EstadoSelect[0].valor =="5" ?EncabezadoConsulta(Cabeceras[0].assetid):EncabezadoSinconsulta());
-      
+        (vUser.perfil == PerfilEmpleado && !UserCount[0].EsGestor && EstadoSelect[0].valor == "5" ? EncabezadoConsulta(Cabeceras[0].assetid) : EncabezadoSinconsulta());
+
         let Obs = JSON.parse(row.original.Observaciones);
         setObsInicial(Obs);
         setTipoRequerimientosSeleccionado(
@@ -728,127 +715,127 @@ export default function Creacion() {
         setAdmin(_admin[0]);
     };
 
-    const ModalEtiquetas = () =>{
-       return <div className="row">
-                <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 text-center">
-                    <div className="row">
-                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                            <span className="mx-4 fs-6 fw-bolder">Cliente: </span><span className="mx-4 fs-5 text-muted">{Consecutivo}</span>
-                        </div>
-                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                            <span className="mx-4 fs-6 fw-bolder">Creado por: </span><span className="mx-4 fs-6 text-muted">{Admin.Administrador}</span>
-                        </div>
+    const ModalEtiquetas = () => {
+        return <div className="row">
+            <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 text-center">
+                <div className="row">
+                    <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                        <span className="mx-4 fs-6 fw-bolder">Cliente: </span><span className="mx-4 fs-5 text-muted">{Consecutivo}</span>
                     </div>
-                </div>
-                {/* <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
-                </div> */}
-                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                    <div className="form-control-sm">
-                        <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Agente: </label>
-                        <AgentesEditar></AgentesEditar>
-                    </div>
-                </div>
-                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                    <div className="form-control-sm">
-                        <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Estados: </label>
-                        <EstadosEditar></EstadosEditar>
-                    </div>
-                </div>
-                <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
-                    <div className="form-control-sm">
-                        <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Observaciones: </label>
-                        <textarea className="form-control" rows={3} value={ObservacionesModificar} onChange={(e) => {
-                            setObservacionesModificar(e.target.value);
-                        }}></textarea>
+                    <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                        <span className="mx-4 fs-6 fw-bolder">Creado por: </span><span className="mx-4 fs-6 text-muted">{Admin.Administrador}</span>
                     </div>
                 </div>
             </div>
-    }
-     const ModalProgreso = () =>{
-        let administradores = (Encabezado.Administrador != undefined ?JSON.parse(Encabezado.Administrador):[]) ;
-        return   <div className="container">
-                <div className="row">
-                    <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                        <div className="">
-                            <label className="mx-4 fs-6 fw-bolder">Cliente: </label>
-                        </div>
-                        <span className="mx-4 fs-5 text-muted">{Encabezado.Cliente}</span>
-                    </div>
-                    <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
-                        <div className="">
-                            <label className="mx-4 fs-6 fw-bolder">Placa: </label>
-                        </div>
-                        <span className="mx-4 fs-6 text-muted">{Encabezado.RegistrationNumber}</span>
-                    </div>
-                    <div className="col-sm-5 col-xl-5 col-md-5 col-lg-5">
-                        <div className="">
-                            <label className="mx-4 fs-6 fw-bolder">Admintrador (es) : </label>
-                        </div>
-                      <span className="mx-4 fs-5 text-muted">{administradores.map((e:any)=> e.Nombres).join()}</span>
-                    </div>
-                    <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                        <div className="">
-                            <label className="mx-4 fs-6 fw-bolder">Sitio: </label>
-                        </div>
-                        <span className="mx-4 fs-6 text-muted">{Encabezado.Sitio}</span>
-                    </div>
-                    <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
-                        <div className="">
-                            <label className="mx-4 fs-6 fw-bolder">Días sin Tx: </label>
-                        </div>
-                        <span className="mx-4 fs-5 text-muted">{Encabezado.DiasSinTx}</span>
-                    </div>
-                  
-                    <div className="col-sm-5 col-xl-5 col-md-5 col-lg-5">
-                        <div className="">
-                            <label className="mx-4 fs-6 fw-bolder">Descripción: </label>
-                        </div>
-                        <span className="mx-4 fs-6 text-muted">{Encabezado.AssetDescription}</span>
-                    </div>
-                    {
-                        (Encabezado.Fallas != 0) && (<div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                            <div className="">
-                                <label className="mx-4 fs-6 fw-bolder">Fallas : </label>
-                            </div>
-                            <span className="mx-4 fs-6 text-muted">{Encabezado.Fallas}</span>
-                    </div>)
-                    }
+            {/* <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                </div> */}
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                <div className="form-control-sm">
+                    <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Agente: </label>
+                    <AgentesEditar></AgentesEditar>
                 </div>
-                <div className="row">
-                    <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
-                        {(ListadoDLP.length != 0) && (<MaterialReactTable
-                          localization={MRT_Localization_ES}
-                         muiTableHeadCellProps={{
+            </div>
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                <div className="form-control-sm">
+                    <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Estados: </label>
+                    <EstadosEditar></EstadosEditar>
+                </div>
+            </div>
+            <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                <div className="form-control-sm">
+                    <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Observaciones: </label>
+                    <textarea className="form-control" rows={3} value={ObservacionesModificar} onChange={(e) => {
+                        setObservacionesModificar(e.target.value);
+                    }}></textarea>
+                </div>
+            </div>
+        </div>
+    }
+    const ModalProgreso = () => {
+        let administradores = (Encabezado.Administrador != undefined ? JSON.parse(Encabezado.Administrador) : []);
+        return <div className="container">
+            <div className="row">
+                <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                    <div className="">
+                        <label className="mx-4 fs-6 fw-bolder">Cliente: </label>
+                    </div>
+                    <span className="mx-4 fs-5 text-muted">{Encabezado.Cliente}</span>
+                </div>
+                <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                    <div className="">
+                        <label className="mx-4 fs-6 fw-bolder">Placa: </label>
+                    </div>
+                    <span className="mx-4 fs-6 text-muted">{Encabezado.RegistrationNumber}</span>
+                </div>
+                <div className="col-sm-5 col-xl-5 col-md-5 col-lg-5">
+                    <div className="">
+                        <label className="mx-4 fs-6 fw-bolder">Admintrador (es) : </label>
+                    </div>
+                    <span className="mx-4 fs-5 text-muted">{administradores.map((e: any) => e.Nombres).join()}</span>
+                </div>
+                <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                    <div className="">
+                        <label className="mx-4 fs-6 fw-bolder">Sitio: </label>
+                    </div>
+                    <span className="mx-4 fs-6 text-muted">{Encabezado.Sitio}</span>
+                </div>
+                <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                    <div className="">
+                        <label className="mx-4 fs-6 fw-bolder">Días sin Tx: </label>
+                    </div>
+                    <span className="mx-4 fs-5 text-muted">{Encabezado.DiasSinTx}</span>
+                </div>
+
+                <div className="col-sm-5 col-xl-5 col-md-5 col-lg-5">
+                    <div className="">
+                        <label className="mx-4 fs-6 fw-bolder">Descripción: </label>
+                    </div>
+                    <span className="mx-4 fs-6 text-muted">{Encabezado.AssetDescription}</span>
+                </div>
+                {
+                    (Encabezado.Fallas != 0) && (<div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                        <div className="">
+                            <label className="mx-4 fs-6 fw-bolder">Fallas : </label>
+                        </div>
+                        <span className="mx-4 fs-6 text-muted">{Encabezado.Fallas}</span>
+                    </div>)
+                }
+            </div>
+            <div className="row">
+                <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                    {(ListadoDLPRespuesta.length != 0) && (<MaterialReactTable
+                        localization={MRT_Localization_ES}
+                        muiTableHeadCellProps={{
                             sx: () => ({
                                 fontSize: 14,
                                 fontStyle: 'bold',
                                 color: 'rgb(27, 66, 94)'
                             }),
                         }}
-                            columns={ColumnasPreguntas}
-                            data={ListadoDLPRespuesta}
-                            enableColumnResizing
-                            enableDensityToggle={false}
-                            enablePagination={false}
-                            enableRowVirtualization
-                            enableGrouping
-                            enableStickyHeader
-                            enableStickyFooter
-                            initialState={{
-                                density: 'compact',
-                                expanded: true, //expand all groups by default
-                                grouping: ['categoria'], //an array of columns to group by by default (can be multiple)
-                                sorting: [{ id: 'order', desc: false }], //sort by state by default
-                                columnVisibility: { order: false }
-                            }}
-                            muiToolbarAlertBannerChipProps={{ color: 'primary' }}
-                            muiTableContainerProps={{ sx: { maxHeight: 400 } }}
-                            />)}
-                    </div>
-                    
-                        
+                        columns={ColumnasPreguntas}
+                        data={ListadoDLPRespuesta}
+                        enableColumnResizing
+                        enableDensityToggle={false}
+                        enablePagination={false}
+                        enableRowVirtualization
+                        enableGrouping
+                        enableStickyHeader
+                        enableStickyFooter
+                        initialState={{
+                            density: 'compact',
+                            expanded: true, //expand all groups by default
+                            grouping: ['categoria'], //an array of columns to group by by default (can be multiple)
+                            sorting: [{ id: 'order', desc: false }], //sort by state by default
+                            columnVisibility: { order: false }
+                        }}
+                        muiToolbarAlertBannerChipProps={{ color: 'primary' }}
+                        muiTableContainerProps={{ sx: { maxHeight: 400 } }}
+                    />)}
                 </div>
-                {/* { 
+
+
+            </div>
+            {/* { 
 
 
 
@@ -909,26 +896,26 @@ export default function Creacion() {
                     //     })
                     // )
                 }*/}
-                    
-            </div>
-     }
+
+        </div>
+    }
     //Para Crearlo y enviarlo al servidor
     const Guardar = () => {
         if (ObservacionesModificar == null || ObservacionesModificar == undefined || ObservacionesModificar == "") {
             toaster.push(message('error', "Requerimiento", "Debe ingresar una observación"), {
                 placement: 'topCenter'
-              });
+            });
             return false;
         };
 
         let _Cabecera = {
             administrador: Admin.Administrador,
-            UsuarioId: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.UserId) ,
+            UsuarioId: (UsuarioSeleccionado.UserId == "0" ? "" : UsuarioSeleccionado.UserId),
             assetid: CabeceraIncial[0].assetid,
             clienteid: CabeceraIncial[0].clienteid.toString(),
             registrationNumber: CabeceraIncial[0].registrationNumber,
             nombrecliente: CabeceraIncial[0].nombrecliente,
-            agente: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.Nombres) 
+            agente: (UsuarioSeleccionado.UserId == "0" ? "" : UsuarioSeleccionado.Nombres)
         }
         // setCabecera(_Cabecera);
         let _obs = ObsInicial;
@@ -944,7 +931,7 @@ export default function Creacion() {
         let Campos = {};
         Campos["Cabecera"] = JSON.stringify([_Cabecera]);
         Campos["Observaciones"] = JSON.stringify(_obs);
-        Campos["Estado"] = (EstadoRequerimientosSeleccionado.valor == "0" ? "": JSON.stringify({ "label": EstadoRequerimientosSeleccionado.label, "valor": EstadoRequerimientosSeleccionado.valor })); 
+        Campos["Estado"] = (EstadoRequerimientosSeleccionado.valor == "0" ? "" : JSON.stringify({ "label": EstadoRequerimientosSeleccionado.label, "valor": EstadoRequerimientosSeleccionado.valor }));
         Campos["Id"] = Id;
         confirmarDialog(() => {
             setloader(true)
@@ -965,13 +952,13 @@ export default function Creacion() {
                     setTipoReporte(Tiporeporte);
                     FiltroDatos();
                     PintarIndicadores(data);
-                    if(vUser.perfil == PerfilEmpleado && UserCount[0].EsGestor && EstadoRequerimientosSeleccionadoAnterior.label != Asignados &&  EstadoRequerimientosSeleccionado.label == Asignados){
+                    if (vUser.perfil == PerfilEmpleado && UserCount[0].EsGestor && EstadoRequerimientosSeleccionadoAnterior.label != Asignados && EstadoRequerimientosSeleccionado.label == Asignados) {
                         let dataNotificacion = {};
                         dataNotificacion['UsuarioId'] = UsuarioSeleccionado.UserId;
                         dataNotificacion['RequerimientoId'] = Id;
-                        dataNotificacion['Descripcion']= TextoNotificacion.replace("{UsuarioDestino}",`${UsuarioSeleccionado.Nombres}`).replace("{Admin}",`${Admin.Administrador}`).replace("{Consecutivo}",`${ConsecutivoNotificacion}`);
-                        dataNotificacion['NotificarCorreo']= NotificarCorreo;
-                        dataNotificacion['NotificarPortal']= NotificarPortal;
+                        dataNotificacion['Descripcion'] = TextoNotificacion.replace("{UsuarioDestino}", `${UsuarioSeleccionado.Nombres}`).replace("{Admin}", `${Admin.Administrador}`).replace("{Consecutivo}", `${ConsecutivoNotificacion}`);
+                        dataNotificacion['NotificarCorreo'] = NotificarCorreo;
+                        dataNotificacion['NotificarPortal'] = NotificarPortal;
                         Notificar(dataNotificacion)
                     }
                     setloader(false);
@@ -984,7 +971,7 @@ export default function Creacion() {
         }, `¿Esta seguro que desea editar el registro?`, 'Guardar');
     }
     //Para formar la asignacion
-    const Asignacion = (row:any) =>{
+    const Asignacion = (row: any) => {
         let Cabeceras = JSON.parse(row.original.Cabecera);
         setCabeceraInicial(Cabeceras);
         setId(row.original.Id);
@@ -996,17 +983,17 @@ export default function Creacion() {
         let Seleccion = Usuarios.filter((u: any) => {
             return u.UserId == Usuario[0];
         });
-        setUsuarioSeleccionado((Seleccion.length !=0 ?  Seleccion[0]:{ Nombres: "Seleccione", UserId: "0" }));
+        setUsuarioSeleccionado((Seleccion.length != 0 ? Seleccion[0] : { Nombres: "Seleccione", UserId: "0" }));
         //Estado
         let Estado = (FiltroDashBoardData.EsJson(row.original.Estado) ? JSON.parse(row.original.Estado) : row.original.Estado);
         let EstadoSelect = EstadoRequerimientos.filter((e: any) => {
             return e.label == (Estado.label == undefined ? Estado : Estado.label);
         });
-           //Para que no pueda asignarle el req a otro asesor. sino la primera vez a el.
-           setdisable((EstadoSelect.length != 0 && EstadoSelect[0].label != EventosCreados ? true:false ));
-        let a = EstadoSelect.map((data:any) => {
+        //Para que no pueda asignarle el req a otro asesor. sino la primera vez a el.
+        setdisable((EstadoSelect.length != 0 && EstadoSelect[0].label != EventosCreados ? true : false));
+        let a = EstadoSelect.map((data: any) => {
             return data.flujo;
-        }).filter((w) =>w);
+        }).filter((w) => w);
         setFlujos(a[0]);
         setEstadoRequerimientosSeleccionado((EstadoSelect.length == 0 ? { "label": "Todos", "valor": "0" } : EstadoSelect[0]));
         //Lo divido en 2 para tener mejor claridad
@@ -1021,26 +1008,26 @@ export default function Creacion() {
                 Value: row.original.Tipo
             }
         );
-        let _admin = Cabeceras.map((e: any) => ({"Administrador":e.administrador,"Id":e.UsuarioAdministradorId }) );
+        let _admin = Cabeceras.map((e: any) => ({ "Administrador": e.administrador, "Id": e.UsuarioAdministradorId }));
         setAdmin(_admin[0]);
         setId(row.original.Id);
     }
     //Guarda la asignacion.
-    const GuardarAsginacion = () =>{
+    const GuardarAsginacion = () => {
         let _Cabecera = {
             administrador: Admin.Administrador,
-            UsuarioId: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.UserId) ,
+            UsuarioId: (UsuarioSeleccionado.UserId == "0" ? "" : UsuarioSeleccionado.UserId),
             assetid: CabeceraIncial[0].assetid,
             clienteid: CabeceraIncial[0].clienteid.toString(),
             registrationNumber: CabeceraIncial[0].registrationNumber,
             nombrecliente: CabeceraIncial[0].nombrecliente,
-            agente: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.Nombres) 
+            agente: (UsuarioSeleccionado.UserId == "0" ? "" : UsuarioSeleccionado.Nombres)
         }
         // setCabecera(_Cabecera);
         let _obs = ObsInicial;
-        let estado =  JSON.stringify(EstadoRequerimientos.map((val:any) =>{
-            return (val.label == Asignados ? { "label": val.label, "valor": val.valor } : undefined )
-        }).filter((e) =>e)[0]);
+        let estado = JSON.stringify(EstadoRequerimientos.map((val: any) => {
+            return (val.label == Asignados ? { "label": val.label, "valor": val.valor } : undefined)
+        }).filter((e) => e)[0]);
         _obs.push(
             {
                 fecha: moment().format("DD/MM/YYYY HH:MM"),
@@ -1074,13 +1061,13 @@ export default function Creacion() {
                     setTipoReporte(Tiporeporte);
                     FiltroDatos();
                     PintarIndicadores(data);
-                    if(vUser.perfil == PerfilEmpleado && UserCount[0].EsGestor){
+                    if (vUser.perfil == PerfilEmpleado && UserCount[0].EsGestor) {
                         let dataNotificacion = {};
                         dataNotificacion['UsuarioId'] = UsuarioSeleccionado.UserId;
                         dataNotificacion['RequerimientoId'] = Id;
-                        dataNotificacion['Descripcion']= TextoNotificacion.replace("{UsuarioDestino}",`${UsuarioSeleccionado.Nombres}`).replace("{Admin}",`${Admin.Administrador}`).replace("{Consecutivo}",`${ConsecutivoNotificacion}`);
-                        dataNotificacion['NotificarCorreo']= NotificarCorreo;
-                        dataNotificacion['NotificarPortal']= NotificarPortal;
+                        dataNotificacion['Descripcion'] = TextoNotificacion.replace("{UsuarioDestino}", `${UsuarioSeleccionado.Nombres}`).replace("{Admin}", `${Admin.Administrador}`).replace("{Consecutivo}", `${ConsecutivoNotificacion}`);
+                        dataNotificacion['NotificarCorreo'] = NotificarCorreo;
+                        dataNotificacion['NotificarPortal'] = NotificarPortal;
                         Notificar(dataNotificacion)
                     }
                     setloader(false);
@@ -1105,7 +1092,7 @@ export default function Creacion() {
             })
             let Campos = {};
             Campos["Observaciones"] = JSON.stringify(Observaciones);
-            Campos["Estado"] =  JSON.stringify('{"label": "Eliminado","valor": "6"}');
+            Campos["Estado"] = JSON.stringify('{"label": "Eliminado","valor": "6"}');
             Campos["Id"] = row.original.Id;
             DeleteRequerimiento(Campos).then((response: AxiosResponse<any>) => {
                 if (response.statusText == "OK") {
@@ -1129,10 +1116,10 @@ export default function Creacion() {
         }, "¿Esta seguro que desea eliminar el registro?", "a", 'Si, Eliminar')
     };
     //NOTIFICAR
-    const Notificar = (Data:any) =>{
-        SetNotificaciones(Data).then((response:AxiosResponse<any>) =>{
+    const Notificar = (Data: any) => {
+        SetNotificaciones(Data).then((response: AxiosResponse<any>) => {
             console.log("Ha sido notificado.");
-        }).catch(({error}) =>{
+        }).catch(({ error }) => {
             console.log("Error: ", error)
         });
     };
@@ -1179,13 +1166,13 @@ export default function Creacion() {
                         {/* Para editar si cumple con la condicion */}
                         {(vUser.perfil == PerfilEmpleado || vUser.perfil == PerfilSuperAdmin || vUser.perfil == PerfilAdminFlota) && (<Tooltip arrow placement="top" title="Editar requerimiento">
                             <IconButton onClick={() => EditarRequerimiento(row)}>
-                                <Edit  className="text-warning" />
+                                <Edit className="text-warning" />
                             </IconButton>
                         </Tooltip>)}
-                  
-                        
+
+
                         {/* Permite eliminar el requerimiento siempre y cuando sea en estado Creado de lo contrario no permite eliminarlo*/}
-                        {(FiltroData.getIsActivoMod(row, EventosCreados) && vUser.perfil === PerfilAdminFlota ) && (<Tooltip arrow placement="top" title="Eliminar requerimiento">
+                        {(FiltroData.getIsActivoMod(row, EventosCreados) && vUser.perfil === PerfilAdminFlota) && (<Tooltip arrow placement="top" title="Eliminar requerimiento">
                             <IconButton onClick={() => {
                                 EliminarRequerimiento(row);
                             }}>
@@ -1224,56 +1211,56 @@ export default function Creacion() {
         </>
     }
     //Obtiene un encabezado
-    const EncabezadoConsulta = (id:any) =>{
+    const EncabezadoConsulta = (id: any) => {
         setloader(true);
-        let DatosEncabezados:any[] = [];
-        let Señales:any[]=[];
-        GetEncabezado(id).then((response:AxiosResponse<any>) =>{
-            if(response.statusText == "OK"){
+        let DatosEncabezados: any[] = [];
+        let Señales: any[] = [];
+        GetEncabezado(id).then((response: AxiosResponse<any>) => {
+            if (response.statusText == "OK") {
                 DatosEncabezados = response.data;
-                GetEncabezadoFallas(response.data[0].FechaInicial,response.data[0].FechaFinal, response.data[0].ClienteIdS).then((res:AxiosResponse<any>) =>{
-                    Señales= [...DatosEncabezados];
-                    if(res.data.length != 0){
-                        let Vehiculo =  res.data.filter((val:any) =>{
+                GetEncabezadoFallas(response.data[0].FechaInicial, response.data[0].FechaFinal, response.data[0].ClienteIdS).then((res: AxiosResponse<any>) => {
+                    Señales = [...DatosEncabezados];
+                    if (res.data.length != 0) {
+                        let Vehiculo = res.data.filter((val: any) => {
                             return val.AssetId == DatosEncabezados[0].AssetId;
-                        }) 
+                        })
                         Señales[0].Fallas = Vehiculo[0].TFallas;
-                    }else
-                        Señales = Señales.map((val:any) =>{
-                                val.Fallas = 0;
-                                return val;
+                    } else
+                        Señales = Señales.map((val: any) => {
+                            val.Fallas = 0;
+                            return val;
                         })
                     setEncabezado(Señales[0]);
                     ModalProgreso();
                     setloader(false)
-                }).catch(({err}) =>{
+                }).catch(({ err }) => {
                     console.log(err);
                     setloader(false);
                 });
             }
             setGrandeModal('xl');
             setshowedit(true);
-        }).catch(({error}) =>{
+        }).catch(({ error }) => {
             setshowedit(true);
             setloader(false);
             console.log("Error: ", error);
         });
     }
-    const EncabezadoSinconsulta = () =>{
+    const EncabezadoSinconsulta = () => {
         setloader(true);
         ModalEtiquetas();
         setGrandeModal('lg');
         setloader(false)
         setshowedit(true);
     }
-    const GuardarOtro = () =>{
+    const GuardarOtro = () => {
         console.log("guarda en otro lado");
     };
     return (
         <>
             <PageTitle>Interfaz de requerimientos</PageTitle>
             <BlockUi tag="div" keepInView blocking={loader ?? false}  >
-                <div style={{ display: (UserCount.length != 0 ?'inline':'none' )  }}>
+                <div style={{ display: (UserCount.length != 0 ? 'inline' : 'none') }}>
                     {/* Este espacio es la cabecera de la pagina */}
                     <div className="card">
                         <div className="d-flex justify-content-between mb-2">
@@ -1293,7 +1280,7 @@ export default function Creacion() {
                                                 title={element.Descripcion}
                                                 style={{
                                                     backgroundColor: "#b6fffe "
-                                                   
+
                                                 }}
                                             >
                                                 <div className="m-3 text-center">
@@ -1577,13 +1564,13 @@ export default function Creacion() {
                 </Modal.Header>
                 <Modal.Body>
                     {
-                       (showedit) && (GrandeModal== "xl" ? <ModalProgreso></ModalProgreso>  :<ModalEtiquetas></ModalEtiquetas>)  
+                        (showedit) && (GrandeModal == "xl" ? <ModalProgreso></ModalProgreso> : <ModalEtiquetas></ModalEtiquetas>)
                     }
                 </Modal.Body>
                 <Modal.Footer>
                     <Button type="button" className="btn btn-sm" variant="primary" onClick={() => {
-                        {(GrandeModal== "xl" ? GuardarOtro() :Guardar()) }
-                        
+                        { (GrandeModal == "xl" ? GuardarOtro() : Guardar()) }
+
                     }}>
                         Guardar
                     </Button>
@@ -1599,7 +1586,7 @@ export default function Creacion() {
                 </Modal.Header>
                 <Modal.Body>
                     <div className="row">
-                    <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 text-center">
+                        <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 text-center">
                             <div className="row">
                                 <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                                     <span className="mx-4 fs-6 fw-bolder">Cliente: </span><span className="mx-4 fs-5 text-muted">{Consecutivo}</span>

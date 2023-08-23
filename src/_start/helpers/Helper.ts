@@ -9,7 +9,7 @@ export const  formatSimpleJsonColombia = "DD-MM-YYYY";
 export const  formatFechasView = "DD/MM/YYYY";
 export const  formatViewHoraMinuto = "DD/MM/YYYY HH:mm";
 
-var utcMoment = () => {return moment.tz('America/Bogota').locale('es')};
+var utcMoment = () => {return moment().tz('America/Bogota').locale('es')};
 export const FechaServidor = () => {return new Date( utcMoment().format() ) };
 export const FechaMomentUtc = utcMoment;
 export const FechaServidorPeriodo =FechaMomentUtc().format("MYYYY");
