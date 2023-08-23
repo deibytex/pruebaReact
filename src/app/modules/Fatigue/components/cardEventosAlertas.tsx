@@ -173,8 +173,6 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
     setDataAlertas(dataFiltrada);
     setRowCount(dataFiltrada.length);
 
-    console.log(dataFiltrada);
-
 
   }, [alertas])
 
