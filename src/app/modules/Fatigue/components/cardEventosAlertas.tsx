@@ -23,6 +23,7 @@ import { UserModelSyscaf } from "../../auth/models/UserModel";
 import moment from "moment";
 import { CheckboxGroup, Checkbox, useToaster, Notification } from "rsuite";
 import { FormatoColombiaDDMMYYY, FormatoColombiaDDMMYYYHHmm, FormatoColombiaDDMMYYYHHmmss } from "../../../../_start/helpers/Constants";
+import { DescargarExcel } from "../../../../_start/helpers/components/DescargarExcel";
 type Props = {
 
   isActive: boolean;
@@ -44,7 +45,6 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
 
   const [dataAlertas, setDataAlertas] = useState([]);
   const [dataAlertasfiltrada, setDataAlertasfiltrada] = useState([]);
-  const [dataAlertasCombinadas, setDataAlertasCombinadas] = useState([]);
   const [dataContacto, setdataContacto] = useState([]);
   const [obervacionGestion, setobervacionGestion] = useState("");
   const [obervacionGestionlast, setobervacionGestionlast] = useState("");
@@ -164,34 +164,17 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
 
     let dataFiltrada = [];
     
-    filtro == 0 ? dataFiltrada = alertas.filter((item: any) => "Riesgo alto".indexOf(item.Criticidad) > -1) 
-    :  filtro == 1 ? dataFiltrada = alertas.filter((item: any) => "Riesgo moderado".indexOf(item.Criticidad) > -1) 
-    : filtro == 2 ? dataFiltrada = alertas.filter((item: any) => "Riesgo bajo".indexOf(item.Criticidad) > -1) 
-    : filtro == 3 ? dataFiltrada = alertas.filter((item: any) => "false".indexOf(`${item.EstadoGestion}`) > -1) 
-    : dataFiltrada = alertas.filter((item: any) => "true".indexOf(`${item.EstadoGestion}`) > -1);
+    filtro == 0 ? dataFiltrada = alertas.filter((item: any) => item.Criticidad == "Riesgo alto" && item.EstadoGestion == null) 
+    :  filtro == 1 ? dataFiltrada = alertas.filter((item: any) => item.Criticidad == "Riesgo moderado" && item.EstadoGestion == null)  
+    : filtro == 2 ? dataFiltrada = alertas.filter((item: any) => item.Criticidad ==  "Riesgo bajo" && item.EstadoGestion == null)
+    : filtro == 3 ? dataFiltrada = alertas.filter((item: any) => item.EstadoGestion == false) 
+    : dataFiltrada = alertas.filter((item: any) => item.EstadoGestion);
 
     setDataAlertas(dataFiltrada);
     setRowCount(dataFiltrada.length);
 
 
   }, [alertas])
-
-  //primer cargue 
-  useEffect(() => {
-
-    if (dataAlertas.length > 0) {
-
-
-
-      // const filteredArray1 = dataAlertas.filter((item: any) => value.indexOf(item.Criticidad) > -1);
-      // const filteredArray2 = filteredArray1.filter((item: any) => value2.indexOf(`${item.EstadoGestion}`) > -1);
-      // const filteredArray3 = filteredArray2.filter((item: any) => value3.indexOf(item.TipoAlerta) > -1);
-      // setDataAlertasCombinadas(filteredArray3);
-    }
-
-
-  }, [dataAlertas])
-
 
 
   //listado campos tablas
@@ -528,7 +511,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
           },
         }}
         columns={columnasTabla}
-        data={dataAlertasCombinadas.length == 0 ? dataAlertas : dataAlertasCombinadas}
+        data={dataAlertas}
         muiTableBodyRowProps={({ row }) => ({
 
           sx: {
@@ -617,6 +600,16 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
           showProgressBars: isRefetching,
           sorting,
         }}
+        renderTopToolbarCustomActions={({ table }) => (
+          <Box
+              sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
+          >
+              {(filtro == 3 || filtro == 4) && 
+              (<button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataAlertas, columnasTabla, `Alertas ${ filtro == 3 ? "en Gestión" : "Gestionadas"}`) }}>
+                  <i className="bi-file-earmark-excel"></i></button>)
+              }
+          </Box>
+      )}
       />
 
       <Modal
