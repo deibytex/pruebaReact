@@ -1,7 +1,7 @@
 import BlockUi from "@availity/block-ui";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PageTitle } from "../../../../../../_start/layout/core";
-import { DeleteRequerimiento, FiltroData, GetEncabezado, GetEncabezadoFallas, GetRequerimientos, SetNotificaciones, SetRequerimiento, listTabsRequerimientos } from "../../data/Requerimientos";
+import { DeleteRequerimiento, FiltroData, GetConfiguracion, GetEncabezado, GetEncabezadoFallas, GetRequerimientos, SetDiagnostico, SetNotificaciones, SetRequerimiento, listTabsRequerimientos } from "../../data/Requerimientos";
 import { DrawDynamicIconMuiMaterial } from "../../../../../../_start/helpers/components/IconsMuiDynamic";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import moment from "moment";
@@ -9,43 +9,46 @@ import { MRT_Localization_ES } from "material-react-table/locales/es";
 import { FiltrosReportes } from "../../Models/ModelRequerimientos";
 import { FiltroDashBoardData } from "../../data/PostVentaData";
 import { AxiosResponse } from "axios";
-import { DateRangePicker, useToaster, Notification, Checkbox } from "rsuite";
-import { Button, Form, FormControl, FormGroup, Modal } from "react-bootstrap-v5";
+import { DateRangePicker, useToaster, Notification} from "rsuite";
+import { Button, Form,  Modal } from "react-bootstrap-v5";
 import { locateFormatPercentNDijitos } from "../../../../../../_start/helpers/Helper";
 import { Box, IconButton, Tooltip } from "@mui/material";
-import { Assignment, CallToActionSharp, CheckBox, ConstructionOutlined, DeckTwoTone, Delete, Edit } from "@mui/icons-material";
-import { DescargarExcel } from "../../../../../../_start/helpers/components/DescargarExcel";
-import { EstadosRequerimientos, ListadoDLP, Usuarios } from "../../mockData/indicadores";
+import { Assignment,  DeckTwoTone, Delete, Edit, ViewAgenda } from "@mui/icons-material";
+import { DescargarExcel} from "../../../../../../_start/helpers/components/DescargarExcel";
+ //import {  ListadoDLP } from "../../mockData/indicadores";
 import { useSelector } from "react-redux";
 import { UserModelSyscaf } from "../../../../auth/models/UserModel";
 import { RootState } from "../../../../../../setup";
 import confirmarDialog, { confirmarDialogText, successDialog } from "../../../../../../_start/helpers/components/ConfirmDialog";
-import { set } from "rsuite/esm/utils/dateUtils";
+
 export default function Creacion() {
+    //INICIO ESPACIO CONSTANTES
+    const [EstadosRequerimientos, setEstadosRequerimientos] = useState<any[]>([]);
+    const [ListadoDLP, setListadoDLP] = useState<any[]>([]);
+    const [Usuarios, setUsuarios] = useState<any[]>([]);
     const toaster = useToaster();
-
+    const tableContainerRef = useRef<HTMLDivElement>(null);
     const message = (type: any, titulo: string, mensaje: React.ReactNode) => {
-        return (<Notification className="bg-light-danger" type={type} header={titulo}
-            closable duration={10000}>
-            {mensaje}
-        </Notification>)
+      return (<Notification className="bg-light-danger" type={type} header={titulo}
+        closable duration={10000}>
+        {mensaje}
+      </Notification>)
     }
-
     const user = useSelector<RootState>(
         ({ auth }) => auth.user
     );
     const vUser = user as UserModelSyscaf;
-     console.log(vUser)
     //Para saber que usuario ingreso a la cuenta,
     const [UserCount, setUserCount] = useState<any>(
-        Usuarios.filter((e: any) => {
+        Usuarios.filter((e:any) =>{
             return e.UserId == vUser.Id;
         })
     );
     // DESCRIPCION PARA EL ENVIO DE NOTIFICACIONES.
-    const [TextoNotificacion, setTextoNoticacion] = useState<string>("Hola {UsuarioDestino}, Estás siendo notificado porque el administrador {Admin} te ha asignado el requerimiento {Consecutivo}. Por favor, revisa información. Saludos cordiales.");
-    const [NotificarCorreo, setNotificarCorreo] = useState<string>("1");
-    const [NotificarPortal, setNotificarPortal] = useState<string>("1");
+    const [TextoNotificacion,setTextoNoticacion] = useState<string>("Hola {UsuarioDestino}, Estás siendo notificado porque el administrador {Admin} te ha asignado el requerimiento {Consecutivo}. Por favor, revisa información. Saludos cordiales.");
+    const [TextoNotificacionAmin,setTextoNoticacionAmin] = useState<string>("Hola {Admin}, Estás siendo notificado porque el agente {UsuarioDestino} ha dado por resuelto el requerimiento {Consecutivo}. Por favor, revisa información. Saludos cordiales.");
+    const [NotificarCorreo,setNotificarCorreo] = useState<string>("1");
+    const [NotificarPortal,setNotificarPortal] = useState<string>("1");
     //ESPACIO PARA LAS CONST
     const [loader, setloader] = useState<boolean>(false);
     const [lstIndicadores, setListIndicadores] = useState<any>([
@@ -54,12 +57,13 @@ export default function Creacion() {
         { "Estado": "Tasa de resolución", "Descripcion": "Tasa de resolución de los requerimientos de los últimos 7 días", "Valor": 0 },
         { "Estado": "Total resueltos", "Descripcion": "Total de requerimientos resueltos en los últimos 7 días.", "Valor": 0 }
     ]);
+    // const [cajas, setCajas] = useState<string>("3");
     const [Id, setId] = useState<string>("");
-    const [Respuestas, setRespuestas] = useState<any[]>([]);
-    const [val, setval] = useState<string>("");
+    const [IsDiagnostico, setIsDiagnostico] = useState<boolean>(false);
+    const [val, setval] = useState<boolean>(false);
 
     //Para el diagnostico
-    let DiagnosticoCon: any[] = [];
+  //   let DiagnosticoCon:any[]= [];
     const [Diagnostico, setDiagnostico] = useState<any[]>([]);
     const [ConsecutivoNotificacion, setConsecutivoNotificacion] = useState<string>("");
     //Para saber cual es la que viene desde la tabla o DB
@@ -76,7 +80,7 @@ export default function Creacion() {
     );
     //Para las observaciones Iniciales
     const [ObsInicial, setObsInicial] = useState<any>();
-    const [ListadoDLPRespuesta, setListadoDLPRespuesta] = useState<any[]>([])
+    const [ListadoDLPRespuesta,setListadoDLPRespuesta] = useState<any[]>([])
     const [tabSel, settabSel] = useState<number>(0);
     const [isLoading, setIsLoading] = useState(false);
     const [isRefetching, setIsRefetching] = useState(false);
@@ -89,10 +93,12 @@ export default function Creacion() {
     const [show, setshow] = useState<boolean>(false);
     const [ShowFiltros, setShowFiltros] = useState<boolean>(false);
     const [showedit, setshowedit] = useState<boolean>(false);
-    const [GrandeModal, setGrandeModal] = useState<any>('lg');
+    const [GrandeModal, setGrandeModal] = useState<any>('');
     const [ShowAsignacion, setShowAsignacion] = useState<boolean>(false);
+    const [ShowModalDiag, setShowModalDiag] = useState<boolean>(false);
     const [Encabezado, setEncabezado] = useState<any>({});
-    const [TipoRequerimientosSeleccionado, setTipoRequerimientosSeleccionado] = useState<any>({ Nombre: "", Value: "" });
+    const [InfDiag, setInfDiag] = useState<any[]>([]);
+    // const [TipoRequerimientosSeleccionado, setTipoRequerimientosSeleccionado] = useState<any>({ Nombre: "", Value: "" });
     const [EstadoRequerimientos, setEstadoRequerimientos] = useState<any[]>([]);
     const [EstadoRequerimientosSeleccionado, setEstadoRequerimientosSeleccionado] = useState<any>({ label: "Seleccione", valor: "0" });
     const [EstadoRequerimientosSeleccionadoAnterior, setEstadoRequerimientosSeleccionadoAnterior] = useState<any>({ label: "Seleccione", valor: "0" });
@@ -100,7 +106,7 @@ export default function Creacion() {
     const [ObservacionesModificar, setObservacionesModificar] = useState<string>("");
     const [Titulo, setTitulo] = useState<string>("Edición de requerimientos");
     const [Consecutivo, setConsecutivo] = useState<string>("Edición de requerimientos");
-    const [Admin, setAdmin] = useState<any>({ "Administrador": "", "Id": "" });
+    const [Admin, setAdmin] = useState<any>({"Administrador":"", "Id":""});
     const FiltrosBase: FiltrosReportes = {
         FechaInicialInicial: moment().add(-30, 'days').startOf('day').toDate(),
         FechaFinalInicial: moment().startOf('day').toDate(),
@@ -122,6 +128,8 @@ export default function Creacion() {
     const [Agentes, setAgentes] = useState<any[]>([]);
     const [Estados, setEstados] = useState<any[]>([]);
 
+ 
+
     const [AgentesSeleccionado, setAgentesSeleccionado] = useState<any>({ "Agente": "Todos", "UsuarioId": "Todos" });
     const [ClienteSeleccionado, setClienteSeleccionado] = useState<any>({ "Cliente": "Todos", "ClienteId": "Todos" });
     const [EstadoSeleccionado, setEstadoSeleccionado] = useState<any>({ "Estado": "Todos" });
@@ -130,32 +138,28 @@ export default function Creacion() {
     const [showTablaAsginadas, setShowTablaAsignadas] = useState<boolean>(false);
     const [showTablaSinAsginar, setshowTablaSinAsginar] = useState<boolean>(false);
     const [showTablaReporte, setShowTablaReporte] = useState<boolean>(false);
-    let EstadosColores = EstadosRequerimientos.map((e: any) => {
-        return { "label": e.label, "color": (e.tipo == "admin" ? "badge bg-warning" : (e.tipo == "soporte" ? "badge bg-info" : "badge bg-primary")) };
-    })
+    const [EstadosColores, setEstadosColores] = useState<any[]>([])
+   
     //Para los flujos
     const [Flujos, setFlujos] = useState<any>([]);
     const [disable, setdisable] = useState<boolean>(false);
+
+    const [EventosCreados, setEventosCreados] = useState<any>("");
+    const [EventosEnSoporte, setEventosEnSoporte] = useState<any>("");
+    const [Asignados, setAsignados] = useState<any>("");
+    const [SinAsignar, setSinAsignar] = useState<any>("");
+    const [Resueltos, setResueltos] = useState<any>("");
     /*============================================================================================================================================================================== */
     /** ESpacio para los tipos de estados a usar por el momento usare estos porque fueron los que se habian definido si en un posterior evento se dinamiza cambiar por estos.        */
     /*============================================================================================================================================================================== */
-    const EventosCreados = EstadosRequerimientos.filter(f => !["8", "6"].includes(f.valor)).map((e: any) => e.label).join();
-    const EventosEnSoporte = EstadosRequerimientos.filter(f => ["3", "4", "5"].includes(f.valor)).map((e: any) => e.label).join();
-    const Asignados = EstadosRequerimientos.filter((e: any) => {
-        return e.valor == "4"
-    })[0].label;
-    const SinAsignar = EstadosRequerimientos.filter((e: any) => {
-        return e.valor == "3"
-    })[0].label;
-    const Resueltos = EstadosRequerimientos.filter((e: any) => {
-        return e.valor == "8"
-    })[0].label;
-    const PerfilSuperAdmin = "117";
-    const PerfilAdminFlota = "118";
-    const PerfilEmpleado = "116";
+        const PerfilSuperAdmin = "117";
+        const PerfilAdminFlota = "118";
+        const PerfilEmpleado = "116";
     /*============================================================================================================================================================================== */
     /** ESpacio para los tipos de estados a usar por el momento usare estos porque fueron los que se habian definido si en un posterior evento se dinamiza cambiar por estos.        */
     /*============================================================================================================================================================================== */
+
+    //FIN ESPACIO CONSTANTES
     //ESPACIO PARA LOS ENCABEZADOS DE LAS TABLAS
     let Campos: MRT_ColumnDef<any>[] =
         [
@@ -176,7 +180,7 @@ export default function Creacion() {
                     let Final = String(row.original.Consecutivo).substring(6, String(row.original.Consecutivo).length);
                     return (`${Inicio}-${Final}`);
                 },
-                size: 140
+                size:140
             },
             {
                 accessorKey: 'registrationNumber',
@@ -185,7 +189,7 @@ export default function Creacion() {
                     let Cabecera = JSON.parse(row.original.Cabecera);
                     return (Cabecera[0].registrationNumber == undefined ? "" : Cabecera[0].registrationNumber);
                 },
-                size: 130
+                size:130
             },
 
             {
@@ -247,80 +251,155 @@ export default function Creacion() {
                 accessorKey: 'estado',
                 header: 'Estado',
                 Cell({ cell, column, row, table, }) {
-                    return FiltroData.getEstadosJson((row.original.estado != undefined ? row.original.estado : ""));
+                    return FiltroData.getEstadosJson((row.original.estado != undefined ? row.original.estado:""));
                 },
             }
         ];
-
+       
     let ColumnasPreguntas: MRT_ColumnDef<any>[] =
         [
             {
                 accessorKey: 'categoria',
                 header: 'Categoria',
-                size: 10
+                size:10
             },
             {
                 accessorKey: 'label',
                 header: 'Pregunta',
                 Cell({ cell, column, row, table, }) {
-
-
-                    return <div><label className="control-label label label-sm fw-bolder text-primary">{row.original.label}</label>{row.original.esobligatorio == "si" ? <span className="text-danger">*</span> : <span></span>} {
-                        (row.original.tipo == "check" ?
-                            <input
-                                type="checkbox"
-                                style={{ borderColor: '#eb3626' }}
-                                // id={`${row.original.id}`} 
-                                // title={row.original.label}
-                                // data-rel={`${row.original.categoria}${row.original.order}`} 
-                                value={row.original.Respuesta}
-                                onChange={Click}
-                            /> :
-                            <input type="text" className="form-control input input-sm" placeholder="Ingrese una respuesta"></input>)}
-                    </div>
+                    return <label className="control-label label label-sm fw-bolder text-primary preguntas">{row.original.label}</label>
                 },
             },
             {
-                accessorKey: 'order',
-                header: 'orden',
-                enableHiding: true,
-
+                accessorKey: 'Respuesta',
+                header: 'Respuesta',
+                size:10,
+                Cell({ cell, column, row, table, }) {
+                    return <div>{
+                            (row.original.tipo == "check" ?
+                        <input 
+                            className="Respuestas form-check-input"
+                            type="checkbox"
+                            style={{borderColor:'#eb3626'}}
+                            id={`${row.original.id}`} 
+                            title={row.original.label}
+                            // data-rel={`${row.original.categoria}${row.original.order}`} 
+                            defaultChecked={row.original.Respuesta}
+                            value={row.original.Respuesta}
+                            onChange={Click}
+                        />:
+                        <input 
+                            type="text"  
+                            id={`${row.original.id}`}  
+                            value={row.original.Respuesta}  
+                            onChange={change} 
+                            className="form-control input input-sm" 
+                            placeholder="Ingrese una respuesta"
+                            />)}
+                        </div> 
+                },
+            },
+            {
+                accessorKey: 'Estado',
+                header: '¿Bien?',
+                Cell({ cell, column, row, table, }) {
+                    return <div style={{display: 'contents'}}>
+                            <div className="form-check">
+                                <label className="control-label label label-sm" htmlFor={`Si${parseInt(row.original.id+row.original.order)}`}>
+                                    Si
+                                </label>
+                                <input 
+                                    className="form-check-input" 
+                                    type="radio" 
+                                    name={`RadioSi${row.original.id}`} 
+                                    id={`Si${parseInt(row.original.id+row.original.order)}`}
+                                    checked={(row.original.Estado ? true:false)}
+                                    onChange={CambioEstado}
+                                    data-rel={`${row.original.id}`}
+                                    data-no={`Si`}
+                                />
+                            </div>
+                            &nbsp;
+                            <div className="form-check">
+                                <label className="control-label label label-sm" htmlFor={`No${parseInt(row.original.id+row.original.order)}`}>
+                                    No
+                                </label>
+                                <input 
+                                    className="form-check-input" 
+                                    type="radio" name={`RadioSi${row.original.id}`} 
+                                    id={`No${parseInt(row.original.id+row.original.order)}`}
+                                    checked={(!row.original.Estado ? true:false)}
+                                    onChange={CambioEstado}
+                                    data-rel={`${row.original.id}`}
+                                    data-no={`No`}
+                                />
+                            </div>
+                        </div>  
+                }
             },
             {
                 accessorKey: 'observaciones',
                 header: 'Observación',
                 Cell({ cell, column, row, table, }) {
                     return <div> {
-                        (row.original.observaciones == "si" ?
-                            <input type="text" className="form-control input input-sm" id={`obs-${row.original.Id}`} placeholder="Observación"></input>
-                            :
-                            (row.original.observaciones == "si-obligatorio" ?
-                                <input type="text" className="form-control input input-sm" id={`obs-${row.original.Id}`} placeholder="Observación obligatoria"></input>
-                                :
+                                    (row.original.observaciones == "si" ? 
+                                        <input type="text" className="form-control input input-sm" data-rel={`${row.original.id}`} value={row.original.RespuestaObservacion} onChange={CambioObs} placeholder="Observación"></input>
+                                        :
+                                (row.original.observaciones == "si-obligatorio" ?
+                                    <input type="text" className="form-control input input-sm" data-rel={`${row.original.id}`} value={row.original.RespuestaObservacion} onChange={CambioObs} placeholder="Observación"></input>
+                                    :
                                 <div></div>
-                            ))
-                    }</div>
+                                ))
+                            }</div>
                 },
             },
-        ];
-    const Click = (e: any) => {
-        let listado = [...ListadoDLPRespuesta];
-        let d: any[] = [];
-        d = listado.map((a: any, b: any) => {
-            if (a.id == e.currentTarget.attributes['id'].value) {
-                a.Respuesta = e.target.checked;
+            {
+                accessorKey: 'order',
+                header: 'orden',
+                enableHiding:true,
+                
             }
-            return a;
-        });
-         setListadoDLPRespuesta(d);
-        console.log(d);
-    }
+           
+        ];
+        //PARA TOMAR EL VALOR DE LAS RESPUESTA SI EX CHECK
+    const Click = (e:any) =>{
+            let listado = [...ListadoDLPRespuesta];
+            setListadoDLPRespuesta(listado.map((a: any) => {
+                a.Respuesta = (a.id==e.currentTarget.attributes['id'].value ?e.target.checked: a.Respuesta);
+                return a;
+            }));
+        }
+        //PARA TOMAR EL VALOR DE LAS RESPUESTAS SI ES TEXTO
+    const change = (e:any) =>{
+            let listado = [...ListadoDLPRespuesta];
+            setListadoDLPRespuesta(listado.map((a: any) => {
+                a.Respuesta = (a.id==e.currentTarget.attributes['id'].value ?e.target.value: a.Respuesta);
+                return a;
+            }));
+        }
+        //PARA LAS OBSERVACIONES
+    const CambioObs = (e:any) =>{
+            let listado = [...ListadoDLPRespuesta];
+            setListadoDLPRespuesta(listado.map((a: any) => {
+                a.RespuestaObservacion = (a.id==e.currentTarget.attributes['data-rel'].value ?e.target.value: a.RespuestaObservacion);
+                return a;
+            }));
+        }
+        //PARA SABER SI ESTA BIEN O NO EL DIAGNOSTICO
+    const CambioEstado = (e:any) =>{
+            let f = e.currentTarget.attributes['data-no'].value;
+            let listado = [...ListadoDLPRespuesta];
+            setListadoDLPRespuesta(listado.map((a: any) => {
+                a.Estado = (a.id==e.currentTarget.attributes['data-rel'].value ?(e.currentTarget.attributes['data-no'].value == "Si" ? true:false): a.Estado);
+                return a;
+            }));
+        }
     //FUNCION PARA RETORNAR UN ESTADO GRAFICAMENTE
     const RetornarEstado = (data: any) => {
-        let color = EstadosColores.filter((e) => {
+       let color =  EstadosColores.filter((e) =>{
             return e.label == data;
         })
-        return <span className={`${color[0].color}`}>{data}</span>
+      return <span className={`${(color.length != 0 ?color[0].color:"badge bg-info")}`}>{data}</span>
     }
     //ESPACIO PARA LAS CONSULTAS INICIALES
     const ConsultasIniciales = () => {
@@ -350,7 +429,8 @@ export default function Creacion() {
                     //Para filtrar los Estados
                     let estados: any[] = [];
                     Object.entries(FiltroData.getEstados(response.data)).map((elem: any) => {
-                        estados.push({ "Estado": elem[1] })
+                        let estado = FiltroData.getEstadosJson(elem[1]);
+                        estados.push({ "Estado": estado })
                     });
                     setEstados(estados);
                     //Para pintar los Indicadores
@@ -372,13 +452,30 @@ export default function Creacion() {
                     setIsError(true);
                 });
 
-            let Estados = EstadosRequerimientos;
-            setEstadoRequerimientos(Estados);
-            setEstadoRequerimientosSeleccionado(Estados[0]);
+           //Para obtner todas las configuraciones le paso la sigla en null, podria
+           //filtrarse por sigla
+            getConfiguracion(null);
         }
         else
             FiltroDatos();
     };
+      //Se consultan las Configuraciones
+      const getConfiguracion = (sigla:any|null) =>{
+        GetConfiguracion(sigla).then((response:AxiosResponse<any>) =>{
+            if(response.data.length != 0){
+                let Users = FiltroData.getConfiguracionSigla(response.data,"COUSS");
+                setUsuarios((Users.length !=0 ? Users[0]:[]));
+                let States = FiltroData.getConfiguracionSigla(response.data,"OERST");
+                setEstadosRequerimientos(States[0]);
+                setEstadoRequerimientos(States[0]);
+                let DLP = FiltroData.getConfiguracionSigla(response.data,"DLPST");
+                setListadoDLP(DLP[0]);
+            }
+           
+        }).catch(({error}) =>{
+            console.log("Error: ", error)
+        })
+    }
     //ESPACIO PARA LA FUNCION QUE APLICA LOS FILTROS
     const FiltroDatos = () => {
         let tabDefault = 0;
@@ -405,8 +502,8 @@ export default function Creacion() {
             case 0:
             default:
                 //PintarIndicadores(datosfiltrados);
-                let FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados, vUser.Id);
-                setDatosTabla((FiltradoGestor == undefined ? [] : FiltradoGestor));
+                let FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,vUser.Id);
+                setDatosTabla((FiltradoGestor == undefined ? []:FiltradoGestor));
                 setShowTablaTodos(true);
                 setShowTablaCerradas(false);
                 setShowTablaAsignadas(false);
@@ -414,9 +511,9 @@ export default function Creacion() {
                 setshowTablaSinAsginar(false);
                 break;
             case 1:
-                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados, vUser.Id);
-                setDatosTabla(FiltroData.getAsignados((FiltradoGestor == undefined ? [] : FiltradoGestor),
-                    Asignados));
+                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,vUser.Id);
+                setDatosTabla(FiltroData.getAsignados((FiltradoGestor == undefined ? []:FiltradoGestor),
+                Asignados));
                 setShowTablaTodos(false);
                 setShowTablaCerradas(false);
                 setShowTablaAsignadas(true);
@@ -424,19 +521,19 @@ export default function Creacion() {
                 setshowTablaSinAsginar(false);
                 break;
             case 2:
-                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados, vUser.Id);
-                setDatosTabla(FiltroData.getNoAsignados((FiltradoGestor == undefined ? [] : FiltradoGestor),
-                    `${EventosCreados}, ${SinAsignar}`));
-                setshowTablaSinAsginar(true);
-                setShowTablaTodos(false);
-                setShowTablaCerradas(false);
-                setShowTablaAsignadas(false);
-                setShowTablaReporte(false);
-                break;
+                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,vUser.Id);
+                    setDatosTabla(FiltroData.getNoAsignados((FiltradoGestor == undefined ? []:FiltradoGestor),
+                       `${EventosCreados}, ${SinAsignar}`));
+                    setshowTablaSinAsginar(true);
+                    setShowTablaTodos(false);
+                    setShowTablaCerradas(false);
+                    setShowTablaAsignadas(false);
+                    setShowTablaReporte(false);
+                    break;
             case 3:
-                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados, vUser.Id);
-                setDatosTabla(FiltroData.getCerrados((FiltradoGestor == undefined ? [] : FiltradoGestor),
-                    Resueltos));
+                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,vUser.Id);
+                setDatosTabla(FiltroData.getCerrados((FiltradoGestor == undefined ? []:FiltradoGestor),
+                Resueltos));
                 setShowTablaTodos(false);
                 setShowTablaCerradas(true);
                 setShowTablaAsignadas(false);
@@ -444,8 +541,8 @@ export default function Creacion() {
                 setshowTablaSinAsginar(false);
                 break;
             case 4:
-                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados, vUser.Id);
-                let reporte = FiltroData.getReporte((FiltradoGestor == undefined ? [] : FiltradoGestor));
+                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,vUser.Id);
+                let reporte = FiltroData.getReporte((FiltradoGestor == undefined ? []:FiltradoGestor));
                 let DatosReporte: any[] = [];
                 Object.entries(reporte).map((elem: any) => {
                     DatosReporte.push({ "registrationNumber": elem[0], "Cantidad": elem[1].length })
@@ -471,22 +568,54 @@ export default function Creacion() {
         }
     }, [tabSel, AgentesSeleccionado, ClienteSeleccionado, EstadoSeleccionado])
 
-    // A ver si funciona
+   // A ver si funciona
     useEffect(() => {
-        // te traes la informacion almacenada y verificas que no tenga datos
+        // te traes la informaci'on almacenada y verificas que no tenga datos
         let listado = [...ListadoDLP];
-
-        setListadoDLPRespuesta(listado.map((a: any) => {
-            a.Respuesta = false;
+        setListadoDLPRespuesta(listado.map((a: any, index:any) => {
+            a.Respuesta = (a.tipo =="check" ? false:"") ;
+            a.Estado = "";
+            a.RespuestaObservacion = "";
             if (Diagnostico.length > 0) {
                 let find = Diagnostico.find((f: any) => f.id == a.id);
                 a.Respuesta = find.Respuesta;
+                a.RespuestaObservacion = find.RespuestaObservacion;
+                a.Estado = find.Estado;
             }
             return a;
         }));
+    }, [Diagnostico, ListadoDLP]);
 
-
-    }, [Diagnostico]);
+    useEffect(() =>{
+        let valor:boolean = FiltroData.getComprobarEstado(ListadoDLPRespuesta);
+        setval((valor ?? false));
+    },[ListadoDLPRespuesta])
+    //Para los estados y todo lo relacionado una vez haya datos
+    useEffect(() =>{
+        if(EstadosRequerimientos.length != 0){
+            setEventosCreados(EstadosRequerimientos.filter(f => !["8","6"].includes(f.valor)).map((e:any) =>e.label).join())
+            setEventosEnSoporte(EstadosRequerimientos.filter(f => ["3","4","5"].includes(f.valor)).map((e:any) =>e.label).join())
+            setAsignados(EstadosRequerimientos.filter((e:any) =>{
+                return e.valor == "4"
+            })[0].label)
+            setSinAsignar(EstadosRequerimientos.filter((e:any) =>{
+                return e.valor == "3"
+            })[0].label)
+            setResueltos(EstadosRequerimientos.filter((e:any) =>{
+                return e.valor == "8"
+            })[0].label);
+            setEstadosColores(EstadosRequerimientos.map((e:any) =>{
+                return {"label":e.label, "color":(e.tipo =="admin" ?"badge bg-warning":(e.tipo == "soporte" ? "badge bg-info" :"badge bg-primary" ) )};
+            }));
+            setEstadoRequerimientosSeleccionado(EstadosRequerimientos[0]);
+        }
+    
+    },[EstadosRequerimientos])
+    //PAra actualizar el listado de usuarios
+    useEffect(() =>{
+        if(Usuarios.length != 0)
+            setUserCount(Usuarios);
+    },[Usuarios])
     //FUNCION PARA VALIDAR LAS FECHAS
     let ValidarFechas = (Range: Date[]) => {
         let Tiporeporte = [...TipoReporte];
@@ -518,7 +647,7 @@ export default function Creacion() {
     //FUNCION PARA PINTAR LOS VALORES DE LOS INDICADORES
     const PintarIndicadores = (datosfiltrados: any) => {
         let Abiertos = FiltroData.getAbiertos(datosfiltrados, EventosCreados);
-        let Soporte = FiltroData.getSoporte(datosfiltrados, EventosEnSoporte);
+        let Soporte = FiltroData.getSoporte(datosfiltrados,EventosEnSoporte);
         let TotalRequerimientos = datosfiltrados.length;
         let _Resueltos = FiltroData.getCerrados(datosfiltrados, Resueltos);
         let Resolucion = (TotalRequerimientos == 0 ? 0 : _Resueltos.length / TotalRequerimientos);
@@ -602,6 +731,7 @@ export default function Creacion() {
 
         );
     }
+    //Detalles del modal.
     const DetallesModal = (row: any) => {
         let Data = JSON.parse(row.original.Observaciones);
         setDetallesDatos(Data);
@@ -621,10 +751,10 @@ export default function Creacion() {
                 }} aria-label="Default select example">
                     <option value={"Seleccione"}>Todos</option>
                     {
-                        EstadoRequerimientos?.filter((l: any) => {
-                            let siguiente = Flujos.replaceAll("[", "").replaceAll("]", "");
+                        EstadoRequerimientos?.filter((l:any)=>{
+                            let siguiente = Flujos.replaceAll("[","").replaceAll("]","");
                             let division = siguiente.split(",");
-                            return (division[0] != "" ? [EstadoRequerimientosSeleccionado.valor, ...division].includes(l.valor) : l);
+                            return (division[0] != "" ?  [EstadoRequerimientosSeleccionado.valor, ...division].includes(l.valor): l);
                         }).map((element: any) => {
                             let flag = (element.valor === EstadoRequerimientosSeleccionado.valor)
                             return (<option selected={flag} key={element.valor} defaultValue={element.valor} value={element.valor}>{element.label}</option>)
@@ -635,13 +765,12 @@ export default function Creacion() {
 
         );
     }
-
     //PARA QUE PUEDAN SELECCIONAR UN USUARIO NUEVO.
     function AgentesEditar() {
         return (
             <div className="input-group mb-3">
                 <span style={{ height: '40px' }} className="input-group-text mt-3" id="basic-addon1"><i className="bi-credit-card-2-front"></i></span>
-                <Form.Select disabled={(vUser.perfil === PerfilAdminFlota || (!UserCount[0].EsGestor && disable) ? true : false)} title="Agente para asignación" style={{ height: '40px' }} className="input-sm  mb-3 mt-3 " onChange={(e) => {
+                <Form.Select disabled={(vUser.perfil === PerfilAdminFlota || (!UserCount[0].EsGestor && disable) ? true:false)} title="Agente para asignación" style={{ height: '40px' }} className="input-sm  mb-3 mt-3 " onChange={(e) => {
                     // buscamos el objeto completo para tenerlo en el sistema
                     let lstAgentes = Usuarios.filter((value: any) => {
                         return value.UserId === e.currentTarget.value
@@ -662,30 +791,30 @@ export default function Creacion() {
     }
     //PARA QUE PUEDAN SELECCIONAR UN AGENTE DIFERENTE Y NUEVO.
     const EditarRequerimiento = (row: any) => {
-        //Para saber cual es el diagnostico
-        setDiagnostico(row.original.Diagnostico == null ? [] : JSON.parse(row.original.Diagnostico));
+       //Para saber cual es el diagnostico
+        setDiagnostico(row.original.Diagnostico == null ? []: JSON.parse(row.original.Diagnostico));
         setloader(true);
         setObservacionesModificar("");
         let Cabeceras = JSON.parse(row.original.Cabecera);
         setCabeceraInicial(Cabeceras);
         //Usuario
         let Usuario = Cabeceras.map((e: any) => (e.UsuarioId));
-        let _admin = Cabeceras.map((e: any) => ({ "Administrador": e.administrador, "Id": e.UsuarioAdministradorId }));
+        let _admin = Cabeceras.map((e: any) => ({"Administrador":e.administrador,"Id":e.UsuarioAdministradorId }) );
         let Seleccion = Usuarios.filter((u: any) => {
             return u.UserId == Usuario[0];
         });
-        setUsuarioSeleccionado((Seleccion.length != 0 ? Seleccion[0] : { Nombres: "Seleccione", UserId: "0" }));
+        setUsuarioSeleccionado((Seleccion.length !=0 ?  Seleccion[0]:{ Nombres: "Seleccione", UserId: "0" }));
         //Estado
         let Estado = (FiltroDashBoardData.EsJson(row.original.Estado) ? JSON.parse(row.original.Estado) : row.original.Estado);
         let EstadoSelect = EstadoRequerimientos.filter((e: any) => {
             return e.label == (Estado.label == undefined ? Estado : Estado.label);
         });
         //Para que no pueda asignarle el req a otro asesor. sino la primera vez a el.
-        setdisable((EstadoSelect.length != 0 && EstadoSelect[0].label != EventosCreados ? true : false));
+        setdisable((EstadoSelect.length != 0 && EstadoSelect[0].label != EventosCreados ? true:false ));
 
-        let a = EstadoSelect.map((data: any) => {
+        let a = EstadoSelect.map((data:any) => {
             return data.flujo;
-        }).filter((w) => w);
+        }).filter((w) =>w);
         setEstadoRequerimientosSeleccionadoAnterior((EstadoSelect.length == 0 ? { "label": "Todos", "valor": "0" } : EstadoSelect[0]));
         setFlujos(a[0]);
         setEstadoRequerimientosSeleccionado((EstadoSelect.length == 0 ? { "label": "Todos", "valor": "0" } : EstadoSelect[0]));
@@ -701,221 +830,40 @@ export default function Creacion() {
         //
         //
         //=======================================================================================================================================================
-        (vUser.perfil == PerfilEmpleado && !UserCount[0].EsGestor && EstadoSelect[0].valor == "5" ? EncabezadoConsulta(Cabeceras[0].assetid) : EncabezadoSinconsulta());
-
+        //&& !UserCount[0].EsGestor vUser.perfil == PerfilEmpleado  && vUser.perfil == PerfilEmpleado &&
+        ( EstadoSelect[0].valor =="5" ?EncabezadoConsulta(Cabeceras[0].assetid):EncabezadoSinconsulta());
+        ( EstadoSelect[0].valor =="5"  ?setGrandeModal("xl"):setGrandeModal("lg"));
+        setIsDiagnostico(false);
+        setshowedit(true)
         let Obs = JSON.parse(row.original.Observaciones);
         setObsInicial(Obs);
-        setTipoRequerimientosSeleccionado(
-            {
-                Nombre: row.original.Tipo,
-                Value: row.original.Tipo
-            }
-        );
+        // setTipoRequerimientosSeleccionado(
+        //     {
+        //         Nombre: row.original.Tipo,
+        //         Value: row.original.Tipo
+        //     }
+        // );
         setId(row.original.Id);
         setAdmin(_admin[0]);
     };
-
-    const ModalEtiquetas = () => {
-        return <div className="row">
-            <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 text-center">
-                <div className="row">
-                    <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                        <span className="mx-4 fs-6 fw-bolder">Cliente: </span><span className="mx-4 fs-5 text-muted">{Consecutivo}</span>
-                    </div>
-                    <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                        <span className="mx-4 fs-6 fw-bolder">Creado por: </span><span className="mx-4 fs-6 text-muted">{Admin.Administrador}</span>
-                    </div>
-                </div>
-            </div>
-            {/* <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
-                </div> */}
-            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                <div className="form-control-sm">
-                    <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Agente: </label>
-                    <AgentesEditar></AgentesEditar>
-                </div>
-            </div>
-            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                <div className="form-control-sm">
-                    <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Estados: </label>
-                    <EstadosEditar></EstadosEditar>
-                </div>
-            </div>
-            <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
-                <div className="form-control-sm">
-                    <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Observaciones: </label>
-                    <textarea className="form-control" rows={3} value={ObservacionesModificar} onChange={(e) => {
-                        setObservacionesModificar(e.target.value);
-                    }}></textarea>
-                </div>
-            </div>
-        </div>
-    }
-    const ModalProgreso = () => {
-        let administradores = (Encabezado.Administrador != undefined ? JSON.parse(Encabezado.Administrador) : []);
-        return <div className="container">
-            <div className="row">
-                <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                    <div className="">
-                        <label className="mx-4 fs-6 fw-bolder">Cliente: </label>
-                    </div>
-                    <span className="mx-4 fs-5 text-muted">{Encabezado.Cliente}</span>
-                </div>
-                <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
-                    <div className="">
-                        <label className="mx-4 fs-6 fw-bolder">Placa: </label>
-                    </div>
-                    <span className="mx-4 fs-6 text-muted">{Encabezado.RegistrationNumber}</span>
-                </div>
-                <div className="col-sm-5 col-xl-5 col-md-5 col-lg-5">
-                    <div className="">
-                        <label className="mx-4 fs-6 fw-bolder">Admintrador (es) : </label>
-                    </div>
-                    <span className="mx-4 fs-5 text-muted">{administradores.map((e: any) => e.Nombres).join()}</span>
-                </div>
-                <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                    <div className="">
-                        <label className="mx-4 fs-6 fw-bolder">Sitio: </label>
-                    </div>
-                    <span className="mx-4 fs-6 text-muted">{Encabezado.Sitio}</span>
-                </div>
-                <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
-                    <div className="">
-                        <label className="mx-4 fs-6 fw-bolder">Días sin Tx: </label>
-                    </div>
-                    <span className="mx-4 fs-5 text-muted">{Encabezado.DiasSinTx}</span>
-                </div>
-
-                <div className="col-sm-5 col-xl-5 col-md-5 col-lg-5">
-                    <div className="">
-                        <label className="mx-4 fs-6 fw-bolder">Descripción: </label>
-                    </div>
-                    <span className="mx-4 fs-6 text-muted">{Encabezado.AssetDescription}</span>
-                </div>
-                {
-                    (Encabezado.Fallas != 0) && (<div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                        <div className="">
-                            <label className="mx-4 fs-6 fw-bolder">Fallas : </label>
-                        </div>
-                        <span className="mx-4 fs-6 text-muted">{Encabezado.Fallas}</span>
-                    </div>)
-                }
-            </div>
-            <div className="row">
-                <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
-                    {(ListadoDLPRespuesta.length != 0) && (<MaterialReactTable
-                        localization={MRT_Localization_ES}
-                        muiTableHeadCellProps={{
-                            sx: () => ({
-                                fontSize: 14,
-                                fontStyle: 'bold',
-                                color: 'rgb(27, 66, 94)'
-                            }),
-                        }}
-                        columns={ColumnasPreguntas}
-                        data={ListadoDLPRespuesta}
-                        enableColumnResizing
-                        enableDensityToggle={false}
-                        enablePagination={false}
-                        enableRowVirtualization
-                        enableGrouping
-                        enableStickyHeader
-                        enableStickyFooter
-                        initialState={{
-                            density: 'compact',
-                            expanded: true, //expand all groups by default
-                            grouping: ['categoria'], //an array of columns to group by by default (can be multiple)
-                            sorting: [{ id: 'order', desc: false }], //sort by state by default
-                            columnVisibility: { order: false }
-                        }}
-                        muiToolbarAlertBannerChipProps={{ color: 'primary' }}
-                        muiTableContainerProps={{ sx: { maxHeight: 400 } }}
-                    />)}
-                </div>
-
-
-            </div>
-            {/* { 
-
-
-
-
-
-
-
-
-                    // (Object.entries(lista)).length != 0 && (
-                    //     Object.entries(lista).map((elem: any,index:any) => {
-                    //         return<div key={elem[0]} className="mt-5">
-                    //         <div key={index} className="">
-                    //             <div key={index+2} className="card">
-                    //                 <div className="card border border-primary">
-                    //                     <span  className ="text-muted fs-7 fw-bolder m-5" key={index+1}>{elem[0].toUpperCase()}</span>
-                    //                 {
-                    //                 elem[1].map((e:any, indexE:any) =>{
-                    //                    return(<div key={parseInt(e.order)+1} className="form-control" >
-                    //                             <div key={parseInt(e.order)+2} className="row">
-                    //                                 <div style={{borderColor:'#eb3626', border:'2 px solid'}} key={parseInt(e.order)+3}  className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                    //                                     <label className="control-label label label-sm fw-bolder" htmlFor={e.categoria+e.order} key={indexE}>{e.label}</label>{(e.esobligatorio =="si" ? <span className="text-danger">*</span>:<span></span>)}
-                    //                                     <div className="form-control" key={parseInt(e.order)+4}>
-                    //                                        {(e.tipo == "check" ?
-                    //                                             <Checkbox className="" style={{borderColor:'#eb3626'}} id={e.categoria+e.order} title={e.label} onClick={() => console.log("Check")}/>:
-                    //                                             <input type="text" className="form-control input input-sm" placeholder="Ingrese una respuesta"></input> )}
-                    //                                     </div>
-                    //                                 </div>
-                    //                                 <div key={parseInt(e.order)+5}  className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                    //                                     {
-                    //                                          (e.observaciones == "si" ? 
-                    //                                          <div> 
-                    //                                              <label className="conrol-label label label-sm">Observación</label>
-                    //                                              <div className="form-control">
-                    //                                                  <input type="text" className="form-control input input-sm" id={`obs`} placeholder="Ingrese una respuesta"></input>
-                    //                                              </div>
-                    //                                          </div>:
-                    //                                         (e.observaciones == "si-obligatorio" ?
-                    //                                             <div> 
-                    //                                                 <label className="conrol-label label label-sm">Observación</label><span title="Es obligatorio" className="text-danger">*</span>
-                    //                                                 <div className="form-control">
-                    //                                                     <input type="text" className="form-control input input-sm" id={`obs`} placeholder="Ingrese una respuesta"></input>
-                    //                                                 </div>
-                    //                                             </div>:
-                    //                                         <div></div>
-                    //                                         ))
-                    //                                     }
-                    //                                 </div>
-                    //                             </div>
-                    //                     </div>)
-                    //                 })
-                    //                }
-                    //                 </div>
-                                    
-                                  
-                    //             </div>
-                    //         </div>
-                    //     </div>
-                    //     })
-                    // )
-                }*/}
-
-        </div>
-    }
     //Para Crearlo y enviarlo al servidor
     const Guardar = () => {
         if (ObservacionesModificar == null || ObservacionesModificar == undefined || ObservacionesModificar == "") {
             toaster.push(message('error', "Requerimiento", "Debe ingresar una observación"), {
                 placement: 'topCenter'
-            });
+              });
             return false;
         };
 
         let _Cabecera = {
             administrador: Admin.Administrador,
-            UsuarioId: (UsuarioSeleccionado.UserId == "0" ? "" : UsuarioSeleccionado.UserId),
+            UsuarioAdministradorId: Admin.Id,
             assetid: CabeceraIncial[0].assetid,
             clienteid: CabeceraIncial[0].clienteid.toString(),
             registrationNumber: CabeceraIncial[0].registrationNumber,
             nombrecliente: CabeceraIncial[0].nombrecliente,
-            agente: (UsuarioSeleccionado.UserId == "0" ? "" : UsuarioSeleccionado.Nombres)
+            agente: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.Nombres),
+            UsuarioId: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.UserId),
         }
         // setCabecera(_Cabecera);
         let _obs = ObsInicial;
@@ -931,7 +879,7 @@ export default function Creacion() {
         let Campos = {};
         Campos["Cabecera"] = JSON.stringify([_Cabecera]);
         Campos["Observaciones"] = JSON.stringify(_obs);
-        Campos["Estado"] = (EstadoRequerimientosSeleccionado.valor == "0" ? "" : JSON.stringify({ "label": EstadoRequerimientosSeleccionado.label, "valor": EstadoRequerimientosSeleccionado.valor }));
+        Campos["Estado"] = (EstadoRequerimientosSeleccionado.valor == "0" ? "": JSON.stringify({ "label": EstadoRequerimientosSeleccionado.label, "valor": EstadoRequerimientosSeleccionado.valor })); 
         Campos["Id"] = Id;
         confirmarDialog(() => {
             setloader(true)
@@ -952,13 +900,13 @@ export default function Creacion() {
                     setTipoReporte(Tiporeporte);
                     FiltroDatos();
                     PintarIndicadores(data);
-                    if (vUser.perfil == PerfilEmpleado && UserCount[0].EsGestor && EstadoRequerimientosSeleccionadoAnterior.label != Asignados && EstadoRequerimientosSeleccionado.label == Asignados) {
+                    if(vUser.perfil == PerfilEmpleado && UserCount[0].EsGestor && EstadoRequerimientosSeleccionadoAnterior.label != Asignados &&  EstadoRequerimientosSeleccionado.label == Asignados){
                         let dataNotificacion = {};
                         dataNotificacion['UsuarioId'] = UsuarioSeleccionado.UserId;
                         dataNotificacion['RequerimientoId'] = Id;
-                        dataNotificacion['Descripcion'] = TextoNotificacion.replace("{UsuarioDestino}", `${UsuarioSeleccionado.Nombres}`).replace("{Admin}", `${Admin.Administrador}`).replace("{Consecutivo}", `${ConsecutivoNotificacion}`);
-                        dataNotificacion['NotificarCorreo'] = NotificarCorreo;
-                        dataNotificacion['NotificarPortal'] = NotificarPortal;
+                        dataNotificacion['Descripcion']= TextoNotificacion.replace("{UsuarioDestino}",`${UsuarioSeleccionado.Nombres}`).replace("{Admin}",`${Admin.Administrador}`).replace("{Consecutivo}",`${ConsecutivoNotificacion}`);
+                        dataNotificacion['NotificarCorreo']= NotificarCorreo;
+                        dataNotificacion['NotificarPortal']= NotificarPortal;
                         Notificar(dataNotificacion)
                     }
                     setloader(false);
@@ -971,7 +919,7 @@ export default function Creacion() {
         }, `¿Esta seguro que desea editar el registro?`, 'Guardar');
     }
     //Para formar la asignacion
-    const Asignacion = (row: any) => {
+    const Asignacion = (row:any) =>{
         let Cabeceras = JSON.parse(row.original.Cabecera);
         setCabeceraInicial(Cabeceras);
         setId(row.original.Id);
@@ -983,17 +931,17 @@ export default function Creacion() {
         let Seleccion = Usuarios.filter((u: any) => {
             return u.UserId == Usuario[0];
         });
-        setUsuarioSeleccionado((Seleccion.length != 0 ? Seleccion[0] : { Nombres: "Seleccione", UserId: "0" }));
+        setUsuarioSeleccionado((Seleccion.length !=0 ?  Seleccion[0]:{ Nombres: "Seleccione", UserId: "0" }));
         //Estado
         let Estado = (FiltroDashBoardData.EsJson(row.original.Estado) ? JSON.parse(row.original.Estado) : row.original.Estado);
         let EstadoSelect = EstadoRequerimientos.filter((e: any) => {
             return e.label == (Estado.label == undefined ? Estado : Estado.label);
         });
-        //Para que no pueda asignarle el req a otro asesor. sino la primera vez a el.
-        setdisable((EstadoSelect.length != 0 && EstadoSelect[0].label != EventosCreados ? true : false));
-        let a = EstadoSelect.map((data: any) => {
+           //Para que no pueda asignarle el req a otro asesor. sino la primera vez a el.
+           setdisable((EstadoSelect.length != 0 && EstadoSelect[0].label != EventosCreados ? true:false ));
+        let a = EstadoSelect.map((data:any) => {
             return data.flujo;
-        }).filter((w) => w);
+        }).filter((w) =>w);
         setFlujos(a[0]);
         setEstadoRequerimientosSeleccionado((EstadoSelect.length == 0 ? { "label": "Todos", "valor": "0" } : EstadoSelect[0]));
         //Lo divido en 2 para tener mejor claridad
@@ -1002,32 +950,26 @@ export default function Creacion() {
         setShowAsignacion(true);
         let Obs = JSON.parse(row.original.Observaciones);
         setObsInicial(Obs);
-        setTipoRequerimientosSeleccionado(
-            {
-                Nombre: row.original.Tipo,
-                Value: row.original.Tipo
-            }
-        );
-        let _admin = Cabeceras.map((e: any) => ({ "Administrador": e.administrador, "Id": e.UsuarioAdministradorId }));
+        let _admin = Cabeceras.map((e: any) => ({"Administrador":e.administrador,"Id":e.UsuarioAdministradorId }) );
         setAdmin(_admin[0]);
         setId(row.original.Id);
     }
     //Guarda la asignacion.
-    const GuardarAsginacion = () => {
+    const GuardarAsginacion = () =>{
         let _Cabecera = {
             administrador: Admin.Administrador,
-            UsuarioId: (UsuarioSeleccionado.UserId == "0" ? "" : UsuarioSeleccionado.UserId),
+            UsuarioId: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.UserId) ,
             assetid: CabeceraIncial[0].assetid,
             clienteid: CabeceraIncial[0].clienteid.toString(),
             registrationNumber: CabeceraIncial[0].registrationNumber,
             nombrecliente: CabeceraIncial[0].nombrecliente,
-            agente: (UsuarioSeleccionado.UserId == "0" ? "" : UsuarioSeleccionado.Nombres)
+            agente: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.Nombres) 
         }
         // setCabecera(_Cabecera);
         let _obs = ObsInicial;
-        let estado = JSON.stringify(EstadoRequerimientos.map((val: any) => {
-            return (val.label == Asignados ? { "label": val.label, "valor": val.valor } : undefined)
-        }).filter((e) => e)[0]);
+        let estado =  JSON.stringify(EstadoRequerimientos.map((val:any) =>{
+            return (val.label == Asignados ? { "label": val.label, "valor": val.valor } : undefined )
+        }).filter((e) =>e)[0]);
         _obs.push(
             {
                 fecha: moment().format("DD/MM/YYYY HH:MM"),
@@ -1061,13 +1003,13 @@ export default function Creacion() {
                     setTipoReporte(Tiporeporte);
                     FiltroDatos();
                     PintarIndicadores(data);
-                    if (vUser.perfil == PerfilEmpleado && UserCount[0].EsGestor) {
+                    if(vUser.perfil == PerfilEmpleado && UserCount[0].EsGestor){
                         let dataNotificacion = {};
                         dataNotificacion['UsuarioId'] = UsuarioSeleccionado.UserId;
                         dataNotificacion['RequerimientoId'] = Id;
-                        dataNotificacion['Descripcion'] = TextoNotificacion.replace("{UsuarioDestino}", `${UsuarioSeleccionado.Nombres}`).replace("{Admin}", `${Admin.Administrador}`).replace("{Consecutivo}", `${ConsecutivoNotificacion}`);
-                        dataNotificacion['NotificarCorreo'] = NotificarCorreo;
-                        dataNotificacion['NotificarPortal'] = NotificarPortal;
+                        dataNotificacion['Descripcion']= TextoNotificacion.replace("{UsuarioDestino}",`${UsuarioSeleccionado.Nombres}`).replace("{Admin}",`${Admin.Administrador}`).replace("{Consecutivo}",`${ConsecutivoNotificacion}`);
+                        dataNotificacion['NotificarCorreo']= NotificarCorreo;
+                        dataNotificacion['NotificarPortal']= NotificarPortal;
                         Notificar(dataNotificacion)
                     }
                     setloader(false);
@@ -1092,7 +1034,7 @@ export default function Creacion() {
             })
             let Campos = {};
             Campos["Observaciones"] = JSON.stringify(Observaciones);
-            Campos["Estado"] = JSON.stringify('{"label": "Eliminado","valor": "6"}');
+            Campos["Estado"] =  JSON.stringify('{"label": "Eliminado","valor": "6"}');
             Campos["Id"] = row.original.Id;
             DeleteRequerimiento(Campos).then((response: AxiosResponse<any>) => {
                 if (response.statusText == "OK") {
@@ -1116,15 +1058,37 @@ export default function Creacion() {
         }, "¿Esta seguro que desea eliminar el registro?", "a", 'Si, Eliminar')
     };
     //NOTIFICAR
-    const Notificar = (Data: any) => {
-        SetNotificaciones(Data).then((response: AxiosResponse<any>) => {
+    const Notificar = (Data:any) =>{
+        SetNotificaciones(Data).then((response:AxiosResponse<any>) =>{
             console.log("Ha sido notificado.");
-        }).catch(({ error }) => {
+        }).catch(({error}) =>{
             console.log("Error: ", error)
         });
     };
-    //Para montar la tabla
+    //Muestra el diggnostico de requerimiento
+    const VerRequerimiento = (row:any) =>{
+      let _Diagnostico:any[]=[];
+        let IsValido  =   (row.original.Diagnostico == null ? toaster.push(message('success', "Completado", "Requerimiento resuelto pero no hay un diagnostico que mostrar"), {
+            placement: 'topCenter'
+        }): JSON.parse(row.original.Diagnostico));
+        
+        if(Array.isArray(IsValido)){
+            setIsDiagnostico(true);
+            _Diagnostico = JSON.parse(row.original.Diagnostico);
+            setInfDiag(_Diagnostico);
+            EncabezadoConsulta(JSON.parse(row.original.Cabecera)[0].assetid);
+            setShowModalDiag(true);
+        }
+    }
+    //Para montar la tabla tab 1, 2, 3,4
     function MontarTabla() {
+        //Completado estado
+        let estadoCompletado  = JSON.stringify(EstadoRequerimientos.filter((e:any) =>{
+            return e.valor=="8";
+        }).map((f:any) =>{
+            return {"label":f.label, "valor":f.valor}
+        })[0]);
+
         return <>
             <MaterialReactTable
                 localization={MRT_Localization_ES}
@@ -1166,13 +1130,23 @@ export default function Creacion() {
                         {/* Para editar si cumple con la condicion */}
                         {(vUser.perfil == PerfilEmpleado || vUser.perfil == PerfilSuperAdmin || vUser.perfil == PerfilAdminFlota) && (<Tooltip arrow placement="top" title="Editar requerimiento">
                             <IconButton onClick={() => EditarRequerimiento(row)}>
-                                <Edit className="text-warning" />
+                                <Edit  className="text-warning" />
                             </IconButton>
                         </Tooltip>)}
-
-
+                        {/* Permite ver el diagnostico del requerimiento */}
+                        {(vUser.perfil == PerfilEmpleado || vUser.perfil == PerfilSuperAdmin || vUser.perfil == PerfilAdminFlota) 
+                            && 
+                            (
+                                row.original.Estado == estadoCompletado
+                            )
+                            
+                        && (<Tooltip arrow placement="top" title="Ver diagnóstico de requerimiento">
+                            <IconButton onClick={() => VerRequerimiento(row)}>
+                                <ViewAgenda  className="text-info" />
+                            </IconButton>
+                        </Tooltip>)}
                         {/* Permite eliminar el requerimiento siempre y cuando sea en estado Creado de lo contrario no permite eliminarlo*/}
-                        {(FiltroData.getIsActivoMod(row, EventosCreados) && vUser.perfil === PerfilAdminFlota) && (<Tooltip arrow placement="top" title="Eliminar requerimiento">
+                        {(FiltroData.getIsActivoMod(row, EventosCreados) && vUser.perfil === PerfilAdminFlota ) && (<Tooltip arrow placement="top" title="Eliminar requerimiento">
                             <IconButton onClick={() => {
                                 EliminarRequerimiento(row);
                             }}>
@@ -1200,7 +1174,12 @@ export default function Creacion() {
                         sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
                     >
                         <button title="Reporte a excel" style={{ display: (tabSel <= 2) ? "inline-block" : "none" }} className="  btn btn-sm btn-primary" type="button" onClick={() => {
-                            DescargarExcel(DatosTabla, Campos, `Reporte de requerimientos${(tabSel == 0 ? "" : (tabSel == 1 ? " asignados" : (tabSel == 2 ? " cerrados" : "")))}`)
+                            let data = DatosTabla.map((val:any) =>{
+                                let cab = JSON.parse(val.Cabecera);
+                                let estado = (FiltroDashBoardData.EsJson(val.Estado)  == true ? JSON.parse(val.Estado) : val.Estado)
+                                return  {"nombrecliente":cab[0].nombrecliente,"Consecutivo": val.Consecutivo,"registrationNumber":cab[0].registrationNumber, "Estado": (estado.label == undefined ? estado : estado.label), "agente": cab[0].agente, "Fecha": val.FechaCreacion};
+                            })
+                            DescargarExcel(data, Campos, `Reporte de requerimientos${(tabSel == 0 ? "" : (tabSel == 1 ? " asignados" : (tabSel == 2 ? " cerrados" : "")))}`)
                         }}>
                             <i className="bi-file-earmark-excel"></i></button>
 
@@ -1211,56 +1190,121 @@ export default function Creacion() {
         </>
     }
     //Obtiene un encabezado
-    const EncabezadoConsulta = (id: any) => {
+    const EncabezadoConsulta = (id:any) =>{
+        (!IsDiagnostico??setGrandeModal('xl'));
         setloader(true);
-        let DatosEncabezados: any[] = [];
-        let Señales: any[] = [];
-        GetEncabezado(id).then((response: AxiosResponse<any>) => {
-            if (response.statusText == "OK") {
+        let DatosEncabezados:any[] = [];
+        let Señales:any[]=[];
+        GetEncabezado(id).then((response:AxiosResponse<any>) =>{
+            if(response.statusText == "OK"){
                 DatosEncabezados = response.data;
-                GetEncabezadoFallas(response.data[0].FechaInicial, response.data[0].FechaFinal, response.data[0].ClienteIdS).then((res: AxiosResponse<any>) => {
-                    Señales = [...DatosEncabezados];
-                    if (res.data.length != 0) {
-                        let Vehiculo = res.data.filter((val: any) => {
+                GetEncabezadoFallas(response.data[0].FechaInicial,response.data[0].FechaFinal, response.data[0].ClienteIdS).then((res:AxiosResponse<any>) =>{
+                    Señales= [...DatosEncabezados];
+                    if(res.data.length != 0){
+                        let Vehiculo =  res.data.filter((val:any) =>{
                             return val.AssetId == DatosEncabezados[0].AssetId;
-                        })
+                        }) 
                         Señales[0].Fallas = Vehiculo[0].TFallas;
-                    } else
-                        Señales = Señales.map((val: any) => {
-                            val.Fallas = 0;
-                            return val;
+                    }else
+                        Señales = Señales.map((val:any) =>{
+                                val.Fallas = 0;
+                                return val;
                         })
                     setEncabezado(Señales[0]);
-                    ModalProgreso();
                     setloader(false)
-                }).catch(({ err }) => {
+                }).catch(({err}) =>{
                     console.log(err);
                     setloader(false);
                 });
             }
-            setGrandeModal('xl');
-            setshowedit(true);
-        }).catch(({ error }) => {
-            setshowedit(true);
+        }).catch(({error}) =>{
+            (!IsDiagnostico??setshowedit(true));
             setloader(false);
             console.log("Error: ", error);
         });
     }
-    const EncabezadoSinconsulta = () => {
+    //Consulta el encabezado pero que no es el modal grande de resolver requerimiento
+    const EncabezadoSinconsulta = () =>{
         setloader(true);
-        ModalEtiquetas();
         setGrandeModal('lg');
         setloader(false)
-        setshowedit(true);
     }
-    const GuardarOtro = () => {
-        console.log("guarda en otro lado");
+    //Este resuelve el requerimiento
+    //==========================================================================================================
+    // RESUELVE EL REQUERIMIENTO
+    //==========================================================================================================
+    const GuardarOtro = () =>{
+        console.log(FiltroData.getEsCompletado(ListadoDLPRespuesta).length);
+        let _Cabecera = {
+            administrador: Admin.Administrador,
+            UsuarioAdministradorId: Admin.Id,
+            assetid: CabeceraIncial[0].assetid,
+            clienteid: CabeceraIncial[0].clienteid.toString(),
+            registrationNumber: CabeceraIncial[0].registrationNumber,
+            nombrecliente: CabeceraIncial[0].nombrecliente,
+            agente: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.Nombres),
+            UsuarioId: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.UserId),
+        }
+        // setCabecera(_Cabecera);
+        let _obs = ObsInicial;
+        _obs.push(
+            {
+                fecha: moment().format("DD/MM/YYYY HH:MM"),
+                observacion: `Se realiza el diagnostico y se ${(FiltroData.getEsCompletado(ListadoDLPRespuesta).length == 0 ? "completa el diagnostico quedando resuelto" : "guarda sin completar el diagnostico")}`,
+                usuario: vUser.Nombres,
+                estado: JSON.stringify((FiltroData.getEsCompletado(ListadoDLPRespuesta).length == 0 ?  EstadosRequerimientos.filter((e:any)=>e.valor == "8" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}})[0]:EstadosRequerimientos.filter((e:any)=>e.valor == "5" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}})[0]))
+            }
+        )
+        let Campos = {};
+        Campos["Diagnostico"] = JSON.stringify(ListadoDLPRespuesta);
+        Campos["Observaciones"] = JSON.stringify(_obs);
+        Campos["Estado"] = JSON.stringify((FiltroData.getEsCompletado(ListadoDLPRespuesta).length == 0 ?  EstadosRequerimientos.filter((e:any)=>e.valor == "8" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}})[0]:EstadosRequerimientos.filter((e:any)=>e.valor == "5" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}})[0])); 
+        Campos["Id"] = Id;
+        confirmarDialog(() => {
+            setloader(true)
+            SetDiagnostico(Campos).then((response: AxiosResponse<any>) => {
+                if (response.statusText == "OK") {
+                    successDialog(response.data[0][""], '');
+                    setshowedit(false);
+                    let data: any = DatosTabla.map((val: any) => {
+                        if (val.Id == Id) {
+                            val.Estado = Campos['Estado'];
+                            val.Diagnostico = Campos['Diagnostico']
+                            val.Observaciones = Campos['Observaciones'];
+                        }
+                        return val;
+                    });
+                    let Tiporeporte = [...TipoReporteBase];
+                    Tiporeporte[tabSel].Data = data;
+                    setTipoReporte(Tiporeporte);
+                    FiltroDatos();
+                    PintarIndicadores(data);
+                    let dataNotificacion = {};
+                    dataNotificacion['UsuarioId'] = Admin.Id;
+                    dataNotificacion['RequerimientoId'] = Id;
+                    dataNotificacion['Descripcion'] = TextoNotificacionAmin.replace("{Admin}",`${Admin.Administrador}`).replace("{UsuarioDestino}",`${UsuarioSeleccionado.Nombres}`).replace("{Consecutivo}",`${ConsecutivoNotificacion}`);
+                    dataNotificacion['NotificarCorreo']= NotificarCorreo;
+                    dataNotificacion['NotificarPortal']= NotificarPortal;
+                    Notificar(dataNotificacion)
+                    setloader(false);
+                }
+
+            }).catch(({ error }) => {
+                console.log("Error", error)
+                setshowedit(false);
+            });
+        }, `¿Esta seguro que desea guardar el registro ${(FiltroData.getEsCompletado(ListadoDLPRespuesta).length == 0 ? "" : "sin completar")}?`, 'Guardar');
     };
+    //para las observaciones
+    const SeteoObservaciones = (e:any) =>{
+        e.stopPropagation();
+        setObservacionesModificar(e.target.value);
+    }
     return (
         <>
             <PageTitle>Interfaz de requerimientos</PageTitle>
             <BlockUi tag="div" keepInView blocking={loader ?? false}  >
-                <div style={{ display: (UserCount.length != 0 ? 'inline' : 'none') }}>
+                <div style={{ display: (UserCount.length != 0 ?'inline':'none' )  }}>
                     {/* Este espacio es la cabecera de la pagina */}
                     <div className="card">
                         <div className="d-flex justify-content-between mb-2">
@@ -1280,7 +1324,7 @@ export default function Creacion() {
                                                 title={element.Descripcion}
                                                 style={{
                                                     backgroundColor: "#b6fffe "
-
+                                                   
                                                 }}
                                             >
                                                 <div className="m-3 text-center">
@@ -1484,6 +1528,9 @@ export default function Creacion() {
                         </div>
                     </div>
                 </div>
+                <div className="card" style={{ display: (UserCount.length == 0 ?'block inline':'none' )}}>
+                        <span className="text-muted fs-2 ext-center m-auto p-auto">{`${vUser.Nombres}`} no esta registrado en la configuración</span>
+                </div>
             </BlockUi>
             <Modal show={show} onHide={setshow} size={"lg"}>
                 <Modal.Header closeButton>
@@ -1563,16 +1610,134 @@ export default function Creacion() {
                     <Modal.Title>{Titulo}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    {
-                        (showedit) && (GrandeModal == "xl" ? <ModalProgreso></ModalProgreso> : <ModalEtiquetas></ModalEtiquetas>)
-                    }
+                    <div className="row" style={{display:(GrandeModal== "lg"? "inline block":"none")}}>
+                        <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 text-center">
+                            <div className="row">
+                                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                                    <span className="mx-4 fs-6 fw-bolder">Cliente: </span><span className="mx-4 fs-5 text-muted">{Consecutivo}</span>
+                                </div>
+                                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                                    <span className="mx-4 fs-6 fw-bolder">Creado por: </span><span className="mx-4 fs-6 text-muted">{Admin.Administrador}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                            <div className="form-control-sm">
+                                <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Agente: </label>
+                                <AgentesEditar></AgentesEditar>
+                            </div>
+                        </div>
+                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                            <div className="form-control-sm">
+                                <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Estados: </label>
+                                <EstadosEditar></EstadosEditar>
+                            </div>
+                        </div>
+                        <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                            <div className="form-control-sm">
+                                <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Observaciones: </label>
+                                <textarea className="form-control" rows={3} value={ObservacionesModificar} onChange={
+                                    SeteoObservaciones
+                                    }></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="container" style={{display:(GrandeModal== "xl" ? "inline":"none")}}>
+                        <div className="row">
+                            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Cliente: </label>
+                                </div>
+                                <span className="mx-4 fs-5 text-muted">{Encabezado.Cliente}</span>
+                            </div>
+                            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Placa: </label>
+                                </div>
+                                <span className="mx-4 fs-6 text-muted">{Encabezado.RegistrationNumber}</span>
+                            </div>
+                            <div className="col-sm-5 col-xl-5 col-md-5 col-lg-5">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Admintrador (es) : </label>
+                                </div>
+                                <span className="mx-4 fs-5 text-muted">{(Encabezado.Administrador != undefined ?JSON.parse(Encabezado.Administrador).map((e: any) => e.Nombres).join() :[].map((e: any) => e.Nombres).join())}</span>
+                            </div>
+                            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Sitio: </label>
+                                </div>
+                                <span className="mx-4 fs-6 text-muted">{Encabezado.Sitio}</span>
+                            </div>
+                            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Días sin Tx: </label>
+                                </div>
+                                <span className="mx-4 fs-5 text-muted">{Encabezado.DiasSinTx}</span>
+                            </div>
+
+                            <div className="col-sm-5 col-xl-5 col-md-5 col-lg-5">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Descripción: </label>
+                                </div>
+                                <span className="mx-4 fs-6 text-muted">{Encabezado.AssetDescription}</span>
+                            </div>
+                            {
+                                (Encabezado.Fallas != 0) && (<div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                    <div className="">
+                                        <label className="mx-4 fs-6 fw-bolder">Fallas : </label>
+                                    </div>
+                                    <span className="mx-4 fs-6 text-muted">{Encabezado.Fallas}</span>
+                                </div>)
+                            }
+                        </div>
+                        <div className="row">
+                            <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                                {(ListadoDLPRespuesta.length != 0) && (<MaterialReactTable
+                                    localization={MRT_Localization_ES}
+                                    muiTableHeadCellProps={{
+                                        sx: () => ({
+                                            fontSize: 14,
+                                            fontStyle: 'bold',
+                                            color: 'rgb(27, 66, 94)'
+                                        }),
+                                    }}
+                                    columns={ColumnasPreguntas}
+                                    data={ListadoDLPRespuesta}
+                                    enableColumnResizing
+                                    enableDensityToggle={false}
+                                    enablePagination={false}
+                                    enableRowVirtualization
+                                    enableGrouping
+                                    enableStickyHeader
+                                    enableStickyFooter
+                                    initialState={{
+                                        density: 'compact',
+                                        expanded: true, //expand all groups by default
+                                        grouping: ['categoria'], //an array of columns to group by by default (can be multiple)
+                                        sorting: [{ id: 'order', desc: false }], //sort by state by default
+                                        columnVisibility: { order: false }
+                                    }}
+                                    muiToolbarAlertBannerChipProps={{ color: 'primary' }}
+                                    muiTableContainerProps={{ 
+                                        ref: tableContainerRef, //get access to the table container element
+                                        sx: { maxHeight: 400 }
+                                     }}
+                                />)}
+                            </div>
+                        </div>
+                    </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button type="button" className="btn btn-sm" variant="primary" onClick={() => {
-                        { (GrandeModal == "xl" ? GuardarOtro() : Guardar()) }
-
+                    <Button type="button" style={{display:(val && GrandeModal== "xl" ? 'none':'inline')}} className="btn btn-sm" variant="primary" onClick={() => {
+                        {(GrandeModal== "xl" ? GuardarOtro() :Guardar()) }
+                        
                     }}>
-                        Guardar
+                        {(GrandeModal== "xl" ? "Resolver" :"Guardar") }
+                    </Button>
+                    <Button style={{display:(!val  || GrandeModal== "lg" ? 'none':'inline')}} type="button" className="btn btn-sm" variant="info" onClick={() => {
+                        console.log("Enviar a ST")
+                    }}>
+                        Enviar ST
                     </Button>
                     <Button type="button" className="btn btn-sm" variant="secondary" onClick={() => setshowedit(false)}>
                         Cancelar
@@ -1586,7 +1751,7 @@ export default function Creacion() {
                 </Modal.Header>
                 <Modal.Body>
                     <div className="row">
-                        <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 text-center">
+                    <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 text-center">
                             <div className="row">
                                 <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
                                     <span className="mx-4 fs-6 fw-bolder">Cliente: </span><span className="mx-4 fs-5 text-muted">{Consecutivo}</span>
@@ -1614,6 +1779,101 @@ export default function Creacion() {
                         Cancelar
                     </Button>
                 </Modal.Footer>
+            </Modal>
+
+            {/* Modal para diagnostico */}
+            <Modal show={ShowModalDiag} onHide={setShowModalDiag} size={"xl"}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Informe de diagnóstico</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {/* Encabezado */}
+                    <div className="card">
+                        <div className="row">
+                            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Cliente: </label>
+                                </div>
+                                <span className="mx-4 fs-5 text-muted">{Encabezado.Cliente}</span>
+                            </div>
+                            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Placa: </label>
+                                </div>
+                                <span className="mx-4 fs-6 text-muted">{Encabezado.RegistrationNumber}</span>
+                            </div>
+                            <div className="col-sm-5 col-xl-5 col-md-5 col-lg-5">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Admintrador (es) : </label>
+                                </div>
+                                <span className="mx-4 fs-5 text-muted">{(Encabezado.Administrador != undefined ?JSON.parse(Encabezado.Administrador).map((e: any) => e.Nombres).join() :[].map((e: any) => e.Nombres).join())}</span>
+                            </div>
+                            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Sitio: </label>
+                                </div>
+                                <span className="mx-4 fs-6 text-muted">{Encabezado.Sitio}</span>
+                            </div>
+                            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Días sin Tx: </label>
+                                </div>
+                                <span className="mx-4 fs-5 text-muted">{Encabezado.DiasSinTx}</span>
+                            </div>
+
+                            <div className="col-sm-5 col-xl-5 col-md-5 col-lg-5">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Descripción: </label>
+                                </div>
+                                <span className="mx-4 fs-6 text-muted">{Encabezado.AssetDescription}</span>
+                            </div>
+                            {
+                                (Encabezado.Fallas != 0) && (<div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                    <div className="">
+                                        <label className="mx-4 fs-6 fw-bolder">Fallas : </label>
+                                    </div>
+                                    <span className="mx-4 fs-6 text-muted">{Encabezado.Fallas}</span>
+                                </div>)
+                            }
+                        </div>
+                    </div>
+                    {/* Cuerpo */}
+                    <div className="card" style={{overflowY:'scroll',height: '300px'}}>
+                            <div className="row">
+                                {
+                                    (InfDiag.length != 0) && (Object.entries(InfDiag.reduce((k:any,c:any) =>{
+                                        let name = c.categoria;
+                                        k[name] = k[name] ?? [];
+                                        k[name].push(c);
+                                        return k;
+                                    },{})).map((val:any,index:any) =>{
+                                        return  <div className="row m-5">
+                                            <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                                                <span className="text-center fw-bolder text-primary"> {val[0].toUpperCase()}</span>
+                                            </div>
+                                            {val[1].map((item:any) =>{
+                                                return <div key={item.id} className="col-sm-3 col-xl-3 col-md-3 col-lg-3 mt-5">
+                                                <div key={`${index}` } className="">
+                                                    <label  key={`${index +1}`} className="control-label label-sm fw-bolder">{`${parseInt(item.order)+1}. ${item.label}`}</label>
+                                                </div>
+                                                <span key={`${index +2}`} className="mx-4 fs-6 text-muted">{(item.Respuesta == true ? "Si":(item.Respuesta  == false ? "No":item.Respuesta))}</span>
+                                                <div key={`${index+3}`}  className="">
+                                                  <span key={`${index+4}`} className="tex-primary">Estado DLP: </span><span key={index +5} className="mx-4 fs-6 text-muted">{(item.Estado == true? "OK": "N/A")}</span>
+                                                </div>
+                                                <div key={`${index+6}`}  className="">
+                                                    <span key={`${index +7}`} className="mx-4 fs-6 text-muted">{item.RespuestaObservacion}</span>
+                                                </div>
+                                            </div>
+                                            })}
+                                            
+                                        </div>
+                                    }))
+                                }
+                           </div>
+                            
+                    </div>
+                </Modal.Body>
+              
             </Modal>
         </>
     )
