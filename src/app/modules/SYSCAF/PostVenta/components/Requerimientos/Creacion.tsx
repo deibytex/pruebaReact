@@ -12,7 +12,7 @@ import { AxiosResponse } from "axios";
 import { DateRangePicker, useToaster, Notification} from "rsuite";
 import { Button, Form,  Modal } from "react-bootstrap-v5";
 import { locateFormatPercentNDijitos } from "../../../../../../_start/helpers/Helper";
-import { Box, IconButton, Tooltip } from "@mui/material";
+import { Box, FormControl, FormControlLabel, FormLabel, IconButton, Radio, RadioGroup, Tooltip } from "@mui/material";
 import { Assignment,  DeckTwoTone, Delete, Edit, ViewAgenda } from "@mui/icons-material";
 import { DescargarExcel} from "../../../../../../_start/helpers/components/DescargarExcel";
  //import {  ListadoDLP } from "../../mockData/indicadores";
@@ -275,28 +275,7 @@ export default function Creacion() {
                 header: 'Respuesta',
                 size:10,
                 Cell({ cell, column, row, table, }) {
-                    return <div>{
-                            (row.original.tipo == "check" ?
-                        <input 
-                            className="Respuestas form-check-input"
-                            type="checkbox"
-                            style={{borderColor:'#eb3626'}}
-                            id={`${row.original.id}`} 
-                            title={row.original.label}
-                            // data-rel={`${row.original.categoria}${row.original.order}`} 
-                            defaultChecked={row.original.Respuesta}
-                            value={row.original.Respuesta}
-                            onChange={Click}
-                        />:
-                        <input 
-                            type="text"  
-                            id={`${row.original.id}`}  
-                            value={row.original.Respuesta}  
-                            onChange={change} 
-                            className="form-control input input-sm" 
-                            placeholder="Ingrese una respuesta"
-                            />)}
-                        </div> 
+                    return <div>{ PreguntasModelo(row)}</div> 
                 },
             },
             {
@@ -304,36 +283,19 @@ export default function Creacion() {
                 header: '¿Bien?',
                 Cell({ cell, column, row, table, }) {
                     return <div style={{display: 'contents'}}>
-                            <div className="form-check">
-                                <label className="control-label label label-sm" htmlFor={`Si${parseInt(row.original.id+row.original.order)}`}>
-                                    Si
-                                </label>
-                                <input 
-                                    className="form-check-input" 
-                                    type="radio" 
-                                    name={`RadioSi${row.original.id}`} 
-                                    id={`Si${parseInt(row.original.id+row.original.order)}`}
-                                    checked={(row.original.Estado ? true:false)}
-                                    onChange={CambioEstado}
-                                    data-rel={`${row.original.id}`}
-                                    data-no={`Si`}
-                                />
-                            </div>
-                            &nbsp;
-                            <div className="form-check">
-                                <label className="control-label label label-sm" htmlFor={`No${parseInt(row.original.id+row.original.order)}`}>
-                                    No
-                                </label>
-                                <input 
-                                    className="form-check-input" 
-                                    type="radio" name={`RadioSi${row.original.id}`} 
-                                    id={`No${parseInt(row.original.id+row.original.order)}`}
-                                    checked={(!row.original.Estado ? true:false)}
-                                    onChange={CambioEstado}
-                                    data-rel={`${row.original.id}`}
-                                    data-no={`No`}
-                                />
-                            </div>
+                            <FormControl>
+                                <FormLabel id="demo-radio-buttons-group-label">¿Diagnostico positivo?</FormLabel>
+                                <RadioGroup
+                                    aria-labelledby="demo-radio-buttons-group-label"
+                                    defaultValue={row.original.Estado}
+                                    name="radio-buttons-group"
+                                    id={`${row.original.id}`}
+                                >
+                                    <FormControlLabel value={row.original.Estado} control={<Radio value={"Si"}  id={`${row.original.id}`}  onChange={CambioEstado} />} label="Si" />
+                                    <FormControlLabel value={!row.original.Estado} control={<Radio value={"No"} id={`${row.original.id}`} onChange={CambioEstado} />} label="No" />
+                                    <FormControlLabel value={null} control={<Radio  onChange={CambioEstado}  id={`${row.original.id}`} value={``} />} label="Otro" />
+                                </RadioGroup>
+                            </FormControl>
                         </div>  
                 }
             },
@@ -361,6 +323,61 @@ export default function Creacion() {
             }
            
         ];
+        const PreguntasModelo = (row:any) =>{
+            switch(row.original.tipo) {
+                case 'check' || 'Check Box' || 'CheckBox' || 'checkbox':
+                    return   <input 
+                    className="Respuestas form-check-input"
+                    type="checkbox"
+                    style={{borderColor:'#eb3626'}}
+                    id={`${row.original.id}`} 
+                    title={row.original.label}
+                    // data-rel={`${row.original.categoria}${row.original.order}`} 
+                    checked={row.original.Respuesta}
+                    value={row.original.Respuesta}
+                    onChange={Click}
+                />
+                  break;
+                case 'desplegable':
+                    return <Form.Select 
+                                title="Seleccione una respuesta" 
+                                style={{ height: '40px' }} 
+                                className="input-sm  mb-3 mt-3 " 
+                                onChange={Selecione} 
+                                defaultValue={row.original.Respuesta}
+                                id={`${row.original.id}`} 
+                                aria-label="Default select example">
+                        <option value={"Seleccione"}>Seleccione</option>
+                        {
+                            row.original.valores.split(",").map((element: any) => {
+                                let flag = (element.Estado === EstadoSeleccionado.Estado)
+                                return (<option selected={flag} key={element} defaultValue={element} value={element}>{element}</option>)
+                            })
+                        }
+                    </Form.Select>
+                    break;
+                default:
+                    return  <input 
+                    type="text"  
+                    id={`${row.original.id}`}  
+                    value={row.original.Respuesta}  
+                    onChange={change} 
+                    className="form-control input input-sm" 
+                    placeholder="Ingrese una respuesta"
+                    />
+                   break;
+              }
+        }
+        //Seleccion 
+        const Selecione = (e:any) =>{
+            let listado = [...ListadoDLPRespuesta];
+            setListadoDLPRespuesta(listado.map((a: any) => {
+                a.Respuesta = (a.id==e.currentTarget.attributes['id'].value ?e.target.value: a.Respuesta);
+                return a;
+            }));
+
+           
+        }
         //PARA TOMAR EL VALOR DE LAS RESPUESTA SI EX CHECK
     const Click = (e:any) =>{
             let listado = [...ListadoDLPRespuesta];
@@ -387,10 +404,10 @@ export default function Creacion() {
         }
         //PARA SABER SI ESTA BIEN O NO EL DIAGNOSTICO
     const CambioEstado = (e:any) =>{
-            let f = e.currentTarget.attributes['data-no'].value;
+            let f = e.currentTarget.attributes['value'].value;
             let listado = [...ListadoDLPRespuesta];
             setListadoDLPRespuesta(listado.map((a: any) => {
-                a.Estado = (a.id==e.currentTarget.attributes['data-rel'].value ?(e.currentTarget.attributes['data-no'].value == "Si" ? true:false): a.Estado);
+                a.Estado = (a.id==e.currentTarget.attributes['id'].value ?(e.currentTarget.attributes['value'].value == "Si" ? true:false): a.Estado);
                 return a;
             }));
         }
@@ -423,9 +440,12 @@ export default function Creacion() {
                     //Para filtrar los Usuarios o agentes
                     let agentes: any[] = [];
                     Object.entries(FiltroData.getAgentes(response.data)).map((elem: any) => {
-                        agentes.push({ "Agente": elem[0], "UsuarioId": elem[1][0] })
+                        if(elem[0] != null || elem[0] != "null" || elem[0] != undefined)
+                            agentes.push({ "Agente": elem[0], "UsuarioId": elem[1][0] })
                     });
-                    setAgentes(agentes);
+                    setAgentes(agentes.filter((val:any) =>{
+                        return (val.UsuarioId != null);
+                    }));
                     //Para filtrar los Estados
                     let estados: any[] = [];
                     Object.entries(FiltroData.getEstados(response.data)).map((elem: any) => {
@@ -585,7 +605,7 @@ export default function Creacion() {
             return a;
         }));
     }, [Diagnostico, ListadoDLP]);
-
+//Para los valores
     useEffect(() =>{
         let valor:boolean = FiltroData.getComprobarEstado(ListadoDLPRespuesta);
         setval((valor ?? false));
@@ -608,9 +628,15 @@ export default function Creacion() {
                 return {"label":e.label, "color":(e.tipo =="admin" ?"badge bg-warning":(e.tipo == "soporte" ? "badge bg-info" :"badge bg-primary" ) )};
             }));
             setEstadoRequerimientosSeleccionado(EstadosRequerimientos[0]);
+            
         }
     
     },[EstadosRequerimientos])
+    //Pinta los Indicadores
+    useEffect(() =>{
+        //Para pintar los Indicadores
+        PintarIndicadores(TipoReporte[0].Data);
+    },[EventosCreados,EventosEnSoporte,Asignados, SinAsignar, Resueltos])
     //PAra actualizar el listado de usuarios
     useEffect(() =>{
         if(Usuarios.length != 0)

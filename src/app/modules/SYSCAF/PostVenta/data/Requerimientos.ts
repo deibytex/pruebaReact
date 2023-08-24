@@ -168,10 +168,10 @@ export const FiltroData = {
     getAgentes: (data: any[]) => {
         let Cabeceras = data.map((e: any) => JSON.parse(e.Cabecera));
         return Cabeceras.reduce((p, c) => {
-            let name = c[0].agente;
-            p[name] = p[name] ?? [];
-            p[name].push(c[0].UsuarioId);
-            return p;
+                let name =  c[0].agente;
+                p[name] = p[name] ?? [];
+                p[name].push(c[0].UsuarioId);
+                return p;
         }, {});
     },
     //para sacarlos estados
