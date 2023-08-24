@@ -182,7 +182,7 @@ export const EstadosRequerimientos : any[] =
         "label": "Soporte - Resuelto",
         "valor": "8",
         "flujo": "[2]"
-    },
+    }
     
 ]
 export const ListadoDLP = 
@@ -217,95 +217,6 @@ export const ListadoDLP =
         "observaciones": "si",
         "esobligatorio":"si"
     },
-
-
-
-    {
-        "id":"4",
-        "order": "3",
-        "categoria": "transmision",
-        "label": "¿ha realizado revisión del motor?",
-        "valores": "si/no",
-        "tipo": "check",
-        "observaciones": "si",
-        "esobligatorio":"si"
-    },
-    {
-        "id":"5",
-        "order": "4",
-        "categoria": "transmision",
-        "label": "¿ha realizado revisión del motor?",
-        "valores": "si/no",
-        "tipo": "check",
-        "observaciones": "si",
-        "esobligatorio":"si"
-    },
-    {
-        "id":"6",
-        "order": "5",
-        "categoria": "transmision",
-        "label": "¿ha realizado revisión del motor?",
-        "valores": "si/no",
-        "tipo": "check",
-        "observaciones": "si",
-        "esobligatorio":"si"
-    },
-    {
-        "id":"7",
-        "order": "6",
-        "categoria": "transmision",
-        "label": "¿ha realizado revisión del motor?",
-        "valores": "si/no",
-        "tipo": "check",
-        "observaciones": "si",
-        "esobligatorio":"si"
-    },
-    {
-        "id":"8",
-        "order": "7",
-        "categoria": "transmision",
-        "label": "¿ha realizado revisión del motor?",
-        "valores": "si/no",
-        "tipo": "check",
-        "observaciones": "si",
-        "esobligatorio":"si"
-    },
-    {
-        "id":"9",
-        "order": "8",
-        "categoria": "transmision",
-        "label": "¿ha realizado revisión del motor?",
-        "valores": "si/no",
-        "tipo": "check",
-        "observaciones": "si",
-        "esobligatorio":"si"
-    },
-
-    {
-        "id":"10",
-        "order": "9",
-        "categoria": "transmision",
-        "label": "¿ha realizado revisión del motor?",
-        "valores": "si/no",
-        "tipo": "check",
-        "observaciones": "si",
-        "esobligatorio":"si"
-    },
-
-    {
-        "id":"11",
-        "order": "10",
-        "categoria": "transmision",
-        "label": "¿ha realizado revisión del motor?",
-        "valores": "si/no",
-        "tipo": "check",
-        "observaciones": "si",
-        "esobligatorio":"si"
-    },
-
-
-
-
 
     {
         "id":"12",

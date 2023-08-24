@@ -1,7 +1,7 @@
 import BlockUi from "@availity/block-ui";
 import { useEffect, useRef, useState } from "react";
 import { PageTitle } from "../../../../../../_start/layout/core";
-import { DeleteRequerimiento, FiltroData, GetEncabezado, GetEncabezadoFallas, GetRequerimientos, SetDiagnostico, SetNotificaciones, SetRequerimiento, listTabsRequerimientos } from "../../data/Requerimientos";
+import { DeleteRequerimiento, FiltroData, GetConfiguracion, GetEncabezado, GetEncabezadoFallas, GetRequerimientos, SetDiagnostico, SetNotificaciones, SetRequerimiento, listTabsRequerimientos } from "../../data/Requerimientos";
 import { DrawDynamicIconMuiMaterial } from "../../../../../../_start/helpers/components/IconsMuiDynamic";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import moment from "moment";
@@ -9,28 +9,31 @@ import { MRT_Localization_ES } from "material-react-table/locales/es";
 import { FiltrosReportes } from "../../Models/ModelRequerimientos";
 import { FiltroDashBoardData } from "../../data/PostVentaData";
 import { AxiosResponse } from "axios";
-import { DateRangePicker, useToaster, Notification, Checkbox } from "rsuite";
-import { Button, Form, FormControl, FormGroup, Modal } from "react-bootstrap-v5";
+import { DateRangePicker, useToaster, Notification} from "rsuite";
+import { Button, Form,  Modal } from "react-bootstrap-v5";
 import { locateFormatPercentNDijitos } from "../../../../../../_start/helpers/Helper";
 import { Box, IconButton, Tooltip } from "@mui/material";
-import { Assignment,  CallToActionSharp,  CheckBox,  ConstructionOutlined,  DeckTwoTone, Delete, Edit, ViewAgenda } from "@mui/icons-material";
+import { Assignment,  DeckTwoTone, Delete, Edit, ViewAgenda } from "@mui/icons-material";
 import { DescargarExcel} from "../../../../../../_start/helpers/components/DescargarExcel";
-import { EstadosRequerimientos, ListadoDLP, Usuarios } from "../../mockData/indicadores";
+ //import {  ListadoDLP } from "../../mockData/indicadores";
 import { useSelector } from "react-redux";
 import { UserModelSyscaf } from "../../../../auth/models/UserModel";
 import { RootState } from "../../../../../../setup";
 import confirmarDialog, { confirmarDialogText, successDialog } from "../../../../../../_start/helpers/components/ConfirmDialog";
+
 export default function Creacion() {
+    //INICIO ESPACIO CONSTANTES
+    const [EstadosRequerimientos, setEstadosRequerimientos] = useState<any[]>([]);
+    const [ListadoDLP, setListadoDLP] = useState<any[]>([]);
+    const [Usuarios, setUsuarios] = useState<any[]>([]);
     const toaster = useToaster();
     const tableContainerRef = useRef<HTMLDivElement>(null);
-
     const message = (type: any, titulo: string, mensaje: React.ReactNode) => {
       return (<Notification className="bg-light-danger" type={type} header={titulo}
         closable duration={10000}>
         {mensaje}
       </Notification>)
     }
-    
     const user = useSelector<RootState>(
         ({ auth }) => auth.user
     );
@@ -43,6 +46,7 @@ export default function Creacion() {
     );
     // DESCRIPCION PARA EL ENVIO DE NOTIFICACIONES.
     const [TextoNotificacion,setTextoNoticacion] = useState<string>("Hola {UsuarioDestino}, Estás siendo notificado porque el administrador {Admin} te ha asignado el requerimiento {Consecutivo}. Por favor, revisa información. Saludos cordiales.");
+    const [TextoNotificacionAmin,setTextoNoticacionAmin] = useState<string>("Hola {Admin}, Estás siendo notificado porque el agente {UsuarioDestino} ha dado por resuelto el requerimiento {Consecutivo}. Por favor, revisa información. Saludos cordiales.");
     const [NotificarCorreo,setNotificarCorreo] = useState<string>("1");
     const [NotificarPortal,setNotificarPortal] = useState<string>("1");
     //ESPACIO PARA LAS CONST
@@ -53,13 +57,13 @@ export default function Creacion() {
         { "Estado": "Tasa de resolución", "Descripcion": "Tasa de resolución de los requerimientos de los últimos 7 días", "Valor": 0 },
         { "Estado": "Total resueltos", "Descripcion": "Total de requerimientos resueltos en los últimos 7 días.", "Valor": 0 }
     ]);
-    const [cajas, setCajas] = useState<string>("3");
+    // const [cajas, setCajas] = useState<string>("3");
     const [Id, setId] = useState<string>("");
     const [IsDiagnostico, setIsDiagnostico] = useState<boolean>(false);
-    const [val, setval] = useState<string>("");
+    const [val, setval] = useState<boolean>(false);
 
     //Para el diagnostico
-     let DiagnosticoCon:any[]= [];
+  //   let DiagnosticoCon:any[]= [];
     const [Diagnostico, setDiagnostico] = useState<any[]>([]);
     const [ConsecutivoNotificacion, setConsecutivoNotificacion] = useState<string>("");
     //Para saber cual es la que viene desde la tabla o DB
@@ -94,7 +98,7 @@ export default function Creacion() {
     const [ShowModalDiag, setShowModalDiag] = useState<boolean>(false);
     const [Encabezado, setEncabezado] = useState<any>({});
     const [InfDiag, setInfDiag] = useState<any[]>([]);
-    const [TipoRequerimientosSeleccionado, setTipoRequerimientosSeleccionado] = useState<any>({ Nombre: "", Value: "" });
+    // const [TipoRequerimientosSeleccionado, setTipoRequerimientosSeleccionado] = useState<any>({ Nombre: "", Value: "" });
     const [EstadoRequerimientos, setEstadoRequerimientos] = useState<any[]>([]);
     const [EstadoRequerimientosSeleccionado, setEstadoRequerimientosSeleccionado] = useState<any>({ label: "Seleccione", valor: "0" });
     const [EstadoRequerimientosSeleccionadoAnterior, setEstadoRequerimientosSeleccionadoAnterior] = useState<any>({ label: "Seleccione", valor: "0" });
@@ -124,6 +128,8 @@ export default function Creacion() {
     const [Agentes, setAgentes] = useState<any[]>([]);
     const [Estados, setEstados] = useState<any[]>([]);
 
+ 
+
     const [AgentesSeleccionado, setAgentesSeleccionado] = useState<any>({ "Agente": "Todos", "UsuarioId": "Todos" });
     const [ClienteSeleccionado, setClienteSeleccionado] = useState<any>({ "Cliente": "Todos", "ClienteId": "Todos" });
     const [EstadoSeleccionado, setEstadoSeleccionado] = useState<any>({ "Estado": "Todos" });
@@ -132,32 +138,28 @@ export default function Creacion() {
     const [showTablaAsginadas, setShowTablaAsignadas] = useState<boolean>(false);
     const [showTablaSinAsginar, setshowTablaSinAsginar] = useState<boolean>(false);
     const [showTablaReporte, setShowTablaReporte] = useState<boolean>(false);
-    let EstadosColores = EstadosRequerimientos.map((e:any) =>{
-        return {"label":e.label, "color":(e.tipo =="admin" ?"badge bg-warning":(e.tipo == "soporte" ? "badge bg-info" :"badge bg-primary" ) )};
-    })
+    const [EstadosColores, setEstadosColores] = useState<any[]>([])
+   
     //Para los flujos
     const [Flujos, setFlujos] = useState<any>([]);
     const [disable, setdisable] = useState<boolean>(false);
-/*============================================================================================================================================================================== */
-/** ESpacio para los tipos de estados a usar por el momento usare estos porque fueron los que se habian definido si en un posterior evento se dinamiza cambiar por estos.        */
-/*============================================================================================================================================================================== */
-    const EventosCreados =   EstadosRequerimientos.filter(f => !["8","6"].includes(f.valor)).map((e:any) =>e.label).join();
-    const EventosEnSoporte = EstadosRequerimientos.filter(f => ["3","4","5"].includes(f.valor)).map((e:any) =>e.label).join();
-    const Asignados = EstadosRequerimientos.filter((e:any) =>{
-        return e.valor == "4"
-    })[0].label;
-    const SinAsignar  = EstadosRequerimientos.filter((e:any) =>{
-        return e.valor == "3"
-    })[0].label;
-    const Resueltos = EstadosRequerimientos.filter((e:any) =>{
-        return e.valor == "8"
-    })[0].label;
-    const PerfilSuperAdmin = "117";
-    const PerfilAdminFlota = "118";
-    const PerfilEmpleado = "117";
-/*============================================================================================================================================================================== */
-/** ESpacio para los tipos de estados a usar por el momento usare estos porque fueron los que se habian definido si en un posterior evento se dinamiza cambiar por estos.        */
-/*============================================================================================================================================================================== */
+
+    const [EventosCreados, setEventosCreados] = useState<any>("");
+    const [EventosEnSoporte, setEventosEnSoporte] = useState<any>("");
+    const [Asignados, setAsignados] = useState<any>("");
+    const [SinAsignar, setSinAsignar] = useState<any>("");
+    const [Resueltos, setResueltos] = useState<any>("");
+    /*============================================================================================================================================================================== */
+    /** ESpacio para los tipos de estados a usar por el momento usare estos porque fueron los que se habian definido si en un posterior evento se dinamiza cambiar por estos.        */
+    /*============================================================================================================================================================================== */
+        const PerfilSuperAdmin = "117";
+        const PerfilAdminFlota = "118";
+        const PerfilEmpleado = "116";
+    /*============================================================================================================================================================================== */
+    /** ESpacio para los tipos de estados a usar por el momento usare estos porque fueron los que se habian definido si en un posterior evento se dinamiza cambiar por estos.        */
+    /*============================================================================================================================================================================== */
+
+    //FIN ESPACIO CONSTANTES
     //ESPACIO PARA LOS ENCABEZADOS DE LAS TABLAS
     let Campos: MRT_ColumnDef<any>[] =
         [
@@ -254,7 +256,7 @@ export default function Creacion() {
             }
         ];
        
-        let ColumnasPreguntas: MRT_ColumnDef<any>[] =
+    let ColumnasPreguntas: MRT_ColumnDef<any>[] =
         [
             {
                 accessorKey: 'categoria',
@@ -276,25 +278,64 @@ export default function Creacion() {
                     return <div>{
                             (row.original.tipo == "check" ?
                         <input 
-                        className="Respuestas"
-                        type="checkbox"
-                        style={{borderColor:'#eb3626'}}
-                        id={`${row.original.id}`} 
-                        title={row.original.label}
-                        // data-rel={`${row.original.categoria}${row.original.order}`} 
-                        defaultChecked={row.original.Respuesta}
-                        value={row.original.Respuesta}
-                        onChange={Click}
+                            className="Respuestas form-check-input"
+                            type="checkbox"
+                            style={{borderColor:'#eb3626'}}
+                            id={`${row.original.id}`} 
+                            title={row.original.label}
+                            // data-rel={`${row.original.categoria}${row.original.order}`} 
+                            defaultChecked={row.original.Respuesta}
+                            value={row.original.Respuesta}
+                            onChange={Click}
                         />:
-                        <input type="text"   id={`${row.original.id}`}  value={row.original.Respuesta}  onChange={change} className="form-control input input-sm" placeholder="Ingrese una respuesta"></input> )}
+                        <input 
+                            type="text"  
+                            id={`${row.original.id}`}  
+                            value={row.original.Respuesta}  
+                            onChange={change} 
+                            className="form-control input input-sm" 
+                            placeholder="Ingrese una respuesta"
+                            />)}
                         </div> 
                 },
             },
             {
-                accessorKey: 'order',
-                header: 'orden',
-                enableHiding:true,
-                
+                accessorKey: 'Estado',
+                header: '¿Bien?',
+                Cell({ cell, column, row, table, }) {
+                    return <div style={{display: 'contents'}}>
+                            <div className="form-check">
+                                <label className="control-label label label-sm" htmlFor={`Si${parseInt(row.original.id+row.original.order)}`}>
+                                    Si
+                                </label>
+                                <input 
+                                    className="form-check-input" 
+                                    type="radio" 
+                                    name={`RadioSi${row.original.id}`} 
+                                    id={`Si${parseInt(row.original.id+row.original.order)}`}
+                                    checked={(row.original.Estado ? true:false)}
+                                    onChange={CambioEstado}
+                                    data-rel={`${row.original.id}`}
+                                    data-no={`Si`}
+                                />
+                            </div>
+                            &nbsp;
+                            <div className="form-check">
+                                <label className="control-label label label-sm" htmlFor={`No${parseInt(row.original.id+row.original.order)}`}>
+                                    No
+                                </label>
+                                <input 
+                                    className="form-check-input" 
+                                    type="radio" name={`RadioSi${row.original.id}`} 
+                                    id={`No${parseInt(row.original.id+row.original.order)}`}
+                                    checked={(!row.original.Estado ? true:false)}
+                                    onChange={CambioEstado}
+                                    data-rel={`${row.original.id}`}
+                                    data-no={`No`}
+                                />
+                            </div>
+                        </div>  
+                }
             },
             {
                 accessorKey: 'observaciones',
@@ -305,32 +346,51 @@ export default function Creacion() {
                                         <input type="text" className="form-control input input-sm" data-rel={`${row.original.id}`} value={row.original.RespuestaObservacion} onChange={CambioObs} placeholder="Observación"></input>
                                         :
                                 (row.original.observaciones == "si-obligatorio" ?
-                                    <input type="text" className="form-control input input-sm" data-rel={`${row.original.id}`} value={row.original.RespuestaObservacion} onChange={CambioObs} placeholder="Observación obligatoria"></input>
+                                    <input type="text" className="form-control input input-sm" data-rel={`${row.original.id}`} value={row.original.RespuestaObservacion} onChange={CambioObs} placeholder="Observación"></input>
                                     :
                                 <div></div>
                                 ))
                             }</div>
                 },
             },
+            {
+                accessorKey: 'order',
+                header: 'orden',
+                enableHiding:true,
+                
+            }
+           
         ];
-        const Click = (e:any) =>{
+        //PARA TOMAR EL VALOR DE LAS RESPUESTA SI EX CHECK
+    const Click = (e:any) =>{
             let listado = [...ListadoDLPRespuesta];
             setListadoDLPRespuesta(listado.map((a: any) => {
                 a.Respuesta = (a.id==e.currentTarget.attributes['id'].value ?e.target.checked: a.Respuesta);
                 return a;
             }));
         }
-        const change = (e:any) =>{
+        //PARA TOMAR EL VALOR DE LAS RESPUESTAS SI ES TEXTO
+    const change = (e:any) =>{
             let listado = [...ListadoDLPRespuesta];
             setListadoDLPRespuesta(listado.map((a: any) => {
                 a.Respuesta = (a.id==e.currentTarget.attributes['id'].value ?e.target.value: a.Respuesta);
                 return a;
             }));
         }
-        const CambioObs = (e:any) =>{
+        //PARA LAS OBSERVACIONES
+    const CambioObs = (e:any) =>{
             let listado = [...ListadoDLPRespuesta];
             setListadoDLPRespuesta(listado.map((a: any) => {
                 a.RespuestaObservacion = (a.id==e.currentTarget.attributes['data-rel'].value ?e.target.value: a.RespuestaObservacion);
+                return a;
+            }));
+        }
+        //PARA SABER SI ESTA BIEN O NO EL DIAGNOSTICO
+    const CambioEstado = (e:any) =>{
+            let f = e.currentTarget.attributes['data-no'].value;
+            let listado = [...ListadoDLPRespuesta];
+            setListadoDLPRespuesta(listado.map((a: any) => {
+                a.Estado = (a.id==e.currentTarget.attributes['data-rel'].value ?(e.currentTarget.attributes['data-no'].value == "Si" ? true:false): a.Estado);
                 return a;
             }));
         }
@@ -339,7 +399,7 @@ export default function Creacion() {
        let color =  EstadosColores.filter((e) =>{
             return e.label == data;
         })
-      return <span className={`${color[0].color}`}>{data}</span>
+      return <span className={`${(color.length != 0 ?color[0].color:"badge bg-info")}`}>{data}</span>
     }
     //ESPACIO PARA LAS CONSULTAS INICIALES
     const ConsultasIniciales = () => {
@@ -369,7 +429,8 @@ export default function Creacion() {
                     //Para filtrar los Estados
                     let estados: any[] = [];
                     Object.entries(FiltroData.getEstados(response.data)).map((elem: any) => {
-                        estados.push({ "Estado": elem[1] })
+                        let estado = FiltroData.getEstadosJson(elem[1]);
+                        estados.push({ "Estado": estado })
                     });
                     setEstados(estados);
                     //Para pintar los Indicadores
@@ -391,13 +452,30 @@ export default function Creacion() {
                     setIsError(true);
                 });
 
-            let Estados = EstadosRequerimientos;
-            setEstadoRequerimientos(Estados);
-            setEstadoRequerimientosSeleccionado(Estados[0]);
+           //Para obtner todas las configuraciones le paso la sigla en null, podria
+           //filtrarse por sigla
+            getConfiguracion(null);
         }
         else
             FiltroDatos();
     };
+      //Se consultan las Configuraciones
+      const getConfiguracion = (sigla:any|null) =>{
+        GetConfiguracion(sigla).then((response:AxiosResponse<any>) =>{
+            if(response.data.length != 0){
+                let Users = FiltroData.getConfiguracionSigla(response.data,"COUSS");
+                setUsuarios((Users.length !=0 ? Users[0]:[]));
+                let States = FiltroData.getConfiguracionSigla(response.data,"OERST");
+                setEstadosRequerimientos(States[0]);
+                setEstadoRequerimientos(States[0]);
+                let DLP = FiltroData.getConfiguracionSigla(response.data,"DLPST");
+                setListadoDLP(DLP[0]);
+            }
+           
+        }).catch(({error}) =>{
+            console.log("Error: ", error)
+        })
+    }
     //ESPACIO PARA LA FUNCION QUE APLICA LOS FILTROS
     const FiltroDatos = () => {
         let tabDefault = 0;
@@ -494,20 +572,50 @@ export default function Creacion() {
     useEffect(() => {
         // te traes la informaci'on almacenada y verificas que no tenga datos
         let listado = [...ListadoDLP];
-        setListadoDLPRespuesta(listado.map((a: any) => {
+        setListadoDLPRespuesta(listado.map((a: any, index:any) => {
             a.Respuesta = (a.tipo =="check" ? false:"") ;
+            a.Estado = "";
             a.RespuestaObservacion = "";
             if (Diagnostico.length > 0) {
                 let find = Diagnostico.find((f: any) => f.id == a.id);
                 a.Respuesta = find.Respuesta;
                 a.RespuestaObservacion = find.RespuestaObservacion;
+                a.Estado = find.Estado;
             }
             return a;
         }));
-    }, [Diagnostico]);
-    // useEffect(() =>{
-    //     (GrandeModal != '' ? setshowedit(true):setshowedit(false));
-    // },[GrandeModal])
+    }, [Diagnostico, ListadoDLP]);
+
+    useEffect(() =>{
+        let valor:boolean = FiltroData.getComprobarEstado(ListadoDLPRespuesta);
+        setval((valor ?? false));
+    },[ListadoDLPRespuesta])
+    //Para los estados y todo lo relacionado una vez haya datos
+    useEffect(() =>{
+        if(EstadosRequerimientos.length != 0){
+            setEventosCreados(EstadosRequerimientos.filter(f => !["8","6"].includes(f.valor)).map((e:any) =>e.label).join())
+            setEventosEnSoporte(EstadosRequerimientos.filter(f => ["3","4","5"].includes(f.valor)).map((e:any) =>e.label).join())
+            setAsignados(EstadosRequerimientos.filter((e:any) =>{
+                return e.valor == "4"
+            })[0].label)
+            setSinAsignar(EstadosRequerimientos.filter((e:any) =>{
+                return e.valor == "3"
+            })[0].label)
+            setResueltos(EstadosRequerimientos.filter((e:any) =>{
+                return e.valor == "8"
+            })[0].label);
+            setEstadosColores(EstadosRequerimientos.map((e:any) =>{
+                return {"label":e.label, "color":(e.tipo =="admin" ?"badge bg-warning":(e.tipo == "soporte" ? "badge bg-info" :"badge bg-primary" ) )};
+            }));
+            setEstadoRequerimientosSeleccionado(EstadosRequerimientos[0]);
+        }
+    
+    },[EstadosRequerimientos])
+    //PAra actualizar el listado de usuarios
+    useEffect(() =>{
+        if(Usuarios.length != 0)
+            setUserCount(Usuarios);
+    },[Usuarios])
     //FUNCION PARA VALIDAR LAS FECHAS
     let ValidarFechas = (Range: Date[]) => {
         let Tiporeporte = [...TipoReporte];
@@ -722,19 +830,19 @@ export default function Creacion() {
         //
         //
         //=======================================================================================================================================================
-        //&& !UserCount[0].EsGestor
-        (vUser.perfil == PerfilEmpleado  && EstadoSelect[0].valor =="5" ?EncabezadoConsulta(Cabeceras[0].assetid):EncabezadoSinconsulta());
-        (vUser.perfil == PerfilEmpleado && EstadoSelect[0].valor =="5" ?setGrandeModal("xl"):setGrandeModal("lg"));
+        //&& !UserCount[0].EsGestor vUser.perfil == PerfilEmpleado  && vUser.perfil == PerfilEmpleado &&
+        ( EstadoSelect[0].valor =="5" ?EncabezadoConsulta(Cabeceras[0].assetid):EncabezadoSinconsulta());
+        ( EstadoSelect[0].valor =="5"  ?setGrandeModal("xl"):setGrandeModal("lg"));
         setIsDiagnostico(false);
         setshowedit(true)
         let Obs = JSON.parse(row.original.Observaciones);
         setObsInicial(Obs);
-        setTipoRequerimientosSeleccionado(
-            {
-                Nombre: row.original.Tipo,
-                Value: row.original.Tipo
-            }
-        );
+        // setTipoRequerimientosSeleccionado(
+        //     {
+        //         Nombre: row.original.Tipo,
+        //         Value: row.original.Tipo
+        //     }
+        // );
         setId(row.original.Id);
         setAdmin(_admin[0]);
     };
@@ -749,12 +857,13 @@ export default function Creacion() {
 
         let _Cabecera = {
             administrador: Admin.Administrador,
-            UsuarioId: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.UserId) ,
+            UsuarioAdministradorId: Admin.Id,
             assetid: CabeceraIncial[0].assetid,
             clienteid: CabeceraIncial[0].clienteid.toString(),
             registrationNumber: CabeceraIncial[0].registrationNumber,
             nombrecliente: CabeceraIncial[0].nombrecliente,
-            agente: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.Nombres) 
+            agente: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.Nombres),
+            UsuarioId: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.UserId),
         }
         // setCabecera(_Cabecera);
         let _obs = ObsInicial;
@@ -841,12 +950,6 @@ export default function Creacion() {
         setShowAsignacion(true);
         let Obs = JSON.parse(row.original.Observaciones);
         setObsInicial(Obs);
-        setTipoRequerimientosSeleccionado(
-            {
-                Nombre: row.original.Tipo,
-                Value: row.original.Tipo
-            }
-        );
         let _admin = Cabeceras.map((e: any) => ({"Administrador":e.administrador,"Id":e.UsuarioAdministradorId }) );
         setAdmin(_admin[0]);
         setId(row.original.Id);
@@ -974,21 +1077,10 @@ export default function Creacion() {
             _Diagnostico = JSON.parse(row.original.Diagnostico);
             setInfDiag(_Diagnostico);
             EncabezadoConsulta(JSON.parse(row.original.Cabecera)[0].assetid);
-            let Cantidad = _Diagnostico.length;
-            let rows = (Cantidad/3);
-            let caja = (12/rows);
-            setCajas(`${caja.toFixed(0)}`);
-            console.log("Registros: ", Cantidad, " Rows: ", rows, " cajas: ", caja);
-      
-
             setShowModalDiag(true);
         }
-         
-    
-        
-        console.log((Array.isArray(IsValido) == true?"Si":"No" ));
     }
-    //Para montar la tabla
+    //Para montar la tabla tab 1, 2, 3,4
     function MontarTabla() {
         //Completado estado
         let estadoCompletado  = JSON.stringify(EstadoRequerimientos.filter((e:any) =>{
@@ -1082,7 +1174,12 @@ export default function Creacion() {
                         sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
                     >
                         <button title="Reporte a excel" style={{ display: (tabSel <= 2) ? "inline-block" : "none" }} className="  btn btn-sm btn-primary" type="button" onClick={() => {
-                            DescargarExcel(DatosTabla, Campos, `Reporte de requerimientos${(tabSel == 0 ? "" : (tabSel == 1 ? " asignados" : (tabSel == 2 ? " cerrados" : "")))}`)
+                            let data = DatosTabla.map((val:any) =>{
+                                let cab = JSON.parse(val.Cabecera);
+                                let estado = (FiltroDashBoardData.EsJson(val.Estado)  == true ? JSON.parse(val.Estado) : val.Estado)
+                                return  {"nombrecliente":cab[0].nombrecliente,"Consecutivo": val.Consecutivo,"registrationNumber":cab[0].registrationNumber, "Estado": (estado.label == undefined ? estado : estado.label), "agente": cab[0].agente, "Fecha": val.FechaCreacion};
+                            })
+                            DescargarExcel(data, Campos, `Reporte de requerimientos${(tabSel == 0 ? "" : (tabSel == 1 ? " asignados" : (tabSel == 2 ? " cerrados" : "")))}`)
                         }}>
                             <i className="bi-file-earmark-excel"></i></button>
 
@@ -1126,21 +1223,27 @@ export default function Creacion() {
             console.log("Error: ", error);
         });
     }
+    //Consulta el encabezado pero que no es el modal grande de resolver requerimiento
     const EncabezadoSinconsulta = () =>{
         setloader(true);
         setGrandeModal('lg');
         setloader(false)
     }
+    //Este resuelve el requerimiento
+    //==========================================================================================================
+    // RESUELVE EL REQUERIMIENTO
+    //==========================================================================================================
     const GuardarOtro = () =>{
         console.log(FiltroData.getEsCompletado(ListadoDLPRespuesta).length);
         let _Cabecera = {
             administrador: Admin.Administrador,
-            UsuarioId: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.UserId) ,
+            UsuarioAdministradorId: Admin.Id,
             assetid: CabeceraIncial[0].assetid,
             clienteid: CabeceraIncial[0].clienteid.toString(),
             registrationNumber: CabeceraIncial[0].registrationNumber,
             nombrecliente: CabeceraIncial[0].nombrecliente,
-            agente: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.Nombres) 
+            agente: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.Nombres),
+            UsuarioId: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.UserId),
         }
         // setCabecera(_Cabecera);
         let _obs = ObsInicial;
@@ -1176,15 +1279,13 @@ export default function Creacion() {
                     setTipoReporte(Tiporeporte);
                     FiltroDatos();
                     PintarIndicadores(data);
-                    // if(vUser.perfil == PerfilEmpleado && UserCount[0].EsGestor && EstadoRequerimientosSeleccionadoAnterior.label != Asignados &&  EstadoRequerimientosSeleccionado.label == Asignados){
-                    //     let dataNotificacion = {};
-                    //     dataNotificacion['UsuarioId'] = UsuarioSeleccionado.UserId;
-                    //     dataNotificacion['RequerimientoId'] = Id;
-                    //     dataNotificacion['Descripcion']= TextoNotificacion.replace("{UsuarioDestino}",`${UsuarioSeleccionado.Nombres}`).replace("{Admin}",`${Admin.Administrador}`).replace("{Consecutivo}",`${ConsecutivoNotificacion}`);
-                    //     dataNotificacion['NotificarCorreo']= NotificarCorreo;
-                    //     dataNotificacion['NotificarPortal']= NotificarPortal;
-                    //     Notificar(dataNotificacion)
-                    // }
+                    let dataNotificacion = {};
+                    dataNotificacion['UsuarioId'] = Admin.Id;
+                    dataNotificacion['RequerimientoId'] = Id;
+                    dataNotificacion['Descripcion'] = TextoNotificacionAmin.replace("{Admin}",`${Admin.Administrador}`).replace("{UsuarioDestino}",`${UsuarioSeleccionado.Nombres}`).replace("{Consecutivo}",`${ConsecutivoNotificacion}`);
+                    dataNotificacion['NotificarCorreo']= NotificarCorreo;
+                    dataNotificacion['NotificarPortal']= NotificarPortal;
+                    Notificar(dataNotificacion)
                     setloader(false);
                 }
 
@@ -1194,6 +1295,7 @@ export default function Creacion() {
             });
         }, `¿Esta seguro que desea guardar el registro ${(FiltroData.getEsCompletado(ListadoDLPRespuesta).length == 0 ? "" : "sin completar")}?`, 'Guardar');
     };
+    //para las observaciones
     const SeteoObservaciones = (e:any) =>{
         e.stopPropagation();
         setObservacionesModificar(e.target.value);
@@ -1426,8 +1528,8 @@ export default function Creacion() {
                         </div>
                     </div>
                 </div>
-                <div className="card text-center" style={{ display: (UserCount.length == 0 ?'inline':'none' )}}>
-                        <span className="text-muted fs-2">{`${vUser.Nombres}`} no esta registrado en la configuración</span>
+                <div className="card" style={{ display: (UserCount.length == 0 ?'block inline':'none' )}}>
+                        <span className="text-muted fs-2 ext-center m-auto p-auto">{`${vUser.Nombres}`} no esta registrado en la configuración</span>
                 </div>
             </BlockUi>
             <Modal show={show} onHide={setshow} size={"lg"}>
@@ -1508,7 +1610,7 @@ export default function Creacion() {
                     <Modal.Title>{Titulo}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <div className="row" style={{display:(GrandeModal== "lg"? "online":"none")}}>
+                    <div className="row" style={{display:(GrandeModal== "lg"? "inline block":"none")}}>
                         <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 text-center">
                             <div className="row">
                                 <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
@@ -1540,7 +1642,7 @@ export default function Creacion() {
                             </div>
                         </div>
                     </div>
-                    <div className="container" style={{display:(GrandeModal== "xl" ? "online":"none")}}>
+                    <div className="container" style={{display:(GrandeModal== "xl" ? "inline":"none")}}>
                         <div className="row">
                             <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
                                 <div className="">
@@ -1626,11 +1728,16 @@ export default function Creacion() {
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button type="button" className="btn btn-sm" variant="primary" onClick={() => {
+                    <Button type="button" style={{display:(val && GrandeModal== "xl" ? 'none':'inline')}} className="btn btn-sm" variant="primary" onClick={() => {
                         {(GrandeModal== "xl" ? GuardarOtro() :Guardar()) }
                         
                     }}>
-                        Guardar
+                        {(GrandeModal== "xl" ? "Resolver" :"Guardar") }
+                    </Button>
+                    <Button style={{display:(!val  || GrandeModal== "lg" ? 'none':'inline')}} type="button" className="btn btn-sm" variant="info" onClick={() => {
+                        console.log("Enviar a ST")
+                    }}>
+                        Enviar ST
                     </Button>
                     <Button type="button" className="btn btn-sm" variant="secondary" onClick={() => setshowedit(false)}>
                         Cancelar
@@ -1734,14 +1841,6 @@ export default function Creacion() {
                     <div className="card" style={{overflowY:'scroll',height: '300px'}}>
                             <div className="row">
                                 {
-                                    console.log(InfDiag.reduce((k:any,c:any) =>{
-                                        let name = c.categoria;
-                                        k[name] = k[name] ?? [];
-                                        k[name].push(c);
-                                        return k;
-                                    },{}))
-                                }
-                                {
                                     (InfDiag.length != 0) && (Object.entries(InfDiag.reduce((k:any,c:any) =>{
                                         let name = c.categoria;
                                         k[name] = k[name] ?? [];
@@ -1753,13 +1852,16 @@ export default function Creacion() {
                                                 <span className="text-center fw-bolder text-primary"> {val[0].toUpperCase()}</span>
                                             </div>
                                             {val[1].map((item:any) =>{
-                                                return <div key={item} className="col-sm-3 col-xl-3 col-md-3 col-lg-3 mt-5">
-                                                <div key={item.order+index} className="">
-                                                    <label  key={item.order +index +1 } className="control-label label-sm fw-bolder">{`${parseInt(item.order)+1}. ${item.label}`}</label>
+                                                return <div key={item.id} className="col-sm-3 col-xl-3 col-md-3 col-lg-3 mt-5">
+                                                <div key={`${index}` } className="">
+                                                    <label  key={`${index +1}`} className="control-label label-sm fw-bolder">{`${parseInt(item.order)+1}. ${item.label}`}</label>
                                                 </div>
-                                                <span key={item.order +index +2} className="mx-4 fs-6 text-muted">{(item.Respuesta == true ? "Si":(item.Respuesta  == false ? "No":item.Respuesta))}</span>
-                                                <div key={item.order+index+3}  className="">
-                                                    <span key={item.order+ index +4} className="mx-4 fs-6 text-muted">{item.RespuestaObservacion}</span>
+                                                <span key={`${index +2}`} className="mx-4 fs-6 text-muted">{(item.Respuesta == true ? "Si":(item.Respuesta  == false ? "No":item.Respuesta))}</span>
+                                                <div key={`${index+3}`}  className="">
+                                                  <span key={`${index+4}`} className="tex-primary">Estado DLP: </span><span key={index +5} className="mx-4 fs-6 text-muted">{(item.Estado == true? "OK": "N/A")}</span>
+                                                </div>
+                                                <div key={`${index+6}`}  className="">
+                                                    <span key={`${index +7}`} className="mx-4 fs-6 text-muted">{item.RespuestaObservacion}</span>
                                                 </div>
                                             </div>
                                             })}
@@ -1771,6 +1873,7 @@ export default function Creacion() {
                             
                     </div>
                 </Modal.Body>
+              
             </Modal>
         </>
     )

@@ -112,6 +112,16 @@ export function SetDiagnostico(Datos:any){
     }, params)
 }
 
+//Se Consultan las configuraciones
+export function GetConfiguracion(Sigla:any|null){
+    var params: { [id: string]: string | null | undefined; } = {};
+    params["Sigla"] = Sigla;
+    return Post_GetConsultasDinamicasUser({
+        NombreConsulta: "GetConfiguracion", Clase: "GOIQueryHelper",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, params)
+}
 
 //======================================================================================================================================
 export const FiltroData = {
@@ -195,7 +205,11 @@ export const FiltroData = {
     },
     //Para filtrar por estados
     getFiltrobyEstados: (data: any[], Estado: any) => {
-        return data.filter(f => f.Estado == Estado);
+        return data.filter((f:any) =>{
+            let estado = (FiltroDashBoardData.EsJson(f.Estado)  == true ? JSON.parse(f.Estado) : f.Estado);
+            
+            return ((estado.label == undefined ? estado : estado.label) == Estado ?? f);
+        });
     },
     getFiltrobyCliente: (data: any[], Clienteid: any) => {
         //Taraigo los datos de las cabeceras y las convierto a array para poder buscarlas posteriormente.
@@ -281,7 +295,26 @@ export const FiltroData = {
             else if(val.observaciones == "si-obligatorio" && val.RespuestaObservacion == "" || val.RespuestaObservacion == null || val.RespuestaObservacion == undefined )
                 return val;
         })
-    }
+    },
+    getComprobarEstado : (data:any) =>{
+        let valor:boolean = false;
+        let b =  data.filter((val:any)=>{
+                if(val.esobligatorio =="si" && !val.Estado)
+                return val;
+            });
+            if(b.length == 0)
+                valor = false;
+            else
+                valor = true;
+        return valor
+    },
+    getConfiguracionSigla: (data: any[],Sigla: any) => {
+        let datos = data.map((f:any) => {
+            if(f.Sigla == Sigla) 
+                return JSON.parse(f.Configuracion);
+        }).filter((e) => e)
+        return  datos;
+    },
 };
 // cuando se usa un filtro permite traer el unico valor de todas los valores del array
 function UnicoArrayValores(value: any, index: any, self: any) {
