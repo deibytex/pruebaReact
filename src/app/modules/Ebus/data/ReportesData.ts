@@ -1,5 +1,5 @@
 import moment from "moment";
-import { Post_getDynamicValueProcedureDWHTabla, Post_GetConsultasDinamicas } from "../../../../_start/helpers/Axios/DWHService";
+import { Post_getDynamicValueProcedureDWHTabla, Post_GetConsultasDinamicasCore } from "../../../../_start/helpers/Axios/DWHService";
 import {  locateFormatNumberNDijitos, msToTimeSeconds } from "../../../../_start/helpers/Helper";
 
 import { FormatoColombiaDDMMYYY } from "../../../../_start/helpers/Constants";
@@ -22,7 +22,7 @@ export function GetReporteOdometro(FechaInicial: string, FechaFinal: string, cli
     params['ClienteIds'] = clientesIds;
   
 
-    return Post_GetConsultasDinamicas({
+    return Post_GetConsultasDinamicasCore({
         NombreConsulta: "GetUltimoOdometroReact", Clase: "EBUSQueryHelper",
         Pagina: null,
         RecordsPorPagina: null
@@ -36,7 +36,7 @@ export function GetReporteEficiencia(FechaInicial: string, FechaFinal: string, c
     params['tipo'] = `${tipo}`;
     params['ClienteIds'] = `${clientesIds}`;
 
-    return Post_GetConsultasDinamicas({
+    return Post_GetConsultasDinamicasCore({
         NombreConsulta: "GetReporteEficienciaMesVehiculo", Clase: "EBUSQueryHelper",
         Pagina: null,
         RecordsPorPagina: null
@@ -48,7 +48,7 @@ export function GetReporteOperadorMovil(FechaInicial: string, FechaFinal: string
     params["FechaFinal"] = FechaFinal;
     params['Tipo'] = `${tipo}`;
     params['ClienteIds'] = `${clientesIds}`;
-    return Post_GetConsultasDinamicas({ Clase: "EbusQueryHelper", NombreConsulta: 'GetReporteZpPorCliente', Pagina: null, RecordsPorPagina: null }, params);
+    return Post_GetConsultasDinamicasCore({ Clase: "EbusQueryHelper", NombreConsulta: 'GetReporteZpPorCliente', Pagina: null, RecordsPorPagina: null }, params);
 }
 
 const tab1 = { icon: 'CarRental', titulo: "Móvil", subtitulo: "" }
@@ -96,7 +96,7 @@ export function GetDataEficiencia(FechaInicial: string, FechaFinal: string, clie
     params['ClienteIds'] = `${clientesIds}`;
     params['tipo'] = `${tipo}`;
 
-    return Post_GetConsultasDinamicas({
+    return Post_GetConsultasDinamicasCore({
         NombreConsulta: "GetReporteEficienciaMesVehiculo", Clase: "EBUSQueryHelper",
         Pagina: null,
         RecordsPorPagina: null
@@ -132,7 +132,7 @@ export function GetDataSafety(FechaInicial: string, FechaFinal: string, clientes
     params['tipo'] = `${tipo}`;
     params['ClienteIds'] = `${clientesIds}`;
 
-    return Post_GetConsultasDinamicas({
+    return Post_GetConsultasDinamicasCore({
         NombreConsulta: "getReporteSafety", Clase: "RagQueryHelper",
         Pagina: null,
         RecordsPorPagina: null

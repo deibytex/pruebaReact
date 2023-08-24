@@ -1,10 +1,10 @@
 //GetInfoDashBoardAdmin
 
-import { Post_GetConsultasDinamicasUser, Post_GetConsultasDinamicasUserDWH } from "../../../../../_start/helpers/Axios/DWHService";
+import { Post_GetConsultasDinamicasUserCore, Post_GetConsultasDinamicasUserDWH } from "../../../../../_start/helpers/Axios/DWHService";
 
 export function GetInfoDashBoardAdmin() { 
     var params: { [id: string]: string | null | undefined; } = {};
-    return Post_GetConsultasDinamicasUser({
+    return Post_GetConsultasDinamicasUserCore({
         NombreConsulta: "GetInfoDashBoardAdmin", Clase: "PortalQueryHelper",
         Pagina: null,
         RecordsPorPagina: null
@@ -13,7 +13,7 @@ export function GetInfoDashBoardAdmin() {
 
 export function GetInfoDashBoardAdminClientes() { 
     var params: { [id: string]: string | null | undefined; } = {};
-    return Post_GetConsultasDinamicasUser({
+    return Post_GetConsultasDinamicasUserCore({
         NombreConsulta: "GetInfoDashBoardAdminClientes", Clase: "PortalQueryHelper",
         Pagina: null,
         RecordsPorPagina: null
@@ -21,7 +21,7 @@ export function GetInfoDashBoardAdminClientes() {
 }
 export function GetInfoDashBoardAdminAsset() { 
     var params: { [id: string]: string | null | undefined; } = {};
-    return Post_GetConsultasDinamicasUser({
+    return Post_GetConsultasDinamicasUserCore({
         NombreConsulta: "GetInfoDashBoardAdminAsset", Clase: "PortalQueryHelper",
         Pagina: null,
         RecordsPorPagina: null
@@ -29,7 +29,7 @@ export function GetInfoDashBoardAdminAsset() {
 }
 export function GetInfoDashBoardAdminConductores() { 
     var params: { [id: string]: string | null | undefined; } = {};
-    return Post_GetConsultasDinamicasUser({
+    return Post_GetConsultasDinamicasUserCore({
         NombreConsulta: "GetInfoDashBoardAdminConductores", Clase: "PortalQueryHelper",
         Pagina: null,
         RecordsPorPagina: null
@@ -37,7 +37,7 @@ export function GetInfoDashBoardAdminConductores() {
 }
 export function GetInfoDashBoardAdminVehiculosSinTx() { 
     var params: { [id: string]: string | null | undefined; } = {};
-    return Post_GetConsultasDinamicasUser({
+    return Post_GetConsultasDinamicasUserCore({
         NombreConsulta: "GetInfoDashBoardAdminVehiculosSinTx", Clase: "PortalQueryHelper",
         Pagina: null,
         RecordsPorPagina: null
@@ -45,7 +45,7 @@ export function GetInfoDashBoardAdminVehiculosSinTx() {
 }
 export function GetInfoDashBoardAdminTickets() { 
     var params: { [id: string]: string | null | undefined; } = {};
-    return Post_GetConsultasDinamicasUser({
+    return Post_GetConsultasDinamicasUserCore({
         NombreConsulta: "GetInfoDashBoardAdminTickets", Clase: "PortalQueryHelper",
         Pagina: null,
         RecordsPorPagina: null
@@ -69,7 +69,7 @@ export function SetRequerimiento(Datos:any){
     params["Cabecera"] = Datos.Cabecera;
     params["Observaciones"] = Datos.Observaciones;
     params["Estado"] = Datos.Estado;
-    return Post_GetConsultasDinamicasUser({
+    return Post_GetConsultasDinamicasUserCore({
         NombreConsulta: "CrearRequerimiento", Clase: "GOIQueryHelper",
         Pagina: null,
         RecordsPorPagina: null
@@ -79,7 +79,7 @@ export function SetRequerimiento(Datos:any){
 export function GetLista(){
     var params: { [id: string]: string | null | undefined; } = {};
     params["Sigla"] = "GOIREQ";
-    return Post_GetConsultasDinamicasUser({
+    return Post_GetConsultasDinamicasUserCore({
         NombreConsulta: "getListas", Clase: "PortalQueryHelper",
         Pagina: null,
         RecordsPorPagina: null
@@ -89,7 +89,7 @@ export function GetLista(){
 export function GetDetalleLista(ListaId:any){
     var params: { [id: string]: string | null | undefined; } = {};
     params["ListaId"] = ListaId;
-    return Post_GetConsultasDinamicasUser({
+    return Post_GetConsultasDinamicasUserCore({
         NombreConsulta: "getDetalleListas", Clase: "PortalQueryHelper",
         Pagina: null,
         RecordsPorPagina: null
@@ -100,7 +100,7 @@ export function GettRequerimiento(FechaInicial:any|null, FechaFinal:any|null){
     var params: { [id: string]: string | null | undefined; } = {};
     params['FechaInicial'] = FechaInicial;
     params['FechaFinal'] = FechaFinal;
-    return Post_GetConsultasDinamicasUser({
+    return Post_GetConsultasDinamicasUserCore({
         NombreConsulta: "GetRequerimientos", Clase: "GOIQueryHelper",
         Pagina: null,
         RecordsPorPagina: null

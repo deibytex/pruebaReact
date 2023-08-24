@@ -49,56 +49,56 @@ const App: React.FC<Props> = ({ basename }) => {
     [],
   );
 
-  useEffect(() => {
-    if (isAuthorized) {
-      let model = (auth.user) as UserModelSyscaf;
-      let intervalid = setInterval(async () => {
-        const FechaActual = FechaServidor();
-        const FechaExp = new Date(2023, 7, 18, 15, 0)
+  // useEffect(() => {
+  //   if (isAuthorized) {
+  //     let model = (auth.user) as UserModelSyscaf;
+  //     let intervalid = setInterval(async () => {
+  //       const FechaActual = FechaServidor();
+  //       const FechaExp = new Date(2023, 7, 18, 15, 0)
 
-        console.log('model EXP', FechaExp, FechaActual)
-        if (moment(FechaActual) > moment(FechaExp)) {
-          console.log('Token Expirado', localStorage.getItem("refresh"))
-          axios.post(Auth_RefreshToken, { AccessToken: auth.accessToken, RefreshToken: auth.refreshToken }).then(
+  //       console.log('model EXP', FechaExp, FechaActual)
+  //       if (moment(FechaActual) > moment(FechaExp)) {
+  //         console.log('Token Expirado', localStorage.getItem("refresh"))
+  //         axios.post(Auth_RefreshToken, { AccessToken: auth.accessToken, RefreshToken: auth.refreshToken }).then(
 
-            (data) => {
-              console.log('data', data)
-              // adiciona una nuevas credenciales de refresco
+  //           (data) => {
+  //             console.log('data', data)
+  //             // adiciona una nuevas credenciales de refresco
 
-              const newTokens = data.data;
-              var decoded = jwt_decode<UserModelSyscaf>(newTokens.token);
-              // fecha de expiracion  
+  //             const newTokens = data.data;
+  //             var decoded = jwt_decode<UserModelSyscaf>(newTokens.token);
+  //             // fecha de expiracion  
 
-              decoded.exp = newTokens.Expiracion;
-
-
-              localStorage.removeItem("token");
-              localStorage.removeItem("refresh");
-              localStorage.setItem("token", newTokens.token);
-              localStorage.setItem("refresh", newTokens.refreshToken);
+  //             decoded.exp = newTokens.Expiracion;
 
 
-                _redux.setupAxios(axios, null,  newTokens.token);
+  //             localStorage.removeItem("token");
+  //             localStorage.removeItem("refresh");
+  //             localStorage.setItem("token", newTokens.token);
+  //             localStorage.setItem("refresh", newTokens.refreshToken);
 
 
-            }
-          ).catch((error) => {
-            // si hay algun error debe desloguearse y reiniciar la aplicacion
-
-            //  document.location.replace('/logout');
-          })
-
-        }
+  //               _redux.setupAxios(axios, null,  newTokens.token);
 
 
-      }, 10000);
+  //           }
+  //         ).catch((error) => {
+  //           // si hay algun error debe desloguearse y reiniciar la aplicacion
+
+  //           //  document.location.replace('/logout');
+  //         })
+
+  //       }
 
 
-      return () => {
-        clearInterval(intervalid); // limpiamos cuando se desmonte la app 
-      }
-    }
-  }, [])
+  //     }, 10000);
+
+
+  //     return () => {
+  //       clearInterval(intervalid); // limpiamos cuando se desmonte la app 
+  //     }
+  //   }
+  // }, [])
 
 
 

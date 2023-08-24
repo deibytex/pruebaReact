@@ -12,35 +12,35 @@ export function AsideMenuMain() {
   const menu = useSelector<RootState>(
     ({ auth }) => auth.menu
   );
- 
+
   const [menuSelected, setmenuSelected] = useState<any[]>([]);
   //const [expandAll, setexpandAll] = useState<boolean>();
   const [opcionesPadres, setOpciones] = useState<Opciones[]>([]);
   const [opcionesFiltradas, setopcionesFiltradas] = useState<Opciones[]>([]);
-  const [categorizaciones, setcategorizaciones] = useState<any>({});
+  const [categorizaciones, setcategorizaciones] = useState<any>();
   const { pathname } = useLocation();
   // checkIsActive(pathname, to)
   useEffect(() => {
-    const lstOpciones : any[] = (menu as any[]);
+    const lstOpciones: any[] = (menu as any[]);
     const opciones: any[] = [];
 
     // primero sacamos las categorizaciones
-    if (lstOpciones != undefined && lstOpciones != null ) {
-    const categorizaciones = lstOpciones.reduce((p, c) => {
+    if (lstOpciones != undefined && lstOpciones != null && categorizaciones == undefined) {
+      const categorizaciones = lstOpciones.reduce((p, c) => {
 
-      const cat = c.categorizacion ?? "SYSCAF"; // si no hay categoria se asigna no categorizado
+        const cat = c.categorizacion ?? "SYSCAF"; // si no hay categoria se asigna no categorizado
 
-      const currCount = Object.hasOwn(p, cat) ? p[cat] : [];
-      opciones.push(...c.opciones)
-      return {
-        ...p,
-        [cat]: [...currCount, c]
-      };
+        const currCount = Object.hasOwn(p, cat) ? p[cat] : [];
+        opciones.push(...c.opciones)
+        return {
+          ...p,
+          [cat]: [...currCount, c]
+        };
 
-    }, {});
+      }, {});
 
-    setcategorizaciones(categorizaciones);
-  }
+      setcategorizaciones(categorizaciones);
+    }
   }, [menu]);
 
   // convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
@@ -107,17 +107,13 @@ export function AsideMenuMain() {
 
   return (
     <>
-      {(categorizaciones) && (
-        Object.keys(categorizaciones).map((key) => {
+      {(categorizaciones  != undefined) && (
+        Object.keys(categorizaciones ).map((key) => {
           // traemos el nombre de la categoria
           const categorizacion = categorizaciones[key];
-          // traemos las opciones de la categoria
-          let opciones: any[] = [];
-          categorizacion.map((m: any) => opciones.push(...m.opciones));
-          const opcionesPadre = opciones.filter((element: any) => element.OpcionPadreId == null);
 
           return (
-            <div key={`row menu-padre${key}`} className="menu-item  flex ">
+            <div key={`row menu-padre${key}`} className="menu-item  flex text-truncate ">
               <Button className="flex btn btn-sm bg-transparent "
                 onClick={() => AddsetSeleccionado(key)}
                 aria-controls={`collapse-${key}`}
@@ -132,7 +128,46 @@ export function AsideMenuMain() {
               <Collapse className="ms-5" in={isMenuSelected(key)} >
                 {/* IMPRIMIMOS LOS HIJOS DE LA SEGUNDA LINEA */}
                 <div id={`collapse-${key}`}>
-                  {ImprimirMenuPadre(key, opcionesPadre, opciones)}
+
+                  {
+                    categorizacion.map((m: any) => {
+                      // verifica si tiene el parametro de show Org configurado en true para saber si lo sub agrupa 
+                      const conf = m.configuracion == undefined ? false : JSON.parse(m.configuracion).showOrg;
+                      // filtramos las opciones por las padre para mandar a los hiujos
+                      let opcionesPadre = m.opciones.filter((element: any) => element.OpcionPadreId == null);
+
+                      console.log(m.OrganizacionId)
+                      if (conf)
+
+                        return (<div key={`row menu-${key}${m.OrganizacionId}`} className="menu-item  flex ">
+                          <Button className="flex btn btn-sm bg-transparent "
+                            onClick={() => AddsetSeleccionado(`${key}${m.OrganizacionId}`)}
+                            aria-controls={`collapse-${key}${m.OrganizacionId}`}
+                            aria-expanded={isMenuSelected(`${key}${m.OrganizacionId}`)}
+                          >
+                            {(isMenuSelected(`${key}${m.OrganizacionId}`)) ? (<ArrowDropDown className="ms-auto" />) : (<ArrowRight />)}
+                            <span className="menu-title  text-syscaf-amarillo fs-5">
+                              {m.Nombre}
+                            </span>
+                          </Button>
+                          <Collapse className="ms-5" in={isMenuSelected(`${key}${m.OrganizacionId}`)}  >
+                            {/* IMPRIMIMOS LOS HIJOS DE LA SEGUNDA LINEA */}
+                            <div id={`collapse-${key}${m.OrganizacionId}`}>
+                              {ImprimirMenuPadre(`${key}${m.OrganizacionId}`, opcionesPadre, m.opciones)}
+                            </div>
+                          </Collapse>
+
+                        </div>)
+
+                      else
+                        return (<>
+                          {ImprimirMenuPadre(`${key}${m.OrganizacionId}`, opcionesPadre, m.opciones)}
+                        </>)
+                    })
+
+                  }
+
+
                 </div>
               </Collapse>
 

@@ -1,7 +1,7 @@
 import moment from "moment"
 import { FormatoColombiaDDMMYYY } from "../../../../../_start/helpers/Constants"
 import confirmarDialog, { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog"
-import { Post_GetConsultasDinamicas, Post_GetConsultasDinamicasUser, Post_getDynamicProcedureDWH } from "../../../../../_start/helpers/Axios/DWHService"
+import { Post_GetConsultasDinamicasCore, Post_GetConsultasDinamicasUserCore, Post_getDynamicProcedureDWH } from "../../../../../_start/helpers/Axios/DWHService"
 import { FiltroDashBoardData } from "./PostVentaData"
 import { Usuarios } from "../mockData/indicadores"
 import { Post_getconsultadinamicas } from "../../../../../_start/helpers/Axios/CoreService"
@@ -31,7 +31,7 @@ export function SetRequerimiento(Datos:any){
     params["Observaciones"] = Datos.Observaciones;
     params["Estado"] = Datos.Estado;
     params["Id"] = String(Datos.Id);
-    return Post_GetConsultasDinamicasUser({
+    return Post_GetConsultasDinamicasUserCore({
         NombreConsulta: "ModificarRequerimiento", Clase: "GOIQueryHelper",
         Pagina: null,
         RecordsPorPagina: null
@@ -44,7 +44,7 @@ export function DeleteRequerimiento(Datos:any){
     params["Observaciones"] = Datos.Observaciones;
     params["Estado"] = Datos.Estado;
     params["Id"] = String(Datos.Id);
-    return Post_GetConsultasDinamicasUser({
+    return Post_GetConsultasDinamicasUserCore({
         NombreConsulta: "EliminarRequerimiento", Clase: "GOIQueryHelper",
         Pagina: null,
         RecordsPorPagina: null
@@ -57,7 +57,7 @@ export function GetRequerimientos(FechaInicial:any,FechaFinal:any, Perfil:any ){
     params["FechaInicial"] = FechaInicial;
     params["FechaFinal"] = FechaFinal;
     params["PerfilId"] = String(Perfil);
-    return Post_GetConsultasDinamicasUser({
+    return Post_GetConsultasDinamicasUserCore({
         NombreConsulta: "GetRequerimientosInterfaz", Clase: "GOIQueryHelper",
         Pagina: null,
         RecordsPorPagina: null
@@ -81,7 +81,7 @@ export function SetNotificaciones(Datos:any){
 export function GetEncabezado(AssetId:any){
     var params: { [id: string]: string | null | undefined; } = {};
     params["AssetId"] =AssetId;
-    return Post_GetConsultasDinamicasUser({
+    return Post_GetConsultasDinamicasUserCore({
         NombreConsulta: "GetEncabezado", Clase: "GOIQueryHelper",
         Pagina: null,
         RecordsPorPagina: null

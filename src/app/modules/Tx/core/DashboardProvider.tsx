@@ -163,25 +163,28 @@ const CargaClientes: React.FC = ({children}) => {
     return () => setClientes([]);
     },[]);
 
-    return <>{(ClienteSeleccionado !== undefined && Clientes != undefined && Data != undefined ) && SeleccionClientes(Clientes,ClienteSeleccionado,setClienteSeleccionado, setFiltrado, Data, setDataFiltrada, setData,setFiltradoTx, DataTx, setDataFiltradaTx)}</>;
+    return <>{(ClienteSeleccionado !== undefined && Clientes != undefined && Data != undefined ) && SeleccionClientes(Clientes, setFiltrado, setDataFiltrada, setData,setFiltradoTx,  setDataFiltradaTx)}</>;
 }
 
-function SeleccionClientes (Clientes:any, ClienteSeleccionado:any, setClienteSeleccionado: ((arg0: ClienteDTO) => void) , setFiltrado: ((arg0: boolean) => void),Data:any, setDataFiltrada: ((arg0: any) => void), setData:((arg0: any) => void), setFiltradoTx:(arg0:any) =>void, DataTx:any, setDataFiltradaTx:(arg0:any) => void)  {
-   return (           
+function SeleccionClientes (Clientes:any,  setFiltrado: ((arg0: boolean) => void), setDataFiltrada: ((arg0: any) => void), setData:((arg0: any) => void), setFiltradoTx:(arg0:any) =>void ,setDataFiltradaTx:(arg0:any) => void)  {
+  
+    const {  DataTx, Data} = useDataDashboard();
+   
+    return (           
        <Form.Select defaultValue={0}  className=" mb-3 " onChange={(e) => {
            // buscamos el objeto completo para tenerlo en el sistema
-           let lstClientes =  Clientes?.filter((value:any, index:any) => {
-               return value.clienteIdS === Number.parseInt(e.currentTarget.value)
-           })  
-           let Cliente = (lstClientes[0] ==  undefined ? {
-               clienteIdS:0,
-               ClienteId:"",
-               clienteNombre:"Todos",
-           }:lstClientes[0]);
-           setClienteSeleccionado(Cliente); 
-
-           switch(Cliente.clienteIdS) {
-            case 0:
+        //    let lstClientes =  Clientes?.filter((value:any, index:any) => {
+        //        return value.clienteIdS === Number.parseInt(e.currentTarget.value)
+        //    })  
+        //    let Cliente = (lstClientes[0] ==  undefined ? {
+        //        clienteIdS:0,
+        //        ClienteId:"",
+        //        clienteNombre:"Todos",
+        //    }:lstClientes[0]);
+        //    setClienteSeleccionado(Cliente); 
+           
+           switch(e.currentTarget.value) {
+            case "0":
                 setFiltradoTx(false);
                 setFiltrado(false);
                 break;
@@ -190,13 +193,13 @@ function SeleccionClientes (Clientes:any, ClienteSeleccionado:any, setClienteSel
                 setFiltradoTx(true);
                 if(DataTx != undefined){
                     let DataResult = DataTx['Transmision'].filter((val:any) =>{
-                        return (val.ClienteId == Cliente.clienteId)
+                        return (val.ClienteId == e.currentTarget.value)
                     });
                     setDataFiltradaTx(DataResult);
                 }
-                if(DataTx != undefined){
+                if(Data != undefined){
                     let DataResultU = Data['Unidades'].filter((val:any) =>{
-                        return (val.ClienteId == Cliente.clienteId)
+                        return (val.ClienteId ==e.currentTarget.value)
                     });
                     setDataFiltrada(DataResultU);
                 }
@@ -206,8 +209,7 @@ function SeleccionClientes (Clientes:any, ClienteSeleccionado:any, setClienteSel
            <option value={0}>Todas las bases</option>
            {           
                Clientes?.map((element:any,i:any) => {
-                       let flag = (element.clienteIdS === (ClienteSeleccionado!= undefined?ClienteSeleccionado?.clienteIdS:0 ))
-                   return (<option key={element.clienteIdS}  value={(element.clienteIdS != null ? element.clienteIdS:0)}>{element.clienteNombre}</option>)
+                   return (<option key={element.ClienteId}  value={(element.ClienteId != null ? element.ClienteId:0)}>{element.clienteNombre}</option>)
                })
            }
        </Form.Select>               
