@@ -83,7 +83,7 @@ export function DescargarExcelPersonalizado(datos: any[], columnas: MRT_ColumnDe
                 
                     Objeto[columna.header] = 
                         (fncColumna.length > 0 ? fncColumna[0].getData(value) : columna.header.includes('%') ? locateFormatPercentNDijitos(value ?? 0, 2) :
-                        (!isNaN(value)) ? value : ((moment(value).isValid()) ? moment(value).format(FormatoColombiaDDMMYYYHHmmss) : value));
+                        (!isNaN(value)) ? value : nombreCampo == "vehiculo" ? value : ((moment(value).isValid()) ? moment(value).format(FormatoColombiaDDMMYYYHHmmss) : value));
                 }
               
             });

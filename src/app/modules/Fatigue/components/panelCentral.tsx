@@ -12,6 +12,8 @@ import { locateFormatNumberNDijitos, locateFormatPercentNDijitos } from "../../.
 import moment from "moment";
 import { MapTab } from "./TabMap_Tab2";
 import { CardContainerEventos } from "./cardEventosAlertas";
+import { DescargarExcelPersonalizado } from "../../../../_start/helpers/components/DescargarExcel";
+import { MRT_ColumnDef } from "material-react-table";
 
 type Props = {
   className: string;
@@ -21,13 +23,13 @@ type Props = {
 const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => {
   let idinterval: number = 0;
   const [width, setWidth] = useState("80px")
- 
+
   const [Map, setMap] = useState<boolean>(false);
   const [activeChart, setActiveChart] = useState<ApexCharts | undefined>();
   const [activeEvents, setactiveEvents] = useState<EventoActivo[]>([]);
   const [opciones, setOpciones] = useState<any>(null);
   const refChart = useRef<ReactApexChart>(null);
-  const { listadoEventosActivos, DataAlertas, DataDetallado, loader , activeTab , setActiveTab} = useDataFatigue();
+  const { listadoEventosActivos, DataAlertas, DataDetallado, loader, activeTab, alertas, setActiveTab } = useDataFatigue();
 
   // useefet que se ejecuta la primera vez, cuando el cliente es seleccionado 
   useEffect(() => {
@@ -180,7 +182,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
   // TRAE LA INFORMACION DE EVENTOS ACTIVOS POR DIA
   useEffect(() => {
 
-    setTab(parseInt((activeTab != undefined ?activeTab?.replace('#tab', '') : '1' )));
+    setTab(parseInt((activeTab != undefined ? activeTab?.replace('#tab', '') : '1')));
     setactiveEvents(listadoEventosActivos ?? []);
 
     return function cleanUp() {
@@ -224,17 +226,119 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
       }, 2000)
     }
   }, [DataDetallado])
-  
+
+  useEffect(() => {
+   console.log(alertas);
+  }, [alertas])
+
+  //listado campos tablas
+  const columnasTabla: MRT_ColumnDef<any>[]
+    = [
+      {
+        accessorKey: 'TipoAlerta',
+        header: 'Alarma',
+        size: 100
+      },
+      {
+        accessorKey: 'vehiculo',
+        header: 'Vehículo',
+        size: 100
+      },
+      {
+        accessorKey: 'conductor',
+        header: 'Conductor',
+        size: 100
+      }, {
+        accessorKey: 'EventDateTime',
+        header: 'Fecha evento',
+        Cell({ cell, column, row, table, }) {
+
+          return (
+            <>
+              {
+                moment(row.original.EventDateTime).format('DD/MM/YYYY HH:mm:ss')
+              }
+            </>
+
+          )
+        },
+        size: 80
+      }, {
+        accessorKey: 'DetalladoEventos',
+        header: 'Cantidad eventos',
+        size: 80,
+        Cell({ cell, column, row, table, }) {
+
+
+          return (
+            <>
+              {
+                JSON.parse(row.original.DetalladoEventos).length as number
+              }
+            </>
+
+          )
+        },
+      }, {
+        accessorKey: 'EstadoGestion',
+        header: 'Estado',
+        size: 50,
+        Cell({ cell, column, row, table, }) {
+          return (cell.getValue() == null) ? <span className="badge bg-danger">No Gestionado</span>
+            : (cell.getValue() == true) ? <span className="badge bg-success">Gestionado</span>
+              : (cell.getValue() == false) ? <span className="badge bg-primary">En Gestion</span>
+                : <span>{row.original.EstadoGestion}</span>
+        },
+      },
+      {
+        accessorKey: 'gestor',
+        header: 'Analista',
+        size: 80,
+        Cell({ cell, column, row, table, }) {
+          return (cell.getValue() == null) ? <span>Sin Analista</span> : <span>{row.original.gestor}</span>
+        },
+      }
+
+    ];
+
+  const fncReporteAlarma = [
+    {
+      name: "EstadoGestion",
+      getData: (data: any) => {
+        return (data == null) ? 'No Gestionado'
+          : (data == true) ? 'Gestionado'
+            : (data == false) ? 'En Gestion'
+              : { data }
+      }
+    },
+    {
+      name: "gestor",
+      getData: (data: any) => {
+
+        return (data == null) ? 'Sin Analista' : data
+      }
+    }, {
+      name: 'DetalladoEventos',
+
+      getData: (data: any) => {
+        return JSON.parse(data).length
+      }
+    }
+  ];
+
+  const [tipo, settipo] = useState<any>(0);
+
   return (
     <div className={`card ${className}`}>
       <BlockUi tag="div" keepInView blocking={loader ?? false}  >
         {/* begin::Header */}
         <div className="card-header align-items-center border-0 mt-5">
-          <h3 className="card-title align-items-start flex-column">
-            <span className="fw-bolder text-dark fs-3">Panel de Gestión de Riesgos</span>
-            <span className="text-muted mt-2 fw-bold fs-6"></span>
-          </h3>
-
+          <div className="card-title flex-column">
+            <span className="fw-bolder text-dark fs-3 ms-4 me-20">Panel de Gestión de Riesgos</span>
+            <button className="m-2 ms-20 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcelPersonalizado(alertas, columnasTabla, `Alertas ${tipo == 0 ? "Gestión" : "Eventos"}`, fncReporteAlarma) }}>
+              <i className="bi-file-earmark-excel"></i> Descargar Gestión
+            </button>
+          </div>
         </div>
         {/* end::Header */}
         {/* begin::Body */}
@@ -287,8 +391,8 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
                     (<CardContainerEventos isActive={true} isDetails={false} filtro={0} />)
                   }
                 </div>
-                </div>
-                <div
+              </div>
+              <div
                 className={`tab-pane fade ${activeTab === "#tab2" ? "show active" : ""
                   }`}
                 id="tab2_content"
@@ -302,8 +406,8 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
                     (<CardContainerEventos isActive={true} isDetails={false} filtro={1} />)
                   }
                 </div>
-                </div>
-                <div
+              </div>
+              <div
                 className={`tab-pane fade ${activeTab === "#tab3" ? "show active" : ""
                   }`}
                 id="tab3_content"
@@ -317,8 +421,8 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
                     (<CardContainerEventos isActive={true} isDetails={false} filtro={2} />)
                   }
                 </div>
-                </div>
-                <div
+              </div>
+              <div
                 className={`tab-pane fade ${activeTab === "#tab4" ? "show active" : ""
                   }`}
                 id="tab4_content"
@@ -332,8 +436,8 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
                     (<CardContainerEventos isActive={true} isDetails={false} filtro={3} />)
                   }
                 </div>
-                </div>
-                <div
+              </div>
+              <div
                 className={`tab-pane fade ${activeTab === "#tab5" ? "show active" : ""
                   }`}
                 id="tab5_content"
@@ -347,39 +451,39 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
                     (<CardContainerEventos isActive={true} isDetails={false} filtro={4} />)
                   }
                 </div>
-                </div>
+              </div>
 
 
-                <div
-                  className={`tab-pane fade ${activeTab === "#tab6" ? "show active" : ""
-                    }`}
-                  id="tab6_content"
-                >
-                  {/* begin::Cards */}
-                  <div className="overflow-auto">
-                    <div style={{ height: 400 }}>
-                      {/* // verificamos que exista datos para poder ingresar los datos en el contenedor  */}
-                      <div className="card">
-                        <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
-                          {(opciones != null) && (
-                            <ReactApexChart
-                              options={opciones.options}
-                              series={opciones.series}
-                              height={400} type="area" />)}
-                        </div>
+              <div
+                className={`tab-pane fade ${activeTab === "#tab6" ? "show active" : ""
+                  }`}
+                id="tab6_content"
+              >
+                {/* begin::Cards */}
+                <div className="overflow-auto">
+                  <div style={{ height: 400 }}>
+                    {/* // verificamos que exista datos para poder ingresar los datos en el contenedor  */}
+                    <div className="card">
+                      <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
+                        {(opciones != null) && (
+                          <ReactApexChart
+                            options={opciones.options}
+                            series={opciones.series}
+                            height={400} type="area" />)}
                       </div>
-
                     </div>
+
                   </div>
-                  {/* end::Cards      */}
                 </div>
+                {/* end::Cards      */}
+              </div>
 
 
-                {/* end::Content  */}
+              {/* end::Content  */}
 
 
 
-             
+
 
 
             </div>

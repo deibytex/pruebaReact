@@ -1,15 +1,13 @@
-import { Button, Card, Form, Modal, Tab, Tabs } from "react-bootstrap-v5";
+import { Button, Modal, Tab, Tabs } from "react-bootstrap-v5";
 
 
 import { useEffect, useState } from "react";
 
 import { useDataFatigue } from "../core/provider";
 import { MRT_Localization_ES } from 'material-react-table/locales/es';
-import MaterialReactTable, { MaterialReactTableProps, MRT_Cell, MRT_ColumnDef, MRT_Row } from 'material-react-table';
+import MaterialReactTable, { MRT_ColumnDef } from 'material-react-table';
 import type {
-  ColumnFiltersState,
-  PaginationState,
-  SortingState,
+  ColumnFiltersState
 } from '@tanstack/react-table';
 
 import { Box, IconButton, Tooltip } from "@mui/material";
@@ -21,9 +19,9 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../../setup";
 import { UserModelSyscaf } from "../../auth/models/UserModel";
 import moment from "moment";
-import { CheckboxGroup, Checkbox, useToaster, Notification } from "rsuite";
-import { FormatoColombiaDDMMYYY, FormatoColombiaDDMMYYYHHmm, FormatoColombiaDDMMYYYHHmmss } from "../../../../_start/helpers/Constants";
-import { DescargarExcel } from "../../../../_start/helpers/components/DescargarExcel";
+import { useToaster, Notification } from "rsuite";
+import { FormatoColombiaDDMMYYYHHmm, FormatoColombiaDDMMYYYHHmmss } from "../../../../_start/helpers/Constants";
+import { DescargarExcelPersonalizado } from "../../../../_start/helpers/components/DescargarExcel";
 type Props = {
 
   isActive: boolean;
@@ -92,11 +90,6 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
   //table state
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
 
   const toaster = useToaster();
 
@@ -107,59 +100,13 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
     </Notification>)
   }
 
-
-  // inicio filtros
-  //WARNING NO CONSERVA FILTRO
-
-
-
-  const handleChange = (value: any[]) => {
-
-
-
-
-
-    const filteredArray = dataAlertas.filter((item: any) => value.indexOf(item.Criticidad) > -1);
-
-    setDataAlertasfiltrada(filteredArray);
-    setRowCount(filteredArray.length);
-
-  };
-
-  
-
-
-
-
-
-
-  const handleChange2 = (value2: any[]) => {
-
-
-    const filteredArray = dataAlertas.filter((item: any) => value2.indexOf(`${item.EstadoGestion}`) > -1);
-    setDataAlertasfiltrada(filteredArray);
-    setRowCount(filteredArray.length);
-  };
-
-
-  const handleChange3 = (value3: any[]) => {
-
-
-
-
-    const filteredArray = dataAlertas.filter((item: any) => value3.indexOf(item.TipoAlerta) > -1);
-
-    setDataAlertasfiltrada(filteredArray);
-    setRowCount(filteredArray.length);
-  };
-
   //primer cargue carga userid
   useEffect(() => {
     setUserId(model.Id?.toString())
   }, [])
 
 
-  //WARNING NO FUNCIONA
+
   useEffect(() => {
 
     let dataFiltrada = [];
@@ -216,11 +163,11 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
         size: 80,
         Cell({ cell, column, row, table, }) {
 
-          let cantidad: number = JSON.parse(row.original.DetalladoEventos).length;
+  
           return (
             <>
               {
-                cantidad
+                JSON.parse(row.original.DetalladoEventos).length as number
               }
             </>
 
@@ -539,8 +486,6 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
         }
         onColumnFiltersChange={setColumnFilters}
         onGlobalFilterChange={setGlobalFilter}
-        onPaginationChange={setPagination}
-        onSortingChange={setSorting}
         rowCount={rowCount}
         renderRowActions={({ row, table }) => (
 
@@ -595,21 +540,9 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
           columnFilters,
           globalFilter,
           isLoading,
-          pagination,
           showAlertBanner: isError,
-          showProgressBars: isRefetching,
-          sorting,
+          showProgressBars: isRefetching
         }}
-        renderTopToolbarCustomActions={({ table }) => (
-          <Box
-              sx={{ justifyContent: 'flex-end', alignItems: 'center', flex: 1, display: 'flex', gap: '1rem', p: '0.5rem', flexWrap: 'wrap' }}
-          >
-              {(filtro == 3 || filtro == 4) && 
-              (<button className="m-2 ms-0 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcel(dataAlertas, columnasTabla, `Alertas ${ filtro == 3 ? "en Gestión" : "Gestionadas"}`) }}>
-                  <i className="bi-file-earmark-excel"></i></button>)
-              }
-          </Box>
-      )}
       />
 
       <Modal
@@ -715,18 +648,14 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
                   }
                   onColumnFiltersChange={setColumnFilters}
                   onGlobalFilterChange={setGlobalFilter}
-                  onPaginationChange={setPagination}
-                  onSortingChange={setSorting}
                   rowCount={rowCount}
 
                   state={{
                     columnFilters,
                     globalFilter,
                     isLoading,
-                    pagination,
                     showAlertBanner: isError,
-                    showProgressBars: isRefetching,
-                    sorting,
+                    showProgressBars: isRefetching
                   }}
                 />
               </div>
@@ -760,18 +689,14 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
                 }
                 onColumnFiltersChange={setColumnFilters}
                 onGlobalFilterChange={setGlobalFilter}
-                onPaginationChange={setPagination}
-                onSortingChange={setSorting}
                 rowCount={rowCount2}
                 initialState={{ density: 'compact' }}
                 state={{
                   columnFilters,
                   globalFilter,
                   isLoading,
-                  pagination,
                   showAlertBanner: isError,
-                  showProgressBars: isRefetching,
-                  sorting,
+                  showProgressBars: isRefetching
                 }}
               />
             </Modal.Body>
@@ -780,7 +705,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
 
         <Modal.Footer>
           <Button type="button" variant="secondary" onClick={handleClose}>
-            Cancelar
+            Cerrar
           </Button>
         </Modal.Footer>
       </Modal>
@@ -840,18 +765,14 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
               }
               onColumnFiltersChange={setColumnFilters}
               onGlobalFilterChange={setGlobalFilter}
-              onPaginationChange={setPagination}
-              onSortingChange={setSorting}
               rowCount={rowCount3}
 
               state={{
                 columnFilters,
                 globalFilter,
                 isLoading,
-                pagination,
                 showAlertBanner: isError,
-                showProgressBars: isRefetching,
-                sorting,
+                showProgressBars: isRefetching
               }}
             />
           </div>

@@ -115,11 +115,11 @@ export default function FatigueDashboard() {
                             <h6 className=" m-3">Cliente:</h6>
                             <CargaListadoClientes />
                         </div>
-
+{/* 
                         <div className="d-inline-flex col-xl-6 mt-2">
                             <h6 className=" m-3">Tipo:</h6>
                             <TipoSeguiminento />
-                        </div>
+                        </div> */}
                     </div>
                     <div className="row g-0 g-xl-5 g-xxl-8 rounded border  mt-1 mb-2 shadow-sm bg-secondary text-primary">
                     <div className="col-xl-3">
