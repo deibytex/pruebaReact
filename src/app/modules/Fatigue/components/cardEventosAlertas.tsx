@@ -569,8 +569,8 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
             <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
             <label className="mx-2 fs-6 fw-bolder">Cantidad Eventos: </label> <span className="mx-2 fs-5 text-muted">{`${totalEventos}`} </span>
             </div>
-          <div className="row">     
-            </div>
+          </div>  
+          <div className="row"> 
             <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
             <label className="mx-2 fs-6 fw-bolder">Placa: </label> <span className="mx-2 fs-5 text-muted">{`${Placa}`}</span>
             </div>
@@ -735,8 +735,8 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
             <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
             <label className="mx-2 fs-6 fw-bolder">Cantidad Eventos: </label> <span className="mx-2 fs-5 text-muted">{`${totalEventos}`} </span>
             </div>
-          <div className="row">     
-            </div>
+          </div>  
+          <div className="row"> 
             <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
             <label className="mx-2 fs-6 fw-bolder">Placa: </label> <span className="mx-2 fs-5 text-muted">{`${Placa}`}</span>
             </div>
