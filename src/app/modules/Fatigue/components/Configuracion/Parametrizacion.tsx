@@ -9,8 +9,8 @@ import BlockUi from "@availity/block-ui";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
-import { GetClientesFatiga, GetEventos, getConfiguraciones, setConfiguraciones } from "../../data/Configuracion";
-import { Check, Edit } from "@mui/icons-material";
+import { FiltrosData, GetClientesFatiga, GetEventos, GetEventosColumnas, getConfiguraciones, setConfiguraciones } from "../../data/Configuracion";
+import { Check, ConstructionOutlined, Edit } from "@mui/icons-material";
 import { Box, IconButton, Tooltip } from "@mui/material";
 
 
@@ -20,7 +20,7 @@ export default function Parametrizacion() {
     const [NombreSelectEvent, setNombreSelectEvent] = useState("");
     const [NombeCondicion, setNombreCondicionEvent] = useState("");
     const [lstClientes, setLstClientes] = useState<ClientesFatiga[]>([]);
-    const [clienteSeleccionado, setclienteSeleccionado] = useState<ClientesFatiga>();
+    const [clienteSeleccionado, setclienteSeleccionado] = useState<ClientesFatiga>({ClienteIdS:0, ClienteId:0, clienteNombre:""});
     const [Cliente, setCliente] = useState("");
     const [eventoSeleccionado, seteventoSeleccionado] = useState<EventoActivo>();
     const [Tiempo, setTiempo] = useState("");
@@ -139,7 +139,7 @@ export default function Parametrizacion() {
     }
     function CargaListadoClientes() {
         return (
-            <Form.Select defaultValue={0} className=" mb-3 " onChange={(e) => {
+            <Form.Select  className=" mb-3 " onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
                 let cliente = lstClientes.filter((value, index) => {
                     return value.ClienteIdS === Number.parseInt(e.currentTarget.value)
@@ -147,13 +147,10 @@ export default function Parametrizacion() {
                 })
                 setclienteSeleccionado(cliente[0]);
                 if(cliente[0] != undefined){
-                    let _dt = Data.filter((D) =>{
-                        if(D.clienteId == cliente[0].ClienteId)
-                        return D;
-                    })
+                    let _dt:any = FiltrosData.getEventos(Data, cliente[0].ClienteId);
                     setFiltrado(true)
                     setDataFilltrada(_dt);
-                }else
+                 }else
                 setFiltrado(false);
                 setCliente((cliente[0] == undefined ? "" : cliente[0].ClienteId.toString()));
                 ObtenerEventos((cliente[0] == undefined ? "" : cliente[0].ClienteId.toString()));
@@ -186,7 +183,7 @@ export default function Parametrizacion() {
 
     function CargaListadoEventos() {
         return (
-            <Form.Select defaultValue={0} className=" mb-3 " onChange={(e) => {
+            <Form.Select className=" mb-3 " onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
                 let evento = tempEventos.filter((value, index) => {
                     return value.EventId === e.currentTarget.value//Number.parseInt(e.currentTarget.value)
@@ -258,10 +255,11 @@ export default function Parametrizacion() {
     const EditarCampos = (row: any) => {
         setTitulo(`Edicion de configuración para ${row.original.clienteNombre}`)
         setNombreCondicionEvent(row.original.nombre);
-        setEventosActivos(row.original.condicion.split(","))
-        setEventosActivosNombres(row.original.columna.split(","));
+        setEventosActivos(row.original.condicion.split(","));
+        (row.original.columna == null ? ObtenerColumnas(row.original.condicion):setEventosActivosNombres( row.original.columna.split(",")));
         setTiempo(row.original.tiempo);
         setCliente(row.original.clienteId);
+        ObtenerEventos((row.original.clienteId == undefined ? "" : row.original.clienteId));
         setconfiguracionAlertaId(row.original.configuracionAlertaId);
         setMostrar(false);
         setClave("2");
@@ -315,6 +313,22 @@ export default function Parametrizacion() {
             })
         }, `¿Esta seguro que desea cambiar el estado?`, 'Cambiar');
     }
+
+    //Solo se ejecuta si no se guardo la descripcion de los eventos en la condiciones pasa el string de los eventos
+    const ObtenerColumnas = (Eventos:any) =>{
+        GetEventosColumnas(Eventos).then((response:AxiosResponse<any>) =>{
+            if(response.statusText == "OK"){
+                let Lista = JSON.parse(response.data[0].Eventos);
+                let a  = Lista.map((e:any) =>{
+                    return e.Evento;
+                });
+                setEventosActivosNombres(a);
+            }
+        }).catch((error:any) =>{
+            console.log("error: ", error)
+        });
+    }
+    
     return (
         <>
             <PageTitle>Parametrización</PageTitle>
@@ -464,7 +478,7 @@ export default function Parametrizacion() {
                                 </div>
                                 <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
                                     {
-                                        (EventosActivos.length > 0) && (
+                                        (EventosActivos.length > 0)  && (EventosActivosNombres.length != 0) && (
                                             <table className="table w-100">
                                                 <thead>
                                                     <tr>

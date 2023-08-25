@@ -81,5 +81,5 @@ export const TX_GetSnapShotTransmision = `${apiURLDWH}/Tx/GetSnapShotTransmision
 export const BASES_getDetalleListas = `${apiURLDWH}/Bases/getDetalleListas`
 
 /*Parametros de configuracion fatigue*/
-export const urlFatigueSetConfiguracionAlerta = `${apiURL}/Fatigue/SetConfiguracionAlerta`
-export const urlFatigueGetConfiguracionAlerta = `${apiURL}/Fatigue/GetConfiguracionAlerta`
+export const urlFatigueSetConfiguracionAlerta = `${apiURLDWH}/Fatigue/SetConfiguracionAlerta`
+export const urlFatigueGetConfiguracionAlerta = `${apiURLDWH}/Fatigue/GetConfiguracionAlerta`
