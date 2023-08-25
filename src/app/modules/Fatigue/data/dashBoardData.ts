@@ -3,7 +3,7 @@ import moment from "moment";
 
 import {  DWH_getconsultadinamicasprocedure, DWH_GetConsultasDinamicas } from "../../../../apiurlstore";
 import { ParamsEndPointDynamic } from "../../../../_start/helpers/Models/paramsConsultasDinamicas";
-import { Post_GetConsultasDinamicasCore, Post_getDynamicValueProcedureDWHTabla } from "../../../../_start/helpers/Axios/DWHService";
+import { Post_GetConsultasDinamicasDWH, Post_getDynamicValueProcedureDWHTabla } from "../../../../_start/helpers/Axios/DWHService";
 import { formatViewHoraMinuto } from "../../../../_start/helpers/Helper";
 
 
@@ -80,7 +80,7 @@ export  function getEventosActivosPorDia(props: ParamsEndPointDynamic , body: an
     params["gestor"] = gestor;
     
     // hacemos la consulta 
-  return  Post_GetConsultasDinamicasCore({    
+  return  Post_GetConsultasDinamicasDWH({    
     Clase : "FATGQueryHelper",  
     NombreConsulta: "setGestor", 
     Pagina :null, 
@@ -93,7 +93,7 @@ export  function getEventosActivosPorDia(props: ParamsEndPointDynamic , body: an
     params["data"] = Observaciones;
     
     // hacemos la consulta 
-    return  Post_GetConsultasDinamicasCore({    
+    return  Post_GetConsultasDinamicasDWH({    
       Clase : "FATGQueryHelper",  
       NombreConsulta: "setObervaciones", 
       Pagina :null, 

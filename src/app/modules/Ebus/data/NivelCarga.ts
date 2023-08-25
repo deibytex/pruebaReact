@@ -1,4 +1,4 @@
-import { getClientesEBUS, getVehiculosCliente, Post_EventActiveViajesByDayAndClient, Post_GetConsultasDinamicasCore, Post_GetConsultasDinamicasUserCore, Post_GetConsultasDinamicasUserDWH, Post_getDynamicProcedureDWH, Post_GetTiempoActualizacion, Post_SetColumnasDatatable } from "../../../../_start/helpers/Axios/DWHService";
+import { getClientesEBUS, getVehiculosCliente, Post_EventActiveViajesByDayAndClient, Post_GetConsultasDinamicasDWH, Post_GetConsultasDinamicasUserCore, Post_GetConsultasDinamicasUserDWH, Post_getDynamicProcedureDWH, Post_GetTiempoActualizacion, Post_SetColumnasDatatable } from "../../../../_start/helpers/Axios/DWHService";
 
 export  function GetClientes() {
     return  getClientesEBUS();

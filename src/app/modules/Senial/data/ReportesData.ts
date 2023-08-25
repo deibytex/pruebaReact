@@ -1,5 +1,5 @@
 import { GetClientes } from "../../../../_start/helpers/Axios/CoreService";
-import {  Post_GetConsultasDinamicasCore, Post_getDynamicProcedureDWH } from "../../../../_start/helpers/Axios/DWHService";
+import {  Post_GetConsultasDinamicasDWH, Post_getDynamicProcedureDWH } from "../../../../_start/helpers/Axios/DWHService";
 
 export function GetListaClientes() {
     var params: { [id: string]: string | null | undefined;} = {};

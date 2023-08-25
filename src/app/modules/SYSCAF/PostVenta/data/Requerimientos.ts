@@ -1,7 +1,7 @@
 import moment from "moment"
 import { FormatoColombiaDDMMYYY } from "../../../../../_start/helpers/Constants"
 import confirmarDialog, { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog"
-import { Post_GetConsultasDinamicasCore, Post_GetConsultasDinamicasUserCore, Post_getDynamicProcedureDWH } from "../../../../../_start/helpers/Axios/DWHService"
+import {   Post_GetConsultasDinamicasUserCore,  Post_getDynamicProcedureDWH } from "../../../../../_start/helpers/Axios/DWHService"
 import { FiltroDashBoardData } from "./PostVentaData"
 import { Usuarios } from "../mockData/indicadores"
 import { Post_getconsultadinamicas } from "../../../../../_start/helpers/Axios/CoreService"
@@ -105,7 +105,7 @@ export function SetDiagnostico(Datos:any){
     params["Observaciones"] = Datos.Observaciones;
     params["Estado"] = Datos.Estado;
     params["Id"] = String(Datos.Id);
-    return Post_GetConsultasDinamicasUser({
+    return Post_GetConsultasDinamicasUserCore({
         NombreConsulta: "setDiagnostico", Clase: "GOIQueryHelper",
         Pagina: null,
         RecordsPorPagina: null
@@ -116,7 +116,7 @@ export function SetDiagnostico(Datos:any){
 export function GetConfiguracion(Sigla:any|null){
     var params: { [id: string]: string | null | undefined; } = {};
     params["Sigla"] = Sigla;
-    return Post_GetConsultasDinamicasUser({
+    return Post_GetConsultasDinamicasUserCore({
         NombreConsulta: "GetConfiguracion", Clase: "GOIQueryHelper",
         Pagina: null,
         RecordsPorPagina: null

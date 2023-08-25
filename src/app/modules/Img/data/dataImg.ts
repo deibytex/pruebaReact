@@ -1,5 +1,5 @@
 import axios from "axios";
-import {  Post_GetConsultasDinamicasCore } from "../../../../_start/helpers/Axios/DWHService";
+import {  Post_GetConsultasDinamicasDWH } from "../../../../_start/helpers/Axios/DWHService";
 import { DWH_getconsultadinamicasprocedure } from "../../../../apiurlstore";
 import { GetClientes } from "../../../../_start/helpers/Axios/CoreService";
 
@@ -17,7 +17,7 @@ export  function getClientesSeleccionado(usuarioIdS: string){
     params["tipoPreferencia"] = tipoPreferencia;
     
     // hacemos la consulta 
-    return  Post_GetConsultasDinamicasCore({    
+    return  Post_GetConsultasDinamicasDWH({    
       Clase : "PortalQueryHelper",  
       NombreConsulta: "getPreferenciasDescarga", 
       Pagina :null, 
