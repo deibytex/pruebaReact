@@ -560,18 +560,18 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
         </Modal.Header>
         <Modal.Body>
           <div className="row">
-            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-            <label className="mx-2 fs-6 fw-bolder">Alerta: </label> <span className="mx-2 fs-5 text-muted">{`${Alerta}`}</span>           
+            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+            <label className="mx-2 fs-6 fw-bolder">Alerta: </label> <span className="mx-1 fs-5 text-muted">{`${Alerta}`}</span>           
             </div>
-            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
             <label className="mx-2 fs-6 fw-bolder">Fecha Ultimo Evento: </label> <span className="mx-2 fs-5 text-muted">{`${fechaEvento}`} </span>
             </div>
-            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
             <label className="mx-2 fs-6 fw-bolder">Cantidad Eventos: </label> <span className="mx-2 fs-5 text-muted">{`${totalEventos}`} </span>
             </div>
           <div className="row">     
             </div>
-            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
             <label className="mx-2 fs-6 fw-bolder">Placa: </label> <span className="mx-2 fs-5 text-muted">{`${Placa}`}</span>
             </div>
             <div className="col-sm-8 col-xl-8 col-md-8 col-lg-8">
@@ -726,18 +726,18 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
         </Modal.Header>
         <Modal.Body>
           <div className="row">
-            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-            <label className="mx-2 fs-6 fw-bolder">Alerta: </label> <span className="mx-2 fs-5 text-muted">{`${Alerta}`}</span>           
+            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+            <label className="mx-2 fs-6 fw-bolder">Alerta: </label> <span className="mx-1 fs-5 text-muted">{`${Alerta}`}</span>           
             </div>
-            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
             <label className="mx-2 fs-6 fw-bolder">Fecha Ultimo Evento: </label> <span className="mx-2 fs-5 text-muted">{`${fechaEvento}`} </span>
             </div>
-            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
             <label className="mx-2 fs-6 fw-bolder">Cantidad Eventos: </label> <span className="mx-2 fs-5 text-muted">{`${totalEventos}`} </span>
             </div>
           <div className="row">     
             </div>
-            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
             <label className="mx-2 fs-6 fw-bolder">Placa: </label> <span className="mx-2 fs-5 text-muted">{`${Placa}`}</span>
             </div>
             <div className="col-sm-8 col-xl-8 col-md-8 col-lg-8">
