@@ -39,11 +39,7 @@ export default function Creacion() {
     );
     const vUser = user as UserModelSyscaf;
     //Para saber que usuario ingreso a la cuenta,
-    const [UserCount, setUserCount] = useState<any>(
-        Usuarios.filter((e:any) =>{
-            return e.UserId == vUser.Id;
-        })
-    );
+    const [UserCount, setUserCount] = useState<any[]>([]);
     // DESCRIPCION PARA EL ENVIO DE NOTIFICACIONES.
     const [TextoNotificacion,setTextoNoticacion] = useState<string>("Hola {UsuarioDestino}, Estás siendo notificado porque el administrador {Admin} te ha asignado el requerimiento {Consecutivo}. Por favor, revisa información. Saludos cordiales.");
     const [TextoNotificacionAmin,setTextoNoticacionAmin] = useState<string>("Hola {Admin}, Estás siendo notificado porque el agente {UsuarioDestino} ha dado por resuelto el requerimiento {Consecutivo}. Por favor, revisa información. Saludos cordiales.");
@@ -284,16 +280,17 @@ export default function Creacion() {
                 Cell({ cell, column, row, table, }) {
                     return <div style={{display: 'contents'}}>
                             <FormControl>
-                                <FormLabel id="demo-radio-buttons-group-label">¿Diagnostico positivo?</FormLabel>
+                                {/* <FormLabel id="demo-radio-buttons-group-label">¿Diagnostico positivo?</FormLabel> */}
                                 <RadioGroup
                                     aria-labelledby="demo-radio-buttons-group-label"
                                     defaultValue={row.original.Estado}
                                     name="radio-buttons-group"
                                     id={`${row.original.id}`}
+                                    style={{display: 'block'}}
                                 >
-                                    <FormControlLabel value={row.original.Estado} control={<Radio value={"Si"}  id={`${row.original.id}`}  onChange={CambioEstado} />} label="Si" />
-                                    <FormControlLabel value={!row.original.Estado} control={<Radio value={"No"} id={`${row.original.id}`} onChange={CambioEstado} />} label="No" />
-                                    <FormControlLabel value={null} control={<Radio  onChange={CambioEstado}  id={`${row.original.id}`} value={``} />} label="Otro" />
+                                    <FormControlLabel value={row.original.Estado} control={<Radio disabled={row.original.disabledstate} value={"Si"}  id={`${row.original.id}`}  onChange={CambioEstado} />} label="Si" />
+                                    <FormControlLabel value={!row.original.Estado} control={<Radio disabled={row.original.disabledstate} value={"No"} id={`${row.original.id}`} onChange={CambioEstado} />} label="No" />
+                                    {/* <FormControlLabel value={null} control={<Radio  onChange={CambioEstado}  id={`${row.original.id}`} value={``} />} label="Otro" /> */}
                                 </RadioGroup>
                             </FormControl>
                         </div>  
@@ -303,27 +300,32 @@ export default function Creacion() {
                 accessorKey: 'observaciones',
                 header: 'Observación',
                 Cell({ cell, column, row, table, }) {
-                    return <div> {
-                                    (row.original.observaciones == "si" ? 
-                                        <input type="text" className="form-control input input-sm" data-rel={`${row.original.id}`} value={row.original.RespuestaObservacion} onChange={CambioObs} placeholder="Observación"></input>
-                                        :
-                                (row.original.observaciones == "si-obligatorio" ?
-                                    <input type="text" className="form-control input input-sm" data-rel={`${row.original.id}`} value={row.original.RespuestaObservacion} onChange={CambioObs} placeholder="Observación"></input>
-                                    :
-                                <div></div>
-                                ))
-                            }</div>
+                    return <Form.Select 
+                    disabled={row.original.disabledobs}
+                    title="Seleccione una observacion" 
+                    style={{ height: '40px' }} 
+                    className="input-sm  mb-3 mt-3 " 
+                    onChange={Selecione} 
+                    defaultValue={row.original.RespuestaObservacion}
+                    id={`${row.original.id}`} 
+                    aria-label="Default select example">
+                        <option value={"Seleccione"}>Seleccione</option>
+                        {
+                            row.original.observaciones.split(",").map((element: any) => {
+                                let flag = (element.Estado === EstadoSeleccionado.Estado)
+                                return (<option selected={flag} key={element} defaultValue={element} value={element}>{element}</option>)
+                            })
+                        }
+                    </Form.Select>
                 },
             },
             {
                 accessorKey: 'order',
                 header: 'orden',
                 enableHiding:true,
-                
             }
-           
         ];
-        const PreguntasModelo = (row:any) =>{
+    const PreguntasModelo = (row:any) =>{
             switch(row.original.tipo) {
                 case 'check' || 'Check Box' || 'CheckBox' || 'checkbox':
                     return   <input 
@@ -343,7 +345,7 @@ export default function Creacion() {
                                 title="Seleccione una respuesta" 
                                 style={{ height: '40px' }} 
                                 className="input-sm  mb-3 mt-3 " 
-                                onChange={Selecione} 
+                                onChange={SelecioneRespuesta} 
                                 defaultValue={row.original.Respuesta}
                                 id={`${row.original.id}`} 
                                 aria-label="Default select example">
@@ -367,22 +369,32 @@ export default function Creacion() {
                     />
                    break;
               }
-        }
-        //Seleccion 
-        const Selecione = (e:any) =>{
-            let listado = [...ListadoDLPRespuesta];
-            setListadoDLPRespuesta(listado.map((a: any) => {
-                a.Respuesta = (a.id==e.currentTarget.attributes['id'].value ?e.target.value: a.Respuesta);
-                return a;
-            }));
-
-           
-        }
+        } 
+        //Seleccion  Para las preguntas
+    const SelecioneRespuesta = (e:any) =>{
+        let listado = [...ListadoDLPRespuesta];
+        setListadoDLPRespuesta(listado.map((a: any) => {
+            a.Respuesta = (a.id==e.currentTarget.attributes['id'].value ?e.target.value: a.Respuesta);
+            return a;
+        }));
+    }
+    //PARA LAS OBSERVACIONES
+    const Selecione = (e:any) =>{
+        let listado = [...ListadoDLPRespuesta];
+        setListadoDLPRespuesta(listado.map((a: any) => {
+            a.RespuestaObservacion = (a.id==e.currentTarget.attributes['id'].value ?e.target.value: a.RespuestaObservacion);
+            return a;
+        }));
+    }
         //PARA TOMAR EL VALOR DE LAS RESPUESTA SI EX CHECK
     const Click = (e:any) =>{
             let listado = [...ListadoDLPRespuesta];
             setListadoDLPRespuesta(listado.map((a: any) => {
-                a.Respuesta = (a.id==e.currentTarget.attributes['id'].value ?e.target.checked: a.Respuesta);
+                if( a.id==e.currentTarget.attributes['id'].value){
+                    a.Respuesta = e.target.checked;
+                    a.disabledstate = (e.target.checked ? false:true);
+                    a.disabledobs = (a.Estado != "" && e.target.checked ? false :true)
+                }
                 return a;
             }));
         }
@@ -394,20 +406,12 @@ export default function Creacion() {
                 return a;
             }));
         }
-        //PARA LAS OBSERVACIONES
-    const CambioObs = (e:any) =>{
-            let listado = [...ListadoDLPRespuesta];
-            setListadoDLPRespuesta(listado.map((a: any) => {
-                a.RespuestaObservacion = (a.id==e.currentTarget.attributes['data-rel'].value ?e.target.value: a.RespuestaObservacion);
-                return a;
-            }));
-        }
         //PARA SABER SI ESTA BIEN O NO EL DIAGNOSTICO
     const CambioEstado = (e:any) =>{
-            let f = e.currentTarget.attributes['value'].value;
             let listado = [...ListadoDLPRespuesta];
             setListadoDLPRespuesta(listado.map((a: any) => {
-                a.Estado = (a.id==e.currentTarget.attributes['id'].value ?(e.currentTarget.attributes['value'].value == "Si" ? true:false): a.Estado);
+                a.Estado = (a.id==e.currentTarget.attributes['id'].value ? (e.currentTarget.attributes['value'].value == "Si" ? true:false): a.Estado);
+                a.disabledobs = ((a.id==e.currentTarget.attributes['id'].value && e.target.checked && !e.disabledstate) ? false:true);
                 return a;
             }));
         }
@@ -515,14 +519,15 @@ export default function Creacion() {
             datosfiltrados = FiltroData.getFiltrobyEstados(datosfiltrados, EstadoSeleccionado.Estado);
         if (ClienteSeleccionado.ClienteId != undefined && ClienteSeleccionado.ClienteId != "Todos")
             datosfiltrados = FiltroData.getFiltrobyCliente(datosfiltrados, ClienteSeleccionado.ClienteId);
-
+            
+        let Usuario = (UserCount.length != 0 ? UserCount[0].UserId: "");
         // SE HACE SWITCH Entre tabs para cambiar informacion segun se requiera.
         //Y SE HACE RENDER A UNA SOLA TABLA PARA QUE EN LA CONSOLA NO SALGAN ERRORES.
         switch (tabSel) {
             case 0:
             default:
                 //PintarIndicadores(datosfiltrados);
-                let FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,vUser.Id);
+                let FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
                 setDatosTabla((FiltradoGestor == undefined ? []:FiltradoGestor));
                 setShowTablaTodos(true);
                 setShowTablaCerradas(false);
@@ -531,7 +536,7 @@ export default function Creacion() {
                 setshowTablaSinAsginar(false);
                 break;
             case 1:
-                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,vUser.Id);
+                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
                 setDatosTabla(FiltroData.getAsignados((FiltradoGestor == undefined ? []:FiltradoGestor),
                 Asignados));
                 setShowTablaTodos(false);
@@ -541,7 +546,7 @@ export default function Creacion() {
                 setshowTablaSinAsginar(false);
                 break;
             case 2:
-                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,vUser.Id);
+                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
                     setDatosTabla(FiltroData.getNoAsignados((FiltradoGestor == undefined ? []:FiltradoGestor),
                        `${EventosCreados}, ${SinAsignar}`));
                     setshowTablaSinAsginar(true);
@@ -551,7 +556,7 @@ export default function Creacion() {
                     setShowTablaReporte(false);
                     break;
             case 3:
-                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,vUser.Id);
+                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
                 setDatosTabla(FiltroData.getCerrados((FiltradoGestor == undefined ? []:FiltradoGestor),
                 Resueltos));
                 setShowTablaTodos(false);
@@ -561,7 +566,7 @@ export default function Creacion() {
                 setshowTablaSinAsginar(false);
                 break;
             case 4:
-                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,vUser.Id);
+                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
                 let reporte = FiltroData.getReporte((FiltradoGestor == undefined ? []:FiltradoGestor));
                 let DatosReporte: any[] = [];
                 Object.entries(reporte).map((elem: any) => {
@@ -587,13 +592,14 @@ export default function Creacion() {
             setDatosReporte([]);
         }
     }, [tabSel, AgentesSeleccionado, ClienteSeleccionado, EstadoSeleccionado])
-
    // A ver si funciona
     useEffect(() => {
         // te traes la informaci'on almacenada y verificas que no tenga datos
         let listado = [...ListadoDLP];
         setListadoDLPRespuesta(listado.map((a: any, index:any) => {
             a.Respuesta = (a.tipo =="check" ? false:"") ;
+            a.disabledstate = true;
+            a.disabledobs = true;
             a.Estado = "";
             a.RespuestaObservacion = "";
             if (Diagnostico.length > 0) {
@@ -639,9 +645,18 @@ export default function Creacion() {
     },[EventosCreados,EventosEnSoporte,Asignados, SinAsignar, Resueltos])
     //PAra actualizar el listado de usuarios
     useEffect(() =>{
-        if(Usuarios.length != 0)
-            setUserCount(Usuarios);
+        if(Usuarios.length != 0){
+            setUserCount(Usuarios.filter((e:any) =>{
+                return e.UserId == vUser.Id;
+            }));
+           
+        }
+            
     },[Usuarios])
+    //Para mostrar la info una vez carguen los usuarios
+    useEffect(() =>{
+        FiltroDatos();
+    },[UserCount])
     //FUNCION PARA VALIDAR LAS FECHAS
     let ValidarFechas = (Range: Date[]) => {
         let Tiporeporte = [...TipoReporte];
@@ -826,7 +841,16 @@ export default function Creacion() {
         //Usuario
         let Usuario = Cabeceras.map((e: any) => (e.UsuarioId));
         let _admin = Cabeceras.map((e: any) => ({"Administrador":e.administrador,"Id":e.UsuarioAdministradorId }) );
-        let Seleccion = Usuarios.filter((u: any) => {
+        let User:any[]=[];
+         //Para que no pueda asignarle el req a otro asesor. sino la primera vez a el.
+        if(!UserCount[0].EsGestor)
+            User = Usuarios.filter((u: any) => {
+                return u.UserId == UserCount[0].UserId;
+            });
+        else
+            User = Usuarios;
+
+        let Seleccion = User.filter((u: any) => {
             return u.UserId == Usuario[0];
         });
         setUsuarioSeleccionado((Seleccion.length !=0 ?  Seleccion[0]:{ Nombres: "Seleccione", UserId: "0" }));
@@ -835,8 +859,8 @@ export default function Creacion() {
         let EstadoSelect = EstadoRequerimientos.filter((e: any) => {
             return e.label == (Estado.label == undefined ? Estado : Estado.label);
         });
-        //Para que no pueda asignarle el req a otro asesor. sino la primera vez a el.
-        setdisable((EstadoSelect.length != 0 && EstadoSelect[0].label != EventosCreados ? true:false ));
+       
+       
 
         let a = EstadoSelect.map((data:any) => {
             return data.flujo;
@@ -1180,7 +1204,7 @@ export default function Creacion() {
                             </IconButton>
                         </Tooltip>)}
                         {/* Permite asignarlo siempre y cuando este en estado creado sino no lo asigna a soporte*/}
-                        {(FiltroData.getIsActivoMod(row, EventosCreados) && (vUser.perfil === PerfilSuperAdmin || vUser.perfil === PerfilEmpleado) && FiltroData.getIsUsuarioSoporte(UserCount[0].UserId)) && (<Tooltip arrow placement="right" title="Asignar requerimiento">
+                        {(FiltroData.getIsActivoMod(row, EventosCreados) && (vUser.perfil === PerfilSuperAdmin || vUser.perfil === PerfilEmpleado) && FiltroData.getIsUsuarioSoporte(UserCount[0].UserId, Usuarios)) && (<Tooltip arrow placement="right" title="Asignar requerimiento">
                             <IconButton onClick={() => {
                                 Asignacion(row);
                             }}>
