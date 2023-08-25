@@ -5,6 +5,7 @@ import XLSX from 'sheetjs-style';
 import { FormatoColombiaDDMMYYYHHmmss } from "../Constants";
 import { errorDialog } from "./ConfirmDialog";
 import { locateFormatNumberNDijitos, locateFormatPercentNDijitos } from "../Helper";
+
 export function DescargarExcel(datos: any[], columnas: MRT_ColumnDef<any>[], NombreArchivo: string) {
     const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;carset=UTF-8';
     const fileExtension = '.xlsx';
