@@ -74,6 +74,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
   const [esgestionado, setesgestionado] = useState(false);
 
   const [Placa, setPlaca] = useState("");
+  const [conductor, setconductor] = useState("");
   const [Alerta, setAlerta] = useState("");
   const [fechaEvento, setfechaEvento] = useState("");
   const [totalEventos, settotalEventos] = useState("");
@@ -359,6 +360,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
     let alertaId: number = row.AlertaId;
 
     setPlaca(row.vehiculo);
+    setconductor(row.conductor);
     setAlerta(row.TipoAlerta);
     setfechaEvento(moment(JSON.parse(row.DetalladoEventos).at(-1).EventDateTime as Date).format(FormatoColombiaDDMMYYYHHmm));
     settotalEventos(JSON.parse(row.DetalladoEventos).length)
@@ -400,6 +402,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
     setalertaId(row.AlertaId);
     setesgestionado(row.EstadoGestion);
     setPlaca(row.vehiculo);
+    setconductor(row.conductor);
     setAlerta(row.TipoAlerta);
     setfechaEvento(moment(JSON.parse(row.DetalladoEventos).at(-1).EventDateTime as Date).format(FormatoColombiaDDMMYYYHHmm));
     settotalEventos(JSON.parse(row.DetalladoEventos).length)
@@ -409,6 +412,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
 
   const modalDetalleEventos = (row: any) => {
     setPlaca(row.vehiculo);
+    setconductor(row.conductor);
     setAlerta(row.TipoAlerta);
     setdetalleEventos(row.DetalladoEventos);
     setfechaEvento(moment(JSON.parse(row.DetalladoEventos).at(-1).EventDateTime as Date).format(FormatoColombiaDDMMYYYHHmm));
@@ -556,19 +560,22 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
         </Modal.Header>
         <Modal.Body>
           <div className="row">
-            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-            <label className="mx-4 fs-6 fw-bolder">Alerta: </label> <span className="mx-4 fs-5 text-muted">{`${Alerta}`}</span>
+            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+            <label className="mx-2 fs-6 fw-bolder">Alerta: </label> <span className="mx-2 fs-5 text-muted">{`${Alerta}`}</span>           
             </div>
-            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-            <label className="mx-4 fs-6 fw-bolder">Placa: </label> <span className="mx-4 fs-5 text-muted">{`${Placa}`}</span>
+            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+            <label className="mx-2 fs-6 fw-bolder">Fecha Ultimo Evento: </label> <span className="mx-2 fs-5 text-muted">{`${fechaEvento}`} </span>
             </div>
-          </div>
-          <div className="row">
-            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-            <label className="mx-4 fs-6 fw-bolder">Fecha Ultimo Evento: </label> <span className="mx-4 fs-5 text-muted">{`${fechaEvento}`} </span>
+            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+            <label className="mx-2 fs-6 fw-bolder">Cantidad Eventos: </label> <span className="mx-2 fs-5 text-muted">{`${totalEventos}`} </span>
             </div>
-            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-            <label className="mx-4 fs-6 fw-bolder">Cantidad Eventos: </label> <span className="mx-4 fs-5 text-muted">{`${totalEventos}`} </span>
+          <div className="row">     
+            </div>
+            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+            <label className="mx-2 fs-6 fw-bolder">Placa: </label> <span className="mx-2 fs-5 text-muted">{`${Placa}`}</span>
+            </div>
+            <div className="col-sm-8 col-xl-8 col-md-8 col-lg-8">
+            <label className="mx-2 fs-6 fw-bolder">Conductor: </label> <span className="mx-2 fs-5 text-muted">{`${conductor}`}</span>
             </div>
           </div>
         </Modal.Body>
@@ -719,19 +726,22 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
         </Modal.Header>
         <Modal.Body>
           <div className="row">
-            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-            <label className="mx-4 fs-6 fw-bolder">Alerta:</label> <span className="mx-4 fs-5 text-muted">{`${Alerta}`}</span>
+            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+            <label className="mx-2 fs-6 fw-bolder">Alerta: </label> <span className="mx-2 fs-5 text-muted">{`${Alerta}`}</span>           
             </div>
-            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-            <label className="mx-4 fs-6 fw-bolder">Placa:</label> <span className="mx-4 fs-5 text-muted">{`${Placa}`}</span>
+            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+            <label className="mx-2 fs-6 fw-bolder">Fecha Ultimo Evento: </label> <span className="mx-2 fs-5 text-muted">{`${fechaEvento}`} </span>
             </div>
-          </div>
-          <div className="row">
-            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-            <label className="mx-4 fs-6 fw-bolder">Fecha Ultimo Evento:</label> <span className="mx-4 fs-5 text-muted">{`${fechaEvento}`} </span>
+            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+            <label className="mx-2 fs-6 fw-bolder">Cantidad Eventos: </label> <span className="mx-2 fs-5 text-muted">{`${totalEventos}`} </span>
             </div>
-            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-            <label className="mx-4 fs-6 fw-bolder">Cantidad Eventos:</label> <span className="mx-4 fs-5 text-muted">{`${totalEventos}`} </span>
+          <div className="row">     
+            </div>
+            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+            <label className="mx-2 fs-6 fw-bolder">Placa: </label> <span className="mx-2 fs-5 text-muted">{`${Placa}`}</span>
+            </div>
+            <div className="col-sm-8 col-xl-8 col-md-8 col-lg-8">
+            <label className="mx-2 fs-6 fw-bolder">Conductor: </label> <span className="mx-2 fs-5 text-muted">{`${conductor}`}</span>
             </div>
           </div>
         </Modal.Body>
