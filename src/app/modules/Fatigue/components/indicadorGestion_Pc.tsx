@@ -16,9 +16,11 @@ const IndicadorGestion: React.FC<Props> = ({ className, innerPadding = "" }) => 
   const [totalAlertasSinGestion, settotalAlertasSinGestion] = useState(0);
 
   useEffect(() => {
-    settotalAlertas(alertas.length);
 
-    let filtersingestion = (alertas).filter((est: any) => est.EstadoGestion == null);
+    let alertasCriticas = (alertas).filter((est: any) => est.Criticidad == "Riesgo alto");
+    settotalAlertas(alertasCriticas.length);
+
+    let filtersingestion = (alertasCriticas).filter((est: any) => est.EstadoGestion == null);
 
     settotalAlertasSinGestion(filtersingestion.length);
   }, [alertas])

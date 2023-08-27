@@ -31,6 +31,20 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
   const refChart = useRef<ReactApexChart>(null);
   const { listadoEventosActivos, DataAlertas, DataDetallado, loader, activeTab, alertas, setActiveTab } = useDataFatigue();
 
+  const [totalCriticos, settotalCriticos] = useState(0);
+  const [totalModerados, settotalModerados] = useState(0);
+  const [totalBajos, settotalBajos] = useState(0);
+  const [totalEnGestion, settotalEnGestion] = useState(0);
+  const [totalGestionados, settotalGestionados] = useState(0);
+
+  useEffect(() => {    
+    settotalCriticos(alertas.filter((item: any) => item.Criticidad == "Riesgo alto" && item.EstadoGestion == null).length);
+    settotalModerados(alertas.filter((item: any) => item.Criticidad == "Riesgo moderado" && item.EstadoGestion == null).length);  
+    settotalBajos(alertas.filter((item: any) => item.Criticidad ==  "Riesgo bajo" && item.EstadoGestion == null).length);
+    settotalEnGestion(alertas.filter((item: any) => item.EstadoGestion == false).length); 
+    settotalGestionados(alertas.filter((item: any) => item.EstadoGestion).length);
+}, [alertas])
+
   // useefet que se ejecuta la primera vez, cuando el cliente es seleccionado 
   useEffect(() => {
     // cuando trae la informacipn de los clientes, debe traer la informacion
@@ -360,8 +374,9 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
                         <span className="nav-text text-gray-600 fw-bolder fs-6">
                           {tab.titulo}
                         </span>
-                        <span className="text-muted fw-bold d-block pt-1">
-                          {tab.subtitulo}
+                        <span className="text-muted fw-bold d-block pt-1 text-center">
+                          {idx == 1 ? `${totalCriticos}` : idx == 2 ? `${totalModerados}` : idx == 3 ? `${totalBajos}` 
+                          : idx == 4 ? `${totalEnGestion}` : idx == 5 ? `${totalGestionados}` : tab.subtitulo}
                         </span>
                       </div>
                     </a>
