@@ -3,7 +3,7 @@ import { FormatoColombiaDDMMYYY } from "../../../../../_start/helpers/Constants"
 import confirmarDialog, { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog"
 import {   Post_GetConsultasDinamicasUserCore,  Post_getDynamicProcedureDWH } from "../../../../../_start/helpers/Axios/DWHService"
 import { FiltroDashBoardData } from "./PostVentaData"
-import { Usuarios } from "../mockData/indicadores"
+// import { Usuarios } from "../mockData/indicadores"
 import { Post_getconsultadinamicas } from "../../../../../_start/helpers/Axios/CoreService"
 
 const tabReq1 = { icon: 'Equalizer', titulo: "Todos ", subtitulo: "" }
@@ -168,10 +168,10 @@ export const FiltroData = {
     getAgentes: (data: any[]) => {
         let Cabeceras = data.map((e: any) => JSON.parse(e.Cabecera));
         return Cabeceras.reduce((p, c) => {
-            let name = c[0].agente;
-            p[name] = p[name] ?? [];
-            p[name].push(c[0].UsuarioId);
-            return p;
+                let name =  c[0].agente;
+                p[name] = p[name] ?? [];
+                p[name].push(c[0].UsuarioId);
+                return p;
         }, {});
     },
     //para sacarlos estados
@@ -264,11 +264,14 @@ export const FiltroData = {
         
         return true;
     },
-    getIsUsuarioSoporte:(Usuario:any) =>{
+    getIsUsuarioSoporte:(Usuario:any,Usuarios :any) =>{
         let Existe = Usuarios.filter((f:any) =>f.UserId == Usuario);
        return (Existe.length != 0 ? true:false);
     },
-    getFiltroGestor : (data:any[], Usuario:any) =>{
+    getFiltroGestor : (data:any[], Usuario:any, Usuarios:any) =>{
+        if(Usuario == "")
+            return;
+
         let UsuarioFound = Usuarios.filter((f:any) =>f.UserId == Usuario);
         if(UsuarioFound.length != 0){
             if(UsuarioFound[0].EsGestor ==  true){
@@ -276,8 +279,8 @@ export const FiltroData = {
             }
             else
                 return data.filter((val:any) =>{
-                    let Estado =  (FiltroDashBoardData.EsJson(val.Estado)  == true ? JSON.parse(val.Estado).label : val.Estado);
-                    if(Estado == "Creado" || Estado == "Creado - Sin Asignar" || val.UsuarioId == Usuario){
+                    let Estado =  (FiltroDashBoardData.EsJson(val.Estado)  == true ? JSON.parse(val.Estado) : val.Estado);
+                    if(Estado.valor  == "1" || Estado.valor == "3" || val.UsuarioId == Usuario){
                         return val;
                     }
                  
