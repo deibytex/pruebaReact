@@ -7,7 +7,7 @@ export default function setupAxios(axios: any, store: any, token : string | null
     (config: any) => {
       
       let accessToken = token ?? localStorage.getItem("token");
-     console.log(token,localStorage.getItem("token") )
+  
       if (accessToken) {
         config.headers.Authorization = `Bearer ${accessToken}`;
       }
@@ -15,6 +15,28 @@ export default function setupAxios(axios: any, store: any, token : string | null
     },
     (err: any) => Promise.reject(err)
   );
+
+  axios.interceptors.response.use(
+    
+    function (response: any) {
+      return response
+    },
+    function (error: any) {
+      const errorResponse = error.response;
+      if (isTokenExpiredError(errorResponse)) {
+        document.location.replace('/logout');
+        //return resetTokenAndReattemptRequest(errorResponse, store);
+      }
+      return Promise.reject(error);
+    }
+  );
+
+}
+
+function isTokenExpiredError(errorResponse: any) {
+  if (errorResponse.status === 401) {
+    return true
+  }
 }
 
 

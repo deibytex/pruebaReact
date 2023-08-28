@@ -121,7 +121,7 @@ const Churn: React.FC<Props> = ({ }) => {
         let isExists = p.filter((f: any) => f.Semana == name);
 
         if (isExists.length == 0) {
-          let objeto = { Semana: name, UA: c.UA }
+          let objeto = { Semana: name, UA: c.UA, Entrada : 0, Salida:0 }
           objeto[tipo] = objeto[tipo] ?? [];
           objeto[tipo] = 1;
 
