@@ -404,6 +404,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
     setPlaca(row.vehiculo);
     setconductor(row.conductor);
     setAlerta(row.TipoAlerta);
+    setdetalleEventos(row.DetalladoEventos);
     setfechaEvento(moment(JSON.parse(row.DetalladoEventos).at(-1).EventDateTime as Date).format(FormatoColombiaDDMMYYYHHmm));
     settotalEventos(JSON.parse(row.DetalladoEventos).length)
 
@@ -666,6 +667,49 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
                   }}
                 />
               </div>
+            </Modal.Body>
+          </Tab>
+          <Tab eventKey="evetos" title={`Eventos`}>
+            <Modal.Header>
+              <Modal.Title>Detallado Eventos</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <MaterialReactTable
+                localization={MRT_Localization_ES}
+                displayColumnDefOptions={{
+                  'mrt-row-actions': {
+                    muiTableHeadCellProps: {
+                      align: 'center'
+                    }
+                  },
+                }}
+                columns={listadoEventos}
+                data={DataDetalleEventos}
+                enableTopToolbar
+                enableColumnOrdering
+                enableFilters
+                enablePagination={false}
+                enableColumnFilters={false}
+                muiToolbarAlertBannerProps={
+                  isError
+                    ? {
+                      color: 'error',
+                      children: 'Error al cargar información',
+                    }
+                    : undefined
+                }
+                onColumnFiltersChange={setColumnFilters}
+                onGlobalFilterChange={setGlobalFilter}
+                rowCount={rowCount2}
+                initialState={{ density: 'compact' }}
+                state={{
+                  columnFilters,
+                  globalFilter,
+                  isLoading,
+                  showAlertBanner: isError,
+                  showProgressBars: isRefetching
+                }}
+              />
             </Modal.Body>
           </Tab>
           <Tab eventKey="Contacto" title={`Contactos`}>
