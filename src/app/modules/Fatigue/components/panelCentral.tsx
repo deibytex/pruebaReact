@@ -12,7 +12,7 @@ import { locateFormatNumberNDijitos, locateFormatPercentNDijitos } from "../../.
 import moment from "moment";
 import { MapTab } from "./TabMap_Tab2";
 import { CardContainerEventos } from "./cardEventosAlertas";
-import { DescargarExcelPersonalizado } from "../../../../_start/helpers/components/DescargarExcel";
+import { DescargarExceFatiga } from "../../../../_start/helpers/components/DescargarExcel";
 import { MRT_ColumnDef } from "material-react-table";
 
 type Props = {
@@ -36,6 +36,9 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
   const [totalBajos, settotalBajos] = useState(0);
   const [totalEnGestion, settotalEnGestion] = useState(0);
   const [totalGestionados, settotalGestionados] = useState(0);
+
+  const [dataAlertasObservaciones, setdataAlertasObservaciones] = useState([]);
+  const [dataAlertasEventos, setdataAlertasEventos] = useState([]);
 
   useEffect(() => {    
     settotalCriticos(alertas.filter((item: any) => item.Criticidad == "Riesgo alto" && item.EstadoGestion == null).length);
@@ -242,78 +245,185 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
   }, [DataDetallado])
 
   useEffect(() => {
-   console.log(alertas);
+
+  let arrayObservaciones = new Array();
+  let arrayEventos = new Array();
+    
+  if (alertas.length != 0){
+
+    
+    alertas.forEach((element: any) => {   
+    
+        let objprincipal = { AlertaId:  element["AlertaId"],
+                             TipoAlerta: element["TipoAlerta"],
+                             vehiculo: element["vehiculo"],
+                             conductor: element["conductor"],
+                             EventDateTime: element["EventDateTime"],
+                             DetalladoEventos: element["DetalladoEventos"],
+                             EstadoGestion: element["EstadoGestion"],
+                             gestor: element["gestor"]}
+    
+        const detalle  =  JSON.parse(element["Observaciones"]);
+    
+        if(detalle == null)
+        {
+          arrayObservaciones.push(objprincipal);
+        }else{
+            detalle.forEach((element2: any) => {
+              
+              arrayObservaciones.push({...objprincipal, ...element2});
+            });
+        }
+         
+    })
+
+    setdataAlertasObservaciones(arrayObservaciones as []);
+
+    alertas.forEach((element: any) => {   
+    
+      let objprincipal = { AlertaId:  element["AlertaId"]}
+  
+      const detalle  =  JSON.parse(element["DetalladoEventos"]);
+  
+      if(detalle == null)
+      {
+          arrayEventos.push(objprincipal);
+      }else{
+          detalle.forEach((element2: any) => {
+            
+            arrayEventos.push({...objprincipal, ...element2});
+          });
+      }
+       
+  })
+
+  setdataAlertasEventos(arrayEventos as []);
+
+  }
+
   }, [alertas])
 
   //listado campos tablas
   const columnasTabla: MRT_ColumnDef<any>[]
     = [
       {
+        accessorKey: 'AlertaId',
+        header: 'Id'
+      },
+      {
         accessorKey: 'TipoAlerta',
-        header: 'Alarma',
-        size: 100
+        header: 'Alarma'
       },
       {
         accessorKey: 'vehiculo',
-        header: 'Vehículo',
-        size: 100
+        header: 'Vehículo'
       },
       {
         accessorKey: 'conductor',
-        header: 'Conductor',
-        size: 100
+        header: 'Conductor'
       }, {
         accessorKey: 'EventDateTime',
-        header: 'Fecha evento',
-        Cell({ cell, column, row, table, }) {
-
-          return (
-            <>
-              {
-                moment(row.original.EventDateTime).format('DD/MM/YYYY HH:mm:ss')
-              }
-            </>
-
-          )
-        },
-        size: 80
+        header: 'Fecha evento'
       }, {
         accessorKey: 'DetalladoEventos',
-        header: 'Cantidad eventos',
-        size: 80,
-        Cell({ cell, column, row, table, }) {
-
-
-          return (
-            <>
-              {
-                JSON.parse(row.original.DetalladoEventos).length as number
-              }
-            </>
-
-          )
-        },
+        header: 'Cantidad eventos'
       }, {
         accessorKey: 'EstadoGestion',
-        header: 'Estado',
-        size: 50,
-        Cell({ cell, column, row, table, }) {
-          return (cell.getValue() == null) ? <span className="badge bg-danger">No Gestionado</span>
-            : (cell.getValue() == true) ? <span className="badge bg-success">Gestionado</span>
-              : (cell.getValue() == false) ? <span className="badge bg-primary">En Gestion</span>
-                : <span>{row.original.EstadoGestion}</span>
-        },
+        header: 'Estado'
       },
       {
         accessorKey: 'gestor',
-        header: 'Analista',
-        size: 80,
-        Cell({ cell, column, row, table, }) {
-          return (cell.getValue() == null) ? <span>Sin Analista</span> : <span>{row.original.gestor}</span>
-        },
+        header: 'Analista'
+      },
+      {
+        accessorKey: 'fechaapertura',
+        header: 'Fecha Apertura'
+      },
+      {
+        accessorKey: 'fechagestion',
+        header: 'Fecha Gestión'
+      },
+      {
+        accessorKey: 'value',
+        header: 'Observación'
       }
 
     ];
+
+    //listado campos tablas
+  const columnasTabla2: MRT_ColumnDef<any>[]
+  = [
+    {
+      accessorKey: 'AlertaId',
+      header: 'Id'
+    },
+    // {
+    //   accessorKey: 'TipoAlerta',
+    //   header: 'Alarma'
+    // },
+    // {
+    //   accessorKey: 'vehiculo',
+    //   header: 'Vehículo'
+    // },
+    // {
+    //   accessorKey: 'conductor',
+    //   header: 'Conductor'
+    // }, {
+    //   accessorKey: 'EventDateTime',
+    //   header: 'Fecha evento'
+    // }, {
+    //   accessorKey: 'DetalladoEventos',
+    //   header: 'Cantidad eventos'
+    // }, {
+    //   accessorKey: 'EstadoGestion',
+    //   header: 'Estado'
+    // },
+    // {
+    //   accessorKey: 'gestor',
+    //   header: 'Analista'
+    // },
+    // {
+    //   accessorKey: 'EventId',
+    //   header: 'EventId'
+    // },
+    {
+      accessorKey: 'evento',
+      header: 'Evento'
+    },
+    {
+      accessorKey: 'EventDateTime',
+      header: 'EventDateTime'
+    },
+    {
+      accessorKey: 'Latitud',
+      header: 'Latitud'
+    },
+    {
+      accessorKey: 'Longitud',
+      header: 'Longitud'
+    },
+    {
+      accessorKey: 'valor',
+      header: 'Valor'
+    },
+    {
+      accessorKey: 'velocidad',
+      header: 'Km/h'
+    },
+    {
+      accessorKey: 'kilometros',
+      header: 'Odometro'
+    },
+    {
+      accessorKey: 'fecharecibido',
+      header: 'Fecha Recibido'
+    },
+    {
+      accessorKey: 'fechaactualizado',
+      header: 'Fecha Actualizado'
+    }
+
+  ];
 
   const fncReporteAlarma = [
     {
@@ -338,6 +448,13 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
         return JSON.parse(data).length
       }
     }
+    // ,{
+    //   name: 'EventId',
+
+    //   getData: (data: string) => {
+    //     return `'${data}`
+    //   }
+    // }
   ];
 
   const [tipo, settipo] = useState<any>(0);
@@ -349,7 +466,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
         <div className="card-header align-items-center border-0 mt-5">
           <div className="card-title flex-column">
             <span className="fw-bolder text-dark fs-3 ms-4 me-20">Panel de Gestión de Riesgos</span>
-            <button className="m-2 ms-20 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExcelPersonalizado(alertas, columnasTabla, `Alertas ${tipo == 0 ? "Gestión" : "Eventos"}`, fncReporteAlarma) }}>
+            <button className="m-2 ms-20 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExceFatiga(dataAlertasObservaciones, dataAlertasEventos, columnasTabla, columnasTabla2, `Alertas`, fncReporteAlarma) }}>
               <i className="bi-file-earmark-excel"></i> Descargar Gestión
             </button>
           </div>

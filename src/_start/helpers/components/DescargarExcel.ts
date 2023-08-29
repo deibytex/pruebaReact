@@ -84,7 +84,7 @@ export function DescargarExcelPersonalizado(datos: any[], columnas: MRT_ColumnDe
                 
                     Objeto[columna.header] = 
                         (fncColumna.length > 0 ? fncColumna[0].getData(value) : columna.header.includes('%') ? locateFormatPercentNDijitos(value ?? 0, 2) :
-                        (!isNaN(value)) ? value : nombreCampo == "vehiculo" ? value : ((moment(value).isValid()) ? moment(value).format(FormatoColombiaDDMMYYYHHmmss) : value));
+                        (!isNaN(value)) ? value : ((moment(value).isValid()) ? moment(value).format(FormatoColombiaDDMMYYYHHmmss) : value));
                 }
               
             });
@@ -94,6 +94,94 @@ export function DescargarExcelPersonalizado(datos: any[], columnas: MRT_ColumnDe
         })
         const ws = XLSX.utils.json_to_sheet(finaldata);
         const wb = { Sheets: { 'data': ws }, SheetNames: ['data'] };
+        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const data = new Blob([excelBuffer], { type: fileType });
+        FileSaver(data, `${NombreArchivo}${fileExtension}`);
+    } else {
+        errorDialog("No hay datos que exportar", "");
+    }
+
+
+}
+
+export function DescargarExceFatiga(datos: any[], datos2: any[], columnas: MRT_ColumnDef<any>[], columnas2: MRT_ColumnDef<any>[]
+                                    , NombreArchivo: string, lstFunciones: any[]) {
+    const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;carset=UTF-8';
+    const fileExtension = '.xlsx';
+
+    if ((datos !== undefined && datos.length > 0) && (datos2 !== undefined && datos2.length > 0)) {
+
+        let finaldata = datos.map((item: any) => {
+
+            let Objeto = {};
+            // iteramos las columnas que debemos usar
+            columnas.forEach((columna) => {
+                // verificamos que exista una funcion para cada columna
+                const fncColumna = lstFunciones.filter((fnc) => fnc.name === columna.accessorKey );
+                
+                // verifica si la columna tiene subcolumnas para pintar
+                if (columna.columns !== undefined) {
+                    columna.columns.forEach((columna2) => {
+                        let nombreCampo: string = columna2.accessorKey as string;
+                        let value = item[nombreCampo];
+                        Objeto[nombreCampo] =
+                            (columna2.header.includes('%') ? locateFormatPercentNDijitos(value, 2) :
+                                (!isNaN(value)) ? value : ((moment(value).isValid()) ? moment(value).format(FormatoColombiaDDMMYYYHHmmss) : value));
+                    });
+                }
+                else {
+                    let nombreCampo: string = columna.accessorKey as string;
+                    let value = item[nombreCampo];
+                
+                    Objeto[columna.header] = 
+                        (fncColumna.length > 0 ? fncColumna[0].getData(value) : columna.header.includes('%') ? locateFormatPercentNDijitos(value ?? 0, 2) :
+                        (!isNaN(value)) ? value : value == null ? value : 
+                        ((moment(value, true).isValid()) ? moment(value).format(FormatoColombiaDDMMYYYHHmmss) : value));
+                }
+              
+            });
+
+            return Objeto;
+
+        });
+
+        let finaldata2 = datos2.map((item: any) => {
+
+            let Objeto = {};
+            // iteramos las columnas que debemos usar
+            columnas2.forEach((columna) => {
+                // verificamos que exista una funcion para cada columna
+                const fncColumna = lstFunciones.filter((fnc) => fnc.name === columna.accessorKey );
+                
+                // verifica si la columna tiene subcolumnas para pintar
+                if (columna.columns !== undefined) {
+                    columna.columns.forEach((columna2) => {
+                        let nombreCampo: string = columna2.accessorKey as string;
+                        let value = item[nombreCampo];
+                        Objeto[nombreCampo] =
+                            (columna2.header.includes('%') ? locateFormatPercentNDijitos(value, 2) :
+                                (!isNaN(value)) ? value : ((moment(value).isValid()) ? moment(value).format(FormatoColombiaDDMMYYYHHmmss) : value));
+                    });
+                }
+                else {
+                    let nombreCampo: string = columna.accessorKey as string;
+                    let value = item[nombreCampo];
+                
+                    Objeto[columna.header] = 
+                        (fncColumna.length > 0 ? fncColumna[0].getData(value) : columna.header.includes('%') ? locateFormatPercentNDijitos(value ?? 0, 2) :
+                        (!isNaN(value)) ? value : value == null ? value : 
+                        ((moment(value, true).isValid()) ? moment(value).format(FormatoColombiaDDMMYYYHHmmss) : value));
+                }
+              
+            });
+
+            return Objeto;
+
+        });
+
+        const ws = XLSX.utils.json_to_sheet(finaldata);
+        const ws2 = XLSX.utils.json_to_sheet(finaldata2);
+        const wb = { Sheets: { 'Observaciones': ws, 'Eventos': ws2 }, SheetNames: ['Observaciones', 'Eventos'] };
         const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
         const data = new Blob([excelBuffer], { type: fileType });
         FileSaver(data, `${NombreArchivo}${fileExtension}`);

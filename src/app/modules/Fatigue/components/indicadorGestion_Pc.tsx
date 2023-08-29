@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useEffect, useState } from "react";
-import { KTSVG } from "../../../../_start/helpers";
 import { useDataFatigue } from "../core/provider";
 
 type Props = {
@@ -25,6 +24,7 @@ const IndicadorGestion: React.FC<Props> = ({ className, innerPadding = "" }) => 
     settotalAlertasSinGestion(filtersingestion.length);
   }, [alertas])
 
+
   return (
     <div className={`card ${className}`}>
       {/* begin::Body */}
@@ -32,25 +32,20 @@ const IndicadorGestion: React.FC<Props> = ({ className, innerPadding = "" }) => 
         {/* begin::Section */}
         <div className="d-flex align-items-center">
           {/* begin::Symbol */}
-          <div className="symbol symbol-50px me-5">
+          {/* <div className="symbol symbol-50px me-5">
             <span className="symbol-label bg-light-danger">
               <KTSVG
                 path="/media/icons/duotone/Home/Library.svg"
                 className="svg-icon-2x svg-icon-danger"
               />
             </span>
-          </div>
+          </div> */}
           {/* end::Symbol */}
 
           {/* begin::Title */}
           <div>
-            <a
-              href="#"
-              className="fs-4 text-gray-800 text-hover-primary fw-bolder"
-            >
-             Alertas sin Gestionar
-            </a>
-            <div className="fs-7 text-muted fw-bold mt-1"></div>
+            
+            <div className="text-gray-700 fw-bolder fs-7 mt-3 text-center">Alertas Críticas sin Gestionar</div>
           </div>
           {/* end::Title */}
         </div>
@@ -60,7 +55,7 @@ const IndicadorGestion: React.FC<Props> = ({ className, innerPadding = "" }) => 
         <div className="d-flex justify-content-around mt-10 mb-10">
         {/* begin::Dropdown */}
         <div
-          className="btn btn-icon btn-lg btn-light-danger fw-bolder pulse pulse-danger"
+          className="btn btn-icon btn-lg btn-light-danger fw-bolder pulse pulse-danger mt-3"
           data-kt-menu-trigger="click"
           data-kt-menu-placement="bottom-end"
         >

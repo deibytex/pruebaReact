@@ -139,7 +139,7 @@ export default function FatigueDashboard() {
                         <BaseIndicador className={"card-stretch mb-1 mb-xxl-2"} titulo={""} subtitulo={""}  >
 
                             {/*Contenido que quiero mostar dentro del indicador*/}
-                            <ChartDonaVehiculo className={"card-stretch mb-3 mb-xxl-4"} nameChart="Operando_Alertas" tipoData={3} titulo={"Categorización por Alertas"} />
+                            <ChartDonaVehiculo className={"card-stretch mb-3 mb-xxl-4"} nameChart="Operando_Alertas" tipoData={3} titulo={"Categorización Alertas Críticas"} />
                         </BaseIndicador>
                     </div>
                     <div className="col-xl-3">
