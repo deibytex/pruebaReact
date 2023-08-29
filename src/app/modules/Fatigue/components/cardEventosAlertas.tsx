@@ -713,7 +713,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
             </Modal.Body>
           </Tab>
           <Tab eventKey="Contacto" title={`Contactos`}>
-          <Modal.Body>
+          {/* <Modal.Body>
           <div className="row">
                 <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 mt-1">
                   <div className="">
@@ -758,7 +758,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
 
           </div>
 
-            </Modal.Body>
+            </Modal.Body> */}
             <Modal.Body>
               <MaterialReactTable
                 localization={MRT_Localization_ES}
