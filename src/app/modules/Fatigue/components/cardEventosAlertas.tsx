@@ -11,7 +11,7 @@ import type {
 } from '@tanstack/react-table';
 
 import { Box, IconButton, Tooltip } from "@mui/material";
-import { Message, VerifiedUser, Map, List } from "@mui/icons-material";
+import { Message, VerifiedUser, Map, List, DeleteForever, Edit } from "@mui/icons-material";
 import { FechaServidor } from "../../../../_start/helpers/Helper";
 import { getAlertas, setGestor, setObservaciones } from "../data/dashBoardData";
 import confirmarDialog from "../../../../_start/helpers/components/ConfirmDialog";
@@ -795,6 +795,28 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
                   showAlertBanner: isError,
                   showProgressBars: isRefetching
                 }}
+                renderRowActions={({ row, table }) => (
+
+                  <Box sx={{ display: 'flex', gap: '1rem' }}>
+                    <Tooltip arrow placement="left" title="Editar">
+                      <IconButton
+                        onClick={() => {
+                          setGestorPreoperacional(row.original);
+                        }}
+                      >
+                        <Edit />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip arrow placement="left" title="Eliminar">
+                      <IconButton onClick={() => {
+                        modalDetalleEventos(row.original);
+                      }}>
+                        <DeleteForever />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                )
+                }
               />
             </Modal.Body>
           </Tab>
