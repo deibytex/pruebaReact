@@ -670,9 +670,9 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
             </Modal.Body>
           </Tab>
           <Tab eventKey="evetos" title={`Eventos`}>
-            <Modal.Header>
+            {/* <Modal.Header>
               <Modal.Title>Detallado Eventos</Modal.Title>
-            </Modal.Header>
+            </Modal.Header> */}
             <Modal.Body>
               <MaterialReactTable
                 localization={MRT_Localization_ES}
