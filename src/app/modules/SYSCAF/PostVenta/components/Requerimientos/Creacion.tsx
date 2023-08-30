@@ -131,9 +131,6 @@ export default function Creacion() {
     const [Clientes, setClientes] = useState<any[]>([]);
     const [Agentes, setAgentes] = useState<any[]>([]);
     const [Estados, setEstados] = useState<any[]>([]);
-
- 
-
     const [AgentesSeleccionado, setAgentesSeleccionado] = useState<any>({ "Agente": "Todos", "UsuarioId": "Todos" });
     const [ClienteSeleccionado, setClienteSeleccionado] = useState<any>({ "Cliente": "Todos", "ClienteId": "Todos" });
     const [EstadoSeleccionado, setEstadoSeleccionado] = useState<any>({ "Estado": "Todos" });
@@ -143,11 +140,9 @@ export default function Creacion() {
     const [showTablaSinAsginar, setshowTablaSinAsginar] = useState<boolean>(false);
     const [showTablaReporte, setShowTablaReporte] = useState<boolean>(false);
     const [EstadosColores, setEstadosColores] = useState<any[]>([])
-   
     //Para los flujos
     const [Flujos, setFlujos] = useState<any>([]);
     const [disable, setdisable] = useState<boolean>(false);
-
     const [EventosCreados, setEventosCreados] = useState<any>("");
     const [EventosEnSoporte, setEventosEnSoporte] = useState<any>("");
     const [Asignados, setAsignados] = useState<any>("");
@@ -162,7 +157,6 @@ export default function Creacion() {
     /*============================================================================================================================================================================== */
     /** ESpacio para los tipos de estados a usar por el momento usare estos porque fueron los que se habian definido si en un posterior evento se dinamiza cambiar por estos.        */
     /*============================================================================================================================================================================== */
-
     //FIN ESPACIO CONSTANTES
     //ESPACIO PARA LOS ENCABEZADOS DE LAS TABLAS
     let Campos: MRT_ColumnDef<any>[] =
