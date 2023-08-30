@@ -50,11 +50,14 @@ export function Login() {
             
             var decoded = jwt_decode<UserModelSyscaf>(data.data.token);   
             // fecha de expiracion  
-            decoded.exp = data.data.Expiracion;       
+            decoded.exp = data.data.expiracion;             
          
             setLoading(false);
             dispatch(auth.actions.login(data.data.token, data.data.refreshToken));
             dispatch(auth.actions.setUser(decoded));
+
+            localStorage.setItem("token", data.data.token);
+            localStorage.setItem("refresh", data.data.refreshToken)
           })
           .catch((e) => {          
             setLoading(false);

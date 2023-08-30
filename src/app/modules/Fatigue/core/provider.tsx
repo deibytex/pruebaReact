@@ -1,5 +1,5 @@
 import moment from "moment";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { errorDialog } from "../../../../_start/helpers/components/ConfirmDialog";
 import { FechaServidor } from "../../../../_start/helpers/Helper";
 import { GetAlarmas, GetDetalladoEventos, getAlertas, getEventosActivosPorDia, getVehiculosOperando } from "../data/dashBoardData";
@@ -32,6 +32,8 @@ export interface FatigueContextModel {
     setloader: (loader: boolean) => void;
     UserId?: string;
     setUserId: (id: string) => void;
+    clienteIds?: string;
+    setclienteIds: (clienteid: string) => void;
 
 
 }
@@ -48,6 +50,7 @@ const FatigueContext = createContext<FatigueContextModel>({
     setDataDetalladoFiltrado: (DataAlertas: any) => { },
     setActiveTab: (tabGlobal: string) => { },
     setUserId: (id: string) => "",
+    setclienteIds: (clienteid: string) => "",
     setloader: (loader: boolean) => { }
 });
 
@@ -65,6 +68,7 @@ const FatigueProvider: React.FC = ({ children }) => {
     const [activeTab, setActiveTab] = useState<string>("#tab1");
     const [loader, setloader] = useState<boolean>(false);
     const [UserId, setUserId] = useState("");
+    const [clienteIds, setclienteIds] = useState("");
     const value: FatigueContextModel = {
         vehiculosOperacion,
         setvehiculosOperacion,
@@ -87,9 +91,11 @@ const FatigueProvider: React.FC = ({ children }) => {
         activeTab,
         setActiveTab,
         loader,
-        setloader ,UserId,
-        setUserId
-
+        setloader,
+        UserId,
+        setUserId,
+        clienteIds,
+        setclienteIds
     };
     return (
         <FatigueContext.Provider value={value}>
@@ -107,13 +113,24 @@ function useDataFatigue() {
 // segun parametrización que debe realizarse
 
 const DataVehiculoOperando: React.FC = ({ children }) => {
-    const { setvehiculosOperacion, setlistadoEventosActivos, setListadoVehiculoSinOperacion, setalertas, setError, iserror, setDataAlertas, setDataDetallado, loader, setloader } = useDataFatigue();
-    let idinterval: number = 0;
+    const { setvehiculosOperacion, setlistadoEventosActivos, setListadoVehiculoSinOperacion, setalertas, setError, iserror, setDataAlertas, setDataDetallado, loader, setloader, setclienteIds } = useDataFatigue();
+    const interval = useRef<any>();
+
+    const GetTiempo = () => {
+            let tiempo = 60000;
+
+            consultaAlertas(children as string);
+            interval.current = setInterval(() => {
+                consultaAlertas(children as string);
+            }, tiempo);
+
+       
+    }
 
     //CONSULTA VEHICULOS OPERANDO
     let consulta = (children: string) => {
         // consultamos en la base de datos la informacion de vehiculos operando
-        getVehiculosOperando(children, FechaServidor).then(
+        getVehiculosOperando(children, FechaServidor()).then(
             (response) => {
                 let datos = response.data[0];
                 // traemos la informacion del  objeto a traer y la seteamos 
@@ -128,13 +145,13 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
             setError({ accion: "DataVehiculoOperando", error });
         });
          //let datetemp = moment("2023-06-06 09:19:05.990").toDate()
-        GetAlarmas(children, FechaServidor, moment(FechaServidor).add("8", "hours").toDate()).then((response: AxiosResponse<any>) => {
+        GetAlarmas(children, FechaServidor(), moment(FechaServidor()).add("8", "hours").toDate()).then((response: AxiosResponse<any>) => {
             setDataAlertas(response.data);
         }).catch((error: any) => {
             console.log("Error : ", error);
         });
 
-        GetDetalladoEventos(children, FechaServidor).then((response: AxiosResponse<any>) => {
+        GetDetalladoEventos(children, FechaServidor()).then((response: AxiosResponse<any>) => {
             let Data = new Array()
             response.data.map((e: any) => {
                 Data = [...Data, ...JSON.parse(e.DetalladoEventos)]
@@ -144,14 +161,16 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
             console.log("Error detallado de evento: ", error);
         });
 
+        GetTiempo();
+
     }
 
     // CONSULTA EVENTOS ACTIVOS POR MINUTO
     let consultaEventsActivos = (children: string) => {
         var params: { [id: string]: string; } = {};
         params["Clienteids"] = children;
-        params["period"] = moment(FechaServidor).format("MYYYY");
-        params["Fecha"] = moment(FechaServidor).add(-1, 'days').format("YYYYMMDD");
+        params["period"] = moment(FechaServidor()).format("MYYYY");
+        params["Fecha"] = moment(FechaServidor()).add(-1, 'days').format("YYYYMMDD");
         getEventosActivosPorDia({
             Clase: "FATGQueryHelper",
             NombreConsulta: "GetEventosActivosDiario", Pagina: null, RecordsPorPagina: null
@@ -169,10 +188,10 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
     }
 
     // CONSULTA EVENTOS ACTIVOS POR MINUTO
-    let consultaAlertas = () => {
+    let consultaAlertas = (children: string) => {
         setloader(true);
         // consultamos en la base de datos la informacion de vehiculos operando
-        getAlertas().then(
+        getAlertas(children).then(
             (response) => {
                 setalertas(response.data);
                 setloader(false);
@@ -187,22 +206,20 @@ const DataVehiculoOperando: React.FC = ({ children }) => {
     useEffect(() => {
 
         if (children) {
-
-            consulta(children.toString());
-            consultaEventsActivos(children.toString());
-            consultaAlertas();
-            // si no tiene error hace el interval
-            if (iserror === null || iserror === undefined)
-                if (idinterval === 0) {
-                    idinterval = window.setInterval(() => {
-                        consulta(children.toString());
-                        consultaEventsActivos(children.toString());
-                        consultaAlertas();
-                    }, 120000)
-                }
+        
+            if (interval.current != 0)
+                clearInterval(interval.current)
+            if (children) {
+                consulta(children.toString());
+                consultaEventsActivos(children.toString());
+                consultaAlertas(children.toString());
+                setclienteIds(children.toString());
+            }
+            
         }
         return () => {
             setvehiculosOperacion([]);
+            setalertas([]);
         };
     }, [children]);
     return <></>;

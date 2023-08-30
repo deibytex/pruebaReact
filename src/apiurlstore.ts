@@ -2,7 +2,6 @@ const apiURL = process.env.REACT_APP_API_URL;
 const apiURLDWH = process.env.REACT_APP_API_DWH_URL;
 const apiURLPORTAL = process.env.REACT_APP_API_MVC_URL;
 const apiFRESHDESK = process.env.REACT_APP_FRESHDESK;
-console.log(apiURL,apiURLDWH, apiURLPORTAL )
 /*URL ACCOUNT PARA EDITAR, CREAR */
 
 export const Auth_EditarUsuario = `${apiURL}/account/editar`
@@ -21,6 +20,8 @@ export const CORE_getconsultadinamicas = `${apiURL}/Adm/auth/GetConsultasDinamic
 export const CORE_ExecProcedureByTipoConsulta = `${apiURL}/Adm/auth/ExecProcedureByTipoConsulta`
 export const CORE_getconsultadinamicasUser = `${apiURL}/Adm/auth/GetConsultasDinamicasConAutorizacionUser`
 export const CORE_getconsultadinamicasUserDWH = `${apiURL}/Adm/auth/GetConsultasDinamicasConAutorizacionUserDWH`
+export const CORE_getGruposSeguridad = `${apiURL}/Adm/ConsultarGrupoSeguridadClientes`
+export const CORE_setGrupoSeguridad = `${apiURL}/Adm/GuardarEditarGrupoSeguridad`
 
 export const getTicketsFreshdesk = `${apiFRESHDESK}/tickets`
 export const getCamposTickets = `${apiFRESHDESK}/ticket_fields`
@@ -80,5 +81,5 @@ export const TX_GetSnapShotTransmision = `${apiURLDWH}/Tx/GetSnapShotTransmision
 export const BASES_getDetalleListas = `${apiURLDWH}/Bases/getDetalleListas`
 
 /*Parametros de configuracion fatigue*/
-export const urlFatigueSetConfiguracionAlerta = `${apiURL}/Fatigue/SetConfiguracionAlerta`
-export const urlFatigueGetConfiguracionAlerta = `${apiURL}/Fatigue/GetConfiguracionAlerta`
+export const urlFatigueSetConfiguracionAlerta = `${apiURLDWH}/Fatigue/SetConfiguracionAlerta`
+export const urlFatigueGetConfiguracionAlerta = `${apiURLDWH}/Fatigue/GetConfiguracionAlerta`

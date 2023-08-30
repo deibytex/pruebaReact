@@ -9,11 +9,11 @@ export const  formatSimpleJsonColombia = "DD-MM-YYYY";
 export const  formatFechasView = "DD/MM/YYYY";
 export const  formatViewHoraMinuto = "DD/MM/YYYY HH:mm";
 
-var utcMoment = moment.tz('America/Bogota').locale('es');
-export const FechaServidor =new Date( utcMoment.format() );
-export const FechaMomentUtc =utcMoment;
-export const FechaServidorPeriodo =FechaMomentUtc.format("MYYYY");
-export const FechaServidorString=FechaMomentUtc.format(formatableJson);
+var utcMoment = () => {return moment().tz('America/Bogota').locale('es')};
+export const FechaServidor = () => {return new Date( utcMoment().format() ) };
+export const FechaMomentUtc = utcMoment;
+export const FechaServidorPeriodo =FechaMomentUtc().format("MYYYY");
+export const FechaServidorString=FechaMomentUtc().format(formatableJson);
 
 export function GetPeriodoByFecha(Fecha: any) {
 

@@ -4,13 +4,13 @@ import { FallbackView } from "../../_start/partials";
 import { Bienvenidos } from "../pages/Principal"
 import { useSelector } from "react-redux";
 import { RootState } from "../../setup";
-import { Opciones } from "../modules/auth/models/UserModel";
 import PoliticaPrivacidad from "../pages/Politica/politicaprivacidad";
-import ReportesIFrame from "../../_start/helpers/components/RenderIframe";
+import {RenderIframe}  from "../../_start/helpers/components/RenderIframe";
 import BlockUi from "react-block-ui";
 
 
 export function PrivateRoutes() {
+
   // informacion del usuario almacenado en el sistema
   const [loader, setloader] = useState<boolean>(false);
   const menu = useSelector<RootState>(
@@ -19,37 +19,41 @@ export function PrivateRoutes() {
 
   const [importedModules, setimportedModules] = useState<any[]>([]);
   useEffect(() => {
-    const lstOpciones = (menu as Opciones[]);
-    setloader(true)
-    if (lstOpciones !== undefined) {
-      let opcionesHijo = lstOpciones.filter((element) => element.controlador != null);
 
-      const componentPromises =
-        opcionesHijo.map(f => {
-          let modulo = f.accion.slice(3);
-          // importamos los compontes que el usuario necesita
-          // los demas componentes quedan dormidos
-          return import(`../${modulo}`).then(module => {
-            return <Route exact key={`${f.controlador}`} path={`${f.controlador}`} component={module.default} />
-          }).catch(() => {
-            
-            console.log(modulo) // importar pagina por defecto
-          }
-          )
-        });
+    if (importedModules.length == 0) {
+      const lstOpciones = (menu as any[]);
+      let opciones: any[] = [];
 
-      Promise.all(componentPromises).then(
-        (values) => {
-          setloader(false);
-          setimportedModules(values)
+      if (lstOpciones != undefined && lstOpciones != null) {
+        lstOpciones.map((m: any) => opciones.push(...m.opciones));
+        setloader(true)
+        if (opciones !== undefined) {
+          let opcionesHijo = opciones.filter((element) => element.Controlador != null);
+          const componentPromises =
+            opcionesHijo.filter(f => !f.Controlador.includes('/reportes/pbi')).map(f => {
+              let modulo = f.Accion.slice(3);
+              // importamos los compontes que el usuario necesita
+              // los demas componentes quedan dormidos
+              return import(`../${modulo}`).then(module => {
+                return <Route exact key={`${f.Controlador}`} path={`${f.Controlador}`} component={module.default} />
+              }).catch((e) => {
+                console.log(modulo, e) // importar pagina por defecto
+              }
+              )
+            });
 
+          Promise.all(componentPromises).then(
+            (values) => {
+              setloader(false);
+              setimportedModules(values)
+
+            }
+          ).catch(
+            (error) => { setloader(false); console.log(error) }
+          );
         }
-      ).catch(
-        (error) => {setloader(false) ; console.log(error)}
-      );
+      }
     }
-
-
     return () => {
       setimportedModules([])
     }
@@ -57,23 +61,32 @@ export function PrivateRoutes() {
 
 
 
-  const url = "https://app.powerbi.com/view?r=eyJrIjoiMjkzODk0YmItZDQwZC00NTg3LThiMjYtMmY2NmRhNjZlOGY5IiwidCI6ImU0ZWZjMTcxLTRjM2EtNDFhYS04NGUzLTViZTYyMzEyNTdjYiJ9"
   return (
     <BlockUi tag="div" keepInView blocking={loader ?? false} >
       <Suspense fallback={<FallbackView />}>
         <Switch>
-          <Redirect exact from="/" to="/bienvenido" />
-          <Redirect exact from="/auth/login" to="/bienvenido" />
-          <Route path="/bienvenido" component={Bienvenidos} />
-          <Route path="/politicaprivacidad" component={PoliticaPrivacidad} />
+        <Redirect exact from="/" to="/bienvenido" />
+        <Redirect exact from="/auth/login" to="/bienvenido" />
+              <Route path="/bienvenido" component={Bienvenidos} />
+              <Route path="/politicaprivacidad" component={PoliticaPrivacidad} />
           {(importedModules.length > 0) && (
-            <>     {importedModules}</>
+            <>
+              
+              
+              {importedModules}
+              <Route path="/reportes/pbi/:titulo/:url" render= {
+                (props) => {
+                return <RenderIframe {...props.match.params} ></RenderIframe>
+                }
+                } />
+            </>
           )
           }
-          <Route path="/reportes/bat/viajes" render={() => ReportesIFrame("Viajes", url)} />
         </Switch>
       </Suspense>
     </BlockUi>
 
   );
 }
+
+

@@ -9,10 +9,10 @@ import { ASSET_getAssets, ASSET_GetAssetsClienteId, ASSET_GetAssetsEstados, ASSE
     TX_GetListaSemana, TX_GetSnapShotTickets, TX_GetSnapShotTransmision, TX_GetUnidadesActivas } from "../../../apiurlstore";
 import { ParamsEndPointDynamic } from "../Models/paramsConsultasDinamicas";
 
-export function Post_GetConsultasDinamicas(props: ParamsEndPointDynamic, body: any) {
+export function Post_GetConsultasDinamicasDWH(props: ParamsEndPointDynamic, body: any) {
     return axios({
       method: 'post',
-      url: DWH_GetConsultasDinamicas,
+      url: DWH_getconsultadinamicasprocedure,
       data: JSON.stringify(body),
       headers: { 'Content-Type': 'application/json' },
       params: props
@@ -28,7 +28,7 @@ export function Post_GetConsultasDinamicas(props: ParamsEndPointDynamic, body: a
     });
   }
   
-  export function Post_GetConsultasDinamicasUser(props: ParamsEndPointDynamic, body: any) {
+  export function Post_GetConsultasDinamicasUserCore(props: ParamsEndPointDynamic, body: any) {
     return axios({
       method: 'post',
       url: CORE_getconsultadinamicasUser,
@@ -142,14 +142,7 @@ export function Post_GetConsultasDinamicas(props: ParamsEndPointDynamic, body: a
     });
   }
 
-  export  function GetClientes(props:any) {
-    return  axios({
-      method: 'get',
-      url: CLIENTE_GetClientes,     
-      headers: { 'Content-Type': 'application/json' },
-      params : props
-    });
-  }
+
 
   export  function GetClientesActiveEvent(props:any) {
     return  axios({

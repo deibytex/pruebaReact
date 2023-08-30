@@ -1,10 +1,9 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useEffect, useState } from "react";
 import Chart, { ChartConfiguration } from "chart.js";
-import { KTSVG, toAbsoluteUrl } from "../../../../_start/helpers";
+import { toAbsoluteUrl } from "../../../../_start/helpers";
 
 import { getCSSVariableValue } from "../../../../_start/assets/ts/_utils";
-import { datosFatigue } from "../dataFatigue";
 import { useDataFatigue } from "../core/provider";
 
 type Props = {
@@ -12,48 +11,94 @@ type Props = {
   innerPadding?: string;
   tipoData?: number;
   nameChart?: String;
-  titulo : string;
+  titulo: string;
 };
 
 const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "", tipoData = 1, nameChart = "clasificacionFlota_", titulo }) => {
-  /* console.log( datosFatigue.getTotalFlota());
-   console.log( datosFatigue.getTotalPorCriticidad());
-    console.log( datosFatigue.getTimeLine());*/
+
   const [totalDona, handlerTotalDona] = useState(0);
-  let total = 0;
-  
+
   const color1 = getCSSVariableValue("--bs-success");
   const color2 = getCSSVariableValue("--bs-warning");
   const color3 = getCSSVariableValue("--bs-primary");
   const color4 = getCSSVariableValue("--bs-danger");
- 
+  const color5 = getCSSVariableValue("--bs-blue");
+
 
   let arrayChart: number[] = [];
   let labelsArray: string[] = [];
   let colorsArray: string[] = [];
   let colorsArrayLabels: string[] = [];
 
-  const {vehiculosOperacion,alertas, ListadoVehiculoSinOperacion} = useDataFatigue() ;   
-  let objectdata = (tipoData == 1) ? vehiculosOperacion : datosFatigue.getTotalPorCriticidad(alertas ?? [],ListadoVehiculoSinOperacion, true);
+  const { vehiculosOperacion, alertas } = useDataFatigue();
+
+  const [criticidad, setcriticidad] = useState<any>({});
+  const [alertasAgrupadas, setalertasAgrupadas] = useState<any>({});
+
+  //Pintamos indicador 2 donna
+  useEffect(() => {
+
+    let agrupadocriticidad = alertas
+      .reduce((p: any, c: any) => {
+        let name = c.Criticidad;
+        p[name] = p[name] ?? [];
+        p[name].push(c);
+        return p;
+      }, {});
+
+    if (Object.keys(agrupadocriticidad).length > 0) {
+      setcriticidad({
+        "Alto": agrupadocriticidad['Riesgo alto'] == undefined ? 0 : agrupadocriticidad['Riesgo alto'].length,
+        "Moderado": agrupadocriticidad['Riesgo moderado'] == undefined ? 0 : agrupadocriticidad['Riesgo moderado'].length,
+        "Bajo": agrupadocriticidad['Riesgo bajo'] == undefined ? 0 : agrupadocriticidad['Riesgo bajo'].length
+      });
+    }
+
+    let dataFiltrada = alertas.filter((item: any) => "Riesgo alto".indexOf(item.Criticidad) > -1);
+
+    let agrupadoAlertas = dataFiltrada
+      .reduce((p: any, c: any) => {
+        let name = c.TipoAlerta;
+        p[name] = p[name] ?? [];
+        p[name].push(c);
+        return p;
+      }, {});
+
+    if (Object.keys(agrupadoAlertas).length > 0) {
+      setalertasAgrupadas({
+        "ADAS": agrupadoAlertas['ADAS'] == undefined ? 0 : agrupadoAlertas['ADAS'].length,
+        "Distracción": agrupadoAlertas['Distracción'] == undefined ? 0 : agrupadoAlertas['Distracción'].length,
+        "Diagnóstico": agrupadoAlertas['Diagnóstico'] == undefined ? 0 : agrupadoAlertas['Diagnóstico'].length,
+        "Fatiga": agrupadoAlertas['Fatiga'] == undefined ? 0 : agrupadoAlertas['Fatiga'].length,
+        "Seguridad": agrupadoAlertas['Seguridad'] == undefined ? 0 : agrupadoAlertas['Seguridad'].length
+      });
+    }
+
+  }, [alertas]);
+
+
+
+  let objectdata = (tipoData == 1) ? vehiculosOperacion : (tipoData == 2) ? criticidad: alertasAgrupadas;
 
   // segun el tipo se determina que informacion se necesita
-  if(tipoData == 1)
+
   arrayChart = Object.values(objectdata);
-  else 
-  // para la categorizacion por riesgo se usa el agrupado de los operando divididos 
-  // para mostrar la informacion en la dona
-  arrayChart = Object.entries(objectdata.operandoDivididos).map((element) =>{
-      return (element[1] as any[]).length;
-  });
-  
+
+
+
+
   // se determina de que tipo se necesita la informacion para mostrarla en los indicadores
-  labelsArray= Object.keys((tipoData == 1) ? objectdata : objectdata.operandoDivididos);
+  labelsArray = Object.keys(objectdata);
   if (tipoData == 1) {
-     colorsArray = [color1, color3];
-    colorsArrayLabels = ["success", "primary"];    
-  } else if (tipoData == 2) {   
-    colorsArray = [color4, color2,color3,color1];
-    colorsArrayLabels = ["danger", "warning", "primary", "success"]; 
+    colorsArray = [color1, color3];
+    colorsArrayLabels = ["success", "primary"];
+  } else if (tipoData == 2) {
+    colorsArray = [color4, color2, color3];
+    colorsArrayLabels = ["danger", "warning", "primary"];
+  }
+  else {
+    colorsArray = [color1, color2, color3, color4, color5];
+    colorsArrayLabels = ["success", "warning", "primary", "danger", "blue"];
   }
 
 
@@ -64,16 +109,16 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "", tipo
     if (!element) {
       return;
     }
-   
+
     // actualiza la informacion de la dona
-    let totalDona =   arrayChart.reduce((a, b) => a + b, 0);
-  
+    let totalDona = arrayChart.reduce((a, b) => a + b, 0);
+
     handlerTotalDona(totalDona);
     const options = getChartOptions(arrayChart, colorsArray, titulo, labelsArray);
     const ctx = element.getContext("2d");
     let myDoughnut: Chart | null;
-  
-    if (ctx && labelsArray.length > 0) {   
+
+    if (ctx && labelsArray.length > 0) {
       myDoughnut = new Chart(ctx, options);
     }
     return function cleanUp() {
@@ -81,7 +126,7 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "", tipo
         myDoughnut.destroy();
       }
     };
-  }, [vehiculosOperacion,alertas, ListadoVehiculoSinOperacion]);
+  }, [vehiculosOperacion, alertas, criticidad]);
 
   return (
     <div className={`card ${className}`}>
@@ -107,20 +152,20 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "", tipo
         <div className="d-flex justify-content-around">
 
           {
-               Object.entries((tipoData==1) ? objectdata : objectdata.operandoDivididos).map((entry,index) => {
-                let totalCategoria  = (tipoData == 1) ? entry[1] : (entry[1] as any[]).length;
-                return (
-                  <div key={`chardonavehiculo_${totalCategoria}-${entry[0]} m-1`}>
-                  <span className="fw-bolder text-gray-800 fs-8">{ `${totalCategoria}-${entry[0]}`  }</span>
+            Object.entries(objectdata).map((entry, index) => {
+              let totalCategoria = entry[1];
+              return (
+                <div key={`chardonavehiculo_${totalCategoria}-${entry[0]} m-1`}>
+                  <span className="fw-bolder text-gray-800 fs-8">{`${totalCategoria}-${entry[0]}`}</span>
                   <span className={`bg-${colorsArrayLabels[index]} w-25px h-5px d-block rounded mt-1`}></span>
                 </div>
 
-                )
+              )
 
-              })
+            })
 
           }
-         
+
         </div>
         {/* end::Items */}
       </div>
@@ -131,7 +176,7 @@ const ChartDonaVehiculo: React.FC<Props> = ({ className, innerPadding = "", tipo
 
 export { ChartDonaVehiculo };
 
-function getChartOptions(data: number[], colors: string[], titulo: string, labels:  string[]) {
+function getChartOptions(data: number[], colors: string[], titulo: string, labels: string[]) {
   const tooltipBgColor = getCSSVariableValue("--bs-gray-200");
   const tooltipColor = getCSSVariableValue("--bs-gray-800");
 

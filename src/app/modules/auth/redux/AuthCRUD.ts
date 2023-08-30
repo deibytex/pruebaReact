@@ -2,6 +2,7 @@ import axios from "axios";
 import { UserModel } from "../models/UserModel";
 import { PaginacionDTO } from "../../../../_start/helpers/Models/PaginacionDTO"
 import { Auth_GetMenuUsuario } from "../../../../apiurlstore";
+import { Post_getconsultadinamicasUser } from "../../../../_start/helpers/Axios/CoreService";
 
 const API_URL = process.env.REACT_APP_API_URL || "api";
 
@@ -42,19 +43,19 @@ export function register(
 
 // Server should return object => { result: boolean } (Is Email in DB)
 export function requestPassword(email: string) {
- 
+
   return axios({
     method: 'post',
     headers: {
       'Content-Type': 'application/json',
       accept: 'text/plain',
-  }, 
+    },
     url: REQUEST_PASSWORD_URL,
     data: email
   });
 }
 
-export function getUserByToken() {
+export function getUserByToken() {          
   // Authorization head should be fulfilled in interceptor.
   // Check common redux folder => setupAxios
   return axios.get<any>(GET_USER_BY_ACCESSTOKEN_URL);
@@ -63,7 +64,12 @@ export function getUserByToken() {
 export function getMenuByUser() {
   // Authorization head should be fulfilled in interceptor.
   // Check common redux folder => setupAxios
-  return axios.get<any[]>(Auth_GetMenuUsuario,{ params: { EsReact : true}});
+  const formData = new FormData();
+  return Post_getconsultadinamicasUser({
+    Clase: "ADMQueryHelper", NombreConsulta: "GetMenuReact",
+    Pagina: 0,
+    RecordsPorPagina: 10
+  }, formData);
 }
 
 // retorna el listado de usuarios que se mostrara en la aplicacion
@@ -77,12 +83,12 @@ export function getListUserByToken(PaginacionDTO: PaginacionDTO) {
   });
 }
 
-export function CambiarPasword(token: string, NewPassword : string, UserName: string) {
+export function CambiarPasword(token: string, NewPassword: string, UserName: string) {
   // Authorization head should be fulfilled in interceptor.
   // Check common redux folder => setupAxios
   return axios({
     method: 'post',
     url: ResetPassWord,
-    data: {token : atob(token), NewPassword , UserName }
+    data: { token: atob(token), NewPassword, UserName }
   });
 }

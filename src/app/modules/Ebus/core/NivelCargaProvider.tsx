@@ -130,7 +130,7 @@ const DataEventosTiempoClientes: React.FC = ({ children }) => {
     const { Clientes, ClienteSeleccionado, setVisible, setEstotal, setClienteSeleccionado, setClientes, setPeriodo, setdataTable } = useDataNivelCarga();
 
     // consultamos la fecha actual
-    const Periodo = moment(FechaServidor).format("MYYYY").toString();
+    const Periodo = moment(FechaServidor()).format("MYYYY").toString();
 
     const interval = useRef<any>();
     const CargarEventos = (clienteIdS: string, Periodo: string) => {

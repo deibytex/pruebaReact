@@ -43,13 +43,13 @@ export default function Preoperacional() {
     params = {
         clienteid: clienteId,
         clienteIdS: clienteSeleccionado,
-        fecha: moment(FechaServidor).format("YYYY-MM-DD"),
+        fecha: moment(FechaServidor()).format("YYYY-MM-DD"),
         userId: (model.Id?.toString())
     };
 
     // Use effect que setea fecha y children cuando cambia el usuario
     useEffect(() => {
-        setFecha(moment(FechaServidor).format("YYYY-MM-DD"));
+        setFecha(moment(FechaServidor()).format("YYYY-MM-DD"));
         setChildren(params);
     }, [isAuthorized, clienteSeleccionado]);
 

@@ -1,6 +1,6 @@
 import MaterialReactTable, { MRT_Cell, MRT_ColumnDef, MaterialReactTableProps } from "material-react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
-import { Button, Modal, ModalBody, ModalFooter } from "react-bootstrap-v5";
+import { Button } from "react-bootstrap-v5";
 import { AutoComplete, InputGroup } from "rsuite";
 import MemberIcon from '@rsuite/icons/Member';
 import { GetCondiciones, GetListaClientes, GuardarCondiciones } from "../data/ReportesData";
@@ -10,7 +10,6 @@ import confirmarDialog, { errorDialog, successDialog } from "../../../../_start/
 import { AxiosResponse } from "axios";
 import { PageTitle } from "../../../../_start/layout/core/PageData";
 import BlockUi from "@availity/block-ui";
-import { FormatoColombiaDDMMYYYHHmmss } from "../../../../_start/helpers/Constants";
 import { Box, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, TextField, Tooltip } from "@mui/material";
 import { Edit, Search } from "@mui/icons-material";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";

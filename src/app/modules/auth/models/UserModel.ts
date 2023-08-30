@@ -42,7 +42,8 @@ export interface UserModelSyscaf {
   auth?: AuthModel;
   tipoClienteid?: TipoUsuario;
   menu : string,
-  preoperacional: string
+  preoperacional: string,
+  perfil: string | null | undefined
 }
 export interface UserDTO{
   id: string;
@@ -62,16 +63,15 @@ export interface TipoUsuario {
   descripcion: string;
 }
 
-
 export interface Opciones{
-nombreOpcion : string;
-accion: string;
-controlador: string;
-logo: string;
-esVisible : true;
-lstOperacion : any[];
-parametrosAdicionales : string;
-opcionPadreId: number;
-opcionId : number;
-orden : number;
-}
+  NombreOpcion : string;
+  Accion: string;
+  Controlador: string;
+  Logo: string;
+  EsVisible : true;
+  operaciones : any[];
+  ParametrosAdicionales : string;
+  OpcionPadreId: number;
+  OpcionId : number;
+  Orden : number;
+  }

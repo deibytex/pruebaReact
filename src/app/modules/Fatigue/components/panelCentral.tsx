@@ -12,6 +12,8 @@ import { locateFormatNumberNDijitos, locateFormatPercentNDijitos } from "../../.
 import moment from "moment";
 import { MapTab } from "./TabMap_Tab2";
 import { CardContainerEventos } from "./cardEventosAlertas";
+import { DescargarExceFatiga } from "../../../../_start/helpers/components/DescargarExcel";
+import { MRT_ColumnDef } from "material-react-table";
 
 type Props = {
   className: string;
@@ -21,13 +23,30 @@ type Props = {
 const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => {
   let idinterval: number = 0;
   const [width, setWidth] = useState("80px")
- 
+
   const [Map, setMap] = useState<boolean>(false);
   const [activeChart, setActiveChart] = useState<ApexCharts | undefined>();
   const [activeEvents, setactiveEvents] = useState<EventoActivo[]>([]);
   const [opciones, setOpciones] = useState<any>(null);
   const refChart = useRef<ReactApexChart>(null);
-  const { listadoEventosActivos, DataAlertas, DataDetallado, loader , activeTab , setActiveTab} = useDataFatigue();
+  const { listadoEventosActivos, DataAlertas, DataDetallado, loader, activeTab, alertas, setActiveTab } = useDataFatigue();
+
+  const [totalCriticos, settotalCriticos] = useState(0);
+  const [totalModerados, settotalModerados] = useState(0);
+  const [totalBajos, settotalBajos] = useState(0);
+  const [totalEnGestion, settotalEnGestion] = useState(0);
+  const [totalGestionados, settotalGestionados] = useState(0);
+
+  const [dataAlertasObservaciones, setdataAlertasObservaciones] = useState([]);
+  const [dataAlertasEventos, setdataAlertasEventos] = useState([]);
+
+  useEffect(() => {    
+    settotalCriticos(alertas.filter((item: any) => item.Criticidad == "Riesgo alto" && item.EstadoGestion == null).length);
+    settotalModerados(alertas.filter((item: any) => item.Criticidad == "Riesgo moderado" && item.EstadoGestion == null).length);  
+    settotalBajos(alertas.filter((item: any) => item.Criticidad ==  "Riesgo bajo" && item.EstadoGestion == null).length);
+    settotalEnGestion(alertas.filter((item: any) => item.EstadoGestion == false).length); 
+    settotalGestionados(alertas.filter((item: any) => item.EstadoGestion).length);
+}, [alertas])
 
   // useefet que se ejecuta la primera vez, cuando el cliente es seleccionado 
   useEffect(() => {
@@ -180,7 +199,7 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
   // TRAE LA INFORMACION DE EVENTOS ACTIVOS POR DIA
   useEffect(() => {
 
-    setTab(parseInt((activeTab != undefined ?activeTab?.replace('#tab', '') : '1' )));
+    setTab(parseInt((activeTab != undefined ? activeTab?.replace('#tab', '') : '1')));
     setactiveEvents(listadoEventosActivos ?? []);
 
     return function cleanUp() {
@@ -224,16 +243,233 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
       }, 2000)
     }
   }, [DataDetallado])
+
+  useEffect(() => {
+
+  let arrayObservaciones = new Array();
+  let arrayEventos = new Array();
+    
+  if (alertas.length != 0){
+
+    
+    alertas.forEach((element: any) => {   
+    
+        let objprincipal = { AlertaId:  element["AlertaId"],
+                             TipoAlerta: element["TipoAlerta"],
+                             vehiculo: element["vehiculo"],
+                             conductor: element["conductor"],
+                             EventDateTime: element["EventDateTime"],
+                             DetalladoEventos: element["DetalladoEventos"],
+                             EstadoGestion: element["EstadoGestion"],
+                             gestor: element["gestor"]}
+    
+        const detalle  =  JSON.parse(element["Observaciones"]);
+    
+        if(detalle == null)
+        {
+          arrayObservaciones.push(objprincipal);
+        }else{
+            detalle.forEach((element2: any) => {
+              
+              arrayObservaciones.push({...objprincipal, ...element2});
+            });
+        }
+         
+    })
+
+    setdataAlertasObservaciones(arrayObservaciones as []);
+
+    alertas.forEach((element: any) => {   
+    
+      let objprincipal = { AlertaId:  element["AlertaId"]}
+  
+      const detalle  =  JSON.parse(element["DetalladoEventos"]);
+  
+      if(detalle == null)
+      {
+          arrayEventos.push(objprincipal);
+      }else{
+          detalle.forEach((element2: any) => {
+            
+            arrayEventos.push({...objprincipal, ...element2});
+          });
+      }
+       
+  })
+
+  setdataAlertasEventos(arrayEventos as []);
+
+  }
+
+  }, [alertas])
+
+  //listado campos tablas
+  const columnasTabla: MRT_ColumnDef<any>[]
+    = [
+      {
+        accessorKey: 'AlertaId',
+        header: 'Id'
+      },
+      {
+        accessorKey: 'TipoAlerta',
+        header: 'Alarma'
+      },
+      {
+        accessorKey: 'vehiculo',
+        header: 'Vehículo'
+      },
+      {
+        accessorKey: 'conductor',
+        header: 'Conductor'
+      }, {
+        accessorKey: 'EventDateTime',
+        header: 'Fecha evento'
+      }, {
+        accessorKey: 'DetalladoEventos',
+        header: 'Cantidad eventos'
+      }, {
+        accessorKey: 'EstadoGestion',
+        header: 'Estado'
+      },
+      {
+        accessorKey: 'gestor',
+        header: 'Analista'
+      },
+      {
+        accessorKey: 'fechaapertura',
+        header: 'Fecha Apertura'
+      },
+      {
+        accessorKey: 'fechagestion',
+        header: 'Fecha Gestión'
+      },
+      {
+        accessorKey: 'value',
+        header: 'Observación'
+      }
+
+    ];
+
+    //listado campos tablas
+  const columnasTabla2: MRT_ColumnDef<any>[]
+  = [
+    {
+      accessorKey: 'AlertaId',
+      header: 'Id'
+    },
+    // {
+    //   accessorKey: 'TipoAlerta',
+    //   header: 'Alarma'
+    // },
+    // {
+    //   accessorKey: 'vehiculo',
+    //   header: 'Vehículo'
+    // },
+    // {
+    //   accessorKey: 'conductor',
+    //   header: 'Conductor'
+    // }, {
+    //   accessorKey: 'EventDateTime',
+    //   header: 'Fecha evento'
+    // }, {
+    //   accessorKey: 'DetalladoEventos',
+    //   header: 'Cantidad eventos'
+    // }, {
+    //   accessorKey: 'EstadoGestion',
+    //   header: 'Estado'
+    // },
+    // {
+    //   accessorKey: 'gestor',
+    //   header: 'Analista'
+    // },
+    // {
+    //   accessorKey: 'EventId',
+    //   header: 'EventId'
+    // },
+    {
+      accessorKey: 'evento',
+      header: 'Evento'
+    },
+    {
+      accessorKey: 'EventDateTime',
+      header: 'EventDateTime'
+    },
+    {
+      accessorKey: 'Latitud',
+      header: 'Latitud'
+    },
+    {
+      accessorKey: 'Longitud',
+      header: 'Longitud'
+    },
+    {
+      accessorKey: 'valor',
+      header: 'Valor'
+    },
+    {
+      accessorKey: 'velocidad',
+      header: 'Km/h'
+    },
+    {
+      accessorKey: 'kilometros',
+      header: 'Odometro'
+    },
+    {
+      accessorKey: 'fecharecibido',
+      header: 'Fecha Recibido'
+    },
+    {
+      accessorKey: 'fechaactualizado',
+      header: 'Fecha Actualizado'
+    }
+
+  ];
+
+  const fncReporteAlarma = [
+    {
+      name: "EstadoGestion",
+      getData: (data: any) => {
+        return (data == null) ? 'No Gestionado'
+          : (data == true) ? 'Gestionado'
+            : (data == false) ? 'En Gestion'
+              : { data }
+      }
+    },
+    {
+      name: "gestor",
+      getData: (data: any) => {
+
+        return (data == null) ? 'Sin Analista' : data
+      }
+    }, {
+      name: 'DetalladoEventos',
+
+      getData: (data: any) => {
+        return JSON.parse(data).length
+      }
+    }
+    // ,{
+    //   name: 'EventId',
+
+    //   getData: (data: string) => {
+    //     return `'${data}`
+    //   }
+    // }
+  ];
+
+  const [tipo, settipo] = useState<any>(0);
+
   return (
     <div className={`card ${className}`}>
       <BlockUi tag="div" keepInView blocking={loader ?? false}  >
         {/* begin::Header */}
         <div className="card-header align-items-center border-0 mt-5">
-          <h3 className="card-title align-items-start flex-column">
-            <span className="fw-bolder text-dark fs-3">Panel de Gestión de Riesgos</span>
-            <span className="text-muted mt-2 fw-bold fs-6"></span>
-          </h3>
-
+          <div className="card-title flex-column">
+            <span className="fw-bolder text-dark fs-3 ms-4 me-20">Panel de Gestión de Riesgos</span>
+            <button className="m-2 ms-20 btn btn-sm btn-primary" type="button" onClick={() => { DescargarExceFatiga(dataAlertasObservaciones, dataAlertasEventos, columnasTabla, columnasTabla2, `Alertas`, fncReporteAlarma) }}>
+              <i className="bi-file-earmark-excel"></i> Descargar Gestión
+            </button>
+          </div>
         </div>
         {/* end::Header */}
         {/* begin::Body */}
@@ -247,29 +483,17 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
                   return (<li className="nav-item mb-3" key={`tabenc_${idx}`}>
                     <a
                       onClick={() => setTab(idx)}
-                      className={`nav-link w-225px h-70px ${activeTab === `#tab${idx}` ? "active btn-active-light" : ""
-                        } fw-bolder me-2`}
+                      className={`nav-link w-140px h-50px ${activeTab === `#tab${idx}` ? "active btn-active-light" : ""
+                        } fw-bolder me-3`}
                       id={`tab${idx}`}
                     >
-                      <div className="nav-icon me-3">
-                        <img
-                          alt=""
-                          src={toAbsoluteUrl(tab.icon)}
-                          className="default"
-                        />
-
-                        <img
-                          alt=""
-                          src={toAbsoluteUrl(tab.iconColored)}
-                          className="active"
-                        />
-                      </div>
                       <div className="ps-1">
                         <span className="nav-text text-gray-600 fw-bolder fs-6">
                           {tab.titulo}
                         </span>
-                        <span className="text-muted fw-bold d-block pt-1">
-                          {tab.subtitulo}
+                        <span className="text-muted fw-bold d-block pt-1 text-center">
+                          {idx == 1 ? `${totalCriticos}` : idx == 2 ? `${totalModerados}` : idx == 3 ? `${totalBajos}` 
+                          : idx == 4 ? `${totalEnGestion}` : idx == 5 ? `${totalGestionados}` : tab.subtitulo}
                         </span>
                       </div>
                     </a>
@@ -296,53 +520,102 @@ const FAG_PanelCentral: React.FC<Props> = ({ className, innerPadding = "" }) => 
 
                   {
                     // verificamos que exista datos para poder ingresar los datos en el contenedor 
-                    (<CardContainerEventos isActive={true} isDetails={false} />)
+                    (<CardContainerEventos isActive={true} isDetails={false} filtro={0} />)
                   }
                 </div>
+              </div>
+              <div
+                className={`tab-pane fade ${activeTab === "#tab2" ? "show active" : ""
+                  }`}
+                id="tab2_content"
+              >
+                {/* begin::Content */}
+                {/* begin::Cards */}
+                <div className="overflow-auto">
+
+                  {
+                    // verificamos que exista datos para poder ingresar los datos en el contenedor 
+                    (<CardContainerEventos isActive={true} isDetails={false} filtro={1} />)
+                  }
                 </div>
-                <div
-                  className={`tab-pane fade ${activeTab === "#tab2" ? "show active" : ""
-                    }`}
-                  id="tab2_content"
-                >
-                  <div className="card">
-                    <div className="card-body">
-                      {(DataDetallado?.length != 0) && (Map) && (activeTab == "#tab2") && (<MapTab></MapTab>)}
-                    </div>
-                  </div>
+              </div>
+              <div
+                className={`tab-pane fade ${activeTab === "#tab3" ? "show active" : ""
+                  }`}
+                id="tab3_content"
+              >
+                {/* begin::Content */}
+                {/* begin::Cards */}
+                <div className="overflow-auto">
+
+                  {
+                    // verificamos que exista datos para poder ingresar los datos en el contenedor 
+                    (<CardContainerEventos isActive={true} isDetails={false} filtro={2} />)
+                  }
                 </div>
+              </div>
+              <div
+                className={`tab-pane fade ${activeTab === "#tab4" ? "show active" : ""
+                  }`}
+                id="tab4_content"
+              >
+                {/* begin::Content */}
+                {/* begin::Cards */}
+                <div className="overflow-auto">
+
+                  {
+                    // verificamos que exista datos para poder ingresar los datos en el contenedor 
+                    (<CardContainerEventos isActive={true} isDetails={false} filtro={3} />)
+                  }
+                </div>
+              </div>
+              <div
+                className={`tab-pane fade ${activeTab === "#tab5" ? "show active" : ""
+                  }`}
+                id="tab5_content"
+              >
+                {/* begin::Content */}
+                {/* begin::Cards */}
+                <div className="overflow-auto">
+
+                  {
+                    // verificamos que exista datos para poder ingresar los datos en el contenedor 
+                    (<CardContainerEventos isActive={true} isDetails={false} filtro={4} />)
+                  }
+                </div>
+              </div>
 
 
-                <div
-                  className={`tab-pane fade ${activeTab === "#tab3" ? "show active" : ""
-                    }`}
-                  id="tab3_content"
-                >
-                  {/* begin::Cards */}
-                  <div className="overflow-auto">
-                    <div style={{ height: 400 }}>
-                      {/* // verificamos que exista datos para poder ingresar los datos en el contenedor  */}
-                      <div className="card">
-                        <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
-                          {(opciones != null) && (
-                            <ReactApexChart
-                              options={opciones.options}
-                              series={opciones.series}
-                              height={400} type="area" />)}
-                        </div>
+              <div
+                className={`tab-pane fade ${activeTab === "#tab6" ? "show active" : ""
+                  }`}
+                id="tab6_content"
+              >
+                {/* begin::Cards */}
+                <div className="overflow-auto">
+                  <div style={{ height: 400 }}>
+                    {/* // verificamos que exista datos para poder ingresar los datos en el contenedor  */}
+                    <div className="card">
+                      <div className="row mt-2 col-sm-12 col-md-12 col-xs-12 rounded shadow-sm mx-auto">
+                        {(opciones != null) && (
+                          <ReactApexChart
+                            options={opciones.options}
+                            series={opciones.series}
+                            height={400} type="area" />)}
                       </div>
-
                     </div>
+
                   </div>
-                  {/* end::Cards      */}
                 </div>
+                {/* end::Cards      */}
+              </div>
 
 
-                {/* end::Content  */}
+              {/* end::Content  */}
 
 
 
-             
+
 
 
             </div>

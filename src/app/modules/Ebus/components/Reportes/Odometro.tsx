@@ -1,16 +1,14 @@
 
 import { ColumnFiltersState, SortingState, PaginationState } from "@tanstack/react-table";
-
 import MaterialReactTable, { MRT_ColumnDef, MRT_TableInstance } from "material-react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import moment from "moment";
 import React, { useEffect, useRef, useState } from "react"
 import { Button, Form, Modal } from "react-bootstrap-v5";
 import DualListBox from "react-dual-listbox";
-import { DatePicker, Placeholder } from "rsuite";
-import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
+import { DatePicker } from "rsuite";
 import { ModuleName, PageTitle } from "../../../../../_start/layout/core";
-import { dualList } from "../../../CorreosTx/models/dataModels";
+import { dualList } from "../../../Tx/models/dataModels";
 import { GetReporteOdometro } from "../../data/ReportesData";
 import { DescargarExcel } from "../../../../../_start/helpers/components/DescargarExcel"
 import { FormatoColombiaDDMMYYYHHmmss, FormatoSerializacionYYYY_MM_DD_HHmmss } from "../../../../../_start/helpers/Constants";

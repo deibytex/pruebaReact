@@ -1,75 +1,152 @@
-import { AxiosError, AxiosResponse } from "axios";
-import moment from "moment";
 import { useEffect, useState } from "react";
 import { useDataDashboard } from "../../core/DashboardProvider";
-import { GetSnapShotTickets } from "../../data/Dashboard";
 import ReactApexChart from "react-apexcharts";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../../setup";
+import { UserModelSyscaf } from "../../../auth/models/UserModel";
+
 
 const Tickets: React.FC = () => {
     const [DataAdmin, setDataAdmin] = useState<any>(null);
     const [Database, setDatabase] = useState<any>(null);
     const [Datatipo, setDatatipo] = useState<any>(null);
-    const { DataTk, setDataTk, DataFiltradaTk, Filtrado } = useDataDashboard()
+    const [DataEstado, setDataEstado] = useState<any>(null);
+    const [DataAgente, setAgente] = useState<any>(null);
+    const [dataTickets, setDataTickets] = useState<any[]>([]);
+    const [dataTicketsFiltrada, setDataTicketsFiltrada] = useState<any[]>([]);
+    const { DataTk } = useDataDashboard()
+
+    // informacion del usuario almacenado en el sistema
+    const isAuthorized = useSelector<RootState>(
+        ({ auth }) => auth.user
+    );
+
+    // convertimos el modelo que viene como unknow a modelo de usuario sysaf para los datos
+    const model = (isAuthorized as UserModelSyscaf);
+    // pinta la grafica si  se ha filtrado
+
     useEffect(() => {
+         PintarGraficas(dataTicketsFiltrada)
+    }, [dataTicketsFiltrada]);
+
+    useEffect(() => {
+
+        if (DataTk != undefined && DataTk['Ticket'] != undefined && model.perfil != null && model.perfil != undefined) {
+            // filtra la informacion por el administrador de flota que este ingresadno
+            // si no es puede ver toda la informacion
+            const datafiltradaporadmin = DataTk['Ticket'].filter(
+                (f: any) => (model.perfil == "118" && f.administrador.includes(model.Id)) || model.perfil != "118"
+            )
+            setDataTickets(datafiltradaporadmin);
+            setDataTicketsFiltrada(datafiltradaporadmin);
+            PintarGraficas(datafiltradaporadmin);
+
+        }
+    }, [DataTk]);
+
+    useEffect(() => {
+
+
         let administrador = {
             options: {
                 chart: {
                     id: 'apexchart-administrador',
-                }
+                },
+
             },
             series: [],
-            dataLabels: {
-                enabled: false
-            }
         }
         let base = {
             options: {
                 chart: {
                     id: 'apexchart-base',
+                },
+                dataLabels: {
+                    enabled: true,
+                    enabledOnSeries: true,
+                    style: {
+                        colors: ['#424249']
+                    }
                 }
             },
             series: [],
-            dataLabels: {
-                enabled: false
-            }
+
         }
         let tipo = {
             options: {
                 chart: {
                     id: 'apexchart-tipo',
+                },
+                dataLabels: {
+                    enabled: true,
+                    enabledOnSeries: true,
+                    style: {
+                        colors: ['#424249']
+                    }
                 }
             },
             series: [],
-            dataLabels: {
-                enabled: false
-            }
+
+        }
+        let Estados = {
+            options: {
+                chart: {
+                    id: 'apexchart-estados',
+                },
+                dataLabels: {
+                    enabled: true,
+                    enabledOnSeries: true,
+                    style: {
+                        colors: ['#424249']
+                    }
+                }
+            },
+            series: [],
+
+        }
+        let Agente = {
+            options: {
+                chart: {
+                    id: 'apexchart-agentes',
+                },
+                dataLabels: {
+                    enabled: true,
+                    enabledOnSeries: true,
+                    style: {
+                        colors: ['#424249']
+                    }
+                }
+            },
+            series: [],
+
         }
         setDataAdmin(administrador);
         setDatabase(base);
         setDatatipo(tipo);
+        setDataEstado(Estados);
+        setAgente(Agente);
         //setSemanas(opciones);
         return function cleanUp() {
             //SE DEBE DESTRUIR EL OBJETO CHART
         };
     }, [])
-
-    const PintarGraficas = () => {
-        if (DataTk != undefined) {
+    const PintarGraficas = (Dt: any[]) => {
+        if (Dt != undefined) {
             let Datos = new Array();
             let arrayEstados = new Array();
             let arrayVerticaTipo = new Array();
-            let agrupadorGeneral = DataTk['Ticket'].map((item: any) => {
+            let agrupadorGeneral = Dt.map((item: any) => {
                 return item.administrador;
             }).filter((value: any, index: any, self: any) => {
                 return self.indexOf(value) === index;
             });
             //Verticales
-            let agrupadortipo = DataTk['Ticket'].map((item: any) => {
+            let agrupadortipo = Dt.map((item: any) => {
                 return (item.base == undefined) ? item.Base : item.base;
             }).filter((value: any, index: any, self: any) => {
                 return self.indexOf(value) === index;
             });
-            let Semana = DataTk['Ticket'].map((item: any) => {
+            let Semana = Dt.map((item: any) => {
                 return item.fecha;
             }).filter((value: any, index: any, self: any) => {
                 return self.indexOf(value) === index;
@@ -77,7 +154,7 @@ const Tickets: React.FC = () => {
 
             agrupadortipo.map(function (item: any) {
                 Semana.map(function (itemSemana: any) {
-                    let filtroEstado = DataTk['Ticket'].filter(function (val: any) {
+                    let filtroEstado = Dt.filter(function (val: any) {
                         return (val.fecha == itemSemana && val.base == item);
                     });
                     arrayEstados.push([{
@@ -87,22 +164,20 @@ const Tickets: React.FC = () => {
 
                 });
             });
-
             // Vertical po Tipo
-            let ArupadorVertical = DataTk['Ticket'].map((item: any) => {
+            let ArupadorVertical = Dt.map((item: any) => {
                 return (item.tipodeTicket == undefined) ? item.TipodeTicket : item.tipodeTicket;
             }).filter((value: any, index: any, self: any) => {
                 return self.indexOf(value) === index;
             });
-            let SemanaVertical = DataTk['Ticket'].map((item: any) => {
+            let SemanaVertical = Dt.map((item: any) => {
                 return item.fecha;
             }).filter((value: any, index: any, self: any) => {
                 return self.indexOf(value) === index;
             });
-
             ArupadorVertical.map(function (item: any) {
                 SemanaVertical.map(function (itemSemana: any) {
-                    let filtroVertical = DataTk['Ticket'].filter(function (val: any) {
+                    let filtroVertical = Dt.filter(function (val: any) {
                         return (val.fecha == itemSemana && val.tipodeTicket == item);
                     });
                     arrayVerticaTipo.push([{
@@ -112,7 +187,6 @@ const Tickets: React.FC = () => {
 
                 });
             });
-
             ApexCharts.exec('apexchart-tipo', 'updateOptions', {
                 chart: {
                     fill: {
@@ -159,9 +233,7 @@ const Tickets: React.FC = () => {
                     }
                 ]
             );
-
             //Fin
-
             ApexCharts.exec('apexchart-base', 'updateOptions', {
                 chart: {
                     fill: {
@@ -197,27 +269,27 @@ const Tickets: React.FC = () => {
                     }
                 }
             });
-            let valores =
-                // actializar los datos
-                ApexCharts.exec('apexchart-base', 'updateSeries',
-                    [
-                        {
-                            name: [...Semana],
-                            data: arrayEstados.map((val) => {
-                                return val[0].y;
-                            })
-                        }
-                    ]
-                );
 
+            // actializar los datos
+            ApexCharts.exec('apexchart-base', 'updateSeries',
+                [
+                    {
+                        name: [...Semana],
+                        data: arrayEstados.map((val) => {
+                            return val[0].y;
+                        })
+                    }
+                ]
+            );
             /*Admins */
-
             agrupadorGeneral?.map(function (item: any) {
-                let totalAdmon = DataTk['Ticket']?.filter(function (data: any, index: any) {
-                    if (data.administrador == item)
-                        return data.administrador
-                }).length;
-                Datos.push(totalAdmon);
+                if (item != null) {
+                    let totalAdmon = Dt?.filter(function (data: any, index: any) {
+                        if (data.administrador == item)
+                            return data.administrador
+                    }).length;
+                    Datos.push(totalAdmon);
+                }
             });
             ApexCharts.exec('apexchart-administrador', 'updateOptions', {
                 chart: {
@@ -232,10 +304,20 @@ const Tickets: React.FC = () => {
                 colors: ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5', '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f', '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5'],
             }
             );
+            let labels = agrupadorGeneral?.map((e: any) => {
+                if (e != null) {
+                    if (e.split(" - ")[1] == undefined) {
+                        return e.split(" - ")[0];
+                    }
+                    else {
+                        return e.split(" - ")[1]
+                    }
+                }
+            }).filter((e: any) => e)
             ApexCharts.exec('apexchart-administrador', 'updateOptions', {
                 // Para los nombres de la serie
                 //para que la lengenda me salga en la parte de abajo
-                labels: agrupadorGeneral?.filter((e: any) => e),
+                labels: labels,
                 legend: {
                     show: true,
                     position: 'bottom'
@@ -243,43 +325,152 @@ const Tickets: React.FC = () => {
             });
             // actializar los datos
             ApexCharts.exec('apexchart-administrador', 'updateSeries', Datos)
+
+            // grafica por estaod
+
+            const agrupadoporestado = Dt.reduce((p: any, c: any) => {
+                // filtramos por estado
+
+                let exist = p.filter((f: any) => f.estado == c.estado);
+                if (exist.length == 0)
+                    p.push({ estado: c.estado, Total: 1 });
+                else
+                    exist[0].Total++;
+
+                return p;
+
+            }, []);
+            ApexCharts.exec('apexchart-estados', 'updateOptions', {
+                // Para los nombres de la serie
+                //para que la lengenda me salga en la parte de abajo
+                labels: agrupadoporestado.map((m: any) => m.estado),
+                legend: {
+                    show: true,
+                    position: 'bottom'
+                },
+                tooltip: {
+                    y: {
+                        formatter: function (value: any, serie: any, index: any) {
+                            return `${serie.w.config.labels[serie.dataPointIndex]} : ${value}`
+                        }
+                    }
+                },
+                //para darle forma a los totales
+                plotOptions: {
+                    bar: {
+                        horizontal: true
+                    }
+                }
+            });
+            // actializar los datos
+            ApexCharts.exec('apexchart-estados', 'updateSeries',
+                [
+                    {
+                        name: [...Semana],
+                        data: agrupadoporestado.map((m: any) => m.Total)
+                    }
+                ]
+            );
+
+            // GRAFICA DE AGENTES
+
+            const agrupadoAgente = Dt.reduce((p: any, c: any) => {
+                // filtramos por estado
+
+                let exist = p.filter((f: any) => f.agente == c.agente);
+                if (exist.length == 0)
+                    p.push({ agente: c.agente, Total: 1 });
+                else
+                    exist[0].Total++;
+
+                return p;
+
+            }, []);
+            ApexCharts.exec('apexchart-agentes', 'updateOptions', {
+                // Para los nombres de la serie
+                //para que la lengenda me salga en la parte de abajo
+                labels: agrupadoAgente.map((m: any) => m.agente),
+                legend: {
+                    show: true,
+                    position: 'bottom'
+                },
+                tooltip: {
+                    y: {
+                        formatter: function (value: any, serie: any, index: any) {
+                            return `${serie.w.config.labels[serie.dataPointIndex]} : ${value}`
+                        }
+                    }
+                },
+                //para darle forma a los totales
+                plotOptions: {
+                    bar: {
+                        horizontal: true
+                    }
+                }
+            });
+            // actializar los datos
+            ApexCharts.exec('apexchart-agentes', 'updateSeries',
+                [
+                    {
+                        name: [...Semana],
+                        data: agrupadoAgente.map((m: any) => m.Total)
+                    }
+                ]
+            );
         }
     }
-    let MenuAdministradores = [];
+
+
+    let MenuAdministradores: JSX.Element[] | undefined = [];
     /* DESDE AQUI LO HICE PARA PROBAR LAS CONEXIONES CREADAS */
     /* FIN DE LAS CONEXIONES */
     let AdminsTk: { usuarioIds: string, nombre: string }[] = [];
     AdminsTk.push({ "usuarioIds": "0", "nombre": "Todos" })
-    if (DataTk)
-        if (DataTk['Ticket'] != undefined) {
-            DataTk['Ticket'].filter(function (item: any, index: any) {
-                var i = AdminsTk.findIndex(x => (x.usuarioIds == item.administrador && x.nombre == item.administrador));
-                if (i <= -1) {
-                    AdminsTk.push({ "nombre": item.administrador, "usuarioIds": item.administrador });
-                }
-                return null;
-            });
-        }
+    if (dataTickets.length > 0)
+        dataTickets.filter(function (item: any, index: any) {
+            var nombre: string = (item.administrador != null || item.administrador != undefined ? (item.administrador.split(" - ")[1] == undefined ? item.administrador.split(" - ")[0] : item.administrador.split(" - ")[1]) : item.administrador);
+            var id: string = (item.administrador != null || item.administrador != undefined ? item.administrador.split(" - ")[0] : item.administrador);
+            var i = AdminsTk.findIndex(x => x.usuarioIds == id && x.nombre == nombre);
+            if (i <= -1) {
+                AdminsTk.push({ "nombre": nombre, "usuarioIds": id });
+            }
+            return null;
+        });
 
+
+    const FiltrarByAdminsTk = (event: any) => {
+        let Usuario: string = event.target.attributes['data-bs-target'].value.split("--")[1];
+        switch (Usuario) {
+
+
+            case '0':
+                setDataTicketsFiltrada(dataTickets);
+                break;
+            default:
+              
+                    let DataResulttx =dataTickets.filter((val: any) => {
+                        let user = val.administrador.split(" - ")[0];
+                        return (user == Usuario)
+                    });
+                    setDataTicketsFiltrada(DataResulttx);
+                
+                break;
+        }
+    }
     MenuAdministradores = AdminsTk.map((val: any, index: any) => {
         return (
-            <li key={val.nombre} className="nav-item" role="presentation">
-                <button key={val.nombre} className="nav-link text-success fw-bolder" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target={`#pills-${val.usuarioIds}`} type="button" role="tab" aria-controls="pills-profile" aria-selected="false">{val.nombre}</button>
+            <li key={val.nombre} className={`nav-item`} role="presentation">
+                <button key={val.nombre} onClick={FiltrarByAdminsTk} className={`nav-link text-success ${(index == 0 ? 'active' : '')} fw-bolder`} id="pills-profile-tab" data-bs-toggle="pill" data-bs-target={`#pills--${val.usuarioIds}`} type="button" role="tab" aria-controls="pills-profile" aria-selected="false">{val.nombre}</button>
             </li>
         )
     })
-    useEffect(() => {
-        if (DataTk) {
-            if (DataTk['Ticket'] != undefined) {
-                PintarGraficas()
-            }
-        }
 
-    }, [DataTk, Filtrado, DataFiltradaTk]);
+
+
     return (
         <>
             <div className="row">
-                <div style={{ display: (DataTk == undefined) ? 'none' : 'inline' }} className="col-sm-12 col-xl-12 col-md-12 col-lg-12" id="txpestana">
+                <div style={{ display: 'inline' }} className="col-sm-12 col-xl-12 col-md-12 col-lg-12" id="txpestana">
                     <ul className="nav nav-pills mb-3" id="pills-tab" role="tablist">
                         {
                             (MenuAdministradores.length != 0) && ([...MenuAdministradores])
@@ -295,7 +486,6 @@ const Tickets: React.FC = () => {
                                     <div className="text-center pt-5">
                                         <label className="label label-sm fw-bolder">TICKET POR ADMINISTRADOR</label>
                                     </div>
-
                                     {
                                         (DataAdmin != null) && (DataAdmin.options != undefined) && (<ReactApexChart options={DataAdmin.options} series={DataAdmin.series} type="pie" height={350} />)
                                     }
@@ -304,8 +494,6 @@ const Tickets: React.FC = () => {
                                     <div className="text-center pt-5">
                                         <label className="label label-sm fw-bolder">TICKET POR BASE</label>
                                     </div>
-
-
                                     {
                                         (Database != null) && (Database.options != undefined) && (<ReactApexChart options={Database.options} series={Database.series} type="bar" height={300} />)
                                     }
@@ -314,28 +502,33 @@ const Tickets: React.FC = () => {
                                     <div className="text-center pt-5">
                                         <label className="label label-sm fw-bolder">TIPO TICKET</label>
                                     </div>
-
-
                                     {
                                         (Datatipo != null) && (Datatipo.options != undefined) && (<ReactApexChart options={Datatipo.options} series={Datatipo.series} type="bar" height={300} />)
                                     }
-
                                 </div>
                                 <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-5">
-                                    <table id="tablaAdminstickets w-100" className="table datatable-responsive4">
-                                        <thead>
-                                            <tr className="bg-teal-300">
-                                            </tr>
-                                        </thead>
-                                    </table>
+                                    <div className="text-center pt-5">
+                                        <label className="label label-sm fw-bolder">ESTADO TICKET</label>
+                                    </div>
+                                    {
+                                        (DataEstado != null) && (DataEstado.options != undefined) && (<ReactApexChart options={DataEstado.options} series={DataEstado.series} type="bar" height={300} />)
+                                    }
+                                </div>
+                                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 pt-5">
+                                    <div className="text-center pt-5">
+                                        <label className="label label-sm fw-bolder">TOTAL AGENTES</label>
+                                    </div>
+                                    {
+                                        (DataAgente != null) && (DataAgente.options != undefined) && (<ReactApexChart options={DataAgente.options} series={DataAgente.series} type="bar" height={300} />)
+                                    }
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div style={{ display: (DataTk != undefined) ? 'none' : 'inline' }} className="col-sm-12 col-xl-12 col-md-12 col-lg-12 text-center" id="txpestananull">
+                {/* <div style={{ display: (DataTk != undefined) ? 'none' : 'inline' }} className="col-sm-12 col-xl-12 col-md-12 col-lg-12 text-center" id="txpestananull">
                     <span className="font-weight-bold mb-3 text-muted" style={{ fontSize: '30px' }}>No hay datos que mostrar !!!</span>
-                </div>
+                </div> */}
             </div>
         </>
     )

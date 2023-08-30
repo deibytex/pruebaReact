@@ -1,4 +1,3 @@
-import React from "react";
 import ReactDOM from "react-dom";
 // Redux
 // https://github.com/rt2zz/redux-persist
@@ -13,6 +12,11 @@ import { App } from "./app/App";
 import "./_start/assets/sass/style.scss";
 import "../node_modules/@availity/block-ui/src/BlockUi.css"
 import "../node_modules/@availity/block-ui/src/Loader.css"
+import 'rsuite/dist/rsuite.min.css';
+import 'react-dual-listbox/lib/react-dual-listbox.css';
+
+import 'rsuite/dist/rsuite.min.css';
+import 'react-dual-listbox/lib/react-dual-listbox.css';
 
 /**
  * Base URL of the website.
@@ -34,7 +38,7 @@ const { PUBLIC_URL } = process.env;
  *
  * @see https://github.com/axios/axios#interceptors
  */
-_redux.setupAxios(axios, store);
+_redux.setupAxios(axios, store, null);
 
 ReactDOM.render(
   <Provider store={store}>

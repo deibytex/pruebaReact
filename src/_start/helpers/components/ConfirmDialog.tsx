@@ -49,3 +49,34 @@ export function successDialog(titulo: string, content :string) {
     });
 }
 
+export function confirmarDialogText(
+    onConfirm: any,
+    titulo: string = "¿Desea borrar el registro?",
+    Texto: string = "Información de eliminación",
+    textoBotonConfirmacion: string = "Borrar"
+) {
+    Swal.fire({
+        title: titulo,
+        confirmButtonText: textoBotonConfirmacion,
+        showCancelButton: true,
+        input: "text",
+        inputPlaceholder:"Ingrese la observación",
+        inputValidator: result => {
+            return new Promise((resolve) => {
+                if (result == "" || result == undefined )
+                    resolve("Debe ingresar una observación");
+                else
+                    resolve("");
+              });
+        },
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33'
+    }).then(result => {
+        if (result.isConfirmed) {
+            onConfirm(result);
+        }
+        return result;
+    })
+
+    return false;
+}

@@ -35,7 +35,7 @@ export interface IAuthState {
 }
 
 export const reducer = persistReducer(
-  { storage, key: "usuario-sistema", whitelist: ["user", "accessToken", "refreshToken", "menu"] },
+  { storage, key: "usuario-syscaf", whitelist: ["user", "accessToken", "refreshToken", "menu"] },
   (state: IAuthState = initialAuthState, action: ActionWithPayload<IAuthState>) => {
 
     switch (action.type) {
@@ -106,9 +106,9 @@ export function* saga() {
   });
  
   yield takeLatest(actionTypes.UserRequested, function* userRequested() {
-    const { data: user } = yield getMenuByUser();
+    const { data: user } = yield getMenuByUser();  
     
-    yield put(actions.fulfillUser(user));
+    yield put(actions.fulfillUser(JSON.parse(user[0].Menu)));
   });
 
 /*
@@ -116,5 +116,7 @@ yield takeLatest(actionTypes.UserRequested, function* userRequested() {
      
   });*/
 }
+
+// funcion que tranforma los datos y los convierte en datos que se pueden leer para el menu
 
 

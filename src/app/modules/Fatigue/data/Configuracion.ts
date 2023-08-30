@@ -1,6 +1,6 @@
 import axios from "axios";
-import { GetConfiguracionAlerta, Post_Getconsultadinamicas, SetConfiguracionAlerta } from "../../../../_start/helpers/Axios/CoreService";
-import { Post_GetConsultasDinamicas } from "../../../../_start/helpers/Axios/DWHService";
+import { GetConfiguracionAlerta, Post_getconsultadinamicas, SetConfiguracionAlerta } from "../../../../_start/helpers/Axios/CoreService";
+import { Post_GetConsultasDinamicasDWH } from "../../../../_start/helpers/Axios/DWHService";
 import { DWH_getconsultadinamicasprocedure } from "../../../../apiurlstore";
 export function  getConfiguraciones (data:any) {
     var params: { [id: string]: string | null; } = {};
@@ -36,9 +36,28 @@ export  function GetClientesFatiga() {
 export function GetEventos(Clienteid: string){
     var params: { [id: string]: string | null | undefined;} = {};
         params['Clienteid'] = Clienteid; 
-    return Post_GetConsultasDinamicas({
+    return Post_GetConsultasDinamicasDWH({
     NombreConsulta: "ObtenerEventosClienteFatiga", Clase: "FATGQueryHelper",
     Pagina: null,
     RecordsPorPagina: null
     },params)
 };
+
+export function GetEventosColumnas(Eventos:any){
+    var params: { [id: string]: string | null | undefined; } = {};
+    params["ListadoEventos"] =Eventos;
+    return Post_GetConsultasDinamicasDWH({
+        NombreConsulta: "GetEventosColumnas", Clase: "FATGQueryHelper",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, params)
+}
+
+export const FiltrosData = {
+    getEventos: (data: any[], Cliente:any) => {
+       return  data.filter((D) =>{
+        if(D.clienteId == Cliente)
+        return D;
+    })
+    },
+}

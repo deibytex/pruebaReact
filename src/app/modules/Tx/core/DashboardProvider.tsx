@@ -17,9 +17,9 @@ export interface DashboardContextModel {
     setTabActive:(Tab:string) =>void;
     Data?:any[];
     setData:(data:any) =>void;
-    DataTx?:any[];
+    DataTx?:any;
     setDataTx:(data:any) =>void;
-    DataTk?:any[];
+    DataTk?:any;
     setDataTk:(data:any) =>void;
     Cargando?:boolean;
     setCargando:(Cargando:boolean) => void;
@@ -41,6 +41,16 @@ export interface DashboardContextModel {
     setSemanaSeleccionada:(SemanaSeleccionada:any[]) => void;
     SemanaTipo ? : string;
     setSemanaTipo:(SemanaTipo:string) => void;
+    DataAcumulado?:any[],
+    setDataAcumulado:(DataAcumulado:any[]) => void;
+    DataAcumuladoChurn?:any[],
+    setDataAcumuladoChurn:(DataAcumulado:any[]) => void;
+    showChurn?:boolean;
+    setshowChurn:(showChurn:boolean) =>void;
+    DataChurn?:any[];
+    setDataChurn:(Data:any[]) =>void;
+    Consulta?:boolean;
+    setConsulta:(Consulta:boolean) =>void;
 }
 const DashboardContext = createContext<DashboardContextModel>({
     setClientes: (Cliente: any) => {},
@@ -59,17 +69,22 @@ const DashboardContext = createContext<DashboardContextModel>({
     setSemanaSeleccionada:(SemanaSeleccionada:any[])  => {},
     setSemanaTipo:(SemanaTipo:string) =>  {},
     setTabActive:(Tab:string) =>  {},
+    setDataAcumulado:(DataAcumulado:any[]) => {},
+    setshowChurn:(showChurn:boolean) =>{},
+    setDataChurn:(DataAcumulado:any[]) => {},
+    setConsulta:(Consulta:boolean) =>{},
+    setDataAcumuladoChurn:(DataAcumulado:any[]) => {},
 });
 const DashboardProvider: React.FC = ({ children }) => {
     const [Clientes, setClientes] = useState<ClienteDTO[]>([]);
     const [ClienteSeleccionado, setClienteSeleccionado] = useState<ClienteDTO>(InicioCliente);
     const [Data, setData] = useState<any[]>([]);
-    const [DataTx, setDataTx] = useState<any[]>([]);
-    const [DataTk, setDataTk] = useState<any[]>([]);
+    const [DataTx, setDataTx] = useState<any>();
+    const [DataTk, setDataTk] = useState<any>();
     const [DataFiltrada, setDataFiltrada] = useState<any[]>([]);
     const [DataFiltradaTx, setDataFiltradaTx] = useState<any[]>([]);
     const [DataFiltradaTk, setDataFiltradaTk] = useState<any[]>([]);
-    const [Cargando, setCargando] = useState<boolean>(false);
+    const [Cargando, setCargando] = useState<boolean>(true);
     const [Filtrado, setFiltrado] = useState<boolean>(false);
     const [FiltradoTx, setFiltradoTx] = useState<boolean>(false);
     const [FiltradoTk, setFiltradoTk] = useState<boolean>(false);
@@ -77,6 +92,11 @@ const DashboardProvider: React.FC = ({ children }) => {
     const [SemanaSeleccionada, setSemanaSeleccionada] = useState<any[]>([]);
     const [SemanaTipo, setSemanaTipo] = useState<string>("1");
     const [TabActive, setTabActive] = useState<string>("Tab1");
+    const [DataChurn, setDataChurn] = useState<any[]>([]);
+    const [DataAcumulado, setDataAcumulado] = useState<any[]>([]);
+    const [showChurn, setshowChurn] = useState<boolean>(false);
+    const [Consulta, setConsulta] = useState<boolean>(false);
+    const [DataAcumuladoChurn, setDataAcumuladoChurn] = useState<any[]>([]);
     const value: DashboardContextModel = {
         setClientes,
         setClienteSeleccionado,
@@ -109,7 +129,17 @@ const DashboardProvider: React.FC = ({ children }) => {
         DataTk,
         setDataTk,
         TabActive,
-        setTabActive
+        setTabActive,
+        DataAcumulado,
+        setDataAcumulado,
+        showChurn,
+        setshowChurn,
+        DataChurn,
+        setDataChurn,
+        DataAcumuladoChurn,
+        setDataAcumuladoChurn,
+        Consulta,
+        setConsulta,
     };
     return (
         <DashboardContext.Provider value={value}>
@@ -123,11 +153,9 @@ function useDataDashboard() {
 const CargaClientes: React.FC = ({children}) => {
     const { setClienteSeleccionado, setClientes, ClienteSeleccionado,setFiltradoTx, setDataFiltradaTx, DataTx,  Clientes, setCargando, setFiltrado, Filtrado, Data, setDataFiltrada, setData} = useDataDashboard();
     useEffect(() =>{
-        setCargando(true);
         ObtenerListadoCLientes().then((response:AxiosResponse<any>) => {
             setClientes(response.data);
             setClienteSeleccionado(InicioCliente);
-            setCargando(false);
         }
         ).catch((error) => {
             errorDialog("Consultar clientes", "Error al consultar los clientes, no se puede desplegar informacion");
@@ -135,25 +163,28 @@ const CargaClientes: React.FC = ({children}) => {
     return () => setClientes([]);
     },[]);
 
-    return <>{(ClienteSeleccionado !== undefined && Clientes != undefined && Data != undefined ) && SeleccionClientes(Clientes,ClienteSeleccionado,setClienteSeleccionado, setFiltrado, Data, setDataFiltrada, setData,setFiltradoTx, DataTx, setDataFiltradaTx)}</>;
+    return <>{(ClienteSeleccionado !== undefined && Clientes != undefined && Data != undefined ) && SeleccionClientes(Clientes, setFiltrado, setDataFiltrada, setData,setFiltradoTx,  setDataFiltradaTx)}</>;
 }
 
-function SeleccionClientes (Clientes:any, ClienteSeleccionado:any, setClienteSeleccionado: ((arg0: ClienteDTO) => void) , setFiltrado: ((arg0: boolean) => void),Data:any, setDataFiltrada: ((arg0: any) => void), setData:((arg0: any) => void), setFiltradoTx:(arg0:any) =>void, DataTx:any, setDataFiltradaTx:(arg0:any) => void)  {
-   return (           
+function SeleccionClientes (Clientes:any,  setFiltrado: ((arg0: boolean) => void), setDataFiltrada: ((arg0: any) => void), setData:((arg0: any) => void), setFiltradoTx:(arg0:any) =>void ,setDataFiltradaTx:(arg0:any) => void)  {
+  
+    const {  DataTx, Data} = useDataDashboard();
+   
+    return (           
        <Form.Select defaultValue={0}  className=" mb-3 " onChange={(e) => {
            // buscamos el objeto completo para tenerlo en el sistema
-           let lstClientes =  Clientes?.filter((value:any, index:any) => {
-               return value.clienteIdS === Number.parseInt(e.currentTarget.value)
-           })  
-           let Cliente = (lstClientes[0] ==  undefined ? {
-               clienteIdS:0,
-               ClienteId:"",
-               clienteNombre:"Todos",
-           }:lstClientes[0]);
-           setClienteSeleccionado(Cliente); 
-
-           switch(Cliente.clienteIdS) {
-            case 0:
+        //    let lstClientes =  Clientes?.filter((value:any, index:any) => {
+        //        return value.clienteIdS === Number.parseInt(e.currentTarget.value)
+        //    })  
+        //    let Cliente = (lstClientes[0] ==  undefined ? {
+        //        clienteIdS:0,
+        //        ClienteId:"",
+        //        clienteNombre:"Todos",
+        //    }:lstClientes[0]);
+        //    setClienteSeleccionado(Cliente); 
+           
+           switch(e.currentTarget.value) {
+            case "0":
                 setFiltradoTx(false);
                 setFiltrado(false);
                 break;
@@ -162,13 +193,13 @@ function SeleccionClientes (Clientes:any, ClienteSeleccionado:any, setClienteSel
                 setFiltradoTx(true);
                 if(DataTx != undefined){
                     let DataResult = DataTx['Transmision'].filter((val:any) =>{
-                        return (val.ClienteId == Cliente.clienteId)
+                        return (val.ClienteId == e.currentTarget.value)
                     });
                     setDataFiltradaTx(DataResult);
                 }
-                if(DataTx != undefined){
+                if(Data != undefined){
                     let DataResultU = Data['Unidades'].filter((val:any) =>{
-                        return (val.ClienteId == Cliente.clienteId)
+                        return (val.ClienteId ==e.currentTarget.value)
                     });
                     setDataFiltrada(DataResultU);
                 }
@@ -178,8 +209,7 @@ function SeleccionClientes (Clientes:any, ClienteSeleccionado:any, setClienteSel
            <option value={0}>Todas las bases</option>
            {           
                Clientes?.map((element:any,i:any) => {
-                       let flag = (element.clienteIdS === (ClienteSeleccionado!= undefined?ClienteSeleccionado?.clienteIdS:0 ))
-                   return (<option key={element.clienteIdS}  value={(element.clienteIdS != null ? element.clienteIdS:0)}>{element.clienteNombre}</option>)
+                   return (<option key={element.ClienteId}  value={(element.ClienteId != null ? element.ClienteId:0)}>{element.clienteNombre}</option>)
                })
            }
        </Form.Select>               
@@ -187,7 +217,7 @@ function SeleccionClientes (Clientes:any, ClienteSeleccionado:any, setClienteSel
 }
 
 const CargarSemanas : React.FC = ({children}) =>{
-    const { setSemanas, Semanas, setSemanaSeleccionada, SemanaSeleccionada, SemanaTipo, setSemanaTipo, setFiltrado, setDataFiltrada,setFiltradoTx, setDataFiltradaTx, Data, DataTx } = useDataDashboard();
+    const { setSemanas, Semanas, setSemanaSeleccionada, SemanaSeleccionada, SemanaTipo, setSemanaTipo, setFiltrado, setDataFiltrada,setFiltradoTx, setDataFiltradaTx, Data, DataTx, setConsulta } = useDataDashboard();
     useEffect(() =>{
         let Anio = moment().format("YYYY").toString();;
         GetListadoSemanas(Anio).then((response:AxiosResponse) =>{
@@ -198,10 +228,23 @@ const CargarSemanas : React.FC = ({children}) =>{
             errorDialog("Ha ocurrido un error al tratar de obtener las semanas","");
         });
     },[SemanaTipo])
-    return <>{(SemanaSeleccionada != undefined && Semanas != undefined && SemanaTipo != undefined ) && (CargarListadoSemanas(setSemanas,Semanas,setSemanaSeleccionada,SemanaSeleccionada, SemanaTipo, setSemanaTipo, setFiltrado, setDataFiltrada,setDataFiltradaTx, Data, DataTx, setFiltradoTx))}</>
+    return <>{(SemanaSeleccionada != undefined && Semanas != undefined && SemanaTipo != undefined ) && (CargarListadoSemanas(setSemanas,Semanas,setSemanaSeleccionada,SemanaSeleccionada, SemanaTipo, setSemanaTipo, setFiltrado, setDataFiltrada,setDataFiltradaTx, Data, DataTx, setConsulta))}</>
 }
 
-function CargarListadoSemanas (setSemanas:(arg0:any)=>void, Semanas:any, setSemanaSeleccionada: (arg0:any) => void, SemanaSeleccionada:any, SemanaTipo:any, setSemanaTipo:(arg0:any) =>void, setFiltrado:(arg0:any) => void, setDataFiltrada:(arg0:any) => void,setDataFiltradaTx:(arg0:any) => void, Data:any, DataTx:any, setFiltradoTx:(arg0:any) =>void){
+function CargarListadoSemanas (
+    setSemanas:(arg0:any)=>void, 
+    Semanas:any, 
+    setSemanaSeleccionada: (arg0:any) => void, 
+    SemanaSeleccionada:any, 
+    SemanaTipo:any, 
+    setSemanaTipo:(arg0:any) =>void, 
+    setFiltrado:(arg0:any) => void, 
+    setDataFiltrada:(arg0:any) => void,
+    setDataFiltradaTx:(arg0:any) => void,
+    Data:any, 
+    DataTx:any,
+    setConsulta:(arg0:any) =>void, 
+){
     return (           
         <Form.Select defaultValue={0}  className=" mb-3 " onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
@@ -209,6 +252,7 @@ function CargarListadoSemanas (setSemanas:(arg0:any)=>void, Semanas:any, setSema
                     return value.fecha === e.currentTarget.value
                 })  
                 setSemanaSeleccionada(lstSemanas[0]);
+                setConsulta(true);
             }} aria-label="Default select example">
             {           
                 Semanas?.filter((e:any)=>{
@@ -230,6 +274,23 @@ function ExportarExcel() {
             case 'Tab2':
 
             if(DataTx != undefined && DataTx['Transmision'].length > 0){
+                let datosTemp:any[] = [];
+                   DataTx['Transmision'].map((value:any) =>{
+                    let Objeto = {};
+                    Objeto['Semana'] = value.Fecha;
+                    Objeto['Matricula'] = value.Matricula;
+                    Objeto['Base'] = value.Mase;
+                    Objeto['Vertical'] = value.Vertical;
+                    Objeto['Descripcion'] = value.Descripcion;
+                    Objeto['Sitio'] = value.Sitio;
+                    Objeto['Equipo'] = value.Equipo;
+                    Objeto['Imei'] = value.Imei;
+                    Objeto['Serial'] = value.SerialSim;
+                    Objeto['Administrador'] = value.Administrador;
+                    Objeto['ID Cliente'] = "'" + value.ClienteId;
+                    Objeto['Clasificacion'] = value.ClasificacionId;
+                    datosTemp.push(Objeto);
+                   }) 
                 let NombreArchivo = "ReporteTransmision"
                 const ws = XLSX.utils.json_to_sheet(DataTx['Transmision']);
                 const wb = { Sheets: { 'data' :ws }, SheetNames:['data']};
@@ -242,8 +303,31 @@ function ExportarExcel() {
             break;
             default:
                 if(Data != undefined && Data['Unidades'].length > 0){
+                    let ExportData:any = [];
+                    Data['Unidades'].map((item:any) =>{
+                        let Objeto = {};
+                        Objeto['Semana'] = item.Fecha;
+                        Objeto['Fecha'] = moment(item.FechaSnapShot).format("DD/MM/YYYY");
+                        Objeto['Matricula'] = item.Matricula;
+                        Objeto['Base'] = item.Base;
+                        Objeto['Vertical'] = item.Vertical;
+                        Objeto['Descripcion'] = item.Descripcion;
+                        Objeto['Sitio'] = item.Sitio;
+                        Objeto['Equipo'] = item.Equipo;
+                        Objeto['SerialSimOBC'] = item.SerialSimOBC;
+                        Objeto['SerialSimMV'] = item.SerialSimMV;
+                        Objeto['Administrador'] = item.Administrador;
+                        Objeto['ID Cliente'] = "'" + item.ClienteId;
+                        Objeto['ActivoFacturable'] = (item.ActivoFacturable);
+                        Objeto['LineaMV'] = item.LineaMV;
+                        Objeto['OBCSyscaf'] = item.OBCSyscaf;
+                        Objeto['MVSyscaf'] = item.MVSyscaf;
+                        Objeto['Paquete Comercial'] = item.PaqueteComercial;
+                        Objeto['MixVision'] = item.MixVision;
+                        ExportData.push(Objeto);
+                    })
                     let NombreArchivo = "ReporteUnidadesActivas"
-                    const ws = XLSX.utils.json_to_sheet(Data['Unidades']);
+                    const ws = XLSX.utils.json_to_sheet(ExportData);
                     const wb = { Sheets: { 'data' :ws }, SheetNames:['data']};
                     const excelBuffer = XLSX.write(wb,{ bookType:'xlsx', type: 'array'});
                     const data = new Blob([excelBuffer],{type: fileType});
@@ -259,13 +343,13 @@ function ExportarExcel() {
     )
 }
 function ActualizarUnidades() {
-    const { TabActive, SemanaSeleccionada } = useDataDashboard()
-   
+    const { TabActive, SemanaSeleccionada, setSemanaSeleccionada, setFiltrado } = useDataDashboard()
     const ActualizarUnidadesActivas = (e:any) =>{
         confirmarDialog(() => {
             let Fecha = (SemanaSeleccionada != undefined  ?  (SemanaSeleccionada?.length != 0 ?moment(SemanaSeleccionada['fecha'] ).format("YYYY/MM/DD").toString(): moment().format("YYYY/MM/DD").toString()): moment().format("YYYY/MM/DD").toString());
             SetActualizaUnidadesActivas(Fecha).then((response:AxiosResponse<any>) =>{
                 successDialog("Unidades actualizadas éxitosamente","");
+
             }).catch((error: AxiosError<any>) =>{
                 errorDialog("Ha ocurrido un error","");
             });

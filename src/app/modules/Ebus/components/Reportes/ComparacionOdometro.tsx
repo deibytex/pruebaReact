@@ -10,7 +10,7 @@ import { FormatoColombiaDDMMYYY, FormatoSerializacionYYYY_MM_DD_HHmmss } from ".
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import DualListBox from "react-dual-listbox";
-import { dualList } from "../../../CorreosTx/models/dataModels";
+import { dualList } from "../../../Tx/models/dataModels";
 import { Button, Form, Modal } from "react-bootstrap-v5";
 import { FiltrosReportes } from "../../models/eBus";
 import { ClienteDTO } from "../../models/NivelcargaModels";

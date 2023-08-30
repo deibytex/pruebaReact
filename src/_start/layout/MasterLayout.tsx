@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { AsideDefault } from "./components/aside/AsideDefault";
 import { Footer } from "./components/Footer";
 import { ScrollTop } from "./components/ScrollTop";
@@ -8,18 +8,20 @@ import { PageDataProvider } from "./core";
 
 import { Header } from "./components/header/Header";
 
+
 const MasterLayout: React.FC = ({ children }) => {
+
   return (
     <PageDataProvider>
       <div className="d-flex flex-column flex-root">
         <div className="page d-flex flex-row flex-column-fluid">
-         <AsideDefault />
+          <AsideDefault />
           <div
             className="bg-light-dark wrapper d-flex flex-column flex-row-fluid "
             id="kt_wrapper"
           >
-             <Header/>
-            <div className="d-flex flex-column flex-column-fluid "> 
+            <Header />
+            <div className="d-flex flex-column flex-column-fluid ">
               <div
                 className="content fs-6 d-flex flex-column-fluid px-2 "
                 id="kt_content"
@@ -29,13 +31,13 @@ const MasterLayout: React.FC = ({ children }) => {
             </div>
             <Footer />
           </div>
-          {/* <Sidebar />*/ } 
-          
+          {/* <Sidebar />*/}
+
         </div>
       </div>
       <ScrollTop />
-     <MasterInit />
-   {/*   <ExploreMain />*/ } 
+      <MasterInit />
+      {/*   <ExploreMain />*/}
     </PageDataProvider>
   );
 };

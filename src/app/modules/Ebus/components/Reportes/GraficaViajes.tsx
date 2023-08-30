@@ -373,7 +373,7 @@ export default function ReporteViaje() {
 
   useEffect(() => {
 
-    console.log("lstSeleccionados, filtros, eventsSelected",ClienteSeleccionado,lstSeleccionados,isCallData)
+  
 
     // consulta la informacion de las alarmas cuando 
     // cambia el ciente seleecionado y las fechas 

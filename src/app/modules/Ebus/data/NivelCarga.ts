@@ -1,4 +1,4 @@
-import { getClientesEBUS, getVehiculosCliente, Post_EventActiveViajesByDayAndClient, Post_GetConsultasDinamicas, Post_GetConsultasDinamicasUser, Post_GetConsultasDinamicasUserDWH, Post_getDynamicProcedureDWH, Post_GetTiempoActualizacion, Post_SetColumnasDatatable } from "../../../../_start/helpers/Axios/DWHService";
+import { getClientesEBUS, getVehiculosCliente, Post_EventActiveViajesByDayAndClient, Post_GetConsultasDinamicasDWH, Post_GetConsultasDinamicasUserCore, Post_GetConsultasDinamicasUserDWH, Post_getDynamicProcedureDWH, Post_GetTiempoActualizacion, Post_SetColumnasDatatable } from "../../../../_start/helpers/Axios/DWHService";
 
 export  function GetClientes() {
     return  getClientesEBUS();
@@ -56,7 +56,7 @@ export function GuardarConfiguracion(UserId:string, OpcionId:string,
     params['ClienteId'] = ClienteId;
     params['Configuracion'] = Configuracion;
     params['FechaSistema'] = FechaSistema;
-    return Post_GetConsultasDinamicasUser({    Clase : "PortalQueryHelper",  NombreConsulta: "ConfiguracionGuardar", Pagina :null, RecordsPorPagina :null},params);
+    return Post_GetConsultasDinamicasUserCore({    Clase : "PortalQueryHelper",  NombreConsulta: "ConfiguracionGuardar", Pagina :null, RecordsPorPagina :null},params);
 }
 export function ObtenerConfiguracion(UserId:string, OpcionId:string, 
     OrganizacionId:string, ClienteId:string) {
@@ -65,6 +65,6 @@ export function ObtenerConfiguracion(UserId:string, OpcionId:string,
     params['OpcionId'] = OpcionId;
     params['OrganizacionId'] = OrganizacionId;
     params['ClienteId'] = ClienteId;
-    return Post_GetConsultasDinamicasUser({    Clase : "PortalQueryHelper",  NombreConsulta: "ObtenerConfiguracion", Pagina :null, RecordsPorPagina :null},params);
+    return Post_GetConsultasDinamicasUserCore({    Clase : "PortalQueryHelper",  NombreConsulta: "ObtenerConfiguracion", Pagina :null, RecordsPorPagina :null},params);
 }
 

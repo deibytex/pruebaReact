@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useSelector } from "react-redux";
-import { CORE_ExecProcedureByTipoConsulta,  CORE_getconsultadinamicas, CORE_getconsultadinamicasUser, CORE_GetConsultasDinamicas, urlFatigueGetConfiguracionAlerta, urlFatigueSetConfiguracionAlerta } from "../../../apiurlstore";
+import { CORE_ExecProcedureByTipoConsulta,  CORE_getconsultadinamicas, CORE_getconsultadinamicasUser, CORE_GetConsultasDinamicas, CORE_getGruposSeguridad, CORE_setGrupoSeguridad, urlFatigueGetConfiguracionAlerta, urlFatigueSetConfiguracionAlerta } from "../../../apiurlstore";
 import { RootState } from "../../../setup";
 import { ParamsEndPointDynamic } from "../Models/paramsConsultasDinamicas";
 import jwt_decode from "jwt-decode"
@@ -54,7 +54,7 @@ export function EsAutorizadoIngresar(NombreOpcion: string) {
   );
 
   const menu = menuString as any[];
-  
+
   let tienePermiso = false;
 
   menu.forEach((elemnt) => {
@@ -83,81 +83,113 @@ export function PermisosOpcion(NombreOpcion: string) {
     ({ auth }) => auth.menu
   );
   const menu = menuString as any[];
-  let operaciones : any[]= [];
-  menu.forEach((elemnt) => {
+  if (menu === null || menu === undefined || menu.length === 0)
+    return [];
 
-    const nombre: string = elemnt["nombreOpcion"];
+  let operaciones: any[] = [];
+  let opciones: any[] = [];
+  menu.map((m: any) => opciones.push(...m.opciones));
+  opciones.forEach((elemnt: any) => {
+
+    const nombre: string = elemnt.NombreOpcion;
     if (nombre.toLowerCase() === NombreOpcion.toLowerCase()) {
-       operaciones = elemnt["lstOperacion"] as any[];      
+      operaciones = elemnt.operaciones as any[];
     }
   })
-  return  operaciones;
+  return operaciones;
   ;
 
 }
 
 // valida si una operacion esta contenida en un listado de opciones
-export function EsPermitido(Operaciones : any[], operacion : string){
+export function EsPermitido(Operaciones: any[], operacion: string) {
 
-let espermitido = false;
-Operaciones.forEach( (oper) => {
+  let espermitido = false;
+  Operaciones.forEach((oper) => {
 
-    if(oper["operacion"] === operacion)
-    espermitido = true;
-})
+    if (oper["operacion"] === operacion)
+      espermitido = true;
+  })
 
-return espermitido;
+  return espermitido;
 }
 
-export enum Operaciones { 
-  Adicionar = "ADD", 
-  Eliminar = "DEL", 
-  Descargar = "DOWN", 
-  Ingresar = "ING", 
-  Consultar = "SEARCH", 
+export enum Operaciones {
+  Adicionar = "ADD",
+  Eliminar = "DEL",
+  Descargar = "DOWN",
+  Ingresar = "ING",
+  Consultar = "SEARCH",
   Modificar = "UPD"
 }
 
 
-export const  isRefresh = (accessToken : string) => {
-  const decoded =  jwt_decode<any>(accessToken)    
+export const isRefresh = (accessToken: string) => {
+  const decoded = jwt_decode<any>(accessToken)
   // verifica que el token no haya espirado, si falta unos minutos antes de 
   // expirar refresca el token para que continue navegando
   // el token se refresca cada 30 minutos esto con el fin de que se vuelva a loguer 
   // para poder volver a ver la informacion
-  let diffTime = ((decoded.exp * 1000)  -Date.now()  ) / 60000; // determinamos los minutos que faltan para cumplirse el tiempo de expiracion
- 
-  return (diffTime >= 0 && diffTime <= 10) ;  // si esta dentro de los 10  minutos refrescamos el token de lo contrario se debera loguear nuevamente 
+  let diffTime = ((decoded.exp * 1000) - Date.now()) / 60000; // determinamos los minutos que faltan para cumplirse el tiempo de expiracion
+
+  return (diffTime >= 0 && diffTime <= 10);  // si esta dentro de los 10  minutos refrescamos el token de lo contrario se debera loguear nuevamente 
 }
 
-export const  isExpire = (accessToken : string) => {
-  const decoded =  jwt_decode<any>(accessToken)    
+export const isExpire = (accessToken: string) => {
+  const decoded = jwt_decode<any>(accessToken)
   // verifica que el token no haya espirado, si falta unos minutos antes de 
   // expirar refresca el token para que continue navegando
   // el token se refresca cada 30 minutos esto con el fin de que se vuelva a loguer 
   // para poder volver a ver la informacion
-   let diffTime = ((decoded.exp * 1000)  -Date.now()  ) / 60000; // determinamos los minutos que faltan para cumplirse el tiempo de expiracion
+  let diffTime = ((decoded.exp * 1000) - Date.now()) / 60000; // determinamos los minutos que faltan para cumplirse el tiempo de expiracion
 
-  return (diffTime < 0) ;  // si esta dentro de los 10  minutos refrescamos el token de lo contrario se debera loguear nuevamente 
+  return (diffTime < 0);  // si esta dentro de los 10  minutos refrescamos el token de lo contrario se debera loguear nuevamente 
+}
+export  function GetClientes(props:any) {
+  return  Post_getconsultadinamicasUser({
+    Clase: "TxQueryHelper",
+    NombreConsulta: "GetClienteTx",
+    Pagina: null,
+    RecordsPorPagina: null
+  }, props )
 }
 
-export function GetConfiguracionAlerta(data:any) {
+export function GetConfiguracionAlerta(data: any) {
   return axios(
-      {
-          method:'post',
-          url:urlFatigueGetConfiguracionAlerta,
-          data:JSON.stringify(data),
-          headers: { 'Content-Type': 'application/json' },
-      }
+    {
+      method: 'post',
+      url: urlFatigueGetConfiguracionAlerta,
+      data: JSON.stringify(data),
+      headers: { 'Content-Type': 'application/json' },
+    }
   );
 }
-export function SetConfiguracionAlerta(data:any) {
+export function SetConfiguracionAlerta(data: any) {
   return axios(
-      {
-          method:'post',
-          url:urlFatigueSetConfiguracionAlerta,
-          data:JSON.stringify(data),
-          headers: { 'Content-Type': 'application/json' },
-      }
+    {
+      method: 'post',
+      url: urlFatigueSetConfiguracionAlerta,
+      data: JSON.stringify(data),
+      headers: { 'Content-Type': 'application/json' },
+    }
   );
+}
+export  function  Post_getGruposSeguridad(clientesIdS: number | null) {
+  return  axios({
+    method: 'get',
+    url:  CORE_getGruposSeguridad,     
+    headers: { 'Content-Type': 'application/json' },
+    params : { clientesIdS }
+  });
+}
+
+
+export function Post_SetGrupoSeguridad(body: any) {
+  return axios({
+    method: 'post',
+    url: CORE_setGrupoSeguridad,
+    data: JSON.stringify(body),
+    headers: { 'Content-Type': 'application/json' },
+    params: {}
+  });
 }
