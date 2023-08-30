@@ -21,7 +21,7 @@ import './style/dahsboard.css';
 import { useToaster, Notification } from "rsuite";
 export default function HomePostVenta() {
     const toaster = useToaster();
-
+    const ValorEstado = "3";
     const message = (type: any, titulo: string, mensaje: React.ReactNode) => {
       return (<Notification className="bg-light-danger" type={type} header={titulo}
         closable duration={10000}>
@@ -29,7 +29,7 @@ export default function HomePostVenta() {
       </Notification>)
     }
 
-    
+    const [titulo, setTiulo] = useState<string>("Creación de requerimiento");
     //Esta es para tomar la cantidad de muestra de vehiculos de transmision.
     const MuestraTX = 1000;
     const [show, setShow] = useState(false);
@@ -46,7 +46,7 @@ export default function HomePostVenta() {
     const [TipoRequerimientos, setTipoRequerimientos] = useState<any[]>([]);
     const [TipoRequerimientosSeleccionado, setTipoRequerimientosSeleccionado] = useState<any>({ Nombre: "", Valor: "" });
     const [EstadoRequerimientos, setEstadoRequerimientos] = useState<any[]>([]);
-    const [EstadoRequerimientosSeleccionado, setEstadoRequerimientosSeleccionado] = useState<any>({ "label": "Creado", "valor": "1" });
+    const [EstadoRequerimientosSeleccionado, setEstadoRequerimientosSeleccionado] = useState<any>({ "Nombre": "Soporte - Sin Asignar", "valor": "3", "Tipo":"Estado"});
     const [Observaciones, setObservaciones] = useState<string>("");
     const [TituloModal, setTituloModal] = useState<string>("");
     const [TituloTicket, setTituloTicket] = useState<string>("Listado de tickets por estado");
@@ -161,7 +161,8 @@ export default function HomePostVenta() {
 
     //FUNCION DE CREAR LOS REQUERIMIENTOS
     const CrearRequerimiento = (row: any) => {
-        let data = (row.original == undefined ? row : row.original)
+        let data = (row.original == undefined ? row : row.original);
+        setTiulo(`Nuevo requerimiento para el vehiculo  ${data.registrationNumber}`)
         setObservaciones("");
         if (data.estado == "Operando Normalmente") {
             setCabecera({
@@ -174,6 +175,8 @@ export default function HomePostVenta() {
                 nombrecliente: (data.clienteNombre == undefined ? data.clientenNombre : data.clienteNombre),
                 agente: null,
                 UsuarioId: null,
+                Fallas:(data.TFallas == null || data.TFallas == undefined ? 0:data.TFallas),
+                DiasSinTx:(data.diffAVL == undefined ? data.DiasSinTx : data.diffAVL)
             });
             setShowr(true);
             setShow(false);
@@ -192,6 +195,8 @@ export default function HomePostVenta() {
                         nombrecliente: (data.clientenNombre == undefined ? data.clienteNombre : data.clientenNombre),
                         agente: null,
                         UsuarioId: null,
+                        Fallas:(data.TFallas == null || data.TFallas == undefined ? 0:data.TFallas),
+                        DiasSinTx:(data.diffAVL == undefined ? data.DiasSinTx : data.diffAVL)
                     });
                     setShowr(true);
                     setShow(false);
@@ -205,7 +210,7 @@ export default function HomePostVenta() {
     //Se cargan los tipos
     const CargarTipos = () => {
         return (
-            <Form.Select className=" mb-3 " onChange={(e) => {
+            <Form.Select disabled className=" mb-3 " onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
                 let _seleccionado = TipoRequerimientos?.filter((value: any, index: any) => {
                     return value.Nombre === e.currentTarget.value;
@@ -263,7 +268,7 @@ export default function HomePostVenta() {
         Campos["Tipo"] = TipoRequerimientosSeleccionado.Nombre;
         Campos["Cabecera"] = JSON.stringify([Cabecera]);
         Campos["Observaciones"] = JSON.stringify(Obervaciones);
-        Campos["Estado"] = JSON.stringify(EstadoRequerimientosSeleccionado);
+        Campos["Estado"] = JSON.stringify({"label":"Soporte - Sin Asignar","valor":"3"});
         confirmarDialog(() => {
             setLoader(true)
             SetRequerimiento(Campos).then((response: AxiosResponse<any>) => {
@@ -704,10 +709,20 @@ export default function HomePostVenta() {
                         if (val.Valor == "Tipo")
                             return val;
                     }));
-                    setEstadoRequerimientos(resp.data.filter((val: any, index: any) => {
+                    setTipoRequerimientosSeleccionado(resp.data.filter((val: any, index: any) => {
+                        if (val.Valor == "Tipo")
+                            return val;
+                    })[0])
+                    let Estados:any[] = resp.data.filter((val: any, index: any) => {
                         if (val.Valor == "Estado")
                             return val;
-                    }));
+                    }).map((e:any) =>{
+                        return { "Nombre": e.Nombre, "valor": e.DetalleListaId, "Tipo":e.Valor };
+                    });
+                    Estados.push({ "Nombre": "Soporte - Sin Asignar", "valor": "3" })
+                    setEstadoRequerimientos(Estados);
+                    let Estadoseleccionado = Estados.filter(e =>e.valor == ValorEstado);
+                    setEstadoRequerimientosSeleccionado(Estadoseleccionado[0]);
                 }).catch(() => {
                     console.log("Error de consulta de detalles listas");
                     setLoader(false);
@@ -1199,7 +1214,7 @@ export default function HomePostVenta() {
 
             {(showr && !show) && (<Modal show={showr} onHide={setShowr} size="lg">
                 <Modal.Header closeButton>
-                    <Modal.Title>Creación de requerimiento</Modal.Title>
+                    <Modal.Title>{titulo}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <div className="container">
@@ -1232,7 +1247,7 @@ export default function HomePostVenta() {
                 </Modal.Body>
                 <Modal.Footer>
                     <button className="btn btn-sm btn-primary" onClick={EnviarRequerimiento}>Guardar</button>
-                    <button className="btn btn-sm btn-secundary" onClick={() => { setShowr(false); setShow(true); }}>Cancelar</button>
+                    <button className="btn btn-sm btn-secundary" onClick={() => { setShowr(false);}}>Cancelar</button>
                 </Modal.Footer>
             </Modal>)}
             {(sowL) && (TiketsDatos.length != 0) && (<Modal show={sowL} onHide={setShowL} size="lg">

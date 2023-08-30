@@ -13,13 +13,14 @@ import { DateRangePicker, useToaster, Notification} from "rsuite";
 import { Button, Form,  Modal } from "react-bootstrap-v5";
 import { locateFormatPercentNDijitos } from "../../../../../../_start/helpers/Helper";
 import { Box, FormControl, FormControlLabel, FormLabel, IconButton, Radio, RadioGroup, Tooltip } from "@mui/material";
-import { Assignment,  DeckTwoTone, Delete, Edit, ViewAgenda } from "@mui/icons-material";
+import { Assignment,  BorderOuter,  DeckTwoTone, Delete, Edit, Message, ViewAgenda } from "@mui/icons-material";
 import { DescargarExcel} from "../../../../../../_start/helpers/components/DescargarExcel";
  //import {  ListadoDLP } from "../../mockData/indicadores";
 import { useSelector } from "react-redux";
 import { UserModelSyscaf } from "../../../../auth/models/UserModel";
 import { RootState } from "../../../../../../setup";
 import confirmarDialog, { confirmarDialogText, successDialog } from "../../../../../../_start/helpers/components/ConfirmDialog";
+import CreacionSt from "./CreacionSt";
 
 export default function Creacion() {
     //INICIO ESPACIO CONSTANTES
@@ -53,11 +54,15 @@ export default function Creacion() {
         { "Estado": "Tasa de resolución", "Descripcion": "Tasa de resolución de los requerimientos de los últimos 7 días", "Valor": 0 },
         { "Estado": "Total resueltos", "Descripcion": "Total de requerimientos resueltos en los últimos 7 días.", "Valor": 0 }
     ]);
+    const [OcultarEstado, setOcultarEstado] = useState<boolean>(false);
+    const [Asignar, setAsignar] = useState<boolean>(false);
     // const [cajas, setCajas] = useState<string>("3");
     const [Id, setId] = useState<string>("");
     const [IsDiagnostico, setIsDiagnostico] = useState<boolean>(false);
     const [val, setval] = useState<boolean>(false);
-
+    //Constante para el modal de ST
+    const [ShowSt, setShowSt] = useState<boolean>(false);
+    const [StInicialData, setStInicialData] = useState<any[]>([]);
     //Para el diagnostico
   //   let DiagnosticoCon:any[]= [];
     const [Diagnostico, setDiagnostico] = useState<any[]>([]);
@@ -71,7 +76,9 @@ export default function Creacion() {
             clienteid: "",
             registrationNumber: "",
             nombrecliente: "",
-            agente: ""
+            agente: "",
+            Fallas:"",
+            DiasSinTx:""
         }
     );
     //Para las observaciones Iniciales
@@ -92,6 +99,7 @@ export default function Creacion() {
     const [GrandeModal, setGrandeModal] = useState<any>('');
     const [ShowAsignacion, setShowAsignacion] = useState<boolean>(false);
     const [ShowModalDiag, setShowModalDiag] = useState<boolean>(false);
+    const [ModalDLP, setModalDLP] = useState<boolean>(false);
     const [Encabezado, setEncabezado] = useState<any>({});
     const [InfDiag, setInfDiag] = useState<any[]>([]);
     // const [TipoRequerimientosSeleccionado, setTipoRequerimientosSeleccionado] = useState<any>({ Nombre: "", Value: "" });
@@ -150,7 +158,7 @@ export default function Creacion() {
     /*============================================================================================================================================================================== */
         const PerfilSuperAdmin = "117";
         const PerfilAdminFlota = "118";
-        const PerfilEmpleado = "116";
+        const PerfilEmpleado = "117";
     /*============================================================================================================================================================================== */
     /** ESpacio para los tipos de estados a usar por el momento usare estos porque fueron los que se habian definido si en un posterior evento se dinamiza cambiar por estos.        */
     /*============================================================================================================================================================================== */
@@ -465,7 +473,8 @@ export default function Creacion() {
                     Tiporeporte[tabSel].Consultar = false;
                     Tiporeporte[tabSel].Data = response.data;
                     setTipoReporte(Tiporeporte);
-                    FiltroDatos();
+                    if(Usuarios.length != 0)
+                        FiltroDatos();
                     setloader(false);
                     setIsError(false);
                     setIsLoading(false);
@@ -655,6 +664,7 @@ export default function Creacion() {
     },[Usuarios])
     //Para mostrar la info una vez carguen los usuarios
     useEffect(() =>{
+        if(UserCount.length != 0)
         FiltroDatos();
     },[UserCount])
     //FUNCION PARA VALIDAR LAS FECHAS
@@ -779,14 +789,14 @@ export default function Creacion() {
         setshow(true);
     }
     //PARA QUE PUEDAN SELECCIONAR UN ESTADO NUEVO.
-    function EstadosEditar() {
+    function EstadosEditar () {
         return (
             <div className="input-group mb-3">
                 <span style={{ height: '40px' }} className="input-group-text mt-3" id="basic-addon1"><i className="bi-credit-card-2-front"></i></span>
                 <Form.Select title="Estados para asignación" style={{ height: '40px' }} className="input-sm  mb-3 mt-3 " onChange={(e) => {
                     // buscamos el objeto completo para tenerlo en el sistema
-                    let lstEstado = EstadoRequerimientos.filter((value: any) => {
-                        return value.valor === e.currentTarget.value
+                    let lstEstado = EstadoRequerimientos.filter((val: any) => {
+                        return val.valor === e.currentTarget.value
                     })
                     setEstadoRequerimientosSeleccionado((lstEstado[0] ? lstEstado[0] : { "Estado": "Seleccione" }));
                 }} aria-label="Default select example">
@@ -803,7 +813,6 @@ export default function Creacion() {
                     }
                 </Form.Select>
             </div>
-
         );
     }
     //PARA QUE PUEDAN SELECCIONAR UN USUARIO NUEVO.
@@ -832,9 +841,12 @@ export default function Creacion() {
     }
     //PARA QUE PUEDAN SELECCIONAR UN AGENTE DIFERENTE Y NUEVO.
     const EditarRequerimiento = (row: any) => {
+        let Est = JSON.parse(row.original.Estado);
+        (Est.valor == "4" || Est.valor == "8"? setOcultarEstado(true):setOcultarEstado(false));
+        (Est.valor == "1"  || Est.valor == "2" || Est.valor == "3" && !UserCount[0].EsGestor ? setAsignar(true):setAsignar(false));
        //Para saber cual es el diagnostico
         setDiagnostico(row.original.Diagnostico == null ? []: JSON.parse(row.original.Diagnostico));
-        setloader(true);
+        // setloader(true);
         setObservacionesModificar("");
         let Cabeceras = JSON.parse(row.original.Cabecera);
         setCabeceraInicial(Cabeceras);
@@ -881,8 +893,8 @@ export default function Creacion() {
         //
         //=======================================================================================================================================================
         //&& !UserCount[0].EsGestor vUser.perfil == PerfilEmpleado  && vUser.perfil == PerfilEmpleado &&
-        ( EstadoSelect[0].valor =="5" ?EncabezadoConsulta(Cabeceras[0].assetid):EncabezadoSinconsulta());
-        ( EstadoSelect[0].valor =="5"  ?setGrandeModal("xl"):setGrandeModal("lg"));
+        // ( EstadoSelect[0].valor =="5" ?EncabezadoConsulta(Cabeceras[0].assetid):EncabezadoSinconsulta());
+        // ( EstadoSelect[0].valor =="5"  ?setGrandeModal("xl"):setGrandeModal("lg"));
         setIsDiagnostico(false);
         setshowedit(true)
         let Obs = JSON.parse(row.original.Observaciones);
@@ -895,6 +907,16 @@ export default function Creacion() {
         // );
         setId(row.original.Id);
         setAdmin(_admin[0]);
+
+         //Para armar el de ST
+         let stinicial = [...StInicialData];
+         stinicial["ObsInicial"] = JSON.parse(row.original.Observaciones);
+         stinicial["Nombres"] = vUser.Nombres;
+         stinicial["Id"] = row.original.Id;
+         stinicial["EstadosRequerimientos"] = EstadosRequerimientos;
+         stinicial["ListadoDLPRespuesta"] = ListadoDLPRespuesta;
+         setStInicialData(stinicial);
+
     };
     //Para Crearlo y enviarlo al servidor
     const Guardar = () => {
@@ -914,6 +936,8 @@ export default function Creacion() {
             nombrecliente: CabeceraIncial[0].nombrecliente,
             agente: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.Nombres),
             UsuarioId: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.UserId),
+            Fallas:CabeceraIncial[0].TFallas,
+            DiasSinTx:(CabeceraIncial[0].DiasSinTx)
         }
         // setCabecera(_Cabecera);
         let _obs = ObsInicial;
@@ -957,7 +981,7 @@ export default function Creacion() {
                         dataNotificacion['Descripcion']= TextoNotificacion.replace("{UsuarioDestino}",`${UsuarioSeleccionado.Nombres}`).replace("{Admin}",`${Admin.Administrador}`).replace("{Consecutivo}",`${ConsecutivoNotificacion}`);
                         dataNotificacion['NotificarCorreo']= NotificarCorreo;
                         dataNotificacion['NotificarPortal']= NotificarPortal;
-                        Notificar(dataNotificacion)
+                        FiltroData.Notificar(dataNotificacion)
                     }
                     setloader(false);
                 }
@@ -966,7 +990,7 @@ export default function Creacion() {
                 console.log("Error", error)
                 setshowedit(false);
             });
-        }, `¿Esta seguro que desea editar el registro?`, 'Guardar');
+        }, `¿Esta seguro que desea agregar información al registro?`, 'Guardar');
     }
     //Para formar la asignacion
     const Asignacion = (row:any) =>{
@@ -1008,17 +1032,19 @@ export default function Creacion() {
     const GuardarAsginacion = () =>{
         let _Cabecera = {
             administrador: Admin.Administrador,
-            UsuarioId: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.UserId) ,
+            UsuarioId: (UsuarioSeleccionado.UserId == "0" ? UserCount[0].UserId :UsuarioSeleccionado.UserId) ,
             assetid: CabeceraIncial[0].assetid,
             clienteid: CabeceraIncial[0].clienteid.toString(),
             registrationNumber: CabeceraIncial[0].registrationNumber,
             nombrecliente: CabeceraIncial[0].nombrecliente,
-            agente: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.Nombres) 
+            agente: (UsuarioSeleccionado.UserId == "0" ? UserCount[0].Nombres :UsuarioSeleccionado.Nombres) ,
+            Fallas:CabeceraIncial[0].TFallas,
+            DiasSinTx:(CabeceraIncial[0].DiasSinTx)
         }
         // setCabecera(_Cabecera);
         let _obs = ObsInicial;
         let estado =  JSON.stringify(EstadoRequerimientos.map((val:any) =>{
-            return (val.label == Asignados ? { "label": val.label, "valor": val.valor } : undefined )
+            return (val.valor == "4" ? { "label": val.label, "valor": val.valor } : undefined )
         }).filter((e) =>e)[0]);
         _obs.push(
             {
@@ -1060,7 +1086,7 @@ export default function Creacion() {
                         dataNotificacion['Descripcion']= TextoNotificacion.replace("{UsuarioDestino}",`${UsuarioSeleccionado.Nombres}`).replace("{Admin}",`${Admin.Administrador}`).replace("{Consecutivo}",`${ConsecutivoNotificacion}`);
                         dataNotificacion['NotificarCorreo']= NotificarCorreo;
                         dataNotificacion['NotificarPortal']= NotificarPortal;
-                        Notificar(dataNotificacion)
+                        FiltroData.Notificar(dataNotificacion)
                     }
                     setloader(false);
                     setShowAsignacion(false);
@@ -1107,14 +1133,7 @@ export default function Creacion() {
             console.log(e.value);
         }, "¿Esta seguro que desea eliminar el registro?", "a", 'Si, Eliminar')
     };
-    //NOTIFICAR
-    const Notificar = (Data:any) =>{
-        SetNotificaciones(Data).then((response:AxiosResponse<any>) =>{
-            console.log("Ha sido notificado.");
-        }).catch(({error}) =>{
-            console.log("Error: ", error)
-        });
-    };
+ 
     //Muestra el diggnostico de requerimiento
     const VerRequerimiento = (row:any) =>{
       let _Diagnostico:any[]=[];
@@ -1126,7 +1145,6 @@ export default function Creacion() {
             setIsDiagnostico(true);
             _Diagnostico = JSON.parse(row.original.Diagnostico);
             setInfDiag(_Diagnostico);
-            EncabezadoConsulta(JSON.parse(row.original.Cabecera)[0].assetid);
             setShowModalDiag(true);
         }
     }
@@ -1178,18 +1196,23 @@ export default function Creacion() {
                             </IconButton>
                         </Tooltip>
                         {/* Para editar si cumple con la condicion */}
-                        {(vUser.perfil == PerfilEmpleado || vUser.perfil == PerfilSuperAdmin || vUser.perfil == PerfilAdminFlota) && (<Tooltip arrow placement="top" title="Editar requerimiento">
+                        {(vUser.perfil == PerfilEmpleado || vUser.perfil == PerfilSuperAdmin || vUser.perfil == PerfilAdminFlota) && (<Tooltip arrow placement="top" title="Edición o asignación de requerimiento">
                             <IconButton onClick={() => EditarRequerimiento(row)}>
-                                <Edit  className="text-warning" />
+                                {(JSON.parse(row.original.Estado).valor === "4" || JSON.parse(row.original.Estado).valor === "5"  || JSON.parse(row.original.Estado).valor === "8"?  <Message   className="text-info"/>:<Edit  className="text-warning" />) }
+                                
                             </IconButton>
                         </Tooltip>)}
+                        {/*Permite realizar el dlp */}
+                        {
+                        (EstadoRequerimientos.filter(e =>e.valor == "5")[0].label == JSON.parse(row.original.Estado).label) && (JSON.parse(row.original.Cabecera)[0].UsuarioId == vUser.Id ) && (<Tooltip arrow placement="top" title="Realizar DLP">
+                            <IconButton onClick={() => EncabezadoConsulta(row)}>
+                                {/* <i className="text-success bi-border-style"></i> */}
+                              <BorderOuter  className="text-success" />
+                            </IconButton>
+                        </Tooltip>)
+                        }
                         {/* Permite ver el diagnostico del requerimiento */}
-                        {(vUser.perfil == PerfilEmpleado || vUser.perfil == PerfilSuperAdmin || vUser.perfil == PerfilAdminFlota) 
-                            && 
-                            (
-                                row.original.Estado == estadoCompletado
-                            )
-                            
+                        {(vUser.perfil == PerfilEmpleado || vUser.perfil == PerfilSuperAdmin || vUser.perfil == PerfilAdminFlota) && (row.original.Estado == estadoCompletado)
                         && (<Tooltip arrow placement="top" title="Ver diagnóstico de requerimiento">
                             <IconButton onClick={() => VerRequerimiento(row)}>
                                 <ViewAgenda  className="text-info" />
@@ -1204,7 +1227,7 @@ export default function Creacion() {
                             </IconButton>
                         </Tooltip>)}
                         {/* Permite asignarlo siempre y cuando este en estado creado sino no lo asigna a soporte*/}
-                        {(FiltroData.getIsActivoMod(row, EventosCreados) && (vUser.perfil === PerfilSuperAdmin || vUser.perfil === PerfilEmpleado) && FiltroData.getIsUsuarioSoporte(UserCount[0].UserId, Usuarios)) && (<Tooltip arrow placement="right" title="Asignar requerimiento">
+                        {((vUser.perfil === PerfilSuperAdmin || vUser.perfil === PerfilAdminFlota) && (UserCount[0].EsGestor) && FiltroData.getIsUsuarioSoporte(UserCount[0].UserId, Usuarios) && (FiltroData.getEsAsignable(row.original,EstadoRequerimientos.filter(e =>e.valor == "3")[0].label))) && (<Tooltip arrow placement="right" title="Asignar requerimiento">
                             <IconButton onClick={() => {
                                 Asignacion(row);
                             }}>
@@ -1240,51 +1263,15 @@ export default function Creacion() {
         </>
     }
     //Obtiene un encabezado
-    const EncabezadoConsulta = (id:any) =>{
-        (!IsDiagnostico??setGrandeModal('xl'));
-        setloader(true);
-        let DatosEncabezados:any[] = [];
-        let Señales:any[]=[];
-        GetEncabezado(id).then((response:AxiosResponse<any>) =>{
-            if(response.statusText == "OK"){
-                DatosEncabezados = response.data;
-                GetEncabezadoFallas(response.data[0].FechaInicial,response.data[0].FechaFinal, response.data[0].ClienteIdS).then((res:AxiosResponse<any>) =>{
-                    Señales= [...DatosEncabezados];
-                    if(res.data.length != 0){
-                        let Vehiculo =  res.data.filter((val:any) =>{
-                            return val.AssetId == DatosEncabezados[0].AssetId;
-                        }) 
-                        Señales[0].Fallas = Vehiculo[0].TFallas;
-                    }else
-                        Señales = Señales.map((val:any) =>{
-                                val.Fallas = 0;
-                                return val;
-                        })
-                    setEncabezado(Señales[0]);
-                    setloader(false)
-                }).catch(({err}) =>{
-                    console.log(err);
-                    setloader(false);
-                });
-            }
-        }).catch(({error}) =>{
-            (!IsDiagnostico??setshowedit(true));
-            setloader(false);
-            console.log("Error: ", error);
-        });
-    }
-    //Consulta el encabezado pero que no es el modal grande de resolver requerimiento
-    const EncabezadoSinconsulta = () =>{
-        setloader(true);
-        setGrandeModal('lg');
-        setloader(false)
+    const EncabezadoConsulta = (row:any) =>{
+        setEncabezado(JSON.parse(row.original.Cabecera)[0]);
+        setModalDLP(true)
     }
     //Este resuelve el requerimiento
     //==========================================================================================================
     // RESUELVE EL REQUERIMIENTO
     //==========================================================================================================
     const GuardarOtro = () =>{
-        console.log(FiltroData.getEsCompletado(ListadoDLPRespuesta).length);
         let _Cabecera = {
             administrador: Admin.Administrador,
             UsuarioAdministradorId: Admin.Id,
@@ -1305,6 +1292,8 @@ export default function Creacion() {
                 estado: JSON.stringify((FiltroData.getEsCompletado(ListadoDLPRespuesta).length == 0 ?  EstadosRequerimientos.filter((e:any)=>e.valor == "8" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}})[0]:EstadosRequerimientos.filter((e:any)=>e.valor == "5" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}})[0]))
             }
         )
+       
+        //Para enviar al servidor
         let Campos = {};
         Campos["Diagnostico"] = JSON.stringify(ListadoDLPRespuesta);
         Campos["Observaciones"] = JSON.stringify(_obs);
@@ -1335,7 +1324,7 @@ export default function Creacion() {
                     dataNotificacion['Descripcion'] = TextoNotificacionAmin.replace("{Admin}",`${Admin.Administrador}`).replace("{UsuarioDestino}",`${UsuarioSeleccionado.Nombres}`).replace("{Consecutivo}",`${ConsecutivoNotificacion}`);
                     dataNotificacion['NotificarCorreo']= NotificarCorreo;
                     dataNotificacion['NotificarPortal']= NotificarPortal;
-                    Notificar(dataNotificacion)
+                    FiltroData.Notificar(dataNotificacion)
                     setloader(false);
                 }
 
@@ -1655,12 +1644,12 @@ export default function Creacion() {
                     </div>
                 </Modal.Body>
             </Modal>
-            <Modal show={showedit} onHide={setshowedit} size={GrandeModal}>
+            <Modal show={showedit} onHide={setshowedit} size={"lg"}>
                 <Modal.Header closeButton>
                     <Modal.Title>{Titulo}</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
-                    <div className="row" style={{display:(GrandeModal== "lg"? "inline block":"none")}}>
+                <Modal.Body className="p-0">
+                    <div className="row">
                         <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 text-center">
                             <div className="row">
                                 <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
@@ -1671,15 +1660,9 @@ export default function Creacion() {
                                 </div>
                             </div>
                         </div>
-                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6" style={{display:`${(OcultarEstado ? 'inlline block':"none")}`}}>
                             <div className="form-control-sm">
-                                <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Agente: </label>
-                                <AgentesEditar></AgentesEditar>
-                            </div>
-                        </div>
-                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                            <div className="form-control-sm">
-                                <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Estados: </label>
+                                <label className="control-label label label-sm" style={{ display:``, fontWeight: 'bold' }}>Estados: </label>
                                 <EstadosEditar></EstadosEditar>
                             </div>
                         </div>
@@ -1692,102 +1675,12 @@ export default function Creacion() {
                             </div>
                         </div>
                     </div>
-                    <div className="container" style={{display:(GrandeModal== "xl" ? "inline":"none")}}>
-                        <div className="row">
-                            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                                <div className="">
-                                    <label className="mx-4 fs-6 fw-bolder">Cliente: </label>
-                                </div>
-                                <span className="mx-4 fs-5 text-muted">{Encabezado.Cliente}</span>
-                            </div>
-                            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
-                                <div className="">
-                                    <label className="mx-4 fs-6 fw-bolder">Placa: </label>
-                                </div>
-                                <span className="mx-4 fs-6 text-muted">{Encabezado.RegistrationNumber}</span>
-                            </div>
-                            <div className="col-sm-5 col-xl-5 col-md-5 col-lg-5">
-                                <div className="">
-                                    <label className="mx-4 fs-6 fw-bolder">Admintrador (es) : </label>
-                                </div>
-                                <span className="mx-4 fs-5 text-muted">{(Encabezado.Administrador != undefined ?JSON.parse(Encabezado.Administrador).map((e: any) => e.Nombres).join() :[].map((e: any) => e.Nombres).join())}</span>
-                            </div>
-                            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                                <div className="">
-                                    <label className="mx-4 fs-6 fw-bolder">Sitio: </label>
-                                </div>
-                                <span className="mx-4 fs-6 text-muted">{Encabezado.Sitio}</span>
-                            </div>
-                            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
-                                <div className="">
-                                    <label className="mx-4 fs-6 fw-bolder">Días sin Tx: </label>
-                                </div>
-                                <span className="mx-4 fs-5 text-muted">{Encabezado.DiasSinTx}</span>
-                            </div>
-
-                            <div className="col-sm-5 col-xl-5 col-md-5 col-lg-5">
-                                <div className="">
-                                    <label className="mx-4 fs-6 fw-bolder">Descripción: </label>
-                                </div>
-                                <span className="mx-4 fs-6 text-muted">{Encabezado.AssetDescription}</span>
-                            </div>
-                            {
-                                (Encabezado.Fallas != 0) && (<div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                                    <div className="">
-                                        <label className="mx-4 fs-6 fw-bolder">Fallas : </label>
-                                    </div>
-                                    <span className="mx-4 fs-6 text-muted">{Encabezado.Fallas}</span>
-                                </div>)
-                            }
-                        </div>
-                        <div className="row">
-                            <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
-                                {(ListadoDLPRespuesta.length != 0) && (<MaterialReactTable
-                                    localization={MRT_Localization_ES}
-                                    muiTableHeadCellProps={{
-                                        sx: () => ({
-                                            fontSize: 14,
-                                            fontStyle: 'bold',
-                                            color: 'rgb(27, 66, 94)'
-                                        }),
-                                    }}
-                                    columns={ColumnasPreguntas}
-                                    data={ListadoDLPRespuesta}
-                                    enableColumnResizing
-                                    enableDensityToggle={false}
-                                    enablePagination={false}
-                                    enableRowVirtualization
-                                    enableGrouping
-                                    enableStickyHeader
-                                    enableStickyFooter
-                                    initialState={{
-                                        density: 'compact',
-                                        expanded: true, //expand all groups by default
-                                        grouping: ['categoria'], //an array of columns to group by by default (can be multiple)
-                                        sorting: [{ id: 'order', desc: false }], //sort by state by default
-                                        columnVisibility: { order: false }
-                                    }}
-                                    muiToolbarAlertBannerChipProps={{ color: 'primary' }}
-                                    muiTableContainerProps={{ 
-                                        ref: tableContainerRef, //get access to the table container element
-                                        sx: { maxHeight: 400 }
-                                     }}
-                                />)}
-                            </div>
-                        </div>
-                    </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button type="button" style={{display:(val && GrandeModal== "xl" ? 'none':'inline')}} className="btn btn-sm" variant="primary" onClick={() => {
-                        {(GrandeModal== "xl" ? GuardarOtro() :Guardar()) }
-                        
+                    <Button type="button" className="btn btn-sm" variant="primary" onClick={() => {
+                        {Asignar ? GuardarAsginacion(): Guardar()}
                     }}>
-                        {(GrandeModal== "xl" ? "Resolver" :"Guardar") }
-                    </Button>
-                    <Button style={{display:(!val  || GrandeModal== "lg" ? 'none':'inline')}} type="button" className="btn btn-sm" variant="info" onClick={() => {
-                        console.log("Enviar a ST")
-                    }}>
-                        Enviar ST
+                       Guardar
                     </Button>
                     <Button type="button" className="btn btn-sm" variant="secondary" onClick={() => setshowedit(false)}>
                         Cancelar
@@ -1799,7 +1692,7 @@ export default function Creacion() {
                 <Modal.Header closeButton>
                     <Modal.Title>{Titulo}</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Body className="p-0">
                     <div className="row">
                     <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 text-center">
                             <div className="row">
@@ -1836,7 +1729,7 @@ export default function Creacion() {
                 <Modal.Header closeButton>
                     <Modal.Title>Informe de diagnóstico</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Body className="p-0">
                     {/* Encabezado */}
                     <div className="card">
                         <div className="row">
@@ -1925,6 +1818,126 @@ export default function Creacion() {
                 </Modal.Body>
               
             </Modal>
+            <Modal show={ModalDLP} onHide={setModalDLP} size={"xl"}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Creación DLP</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="p-0">
+                <div className="container mt-0 pt-0">
+                        <div className="row">
+                            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Cliente: </label>
+                                </div>
+                                <span className="mx-4 fs-5 text-muted">{Encabezado.nombrecliente}</span>
+                            </div>
+                            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Placa: </label>
+                                </div>
+                                <span className="mx-4 fs-6 text-muted">{Encabezado.registrationNumber}</span>
+                            </div>
+                            <div className="col-sm-5 col-xl-5 col-md-5 col-lg-5">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Administrador (es) : </label>
+                                </div>
+                                <span className="mx-4 fs-5 text-muted">{Encabezado.administrador}</span>
+                            </div>
+                            {/* <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Sitio: </label>
+                                </div>
+                                <span className="mx-4 fs-6 text-muted">{Encabezado.Sitio}</span>
+                            </div> */}
+                            <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Días sin Tx: </label>
+                                </div>
+                                <span className="mx-4 fs-5 text-muted">{(Encabezado.DiasSinTx == undefined ? "0": Encabezado.DiasSinTx)}</span>
+                            </div>
+
+                            {/* <div className="col-sm-5 col-xl-5 col-md-5 col-lg-5">
+                                <div className="">
+                                    <label className="mx-4 fs-6 fw-bolder">Descripción: </label>
+                                </div>
+                                <span className="mx-4 fs-6 text-muted">{Encabezado.assetDescription}</span>
+                            </div> */}
+                            {
+                                (Encabezado.Fallas != 0) && (<div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                    <div className="">
+                                        <label className="mx-4 fs-6 fw-bolder">Fallas : </label>
+                                    </div>
+                                    <span className="mx-4 fs-6 text-muted">{(Encabezado.Fallas == undefined ?"0":Encabezado.Fallas)}</span>
+                                </div>)
+                            }
+                        </div>
+                        <div className="row">
+                            <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                                {(ListadoDLPRespuesta.length != 0) && (<MaterialReactTable
+                                    localization={MRT_Localization_ES}
+                                    muiTableHeadCellProps={{
+                                        sx: () => ({
+                                            fontSize: 14,
+                                            fontStyle: 'bold',
+                                            color: 'rgb(27, 66, 94)'
+                                        }),
+                                    }}
+                                    columns={ColumnasPreguntas}
+                                    data={ListadoDLPRespuesta}
+                                    enableColumnResizing
+                                    enableDensityToggle={false}
+                                    enablePagination={false}
+                                    enableRowVirtualization
+                                    enableGrouping
+                                    enableStickyHeader
+                                    enableStickyFooter
+                                    initialState={{
+                                        density: 'compact',
+                                        expanded: true, //expand all groups by default
+                                        grouping: ['categoria'], //an array of columns to group by by default (can be multiple)
+                                        sorting: [{ id: 'order', desc: false }], //sort by state by default
+                                        columnVisibility: { order: false }
+                                    }}
+                                    muiToolbarAlertBannerChipProps={{ color: 'primary' }}
+                                    muiTableContainerProps={{ 
+                                        ref: tableContainerRef, //get access to the table container element
+                                        sx: { maxHeight: 400 }
+                                     }}
+                                />)}
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12  pt-5">
+                                <label className="control-label label label-sm text-muted fw-bolder">Notas adicionales</label>
+                                <textarea rows={3}  style={{display:(val && GrandeModal== "xl" ? 'none':'inline')}} className="form-control" ></textarea>
+                            </div>
+                        </div>
+                    </div>
+                   
+                </Modal.Body>
+                <Modal.Footer>
+                   
+                    <Button type="button" style={{display:(val && GrandeModal== "xl" ? 'none':'inline')}} className="btn btn-sm" variant="primary" onClick={() => {
+                        GuardarOtro() 
+                    }}>
+                      Resolver
+                    </Button>
+                    <Button type="button" className="btn btn-sm" variant="info" onClick={() => {
+                        setShowSt(true);
+                        setshowedit(false);
+                        console.log(StInicialData);
+                        let b = [...StInicialData];
+                        b['ListadoDLPRespuesta'] = ListadoDLPRespuesta;
+                        setStInicialData(b);
+                    }}>
+                        Enviar ST
+                    </Button>
+                    <Button type="button" className="btn btn-sm" variant="secondary" onClick={() => setshowedit(false)}>
+                        Cancelar
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+            {(StInicialData.length != 0 && ShowSt) && (<CreacionSt show={ShowSt} handleClose={setShowSt} data={StInicialData}></CreacionSt>)} 
         </>
     )
 }

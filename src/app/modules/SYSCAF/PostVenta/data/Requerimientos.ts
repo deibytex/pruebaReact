@@ -5,6 +5,7 @@ import { Post_GetConsultasDinamicas, Post_GetConsultasDinamicasUser, Post_getDyn
 import { FiltroDashBoardData } from "./PostVentaData"
 // import { Usuarios } from "../mockData/indicadores"
 import { Post_getconsultadinamicas } from "../../../../../_start/helpers/Axios/CoreService"
+import { AxiosResponse } from "axios"
 
 const tabReq1 = { icon: 'Equalizer', titulo: "Todos ", subtitulo: "" }
 const tabReq2 = { icon: 'Equalizer', titulo: "Asignados", subtitulo: "" }
@@ -318,6 +319,21 @@ export const FiltroData = {
         }).filter((e) => e)
         return  datos;
     },
+       //NOTIFICAR
+    Notificar : (Data:any) =>{
+        SetNotificaciones(Data).then((response:AxiosResponse<any>) =>{
+            console.log("Ha sido notificado.");
+        }).catch(({error}) =>{
+            console.log("Error: ", error)
+        });
+    },
+    getEsAsignable:(data:any, Estado:any) =>{
+        let estado = (FiltroDashBoardData.EsJson(data.Estado)  == true ? JSON.parse(data.Estado) : data.Estado);
+        if((estado.label == undefined  ? estado:estado.label) == Estado)
+            return true;
+        else
+            return false;
+    }
 };
 // cuando se usa un filtro permite traer el unico valor de todas los valores del array
 function UnicoArrayValores(value: any, index: any, self: any) {
