@@ -713,52 +713,6 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
             </Modal.Body>
           </Tab>
           <Tab eventKey="Contacto" title={`Contactos`}>
-          {/* <Modal.Body>
-          <div className="row">
-                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 mt-1">
-                  <div className="">
-                    <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Tipo:</label>
-                    <input className="form-control  input input-sm " id={"nombregrupo"} placeholder="Selecione Tipo" 
-                    onChange={(e) => setobervacionGestion(e.target.value)} value={''}></input>
-                  </div>
-                </div>
-                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 mt-1">
-                  <div className="">
-                    <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Nombre:</label>
-                    <input className="form-control  input input-sm " id={"nombregrupo"}  placeholder="Ingrese Nombre"
-                     onChange={(e) => setobervacionGestion(e.target.value)} value={''}></input>
-                  </div>
-                </div>
-          </div>
-          <div className="row">
-                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 mt-1">
-                  <div className="">
-                    <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Número:</label>
-                    <input className="form-control  input input-sm " id={"nombregrupo"}  placeholder="Ingrese Número"
-                     onChange={(e) => setobervacionGestion(e.target.value)} value={''}></input>
-                  </div>
-                </div>
-                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 mt-1">
-                  <div className="">
-                    <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Email:</label>
-                    <input className="form-control  input input-sm " id={"nombregrupo"}  placeholder="Ingrese Correo" 
-                     onChange={(e) => setobervacionGestion(e.target.value)} value={''}></input>
-                  </div>
-                </div>
-          </div>
-
-          <div className="row mt-3">
-
-                <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
-                  <Button type="button" variant="primary" onClick={() => {
-                    setObservacion(obervacionGestion, 'false');
-                  }}>
-                    Guardar
-                  </Button></div>
-
-          </div>
-
-            </Modal.Body> */}
             <Modal.Body>
               <MaterialReactTable
                 localization={MRT_Localization_ES}
@@ -795,28 +749,6 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
                   showAlertBanner: isError,
                   showProgressBars: isRefetching
                 }}
-                renderRowActions={({ row, table }) => (
-
-                  <Box sx={{ display: 'flex', gap: '1rem' }}>
-                    <Tooltip arrow placement="left" title="Editar">
-                      <IconButton
-                        onClick={() => {
-                          setGestorPreoperacional(row.original);
-                        }}
-                      >
-                        <Edit />
-                      </IconButton>
-                    </Tooltip>
-                    <Tooltip arrow placement="left" title="Eliminar">
-                      <IconButton onClick={() => {
-                        modalDetalleEventos(row.original);
-                      }}>
-                        <DeleteForever />
-                      </IconButton>
-                    </Tooltip>
-                  </Box>
-                )
-                }
               />
             </Modal.Body>
           </Tab>
