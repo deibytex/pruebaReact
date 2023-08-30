@@ -1,19 +1,17 @@
-import { Button, Card, Form, Modal, Tab, Tabs } from "react-bootstrap-v5";
+import { Button, Modal, Tab, Tabs } from "react-bootstrap-v5";
 
 
 import { useEffect, useState } from "react";
 
 import { useDataFatigue } from "../core/provider";
 import { MRT_Localization_ES } from 'material-react-table/locales/es';
-import MaterialReactTable, { MaterialReactTableProps, MRT_Cell, MRT_ColumnDef, MRT_Row } from 'material-react-table';
+import MaterialReactTable, { MRT_ColumnDef } from 'material-react-table';
 import type {
-  ColumnFiltersState,
-  PaginationState,
-  SortingState,
+  ColumnFiltersState
 } from '@tanstack/react-table';
 
 import { Box, IconButton, Tooltip } from "@mui/material";
-import { Message, VerifiedUser, Map, List } from "@mui/icons-material";
+import { Message, VerifiedUser, Map, List, DeleteForever, Edit } from "@mui/icons-material";
 import { FechaServidor } from "../../../../_start/helpers/Helper";
 import { getAlertas, setGestor, setObservaciones } from "../data/dashBoardData";
 import confirmarDialog from "../../../../_start/helpers/components/ConfirmDialog";
@@ -21,8 +19,9 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../../setup";
 import { UserModelSyscaf } from "../../auth/models/UserModel";
 import moment from "moment";
-import { CheckboxGroup, Checkbox, useToaster, Notification } from "rsuite";
-import { FormatoColombiaDDMMYYY, FormatoColombiaDDMMYYYHHmm, FormatoColombiaDDMMYYYHHmmss } from "../../../../_start/helpers/Constants";
+import { useToaster, Notification } from "rsuite";
+import { FormatoColombiaDDMMYYYHHmm, FormatoColombiaDDMMYYYHHmmss } from "../../../../_start/helpers/Constants";
+import { DescargarExcelPersonalizado } from "../../../../_start/helpers/components/DescargarExcel";
 type Props = {
 
   isActive: boolean;
@@ -44,7 +43,6 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
 
   const [dataAlertas, setDataAlertas] = useState([]);
   const [dataAlertasfiltrada, setDataAlertasfiltrada] = useState([]);
-  const [dataAlertasCombinadas, setDataAlertasCombinadas] = useState([]);
   const [dataContacto, setdataContacto] = useState([]);
   const [obervacionGestion, setobervacionGestion] = useState("");
   const [obervacionGestionlast, setobervacionGestionlast] = useState("");
@@ -76,6 +74,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
   const [esgestionado, setesgestionado] = useState(false);
 
   const [Placa, setPlaca] = useState("");
+  const [conductor, setconductor] = useState("");
   const [Alerta, setAlerta] = useState("");
   const [fechaEvento, setfechaEvento] = useState("");
   const [totalEventos, settotalEventos] = useState("");
@@ -92,11 +91,6 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
   //table state
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
 
   const toaster = useToaster();
 
@@ -107,91 +101,28 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
     </Notification>)
   }
 
-
-  // inicio filtros
-  //WARNING NO CONSERVA FILTRO
-
-
-
-  const handleChange = (value: any[]) => {
-
-
-
-
-
-    const filteredArray = dataAlertas.filter((item: any) => value.indexOf(item.Criticidad) > -1);
-
-    setDataAlertasfiltrada(filteredArray);
-    setRowCount(filteredArray.length);
-
-  };
-
-  
-
-
-
-
-
-
-  const handleChange2 = (value2: any[]) => {
-
-
-    const filteredArray = dataAlertas.filter((item: any) => value2.indexOf(`${item.EstadoGestion}`) > -1);
-    setDataAlertasfiltrada(filteredArray);
-    setRowCount(filteredArray.length);
-  };
-
-
-  const handleChange3 = (value3: any[]) => {
-
-
-
-
-    const filteredArray = dataAlertas.filter((item: any) => value3.indexOf(item.TipoAlerta) > -1);
-
-    setDataAlertasfiltrada(filteredArray);
-    setRowCount(filteredArray.length);
-  };
-
   //primer cargue carga userid
   useEffect(() => {
     setUserId(model.Id?.toString())
   }, [])
 
 
-  //WARNING NO FUNCIONA
+
   useEffect(() => {
 
     let dataFiltrada = [];
     
-    filtro == 0 ? dataFiltrada = alertas.filter((item: any) => "Riesgo alto".indexOf(item.Criticidad) > -1) 
-    :  filtro == 1 ? dataFiltrada = alertas.filter((item: any) => "Riesgo moderado".indexOf(item.Criticidad) > -1) 
-    : filtro == 2 ? dataFiltrada = alertas.filter((item: any) => "Riesgo bajo".indexOf(item.Criticidad) > -1) 
-    : filtro == 3 ? dataFiltrada = alertas.filter((item: any) => "false".indexOf(`${item.EstadoGestion}`) > -1) 
-    : dataFiltrada = alertas.filter((item: any) => "true".indexOf(`${item.EstadoGestion}`) > -1);
+    filtro == 0 ? dataFiltrada = alertas.filter((item: any) => item.Criticidad == "Riesgo alto" && item.EstadoGestion == null) 
+    :  filtro == 1 ? dataFiltrada = alertas.filter((item: any) => item.Criticidad == "Riesgo moderado" && item.EstadoGestion == null)  
+    : filtro == 2 ? dataFiltrada = alertas.filter((item: any) => item.Criticidad ==  "Riesgo bajo" && item.EstadoGestion == null)
+    : filtro == 3 ? dataFiltrada = alertas.filter((item: any) => item.EstadoGestion == false) 
+    : dataFiltrada = alertas.filter((item: any) => item.EstadoGestion);
 
     setDataAlertas(dataFiltrada);
     setRowCount(dataFiltrada.length);
 
 
   }, [alertas])
-
-  //primer cargue 
-  useEffect(() => {
-
-    if (dataAlertas.length > 0) {
-
-
-
-      // const filteredArray1 = dataAlertas.filter((item: any) => value.indexOf(item.Criticidad) > -1);
-      // const filteredArray2 = filteredArray1.filter((item: any) => value2.indexOf(`${item.EstadoGestion}`) > -1);
-      // const filteredArray3 = filteredArray2.filter((item: any) => value3.indexOf(item.TipoAlerta) > -1);
-      // setDataAlertasCombinadas(filteredArray3);
-    }
-
-
-  }, [dataAlertas])
-
 
 
   //listado campos tablas
@@ -233,11 +164,11 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
         size: 80,
         Cell({ cell, column, row, table, }) {
 
-          let cantidad: number = JSON.parse(row.original.DetalladoEventos).length;
+  
           return (
             <>
               {
-                cantidad
+                JSON.parse(row.original.DetalladoEventos).length as number
               }
             </>
 
@@ -429,6 +360,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
     let alertaId: number = row.AlertaId;
 
     setPlaca(row.vehiculo);
+    setconductor(row.conductor);
     setAlerta(row.TipoAlerta);
     setfechaEvento(moment(JSON.parse(row.DetalladoEventos).at(-1).EventDateTime as Date).format(FormatoColombiaDDMMYYYHHmm));
     settotalEventos(JSON.parse(row.DetalladoEventos).length)
@@ -470,7 +402,9 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
     setalertaId(row.AlertaId);
     setesgestionado(row.EstadoGestion);
     setPlaca(row.vehiculo);
+    setconductor(row.conductor);
     setAlerta(row.TipoAlerta);
+    setdetalleEventos(row.DetalladoEventos);
     setfechaEvento(moment(JSON.parse(row.DetalladoEventos).at(-1).EventDateTime as Date).format(FormatoColombiaDDMMYYYHHmm));
     settotalEventos(JSON.parse(row.DetalladoEventos).length)
 
@@ -479,6 +413,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
 
   const modalDetalleEventos = (row: any) => {
     setPlaca(row.vehiculo);
+    setconductor(row.conductor);
     setAlerta(row.TipoAlerta);
     setdetalleEventos(row.DetalladoEventos);
     setfechaEvento(moment(JSON.parse(row.DetalladoEventos).at(-1).EventDateTime as Date).format(FormatoColombiaDDMMYYYHHmm));
@@ -528,7 +463,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
           },
         }}
         columns={columnasTabla}
-        data={dataAlertasCombinadas.length == 0 ? dataAlertas : dataAlertasCombinadas}
+        data={dataAlertas}
         muiTableBodyRowProps={({ row }) => ({
 
           sx: {
@@ -556,8 +491,6 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
         }
         onColumnFiltersChange={setColumnFilters}
         onGlobalFilterChange={setGlobalFilter}
-        onPaginationChange={setPagination}
-        onSortingChange={setSorting}
         rowCount={rowCount}
         renderRowActions={({ row, table }) => (
 
@@ -612,10 +545,8 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
           columnFilters,
           globalFilter,
           isLoading,
-          pagination,
           showAlertBanner: isError,
-          showProgressBars: isRefetching,
-          sorting,
+          showProgressBars: isRefetching
         }}
       />
 
@@ -630,19 +561,22 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
         </Modal.Header>
         <Modal.Body>
           <div className="row">
-            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-              Alerta: <span className="text-success">{`${Alerta}`} </span>
+            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+            <label className="mx-2 fs-6 fw-bolder">Alerta: </label> <span className="mx-1 fs-5 text-muted">{`${Alerta}`}</span>           
             </div>
             <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-              Placa: <span className="text-success">{`${Placa}`} </span>
+            <label className="mx-2 fs-6 fw-bolder">Fecha Ultimo Evento: </label> <span className="mx-2 fs-5 text-muted">{`${fechaEvento}`} </span>
             </div>
-          </div>
-          <div className="row">
-            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-              Fecha Ultimo Evento: <span className="text-success">{`${fechaEvento}`} </span>
+            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+            <label className="mx-2 fs-6 fw-bolder">Cantidad Eventos: </label> <span className="mx-2 fs-5 text-muted">{`${totalEventos}`} </span>
             </div>
-            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-              Cantidad Eventos: <span className="text-success">{`${totalEventos}`} </span>
+          </div>  
+          <div className="row"> 
+            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+            <label className="mx-2 fs-6 fw-bolder">Placa: </label> <span className="mx-2 fs-5 text-muted">{`${Placa}`}</span>
+            </div>
+            <div className="col-sm-8 col-xl-8 col-md-8 col-lg-8">
+            <label className="mx-2 fs-6 fw-bolder">Conductor: </label> <span className="mx-2 fs-5 text-muted">{`${conductor}`}</span>
             </div>
           </div>
         </Modal.Body>
@@ -722,24 +656,109 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
                   }
                   onColumnFiltersChange={setColumnFilters}
                   onGlobalFilterChange={setGlobalFilter}
-                  onPaginationChange={setPagination}
-                  onSortingChange={setSorting}
                   rowCount={rowCount}
 
                   state={{
                     columnFilters,
                     globalFilter,
                     isLoading,
-                    pagination,
                     showAlertBanner: isError,
-                    showProgressBars: isRefetching,
-                    sorting,
+                    showProgressBars: isRefetching
                   }}
                 />
               </div>
             </Modal.Body>
           </Tab>
+          <Tab eventKey="evetos" title={`Eventos`}>
+            {/* <Modal.Header>
+              <Modal.Title>Detallado Eventos</Modal.Title>
+            </Modal.Header> */}
+            <Modal.Body>
+              <MaterialReactTable
+                localization={MRT_Localization_ES}
+                displayColumnDefOptions={{
+                  'mrt-row-actions': {
+                    muiTableHeadCellProps: {
+                      align: 'center'
+                    }
+                  },
+                }}
+                columns={listadoEventos}
+                data={DataDetalleEventos}
+                enableTopToolbar
+                enableColumnOrdering
+                enableFilters
+                enablePagination={false}
+                enableColumnFilters={false}
+                muiToolbarAlertBannerProps={
+                  isError
+                    ? {
+                      color: 'error',
+                      children: 'Error al cargar información',
+                    }
+                    : undefined
+                }
+                onColumnFiltersChange={setColumnFilters}
+                onGlobalFilterChange={setGlobalFilter}
+                rowCount={rowCount2}
+                initialState={{ density: 'compact' }}
+                state={{
+                  columnFilters,
+                  globalFilter,
+                  isLoading,
+                  showAlertBanner: isError,
+                  showProgressBars: isRefetching
+                }}
+              />
+            </Modal.Body>
+          </Tab>
           <Tab eventKey="Contacto" title={`Contactos`}>
+          {/* <Modal.Body>
+          <div className="row">
+                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 mt-1">
+                  <div className="">
+                    <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Tipo:</label>
+                    <input className="form-control  input input-sm " id={"nombregrupo"} placeholder="Selecione Tipo" 
+                    onChange={(e) => setobervacionGestion(e.target.value)} value={''}></input>
+                  </div>
+                </div>
+                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 mt-1">
+                  <div className="">
+                    <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Nombre:</label>
+                    <input className="form-control  input input-sm " id={"nombregrupo"}  placeholder="Ingrese Nombre"
+                     onChange={(e) => setobervacionGestion(e.target.value)} value={''}></input>
+                  </div>
+                </div>
+          </div>
+          <div className="row">
+                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 mt-1">
+                  <div className="">
+                    <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Número:</label>
+                    <input className="form-control  input input-sm " id={"nombregrupo"}  placeholder="Ingrese Número"
+                     onChange={(e) => setobervacionGestion(e.target.value)} value={''}></input>
+                  </div>
+                </div>
+                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 mt-1">
+                  <div className="">
+                    <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Email:</label>
+                    <input className="form-control  input input-sm " id={"nombregrupo"}  placeholder="Ingrese Correo" 
+                     onChange={(e) => setobervacionGestion(e.target.value)} value={''}></input>
+                  </div>
+                </div>
+          </div>
+
+          <div className="row mt-3">
+
+                <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                  <Button type="button" variant="primary" onClick={() => {
+                    setObservacion(obervacionGestion, 'false');
+                  }}>
+                    Guardar
+                  </Button></div>
+
+          </div>
+
+            </Modal.Body> */}
             <Modal.Body>
               <MaterialReactTable
                 localization={MRT_Localization_ES}
@@ -767,19 +786,37 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
                 }
                 onColumnFiltersChange={setColumnFilters}
                 onGlobalFilterChange={setGlobalFilter}
-                onPaginationChange={setPagination}
-                onSortingChange={setSorting}
                 rowCount={rowCount2}
                 initialState={{ density: 'compact' }}
                 state={{
                   columnFilters,
                   globalFilter,
                   isLoading,
-                  pagination,
                   showAlertBanner: isError,
-                  showProgressBars: isRefetching,
-                  sorting,
+                  showProgressBars: isRefetching
                 }}
+                renderRowActions={({ row, table }) => (
+
+                  <Box sx={{ display: 'flex', gap: '1rem' }}>
+                    <Tooltip arrow placement="left" title="Editar">
+                      <IconButton
+                        onClick={() => {
+                          setGestorPreoperacional(row.original);
+                        }}
+                      >
+                        <Edit />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip arrow placement="left" title="Eliminar">
+                      <IconButton onClick={() => {
+                        modalDetalleEventos(row.original);
+                      }}>
+                        <DeleteForever />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                )
+                }
               />
             </Modal.Body>
           </Tab>
@@ -787,7 +824,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
 
         <Modal.Footer>
           <Button type="button" variant="secondary" onClick={handleClose}>
-            Cancelar
+            Cerrar
           </Button>
         </Modal.Footer>
       </Modal>
@@ -801,19 +838,22 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
         </Modal.Header>
         <Modal.Body>
           <div className="row">
-            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-              Alerta: <span className="text-success">{`${Alerta}`} </span>
+            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+            <label className="mx-2 fs-6 fw-bolder">Alerta: </label> <span className="mx-1 fs-5 text-muted">{`${Alerta}`}</span>           
             </div>
             <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-              Placa: <span className="text-success">{`${Placa}`} </span>
+            <label className="mx-2 fs-6 fw-bolder">Fecha Ultimo Evento: </label> <span className="mx-2 fs-5 text-muted">{`${fechaEvento}`} </span>
             </div>
-          </div>
-          <div className="row">
-            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-              Fecha Ultimo Evento: <span className="text-success">{`${fechaEvento}`} </span>
+            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+            <label className="mx-2 fs-6 fw-bolder">Cantidad Eventos: </label> <span className="mx-2 fs-5 text-muted">{`${totalEventos}`} </span>
             </div>
-            <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-              Cantidad Eventos: <span className="text-success">{`${totalEventos}`} </span>
+          </div>  
+          <div className="row"> 
+            <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+            <label className="mx-2 fs-6 fw-bolder">Placa: </label> <span className="mx-2 fs-5 text-muted">{`${Placa}`}</span>
+            </div>
+            <div className="col-sm-8 col-xl-8 col-md-8 col-lg-8">
+            <label className="mx-2 fs-6 fw-bolder">Conductor: </label> <span className="mx-2 fs-5 text-muted">{`${conductor}`}</span>
             </div>
           </div>
         </Modal.Body>
@@ -847,18 +887,14 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
               }
               onColumnFiltersChange={setColumnFilters}
               onGlobalFilterChange={setGlobalFilter}
-              onPaginationChange={setPagination}
-              onSortingChange={setSorting}
               rowCount={rowCount3}
 
               state={{
                 columnFilters,
                 globalFilter,
                 isLoading,
-                pagination,
                 showAlertBanner: isError,
-                showProgressBars: isRefetching,
-                sorting,
+                showProgressBars: isRefetching
               }}
             />
           </div>
