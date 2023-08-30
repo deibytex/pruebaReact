@@ -8,6 +8,7 @@ import { MRT_Localization_ES } from "material-react-table/locales/es";
 import { getReporteSotramacVH } from "../data/dataSotramac";
 import { AxiosResponse } from "axios";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
+import { locateFormatPercentNDijitos } from "../../../../../_start/helpers/Helper";
 
 type Props = {
     show: boolean;
@@ -83,7 +84,7 @@ export const ModalTablaReporteVH: React.FC<Props> = ({ show, handleClose, title,
                 header: '% De Inercia',
                 size: 80,
                 Cell({ cell, column, row, table, }) {
-                    return (cell.getValue() != null) ? cell.getValue() : "";
+                    return (cell.getValue() != null) ? locateFormatPercentNDijitos( row.original.PorDeInercia, 0) : "";
                 }
             },
             {
@@ -91,7 +92,7 @@ export const ModalTablaReporteVH: React.FC<Props> = ({ show, handleClose, title,
                 header: '% De Ralentí',
                 size: 80,
                 Cell({ cell, column, row, table, }) {
-                    return (cell.getValue() != null) ? cell.getValue() : "";
+                    return (cell.getValue() != null) ? locateFormatPercentNDijitos( row.original.PorDeRalenti, 0) : "";
                 }
             },
             {
@@ -179,44 +180,24 @@ export const ModalTablaReporteVH: React.FC<Props> = ({ show, handleClose, title,
             <Modal
                 show={show}
                 onHide={handleClose}
-                size="lg">
-                <Modal.Header closeButton>
+                size="xl">
+                <Modal.Header closeButton className="text-center text-uppercase">
                     <Modal.Title>{title}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                
                         <MaterialReactTable
-                            localization={MRT_Localization_ES}
-                            displayColumnDefOptions={{
-                                'mrt-row-actions': {
-                                    muiTableHeadCellProps: {
-                                        align: 'center',
-                                    },
-                                    size: 120,
-                                },
-                            }}
+                           
                             columns={listadoCampos}
                             data={lstReporteSotramacVh}
-                            // editingMode="modal" //default         
-                            enableTopToolbar={false}
+                            enableColumnFilters={false}
+                            initialState={{ density: 'compact' }}
                             enableColumnOrdering
-                            // enableEditing
-                            /* onEditingRowSave={handleSaveRowEdits}
-                                onEditingRowCancel={handleCancelRowEdits}*/
-                            muiToolbarAlertBannerProps={
-                                isError
-                                    ? {
-                                        color: 'error',
-                                        children: 'Error al cargar información',
-                                    }
-                                    : undefined
-                            }
-                            onColumnFiltersChange={setColumnFilters}
-                            onGlobalFilterChange={setGlobalFilter}
-                            onPaginationChange={setPagination}
-                            onSortingChange={setSorting}
-                            rowCount={rowCount}
-
+                            enableColumnDragging={false}
+                            enablePagination={false}
+                            enableStickyHeader
+                            enableDensityToggle={false}
+                            enableRowVirtualization
                             state={{
                                 columnFilters,
                                 globalFilter,
@@ -226,6 +207,48 @@ export const ModalTablaReporteVH: React.FC<Props> = ({ show, handleClose, title,
                                 showProgressBars: isRefetching,
                                 sorting,
                             }}
+                            
+                            localization={MRT_Localization_ES}
+                            displayColumnDefOptions={{
+                              'mrt-row-actions': {
+                                muiTableHeadCellProps: {
+                                  align: 'center',
+                                }
+                              },
+                            }}
+                            defaultColumn={{
+                              minSize: 100, //allow columns to get smaller than default
+                              maxSize: 200, //allow columns to get larger than default
+                              size: 100, //make columns wider by default
+                            }}
+                            muiTableContainerProps={{
+                            
+                              sx: { maxHeight: '400px' }, //give the table a max height
+                  
+                            }}
+                            muiTableHeadCellProps={{
+                              sx: (theme) => ({
+                                fontSize: 8,
+                                fontStyle: 'bold',
+                                color: 'rgb(27, 66, 94)',
+                                //backgroundColor: 'yellow'
+                  
+                              }),
+                            }}
+                           
+                            muiToolbarAlertBannerProps={
+                              isError
+                                ? {
+                                  color: 'error',
+                                  children: 'Error al cargar información',
+                                }
+                                : undefined
+                            }
+                            onColumnFiltersChange={setColumnFilters}
+                            onGlobalFilterChange={setGlobalFilter}
+                            onPaginationChange={setPagination}
+                            onSortingChange={setSorting}
+                            rowCount={rowCount}
                         />
                    
                 </Modal.Body>

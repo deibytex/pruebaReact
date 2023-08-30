@@ -8,6 +8,7 @@ import { MRT_Localization_ES } from "material-react-table/locales/es";
 import { getReporteSotramacCO } from "../data/dataSotramac";
 import { AxiosResponse } from "axios";
 import { errorDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
+import { locateFormatPercentNDijitos } from "../../../../../_start/helpers/Helper";
 
 type Props = {
     show: boolean;
@@ -40,8 +41,7 @@ export const ModalTablaReporteCO: React.FC<Props> = ({ show, handleClose, title,
         [
             {
                 accessorKey: 'Posicion',
-                header: 'Posición',
-                size: 100,
+                header: 'Posición',              
                 Cell({ cell, column, row, table, }) {
                     return (cell.getValue() != null) ? cell.getValue() : "";
                 }
@@ -49,79 +49,74 @@ export const ModalTablaReporteCO: React.FC<Props> = ({ show, handleClose, title,
             {
                 accessorKey: 'Cedula',
                 header: 'Cédula',
-                size: 100,
                 Cell({ cell, column, row, table, }) {
                     return (cell.getValue() != null) ? cell.getValue() : "";
                 }
             },
             {
                 accessorKey: 'Nombre',
-                header: 'Nombre conductor',
-                size: 80,
+                header: 'Conductor',
+               size : 200,
                 Cell({ cell, column, row, table, }) {
                     return (cell.getValue() != null) ? cell.getValue() : "";
                 }
             },
             {
                 accessorKey: 'DistanciaRecorridaAcumulada',
-                header: 'Distancia Recorrida Acumulada (km)',
-                size: 80,
+                header: 'Distancia Acum (km)',
+               
                 Cell({ cell, column, row, table, }) {
                     return (cell.getValue() != null) ? cell.getValue() : "";
                 }
             },
             {
                 accessorKey: 'ConsumodeCombustibleAcumulado',
-                header: 'Consumo de combustible acumulado(M3)',
-                size: 80,
+                header: 'Combustible Acum (M3)',
+                
                 Cell({ cell, column, row, table, }) {
                     return (cell.getValue() != null) ? cell.getValue() : "";
                 }
             },
             {
                 accessorKey: 'DistanciaRecorridaUltimoDia',
-                header: 'Distancia recorrida último dia (km)',
-                size: 80,
+                header: 'Dist último dia (km)',
+               
                 Cell({ cell, column, row, table, }) {
                     return (cell.getValue() != null) ? cell.getValue() : "";
                 }
             },
             {
                 accessorKey: 'RendimientoCumbustibleAcumulado',
-                header: 'Rendimiento de combustible acumulado (km/kg)',
-                size: 80,
+                header: 'Rendimiento Acum(km/kg)',
+                
                 Cell({ cell, column, row, table, }) {
                     return (cell.getValue() != null) ? cell.getValue() : "";
                 }
             },
             {
                 accessorKey: 'UsoDelFreno',
-                header: 'Uso de freno (aplicaciones x cada 100 km)</',
-                size: 80,
+                header: 'Uso de freno',               
                 Cell({ cell, column, row, table, }) {
                     return (cell.getValue() != null) ? cell.getValue() : "";
                 }
             },
             {
                 accessorKey: 'PorDeInercia',
-                header: '% de inercia',
-                size: 80,
+                header: '% Inercia',            
                 Cell({ cell, column, row, table, }) {
-                    return (cell.getValue() != null) ? cell.getValue() : "";
+                    return (cell.getValue() != null) ?  locateFormatPercentNDijitos( row.original.PorDeInercia, 0) : "";
                 }
             },
             {
                 accessorKey: 'PorDeRalenti',
-                header: '% de ralentí',
-                size: 80,
+                header: '% Ralentí',                
                 Cell({ cell, column, row, table, }) {
-                    return (cell.getValue() != null) ? cell.getValue() : "";
+                    return (cell.getValue() != null) ? locateFormatPercentNDijitos( row.original.PorDeRalenti, 0) : "";
                 }
             },
             {
                 accessorKey: 'VelPromedio',
-                header: 'Velocidad promedio',
-                size: 80,
+                header: 'Vel Prom',                
                 Cell({ cell, column, row, table, }) {
                     return (cell.getValue() != null) ? cell.getValue() : "";
                 }
@@ -158,7 +153,7 @@ export const ModalTablaReporteCO: React.FC<Props> = ({ show, handleClose, title,
             <Modal
                 show={show}
                 onHide={handleClose}
-                size="lg">
+                size="xl">
                 <Modal.Header closeButton>
                     <Modal.Title>{title}</Modal.Title>
                 </Modal.Header>
@@ -166,37 +161,17 @@ export const ModalTablaReporteCO: React.FC<Props> = ({ show, handleClose, title,
                    
                      
                         <MaterialReactTable
-                            localization={MRT_Localization_ES}
-                            displayColumnDefOptions={{
-                                'mrt-row-actions': {
-                                    muiTableHeadCellProps: {
-                                        align: 'center',
-                                    },
-                                    size: 120,
-                                },
-                            }}
+                            
                             columns={listadoCampos}
                             data={lstReporteSotramacCO}
-                            // editingMode="modal" //default         
-                            enableTopToolbar={false}
+                            enableColumnFilters={false}
+                            initialState={{ density: 'compact' }}
                             enableColumnOrdering
-                            // enableEditing
-                            /* onEditingRowSave={handleSaveRowEdits}
-                                onEditingRowCancel={handleCancelRowEdits}*/
-                            muiToolbarAlertBannerProps={
-                                isError
-                                    ? {
-                                        color: 'error',
-                                        children: 'Error al cargar información',
-                                    }
-                                    : undefined
-                            }
-                            onColumnFiltersChange={setColumnFilters}
-                            onGlobalFilterChange={setGlobalFilter}
-                            onPaginationChange={setPagination}
-                            onSortingChange={setSorting}
-                            rowCount={rowCount}
-
+                            enableColumnDragging={false}
+                            enablePagination={false}
+                            enableStickyHeader
+                            enableDensityToggle={false}
+                            enableRowVirtualization
                             state={{
                                 columnFilters,
                                 globalFilter,
@@ -206,6 +181,49 @@ export const ModalTablaReporteCO: React.FC<Props> = ({ show, handleClose, title,
                                 showProgressBars: isRefetching,
                                 sorting,
                             }}
+                            
+                            localization={MRT_Localization_ES}
+                            displayColumnDefOptions={{
+                              'mrt-row-actions': {
+                                muiTableHeadCellProps: {
+                                  align: 'center',
+                                }
+                              },
+                            }}
+                            defaultColumn={{
+                              minSize: 100, //allow columns to get smaller than default
+                              maxSize: 200, //allow columns to get larger than default
+                              size: 100, //make columns wider by default
+                            }}
+                            muiTableContainerProps={{
+                            
+                              sx: { maxHeight: '400px' }, //give the table a max height
+                  
+                            }}
+                            muiTableHeadCellProps={{
+                              sx: (theme) => ({
+                                fontSize: 8,
+                                fontStyle: 'bold',
+                                color: 'rgb(27, 66, 94)',
+                                //backgroundColor: 'yellow'
+                  
+                              }),
+                            }}
+                           
+                            muiToolbarAlertBannerProps={
+                              isError
+                                ? {
+                                  color: 'error',
+                                  children: 'Error al cargar información',
+                                }
+                                : undefined
+                            }
+                            onColumnFiltersChange={setColumnFilters}
+                            onGlobalFilterChange={setGlobalFilter}
+                            onPaginationChange={setPagination}
+                            onSortingChange={setSorting}
+                            rowCount={rowCount}
+                          
                         />
                         
                     

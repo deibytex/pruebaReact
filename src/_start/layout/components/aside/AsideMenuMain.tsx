@@ -136,7 +136,7 @@ export function AsideMenuMain() {
                       // filtramos las opciones por las padre para mandar a los hiujos
                       let opcionesPadre = m.opciones.filter((element: any) => element.OpcionPadreId == null);
 
-                      console.log(m.OrganizacionId)
+               
                       if (conf)
 
                         return (<div key={`row menu-${key}${m.OrganizacionId}`} className="menu-item  flex ">
