@@ -222,46 +222,6 @@ export default function HomePostVenta() {
                 })
             }, `¿El Vehículo con placa ${data.registrationNumber} del Cliente ${(data.clientenNombre == undefined ? data.clienteNombre : data.clientenNombre)} se encuentra operando normalmente?`, 'Si');
     }
-    //Se cargan los tipos
-    // const CargarTipos = () => {
-    //     return (
-    //         <Form.Select disabled className=" mb-3 " onChange={(e) => {
-    //             // buscamos el objeto completo para tenerlo en el sistema
-    //             let _seleccionado = TipoRequerimientos?.filter((value: any, index: any) => {
-    //                 return value.Nombre === e.currentTarget.value;
-    //             })
-    //             setTipoRequerimientosSeleccionado(_seleccionado[0]);
-    //         }} aria-label="Default select example">
-    //             <option value={"Seleccione"}>Seleccione un tipo</option>
-    //             {
-    //                 TipoRequerimientos?.map((element: any, i: any) => {
-    //                     let flag = (element.Nombre === (TipoRequerimientosSeleccionado != undefined ? TipoRequerimientosSeleccionado.Nombre : ""))
-    //                     return (<option selected={flag} key={element.Nombre} defaultValue={(element.Nombre != null ? element.Nombre : "No definido")}>{element.Nombre}</option>)
-    //                 })
-    //             }
-    //         </Form.Select>
-    //     );
-    // }
-    //Carga los estados y los tipos desde la DB    
-    // const CargarEstados = () => {
-
-    //     return (
-    //         <Form.Select disabled className=" mb-3 " onChange={(e) => {
-    //             // buscamos el objeto completo para tenerlo en el sistema
-    //             let seleccionado = EstadoRequerimientos?.filter((value: any, index: any) => {
-    //                 return value.Nombre === e.currentTarget.value;
-    //             });
-    //             setEstadoRequerimientosSeleccionado(seleccionado[0])
-    //         }} aria-label="Default select example">
-    //             {
-    //                 EstadoRequerimientos?.map((element: any, i: any) => {
-    //                     let flag = (element.Nombre === (EstadoRequerimientosSeleccionado != undefined ? EstadoRequerimientosSeleccionado.Nombre : ""))
-    //                     return (<option selected={flag} key={element.Nombre} value={(element.Nombre != null ? element.Nombre : "No definido")}>{element.Nombre}</option>)
-    //                 })
-    //             }
-    //         </Form.Select>
-    //     );
-    // }
     //Se guardan los requirimientos
     const EnviarRequerimiento = () => {
         let Obervaciones = [{ fecha: moment().format(formatViewHoraMinuto), observacion: (Observaciones == "" ? `Se crea el requerimiento para el vehiculo ${Cabecera['registrationNumber']} realizado por el administrador ${Cabecera['administrador']} el dia y hora ${moment().format(formatViewHoraMinuto)}`:Observaciones), usuario: vUser.Nombres, estado: EstadoRequerimientosSeleccionado.Nombre }]

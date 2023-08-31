@@ -21,11 +21,13 @@ import { UserModelSyscaf } from "../../../../auth/models/UserModel";
 import { RootState } from "../../../../../../setup";
 import confirmarDialog, { confirmarDialogText, successDialog } from "../../../../../../_start/helpers/components/ConfirmDialog";
 import CreacionSt from "./CreacionSt";
+import { Perfiles } from "../../../../../../_start/helpers/Constants";
 
 export default function Creacion() {
     //INICIO ESPACIO CONSTANTES
     const [EstadosRequerimientos, setEstadosRequerimientos] = useState<any[]>([]);
     const [ListadoDLP, setListadoDLP] = useState<any[]>([]);
+    const [UsuariosST, setUsuariosST] = useState<any[]>([]);
     const [Usuarios, setUsuarios] = useState<any[]>([]);
     const toaster = useToaster();
     const tableContainerRef = useRef<HTMLDivElement>(null);
@@ -151,9 +153,9 @@ export default function Creacion() {
     /*============================================================================================================================================================================== */
     /** ESpacio para los tipos de estados a usar por el momento usare estos porque fueron los que se habian definido si en un posterior evento se dinamiza cambiar por estos.        */
     /*============================================================================================================================================================================== */
-        const PerfilSuperAdmin = "117";
-        const PerfilAdminFlota = "118";
-        const PerfilEmpleado = "117";
+        const PerfilSuperAdmin = Perfiles.SuperAdmin;
+        const PerfilAdminFlota =  Perfiles.AdminFlota;
+        const PerfilEmpleado =  Perfiles.Empleado;
     /*============================================================================================================================================================================== */
     /** ESpacio para los tipos de estados a usar por el momento usare estos porque fueron los que se habian definido si en un posterior evento se dinamiza cambiar por estos.        */
     /*============================================================================================================================================================================== */
@@ -490,15 +492,20 @@ export default function Creacion() {
       const getConfiguracion = (sigla:any|null) =>{
         GetConfiguracion(sigla).then((response:AxiosResponse<any>) =>{
             if(response.data.length != 0){
+                //Usuarios de Soporte
                 let Users = FiltroData.getConfiguracionSigla(response.data,"COUSS");
                 setUsuarios((Users.length !=0 ? Users[0]:[]));
+                //Estados de Soporte
                 let States = FiltroData.getConfiguracionSigla(response.data,"OERST");
-                setEstadosRequerimientos(States[0]);
                 setEstadoRequerimientos(States[0]);
+                //Preguntas DLP
                 let DLP = FiltroData.getConfiguracionSigla(response.data,"DLPST");
                 setListadoDLP(DLP[0]);
+                //Usuarios Servicio Tecnico
+                let _usuariosST = FiltroData.getConfiguracionSigla(response.data,"CUSST");
+                setUsuariosST(_usuariosST[0]);
+                setEstadosRequerimientos(States[0]);
             }
-           
         }).catch(({error}) =>{
             console.log("Error: ", error)
         })
@@ -551,7 +558,8 @@ export default function Creacion() {
             case 2:
                 FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
                     setDatosTabla(FiltroData.getNoAsignados((FiltradoGestor == undefined ? []:FiltradoGestor),
-                       `${EventosCreados}, ${SinAsignar}`));
+                    SinAsignar));
+                    
                     setshowTablaSinAsginar(true);
                     setShowTablaTodos(false);
                     setShowTablaCerradas(false);
@@ -624,12 +632,8 @@ export default function Creacion() {
         if(EstadosRequerimientos.length != 0){
             setEventosCreados(EstadosRequerimientos.filter(f => !["8","6"].includes(f.valor)).map((e:any) =>e.label).join())
             setEventosEnSoporte(EstadosRequerimientos.filter(f => ["3","4","5"].includes(f.valor)).map((e:any) =>e.label).join())
-            setAsignados(EstadosRequerimientos.filter((e:any) =>{
-                return e.valor == "4"
-            })[0].label)
-            setSinAsignar(EstadosRequerimientos.filter((e:any) =>{
-                return e.valor == "3"
-            })[0].label)
+            setAsignados(EstadosRequerimientos.filter(f => ["4","5"].includes(f.valor)).map((e:any) =>e.label).join())
+            setSinAsignar(EstadosRequerimientos.filter(f => ["1","2","3"].includes(f.valor)).map((e:any) =>e.label).join())
             setResueltos(EstadosRequerimientos.filter((e:any) =>{
                 return e.valor == "8"
             })[0].label);
@@ -649,13 +653,17 @@ export default function Creacion() {
     //PAra actualizar el listado de usuarios
     useEffect(() =>{
         if(Usuarios.length != 0){
-            setUserCount(Usuarios.filter((e:any) =>{
+            let UsuarioSoporte = Usuarios.filter((e:any) =>{
                 return e.UserId == vUser.Id;
-            }));
+            }); 
+            let UsuarioST = UsuariosST.filter((e:any) =>{
+                return e.UserId == vUser.Id;
+            }); 
+            setUserCount((UsuarioSoporte.length != 0 ? UsuarioSoporte:UsuarioST));
            
         }
             
-    },[Usuarios])
+    },[Usuarios, UsuariosST])
     //Para mostrar la info una vez carguen los usuarios
     useEffect(() =>{
         if(UserCount.length != 0)

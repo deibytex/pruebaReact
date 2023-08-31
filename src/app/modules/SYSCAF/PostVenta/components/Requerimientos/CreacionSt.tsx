@@ -45,7 +45,7 @@ const   CreacionSt:React.FC<Props> =  ({show,handleClose, title, data}) => {
         _obs.push(
             {
                 fecha: moment().format("DD/MM/YYYY HH:MM"),
-                observacion: `Se realiza el diagnostico y se ${(FiltroData.getEsCompletado(ListadoDLPRespuesta).length == 0 ? "completa el diagnostico quedando resuelto" : "guarda sin completar el diagnostico")}`,
+                observacion: `Se realiza el diagnostico y se envia directamente a servicio técnico`,
                 usuario: data.Nombres,
                 estado: JSON.stringify((FiltroData.getEsCompletado(ListadoDLPRespuesta).length == 0 ?  EstadosRequerimientos.filter((e:any)=>e.valor == "8" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}})[0]:EstadosRequerimientos.filter((e:any)=>e.valor == "5" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}})[0]))
             }

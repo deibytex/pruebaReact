@@ -26,3 +26,17 @@ export const ranges: any = [
         value: [moment().toDate(), moment().endOf('day').toDate()]
     }
 ];
+export enum Operaciones {
+    Adicionar = "ADD",
+    Eliminar = "DEL",
+    Descargar = "DOWN",
+    Ingresar = "ING",
+    Consultar = "SEARCH",
+    Modificar = "UPD"
+  }
+//Marcial Diaz 31/08/2023
+export enum Perfiles{
+    SuperAdmin = "117",
+    AdminFlota = "118",
+    Empleado = "116"
+  }
