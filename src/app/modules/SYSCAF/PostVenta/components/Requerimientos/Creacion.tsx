@@ -559,6 +559,7 @@ export default function Creacion() {
                 FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
                     setDatosTabla(FiltroData.getNoAsignados((FiltradoGestor == undefined ? []:FiltradoGestor),
                     SinAsignar));
+                    
                     setshowTablaSinAsginar(true);
                     setShowTablaTodos(false);
                     setShowTablaCerradas(false);
