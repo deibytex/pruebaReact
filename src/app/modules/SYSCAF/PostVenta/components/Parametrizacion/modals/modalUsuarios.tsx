@@ -11,7 +11,8 @@ import { FechaServidor } from "../../../../../../../_start/helpers/Helper";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../../../../../setup";
 import { UserModelSyscaf } from "../../../../../auth/models/UserModel";
-import { getConfiguracion, setConfiguracion } from "../../../data/parametrizacionData";
+import { getConfiguracion, getUsuarios, setConfiguracion } from "../../../data/parametrizacionData";
+import { setGestor } from "../../../../../Fatigue/data/dashBoardData";
 
 
 type Props = {
@@ -20,7 +21,7 @@ type Props = {
     title?: string;
 };
 
-export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => {
+export const UpdateUsuarios: React.FC<Props> = ({ show, handleClose, title }) => {
 
     const isAuthorized = useSelector<RootState>(
         ({ auth }) => auth.user
@@ -29,17 +30,16 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
     const model = (isAuthorized as UserModelSyscaf);
 
     const [errorDLP, seterrorDLP] = useState<any>("");
-    const [tipo, settipo] = useState("");
     const [nombre, setnombre] = useState("");
-    const [diasTickets, setdiasTickets] = useState("");
-    const [diasSenales, setdiasSenales] = useState("");
-    const [notificar, setnotificar] = useState<boolean>(false);
+    const [userid, setuserid] = useState("");
+    const [esGestor, setesGestor] = useState<boolean>(false);
 
-    const [nombresinEditar, setnombresinEditar] = useState("");
+    const [usersinEditar, setusersinEditar] = useState("");
     const [tituloModalTickets, settituloModalTickets] = useState('');
 
     const [rowCount, setRowCount] = useState(0);
     const [Data, setData] = useState<any[]>([]);
+    const [usuarios, setusuarios] = useState<any[]>([]);
 ;
     const [showModal, setshowModal] = useState(false);
 
@@ -58,17 +58,16 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
     const handleClose2 = () => {
         settituloModalTickets('');
 
-        settipo("");
-        setdiasSenales("");
-        setdiasTickets("");
         setnombre("");
-        setnotificar(false);
+        setuserid("");
+        setnombre("");
+        setesGestor(false);
 
         setshowModal(false);
     };
 
     const showModals = () => {
-        settituloModalTickets('Editar Listado DLP')
+        settituloModalTickets('Editar Listado Usuarios')
         setshowModal(true);
       }
 
@@ -76,39 +75,24 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
 
         [
             {
-                accessorKey: 'tipo',
-                header: 'Tipo',
-                size: 100
-            },
-            {
                 accessorKey: 'nombre',
-                header: 'Nombre',
+                header: 'Usuario',
                 size: 100
             },
             {
-                accessorKey: 'diasTickets',
-                header: 'Días tickets',
-                size: 100
-            },
-            {
-                accessorKey: 'diasSenales',
-                header: 'Días señales',
-                size: 100
-            },
-            {
-                accessorKey: 'notificar',
-                header: 'Notificar',
+                accessorKey: 'esGestor',
+                header: 'Es Gestor',
                 size: 50,
                 Cell({ cell, column, row, table, }) {
                   return (cell.getValue() == true) ? <span >Si</span>
                         : <span>No</span>
                 },
-            },
+            }
         ];
 
         useEffect(() => {
 
-            getConfiguracion('3').then((response) => {
+            getConfiguracion(title == 'Parametrizar Usuarios ST' ? '1002' : '1003').then((response) => {
         
               JSON.parse(response.data[0].Configuracion) ? setData(JSON.parse(response.data[0].Configuracion) as any[])
                 : setData([]);
@@ -116,69 +100,83 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
              
         
             });
+
+            getUsuarios('-1').then((response) => {
         
-          }, [])
+                setusuarios(response.data)              
+          
+              });
+        
+          }, [title])
+
+          useEffect(() => {
+
+            let nombre = (usuarios).filter(nom => nom.Id == userid)[0];
+
+            setnombre(nombre != undefined ? nombre.Nombres : '');
+        
+          }, [userid])
 
 
-    function SelectTipo() {
+    function SelectUsuario() {
         return (
-            <Form.Select className=" mb-3 " name="tipo" value={tipo} onChange={(e) => {
+            <Form.Select className=" mb-3 " name="tipo" value={userid} onChange={(e) => {
                 // buscamos el objeto completo para tenerlo en el sistema
 
                 //validar con yuli si se puede obtener el key desde aquí                 
-                settipo(e.currentTarget.value as any);
+                setuserid(e.currentTarget.value as any);
             }}>
-                <option value={0}>Selecione tipo</option>
-                <option value={'Sistema'}>Sistema</option>
-                <option value={'Señales'}>Señales</option>  
+                  <option value={0}>Selecione Usuario</option>
+                {(usuarios).map((u) => {
+                    return (
+                        <option key={u.Id} value={u.Id}>
+                            {u.Nombres}
+                        </option>
+                    );
+                })} 
 
             </Form.Select>
         );
     }
 
-    const modalSetDias = (row: any) => {
+    const modalSetUsuarios = (row: any) => {
 
-        setnombresinEditar(row.nombre);
-        settipo(row.tipo);
-        setdiasSenales(row.diasSenales);
-        setdiasTickets(row.diasTickets);
+        setuserid(row.UserId);
         setnombre(row.nombre);
-        setnotificar(row.notificar);
+        setesGestor(row.esGestor);
         showModals();
       }
 
       
 
-    const setTickets = (tipoModificacion: any, nombreEditar?: any) => {
+    const setUsers = (tipoModificacion: any, userEditar?: any) => {
 
-        let parametrosTickets: any = {};
+        let usuariosSoporte: any = {};
         let movimientos: any = {};
         let mensaje: any = "";
         let tipoMovimiento: any = "";
 
 
         if (tipoModificacion == "1") {
-            mensaje = "Se agrega nueva configuración";
+            mensaje = "Se agrega nuevo usuario";
             tipoMovimiento = "Creación";
         }
         else if (tipoModificacion == "2") {
-            mensaje = "Se edita configuración";
+            mensaje = "Se edita usuario";
             tipoMovimiento = "Edición";
         }
         else {
-            mensaje = "Se elimina configuración";
+            mensaje = "Se elimina usuario";
             tipoMovimiento = "Eliminacion";
         }
 
-        parametrosTickets = {
-            tipo,
+        usuariosSoporte = {
+            UserId: userid,
             nombre,
-            diasTickets,
-            diasSenales,
-            notificar
+            esGestor
         };
 
-        setnombresinEditar(nombre);
+        setusersinEditar(userid);
 
         movimientos = {
             fecha: FechaServidor(),
@@ -189,44 +187,37 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
 
         confirmarDialog(() => {
             if (tipoModificacion == "1") {
-                setConfiguracion('3', '[' + JSON.stringify(parametrosTickets) + ']', '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
+                setConfiguracion(title == 'Parametrizar Usuarios ST' ? '1002' : '1003', '[' + JSON.stringify(usuariosSoporte) + ']', '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
                     successDialog("Operación Éxitosa", "");
-                    setData([...Data, JSON.parse(JSON.stringify(parametrosTickets))] as any[]);
+                    setData([...Data, JSON.parse(JSON.stringify(usuariosSoporte))] as any[]);
                     setnombre("");
-                    settipo("");
-                    setdiasSenales("");
-                    setdiasTickets("");
-                    setnotificar(false);
+                    setuserid("");
+                    setesGestor(false);
                 }).catch((error) => {
                     errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
                 });
             }
             else if (tipoModificacion == "2" || tipoModificacion == "3") {
-                let conf = Data.filter(lis => lis.nombre != (tipoModificacion == "2" ? nombresinEditar : nombreEditar));
+                let conf = Data.filter(lis => lis.UserId != (tipoModificacion == "2" ? usersinEditar : userEditar));
 
-                console.log(nombreEditar);
-                console.log(nombresinEditar);
-                parametrosTickets = {
-                    tipo,
+                
+                usuariosSoporte = {
+                    UserId: userid,
                     nombre,
-                    diasTickets,
-                    diasSenales,
-                    notificar
+                    esGestor
                 };
 
                 if (tipoModificacion == "2")
-                    conf.push(parametrosTickets);
+                    conf.push(usuariosSoporte);
 
 
 
-                setConfiguracion('3', JSON.stringify(conf), '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
+                setConfiguracion(title == 'Parametrizar Usuarios ST' ? '1002' : '1003', JSON.stringify(conf), '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
                     successDialog("Operación Éxitosa", "");
                     setData(JSON.parse(JSON.stringify(conf)) as any[]);
                     setnombre("");
-                    settipo("");
-                    setdiasSenales("");
-                    setdiasTickets("");
-                    setnotificar(false);
+                    setuserid("");
+                    setesGestor(false);
                     handleClose2();
                 }).catch((error) => {
                     errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
@@ -252,43 +243,23 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
                 <Modal.Body>
                     <div className="row">
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                            <label className="control-label label label-sm  m-3" htmlFor="señales" style={{ fontWeight: 'bold' }}>Tipo:</label>
-                            <SelectTipo />
+                            <label className="control-label label label-sm  m-3" htmlFor="señales" style={{ fontWeight: 'bold' }}>Usuario:</label>
+                            <SelectUsuario />
                         </div>
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                            <label className="control-label label label-sm  m-3" htmlFor="señales" style={{ fontWeight: 'bold' }}>Nombre:</label>
-                            <input className="form-control  input input-sm mb-3" placeholder="Ingrese nombre" type="text"  value={nombre} onChange={(e) => { setnombre(e.target.value); }}/>
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                            <label className="control-label label label-sm  m-3" htmlFor="señales" style={{ fontWeight: 'bold' }}>Días Señales:</label>
-                            <input className="form-control  input input-sm mb-3" placeholder="Ingrese días" type="text"  value={diasSenales} onChange={(e) => { setdiasSenales(e.target.value); }} />
-                        </div>
-
-                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                            <label className="control-label label label-sm  m-3" htmlFor="señales" style={{ fontWeight: 'bold' }}>Días Tickets:</label>
-                            <input className="form-control  input input-sm mb-3" placeholder="Ingrese días" type="text"  value={diasTickets} onChange={(e) => { setdiasTickets(e.target.value); }}/>
-                        </div>
-                    </div>
-                    <div className="row">
-
-
-                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                            <label className="control-label label label-sm  m-3" htmlFor="requerimientos" style={{ fontWeight: 'bold' }}>Notificar:</label>
+                            <label className="control-label label label-sm  m-3" htmlFor="dlp" style={{ fontWeight: 'bold' }}>Es Gestor:</label>
                             <div className="">
-                            <input className=" m-3"
+                                <input className=" m-3"
                                     type="checkbox"
-                                    checked={notificar}
+                                    checked={esGestor}
                                     onChange={(e) =>
-                                        setnotificar(e.target.checked)
+                                        setesGestor(e.target.checked)
+                                        // setGeneraIMG(e.target.checked)
                                     }
                                 />
                             </div>
                         </div>
                     </div>
-
-
                 </Modal.Body>
                 <Modal.Body>
                     <div>
@@ -342,7 +313,7 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
                                         <Tooltip arrow placement="left" title="modificar">
                                             <IconButton
                                                 onClick={() => {
-                                                    modalSetDias(row.original);
+                                                    modalSetUsuarios(row.original);
                                                 }}
                                             >
                                                 <Update />
@@ -352,7 +323,7 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
                                         <Tooltip arrow placement="left" title="eliminar">
                                             <IconButton
                                                 onClick={() => {
-                                                    setTickets('3', row.original.nombre);
+                                                    setUsers('3', row.original.UserId);
                                                 }}
                                             >
                                                 <Delete />
@@ -367,7 +338,7 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
                 </Modal.Body>
                 <Modal.Footer>
                     <Button type="button" variant="primary" onClick={() => {
-                        setTickets("1", null);
+                        setUsers("1", null);
                     }}>
                         Guardar
                     </Button>
@@ -387,48 +358,27 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
                 <Modal.Body>
                     <div className="row">
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                            <label className="control-label label label-sm  m-3" htmlFor="señales" style={{ fontWeight: 'bold' }}>Tipo:</label>
-                            <SelectTipo />
+                            <label className="control-label label label-sm  m-3" htmlFor="señales" style={{ fontWeight: 'bold' }}>Usuario:</label>
+                            <SelectUsuario />
                         </div>
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                            <label className="control-label label label-sm  m-3" htmlFor="señales" style={{ fontWeight: 'bold' }}>Nombre:</label>
-                            <input className="form-control  input input-sm mb-3" placeholder="Ingrese nombre" type="text"  value={nombre} onChange={(e) => { setnombre(e.target.value); }}/>
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                            <label className="control-label label label-sm  m-3" htmlFor="señales" style={{ fontWeight: 'bold' }}>Días Señales:</label>
-                            <input className="form-control  input input-sm mb-3" placeholder="Ingrese días" type="text"  value={diasSenales} onChange={(e) => { setdiasSenales(e.target.value); }} />
-                        </div>
-
-                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                            <label className="control-label label label-sm  m-3" htmlFor="señales" style={{ fontWeight: 'bold' }}>Días Tickets:</label>
-                            <input className="form-control  input input-sm mb-3" placeholder="Ingrese días" type="text"  value={diasTickets} onChange={(e) => { setdiasTickets(e.target.value); }}/>
-                        </div>
-                    </div>
-                    <div className="row">
-
-
-                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
-                            <label className="control-label label label-sm  m-3" htmlFor="requerimientos" style={{ fontWeight: 'bold' }}>Notificar:</label>
+                            <label className="control-label label label-sm  m-3" htmlFor="dlp" style={{ fontWeight: 'bold' }}>Es Gestor:</label>
                             <div className="">
-                            <input className=" m-3"
+                                <input className=" m-3"
                                     type="checkbox"
-                                    checked={notificar}
+                                    checked={esGestor}
                                     onChange={(e) =>
-                                        setnotificar(e.target.checked)
+                                        setesGestor(e.target.checked)
+                                        // setGeneraIMG(e.target.checked)
                                     }
                                 />
                             </div>
                         </div>
                     </div>
-
-
                 </Modal.Body>
-
                 <Modal.Footer>
                     <Button type="button" variant="primary" onClick={() => {
-                        setTickets("2", null);
+                        setUsers("2", null);
                     }}>
                         Guardar
                     </Button>
