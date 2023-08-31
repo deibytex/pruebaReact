@@ -46,6 +46,7 @@ export default function Parametrizacion() {
 
     const showModal2 = () => {
         setTitulo('Editar Contacto')
+        setShow2(false);
         setshow3(true);
     }
 
@@ -54,7 +55,10 @@ export default function Parametrizacion() {
     };
 
     const handleClose2 = () => {
+
+        setTitulo('Gestionar Contactos')
         setshow3(false);
+        setShow2(true);
     };
 
     const [contactos, setcontactos] = useState("");
