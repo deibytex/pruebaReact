@@ -108,7 +108,7 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
 
         useEffect(() => {
 
-            getConfiguracion('3').then((response) => {
+            getConfiguracion('PSYTT').then((response) => {
         
               JSON.parse(response.data[0].Configuracion) ? setData(JSON.parse(response.data[0].Configuracion) as any[])
                 : setData([]);
@@ -189,7 +189,7 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
 
         confirmarDialog(() => {
             if (tipoModificacion == "1") {
-                setConfiguracion('3', '[' + JSON.stringify(parametrosTickets) + ']', '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
+                setConfiguracion('PSYTT', '[' + JSON.stringify(parametrosTickets) + ']', '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
                     successDialog("Operación Éxitosa", "");
                     setData([...Data, JSON.parse(JSON.stringify(parametrosTickets))] as any[]);
                     setnombre("");
@@ -219,7 +219,7 @@ export const UpdateTickets: React.FC<Props> = ({ show, handleClose, title }) => 
 
 
 
-                setConfiguracion('3', JSON.stringify(conf), '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
+                setConfiguracion('PSYTT', JSON.stringify(conf), '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
                     successDialog("Operación Éxitosa", "");
                     setData(JSON.parse(JSON.stringify(conf)) as any[]);
                     setnombre("");
