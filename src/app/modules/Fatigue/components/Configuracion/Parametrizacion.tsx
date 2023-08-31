@@ -403,6 +403,7 @@ export default function Parametrizacion() {
         });
     }
 
+    //contactos Deiby
     const modalContactos = (row: any) => {
         setTitulo('Gestionar Contactos')
         setcontactos(row.contactos);
@@ -444,7 +445,7 @@ export default function Parametrizacion() {
             numero,
             correo
         };
-        // configuracionAlertaId
+        
 
         console.log(JSON.stringify(contactos));
 
