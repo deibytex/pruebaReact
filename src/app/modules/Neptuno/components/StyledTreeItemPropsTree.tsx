@@ -116,7 +116,7 @@ export function StyledTreeItem(props: StyledTreeItemProps) {
                                 <Button className="btn btn-icon btn-sm fw-bolder bg-danger"
                                     onClick={() => {
                                         confirmarDialog(() => {
-                                            setLoader(true)
+                                            setLoader(true) 
                                             UpdateEstadoArchivo(item.archivoId.toString(),model.Id, 3).then(() => {
                                                 
                                                 successDialog("Archivo Eliminado Exitosamente!", "");

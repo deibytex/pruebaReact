@@ -107,7 +107,7 @@ export function EsPermitido(Operaciones: any[], operacion: string) {
   let espermitido = false;
   Operaciones.forEach((oper) => {
 
-    if (oper["operacion"] === operacion)
+    if (oper["Operacion"] === operacion)
       espermitido = true;
   })
 
