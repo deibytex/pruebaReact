@@ -9,10 +9,11 @@ import BlockUi from "@availity/block-ui";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
-import { FiltrosData, GetClientesFatiga, GetEventos, GetEventosColumnas, getConfiguraciones, setConfiguraciones } from "../../data/Configuracion";
+import { FiltrosData, GetClientesFatiga, GetEventos, GetEventosColumnas, getConfiguraciones, setConfiguraciones, setContactosAlertas } from "../../data/Configuracion";
 import { Check, ConstructionOutlined, DeleteForever, Edit } from "@mui/icons-material";
 import { Box, IconButton, Tooltip } from "@mui/material";
 import { Users } from "react-feather";
+import { string } from "yup";
 
 
 export default function Parametrizacion() {
@@ -35,16 +36,30 @@ export default function Parametrizacion() {
     const [Cargar, setcargar] = useState(false);
     const [configuracionAlertaId, setconfiguracionAlertaId] = useState(null);
 
-    //Variables Deiby
+    /* Variables Deiby */
     const [show2, setShow2] = useState(false);
+    const [show3, setshow3] = useState(false);
 
     const showModal = () => {
         setShow2(true);
     }
 
+    const showModal2 = () => {
+        setTitulo('Editar Contacto')
+        setshow3(true);
+    }
+
     const handleClose = () => {
-    setShow2(false);
+        setShow2(false);
     };
+
+    const handleClose2 = () => {
+        setshow3(false);
+    };
+
+    const [contactos, setcontactos] = useState("");
+    const [labelsinEditar, setlabelsinEditar] = useState("");
+    const [AlertaId, setAlertaId] = useState<string>("");
 
     const [tipo, settipo] = useState("");
     const [nombre, setnombre] = useState("");
@@ -52,29 +67,31 @@ export default function Parametrizacion() {
     const [correo, setcorreo] = useState("");
 
     const columnasContacto: MRT_ColumnDef<any>[]
-    = [
-      {
-        accessorKey: 'tipo',
-        header: 'Tipo'
-      },
-      {
-        accessorKey: 'nombre',
-        header: 'Nombre'
-      },
-      {
-        accessorKey: 'numerocontacto',
-        header: 'Número Contacto'
-      },
-      {
-        accessorKey: 'correocontacto',
-        header: 'Email'
-      }
+        = [
+            {
+                accessorKey: 'tipo',
+                header: 'Tipo'
+            },
+            {
+                accessorKey: 'nombre',
+                header: 'Nombre'
+            },
+            {
+                accessorKey: 'numero',
+                header: 'Número'
+            },
+            {
+                accessorKey: 'correo',
+                header: 'Email'
+            }
 
-    ];
+        ];
 
-    const [dataContacto, setdataContacto] = useState([]);
+    const [dataContacto, setdataContacto] = useState<any[]>([]);
 
     const [rowCount2, setRowCount2] = useState(0);
+
+    /* Fin Variables Deiby*/
 
     /* table state*/
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -207,12 +224,12 @@ export default function Parametrizacion() {
                     setFiltrado(false);
                 setCliente((cliente[0] == undefined ? "" : cliente[0].ClienteId.toString()));
                 ObtenerEventos((cliente[0] == undefined ? "" : cliente[0].ClienteId.toString()));
-            }} aria-label="Default select example">
-                <option>Seleccione</option>
+            }} aria-label="Default select example" value={clienteSeleccionado?.ClienteIdS}>
+                <option value={0}>Seleccione</option>
                 {
                     lstClientes.map((element, i) => {
-                        let flag = (element.ClienteIdS === clienteSeleccionado?.ClienteIdS)
-                        return (<option key={element.ClienteIdS} selected={flag} value={element.ClienteIdS}>{element.clienteNombre}</option>)
+                        return (<option key={element.ClienteIdS} value={element.ClienteIdS}>
+                            {element.clienteNombre}</option>)
                     })
                 }
             </Form.Select>
@@ -384,61 +401,97 @@ export default function Parametrizacion() {
 
     const modalContactos = (row: any) => {
         setTitulo('Gestionar Contactos')
-        // setobservaciones(row.Observaciones);
-        // setalertaId(row.AlertaId);
-        // setesgestionado(row.EstadoGestion);
-        // setPlaca(row.vehiculo);
-        // setconductor(row.conductor);
-        // setAlerta(row.TipoAlerta);
-        // setdetalleEventos(row.DetalladoEventos);
-        // setfechaEvento(moment(JSON.parse(row.DetalladoEventos).at(-1).EventDateTime as Date).format(FormatoColombiaDDMMYYYHHmm));
-        // settotalEventos(JSON.parse(row.DetalladoEventos).length)
-    
-        showModal();
-      }
+        setcontactos(row.contactos);
+        setAlertaId(row.configuracionAlertaId);
 
-    const setContactos = () => {
+        showModal();
+    }
+
+    useEffect(() => {
+
+        if (contactos != "" && contactos != null) {
+            let json = JSON.parse(contactos);
+            setdataContacto(json);
+            setRowCount2(json.length);
+        }
+        else {
+            setdataContacto([]);
+            setRowCount(0);
+        }
+    }, [contactos])
+
+    const modalSetContacto = (row: any) => {
+
+        setlabelsinEditar(row.nombre);
+        settipo(row.tipo);
+        setnombre(row.nombre);
+        setnumero(row.numero);
+        setcorreo(row.correo);
+        showModal2();
+    }
+
+    const setContactos = (tipoModificacion: any, labelEditar?: any) => {
 
         let contactos: any = {};
-    
+
         contactos = {
-          tipo,
-          nombre,
-          numero,
-          correo    
+            tipo,
+            nombre,
+            numero,
+            correo
         };
+        // configuracionAlertaId
 
         console.log(JSON.stringify(contactos));
-    
-    
-        // confirmarDialog(() => {
-        //   setObservaciones(JSON.stringify(GestorObervaciones)).then((response) => {
-    
-        //     toaster.push(message('success', "Gestionar", "Gestión Guardada"), {
-        //       placement: 'topCenter'
-        //     });
-    
-        //     setData([...Data, JSON.parse(JSON.stringify(GestorObervaciones))] as any[]);
-        //     setobervacionGestion("");
-        //     getAlertas(clienteIds as string).then((response) => {
-        //       setalertas(response.data);
-        //     });
-        //     if (escerrado == "true") {
-        //       handleClose();
-        //     }
-        //     else setesgestionado(false);
-    
-    
-    
-        //   }).catch((error) => {
-        //     toaster.push(message('error', "Gestionar", "Error al gestionar intente nuevamente"), {
-        //       placement: 'topCenter'
-        //     });
-        //   });
-        // }, escerrado == "false" && observacion != 'Se reabre Gestión' ? `Esta seguro que desea agregar el comentario` : escerrado == 'true' ? `Esta seguro de terminar la gestión`
-        //   : `Esta seguro de reabrir la gestión`, escerrado == "false" && observacion != 'Se reabre Gestión'
-        //   ? "Guardar" : escerrado == 'true' ? "Terminar" : "Reabrir")
-      }
+
+        setlabelsinEditar(nombre);
+
+
+        confirmarDialog(() => {
+            if (tipoModificacion == "1") {
+                setContactosAlertas(AlertaId, '[' + JSON.stringify(contactos) + ']', tipoModificacion).then((response) => {
+                    successDialog("Operación Éxitosa", "");
+                    setdataContacto([...dataContacto, JSON.parse(JSON.stringify(contactos))] as any[]);
+                    settipo("");
+                    setnombre("");
+                    setnumero("");
+                    setcorreo("");
+                }).catch((error) => {
+                    errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
+                });
+            }
+            else if (tipoModificacion == "2" || tipoModificacion == "3") {
+                let conf = dataContacto.filter(lis => lis.nombre != (tipoModificacion == "2" ? labelsinEditar : labelEditar));
+
+                contactos = {
+                    tipo,
+                    nombre,
+                    numero,
+                    correo
+                };
+
+                if (tipoModificacion == "2")
+                    conf.push(contactos);
+
+
+                setContactosAlertas(AlertaId, JSON.stringify(conf), tipoModificacion).then((response) => {
+                    successDialog("Operación Éxitosa", "");
+                    setdataContacto(JSON.parse(JSON.stringify(conf)) as any[]);
+                    settipo("");
+                    setnombre("");
+                    setnumero("");
+                    setcorreo("");
+                    handleClose2();
+                }).catch((error) => {
+                    errorDialog("<i>Error comuniquese con el adminisrador<i/>", "");
+                });
+            }
+
+        }, tipoModificacion == "1" ? `Esta seguro que desea agregar el contacto` : tipoModificacion == "2" ? `Esta seguro de modificar el contacto`
+            : `Esta seguro de eliminar el contacto`
+            , tipoModificacion == "1" ? `Agregar` : tipoModificacion == "2" ? `Modificar`
+                : `Eliminar`);
+    }
 
     return (
         <>
@@ -536,7 +589,7 @@ export default function Parametrizacion() {
                                         </Tooltip>
                                         <Tooltip arrow placement="top" title="Contactos">
                                             <IconButton onClick={() => {
-                                                 modalContactos(row.original);
+                                                modalContactos(row.original);
                                             }
                                             }>
                                                 <Users />
@@ -577,13 +630,6 @@ export default function Parametrizacion() {
                                 <input name="Tiempo" placeholder="Tiempo" className="form-control input-sm" value={Tiempo} onChange={(e: any) => { e.preventDefault(); setTiempo(e.target.value) }} />
                             </div>
                         </div>
-                        <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4" style={{ display: (Mostrar ? "inline" : "none") }}>
-                            <label className="control-label label-sm font-weight-bold" style={{ fontWeight: 'bold' }} htmlFor="ClienteId">Cliente</label>
-                            <div className="input-group mb-3">
-                                <span className="input-group-text mb-3"><i className="fas fa-user-tie mb-3"></i></span>
-                                <CargaListadoClientes />
-                            </div>
-                        </div>                    
                     </div>
                     <div className="row">
                         <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
@@ -602,7 +648,7 @@ export default function Parametrizacion() {
                         </div>
                     </div>
                     <div className="row">
-         
+
                         <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
                             <div className="row">
                                 <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
@@ -699,7 +745,7 @@ export default function Parametrizacion() {
 
                         <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
                             <Button type="button" variant="primary" onClick={() => {
-                                setContactos();
+                                setContactos(1, null);
                             }}>
                                 Guardar
                             </Button></div>
@@ -724,6 +770,7 @@ export default function Parametrizacion() {
                         enableFilters
                         enablePagination={false}
                         enableColumnFilters={false}
+                        enableEditing
                         muiToolbarAlertBannerProps={
                             isError
                                 ? {
@@ -749,7 +796,7 @@ export default function Parametrizacion() {
                                 <Tooltip arrow placement="left" title="Editar">
                                     <IconButton
                                         onClick={() => {
-                                            // setGestorPreoperacional(row.original);
+                                            modalSetContacto(row.original);
                                         }}
                                     >
                                         <Edit />
@@ -757,7 +804,7 @@ export default function Parametrizacion() {
                                 </Tooltip>
                                 <Tooltip arrow placement="left" title="Eliminar">
                                     <IconButton onClick={() => {
-                                        // modalDetalleEventos(row.original);
+                                        setContactos('3', row.original.nombre);
                                     }}>
                                         <DeleteForever />
                                     </IconButton>
@@ -769,6 +816,62 @@ export default function Parametrizacion() {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button type="button" variant="secondary" onClick={handleClose}>
+                        Cerrar
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+            <Modal show={show3} onHide={handleClose2} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>{Titulo}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="row">
+                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 mt-1">
+                            <div className="">
+                                <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Tipo:</label>
+                                <input className="form-control  input input-sm " id={"nombregrupo"} placeholder="Selecione Tipo"
+                                    onChange={(e) => settipo(e.target.value)} value={tipo}></input>
+                            </div>
+                        </div>
+                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 mt-1">
+                            <div className="">
+                                <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Nombre:</label>
+                                <input className="form-control  input input-sm " id={"nombregrupo"} placeholder="Ingrese Nombre"
+                                    onChange={(e) => setnombre(e.target.value)} value={nombre}></input>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 mt-1">
+                            <div className="">
+                                <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Número:</label>
+                                <input className="form-control  input input-sm " id={"nombregrupo"} placeholder="Ingrese Número"
+                                    onChange={(e) => setnumero(e.target.value)} value={numero}></input>
+                            </div>
+                        </div>
+                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 mt-1">
+                            <div className="">
+                                <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Email:</label>
+                                <input className="form-control  input input-sm " id={"nombregrupo"} placeholder="Ingrese Correo"
+                                    onChange={(e) => setcorreo(e.target.value)} value={correo}></input>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="row mt-3">
+
+                        <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                            <Button type="button" variant="primary" onClick={() => {
+                                setContactos(2, null);
+                            }}>
+                                Guardar
+                            </Button></div>
+
+                    </div>
+
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button type="button" variant="secondary" onClick={handleClose2}>
                         Cerrar
                     </Button>
                 </Modal.Footer>

@@ -208,11 +208,11 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
         header: 'Nombre'
       },
       {
-        accessorKey: 'numerocontacto',
-        header: 'Número Contacto'
+        accessorKey: 'numero',
+        header: 'Número'
       },
       {
-        accessorKey: 'correocontacto',
+        accessorKey: 'correo',
         header: 'Email'
       }
 
