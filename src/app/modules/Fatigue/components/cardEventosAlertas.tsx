@@ -442,6 +442,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
     showModals();
   };
 
+//Funciones para mapa tab
   const showModals = () => {
     settitle('Mapa')
     setShow4(true);
