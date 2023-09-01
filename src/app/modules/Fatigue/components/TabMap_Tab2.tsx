@@ -9,9 +9,15 @@ type Props = {
     showModal: boolean;
     handleClose: () => void;
     title?: string;
+    Placa?: string;
+    conductor?: string;
+    Alerta?: string;
+    fechaEvento?: string;
+    totalEventos?: string;
+
 };
 
-export const MapTab : React.FC<Props> = ({ showModal, handleClose, title }) => {
+export const MapTab: React.FC<Props> = ({ showModal, handleClose, title, Placa, conductor, Alerta, fechaEvento, totalEventos }) => {
     const [show, setshowp] = useState<boolean>(false);
     const { DataDetallado, Filtrado, DataDetalladoFiltrado, setloader } = useDataFatigue();
     const [zoom, setzoom] = useState<number>(13);
@@ -140,26 +146,47 @@ export const MapTab : React.FC<Props> = ({ showModal, handleClose, title }) => {
                     <Modal.Title>{title}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                {(show) && (
-                    <MapContainer
-                        id="mapcontainter"
-                        center={[centerLatitud, centerLongitud]}
-                        zoom={zoom}
-                        className=" ml-4"
-                        style={{ height: 700 }}
-                    >
-                        <TileLayer
-                            url={CapaBasicNight}
-                        />
-                        <RenderPopUp />
-                        {/**  si son todos aplicamos el clustering, si se filtra lo desagregamos*/}
-                        {
-                            <Puntos />
+                    <div className="row">
+                        <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                            <label className="mx-2 fs-6 fw-bolder">Alerta: </label> <span className="mx-1 fs-5 text-muted">{`${Alerta}`}</span>
+                        </div>
+                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                            <label className="mx-2 fs-6 fw-bolder">Fecha Ultimo Evento: </label> <span className="mx-2 fs-5 text-muted">{`${fechaEvento}`} </span>
+                        </div>
+                        <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                            <label className="mx-2 fs-6 fw-bolder">Cantidad Eventos: </label> <span className="mx-2 fs-5 text-muted">{`${totalEventos}`} </span>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                            <label className="mx-2 fs-6 fw-bolder">Placa: </label> <span className="mx-2 fs-5 text-muted">{`${Placa}`}</span>
+                        </div>
+                        <div className="col-sm-8 col-xl-8 col-md-8 col-lg-8">
+                            <label className="mx-2 fs-6 fw-bolder">Conductor: </label> <span className="mx-2 fs-5 text-muted">{`${conductor}`}</span>
+                        </div>
+                    </div>
+                </Modal.Body>
+                <Modal.Body>
+                    {(show) && (
+                        <MapContainer
+                            id="mapcontainter"
+                            center={[centerLatitud, centerLongitud]}
+                            zoom={zoom}
+                            className=" ml-4"
+                            style={{ height: 700 }}
+                        >
+                            <TileLayer
+                                url={CapaBasicNight}
+                            />
+                            <RenderPopUp />
+                            {/**  si son todos aplicamos el clustering, si se filtra lo desagregamos*/}
+                            {
+                                <Puntos />
 
-                        }
-                    </MapContainer>
-                )}
-                </Modal.Body>               
+                            }
+                        </MapContainer>
+                    )}
+                </Modal.Body>
                 <Modal.Footer>
                     <Button type="button" variant="secondary" onClick={handleClose}>
                         Cerrar

@@ -429,6 +429,11 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
 
   //Función para ir al mapa de marcial
   const IrToMap = (row: any) => {
+    setPlaca(row.original.vehiculo);
+    setconductor(row.original.conductor);
+    setAlerta(row.original.TipoAlerta);
+    setfechaEvento(moment(JSON.parse(row.original.DetalladoEventos).at(-1).EventDateTime as Date).format(FormatoColombiaDDMMYYYHHmm));
+    settotalEventos(JSON.parse(row.original.DetalladoEventos).length)
     setloader(true);
     let Data = new Array()
     Data = [...Data, ...JSON.parse(row.original.DetalladoEventos)]
@@ -836,7 +841,7 @@ const handleCloseModals = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-      <MapTab showModal={show4} handleClose={handleCloseModals} title={title} />
+      <MapTab showModal={show4} handleClose={handleCloseModals} title={title} Placa={Placa} conductor={conductor}  Alerta={Alerta} fechaEvento={fechaEvento} totalEventos={totalEventos}  />
     </>
   );
 }
