@@ -57,6 +57,10 @@ export default function Parametrizacion() {
     const handleClose2 = () => {
 
         setTitulo('Gestionar Contactos')
+        settipo("");
+        setnombre("");
+        setnumero("");
+        setcorreo("");
         setshow3(false);
         setShow2(true);
     };
@@ -69,6 +73,8 @@ export default function Parametrizacion() {
     const [nombre, setnombre] = useState("");
     const [numero, setnumero] = useState("");
     const [correo, setcorreo] = useState("");
+
+    const [errorCorreo, seterrorCorreo] = useState<any>("");
 
     const columnasContacto: MRT_ColumnDef<any>[]
         = [
@@ -432,6 +438,7 @@ export default function Parametrizacion() {
         setnombre(row.nombre);
         setnumero(row.numero);
         setcorreo(row.correo);
+        seterrorCorreo("")
         showModal2();
     }
 
@@ -497,6 +504,12 @@ export default function Parametrizacion() {
             , tipoModificacion == "1" ? `Agregar` : tipoModificacion == "2" ? `Modificar`
                 : `Eliminar`);
     }
+
+    const getCorreo = (e: any) => {
+        const regex = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+        setcorreo(e.target.value);
+        !correo || regex.test(e.target.value) === false ? seterrorCorreo("Correo No Valido") : seterrorCorreo("")
+    };
 
     return (
         <>
@@ -733,15 +746,16 @@ export default function Parametrizacion() {
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 mt-1">
                             <div className="">
                                 <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Número:</label>
-                                <input className="form-control  input input-sm " id={"nombregrupo"} placeholder="Ingrese Número"
+                                <input type="number" className="form-control  input input-sm " id={"nombregrupo"} placeholder="Ingrese Número"
                                     onChange={(e) => setnumero(e.target.value)} value={numero}></input>
                             </div>
                         </div>
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 mt-1">
                             <div className="">
                                 <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Email:</label>
-                                <input className="form-control  input input-sm " id={"nombregrupo"} placeholder="Ingrese Correo"
-                                    onChange={(e) => setcorreo(e.target.value)} value={correo}></input>
+                                <input type="email" className="form-control  input input-sm " id={"nombregrupo"} placeholder="Ingrese Correo"
+                                    onChange={getCorreo} value={correo}></input>
+                                <span className="text-danger">{errorCorreo}</span>    
                             </div>
                         </div>
                     </div>
@@ -850,7 +864,7 @@ export default function Parametrizacion() {
                         <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6 mt-1">
                             <div className="">
                                 <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Número:</label>
-                                <input className="form-control  input input-sm " id={"nombregrupo"} placeholder="Ingrese Número"
+                                <input type="number" className="form-control  input input-sm " id={"nombregrupo"} placeholder="Ingrese Número"
                                     onChange={(e) => setnumero(e.target.value)} value={numero}></input>
                             </div>
                         </div>
@@ -858,7 +872,8 @@ export default function Parametrizacion() {
                             <div className="">
                                 <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Email:</label>
                                 <input className="form-control  input input-sm " id={"nombregrupo"} placeholder="Ingrese Correo"
-                                    onChange={(e) => setcorreo(e.target.value)} value={correo}></input>
+                                    onChange={getCorreo} value={correo}></input>
+                                <span className="text-danger">{errorCorreo}</span>    
                             </div>
                         </div>
                     </div>
