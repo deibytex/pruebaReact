@@ -22,6 +22,7 @@ import moment from "moment";
 import { useToaster, Notification } from "rsuite";
 import { FormatoColombiaDDMMYYYHHmm, FormatoColombiaDDMMYYYHHmmss } from "../../../../_start/helpers/Constants";
 import { DescargarExcelPersonalizado } from "../../../../_start/helpers/components/DescargarExcel";
+import { MapTab } from "./TabMap_Tab2";
 type Props = {
 
   isActive: boolean;
@@ -55,6 +56,8 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
   const [alertaId, setalertaId] = useState(0);
 
   const [show, setShow] = useState(false);
+  const [show4, setShow4] = useState(false);
+
   const handleClose = () => {
     setShow(false);
   };
@@ -78,6 +81,8 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
   const [Alerta, setAlerta] = useState("");
   const [fechaEvento, setfechaEvento] = useState("");
   const [totalEventos, settotalEventos] = useState("");
+
+  const [title, settitle] = useState("");
 
   const [DataDetalleEventos, setDataDetalleEventos] = useState<any[]>([]);
 
@@ -422,32 +427,26 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
     showModal2();
   }
 
-  // //Función para ir al mapa de marcial
-  // const IrToMap = (row: any) => {
-  //   setloader(true);
-  //   let Data = new Array()
-  //   Data = [...Data, ...JSON.parse(row.original.DetalladoEventos)]
-  //   setDataDetalladoFiltrado(Data);
-  //   setFiltrado(true)
-  //   setActiveTab('#tab2');
-  // };
-
-  const infBasica = (row: any) => {
-    let datos = [JSON.parse(row.Observaciones)]
-
-
-    if (datos[0] != null) {
-      let last = datos[0].at(-1);
-      setFechaApertura(moment(last.fechaapertura as Date).format('DD/MM/YYYY'));
-      setFechaGestion(moment(last.fechagestion as Date).format('DD/MM/YYYY'));
-      setobervacionGestionlast(last.value);
-    } else {
-      setFechaApertura("n/a");
-      setFechaGestion("n/a");
-      setobervacionGestionlast("");
-    }
-
+  //Función para ir al mapa de marcial
+  const IrToMap = (row: any) => {
+    setloader(true);
+    let Data = new Array()
+    Data = [...Data, ...JSON.parse(row.original.DetalladoEventos)]
+    setDataDetalladoFiltrado(Data);
+    setFiltrado(true);
+    showModals();
   };
+
+  const showModals = () => {
+    settitle('Mapa')
+    setShow4(true);
+}
+
+const handleCloseModals = () => {
+  settitle('Mapa')      
+  setShow4(false);        
+};
+
 
   return (
 
@@ -527,14 +526,14 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
                 <List />
               </IconButton>
             </Tooltip>
-            {/* //Para el mapa  Marcial
+            {/* //Para el mapa  Marcial */}
             <Tooltip arrow placement="top" title="Ver en el mapa">
               <IconButton onClick={(e: any) => {
                 IrToMap(row);
               }} >
                 <Map />
               </IconButton>
-            </Tooltip> */}
+            </Tooltip>
           </Box>
         )
         }
@@ -837,6 +836,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
           </Button>
         </Modal.Footer>
       </Modal>
+      <MapTab showModal={show4} handleClose={handleCloseModals} title={title} />
     </>
   );
 }

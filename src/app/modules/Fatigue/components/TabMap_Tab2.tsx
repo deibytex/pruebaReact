@@ -3,7 +3,15 @@ import { MapContainer, Marker, Popup, TileLayer, Tooltip, useMap } from "react-l
 import { Icon } from "leaflet";
 import { useDataFatigue } from "../core/provider";
 import { EventoActivo } from "../models/EventosActivos";
-export function MapTab() {
+import { Button, Modal } from "react-bootstrap-v5";
+
+type Props = {
+    showModal: boolean;
+    handleClose: () => void;
+    title?: string;
+};
+
+export const MapTab : React.FC<Props> = ({ showModal, handleClose, title }) => {
     const [show, setshowp] = useState<boolean>(false);
     const { DataDetallado, Filtrado, DataDetalladoFiltrado, setloader } = useDataFatigue();
     const [zoom, setzoom] = useState<number>(13);
@@ -28,7 +36,7 @@ export function MapTab() {
     });
 
     useEffect(() => {
-        if(Filtrado){
+        if (Filtrado) {
             if (DataDetalladoFiltrado != undefined && DataDetalladoFiltrado.length > 0) {
                 setMap(DataDetalladoFiltrado);
                 setcenterLatitud(Number.parseFloat(DataDetalladoFiltrado[0].Latitud))
@@ -37,7 +45,7 @@ export function MapTab() {
                 setzoom(16);
                 setshowp(true);
             }
-        }else{
+        } else {
             if (DataDetallado != undefined && DataDetallado.length > 0) {
                 setMap(DataDetallado);
                 setcenterLatitud(Number.parseFloat(DataDetallado[0].Latitud))
@@ -47,35 +55,35 @@ export function MapTab() {
                 setshowp(true);
             }
         }
-       
+
     }, [DataDetallado, Filtrado, DataDetalladoFiltrado])
 
     function Puntos() {
         const mapa = useMap();
         return (
-        <>
-            {map != undefined && map.length > 0 &&
-                map.map((park: any, index:any) => {
-                    return (
-                        <Marker
-                            title={(park.evento == ""|| park.evento == null ?  park.EventTypeId : park.evento)}
-                            key={index}
-                            position={[
-                                Number.parseFloat(park.Latitud),
-                                Number.parseFloat(park.Longitud)
-                            ]}
-                            eventHandlers={{
-                                click: (e: any) => {
-                                    setActivePark(park);
-                                },
-                            }}>
-                            <Tooltip className="bg-transparent border-0  text-white fs-8" direction="right" offset={[13, 0]} opacity={1} permanent>
-                                {(park.evento == ""|| park.evento == null ?  park.EventId: park.evento)}
-                            </Tooltip>
-                        </Marker>
-                    );
-                })}
-        </>
+            <>
+                {map != undefined && map.length > 0 &&
+                    map.map((park: any, index: any) => {
+                        return (
+                            <Marker
+                                title={(park.evento == "" || park.evento == null ? park.EventTypeId : park.evento)}
+                                key={index}
+                                position={[
+                                    Number.parseFloat(park.Latitud),
+                                    Number.parseFloat(park.Longitud)
+                                ]}
+                                eventHandlers={{
+                                    click: (e: any) => {
+                                        setActivePark(park);
+                                    },
+                                }}>
+                                <Tooltip className="bg-transparent border-0  text-white fs-8" direction="right" offset={[13, 0]} opacity={1} permanent>
+                                    {(park.evento == "" || park.evento == null ? park.EventId : park.evento)}
+                                </Tooltip>
+                            </Marker>
+                        );
+                    })}
+            </>
         );
     }
     function RenderPopUp() {
@@ -113,7 +121,7 @@ export function MapTab() {
                             <div className="card-title "> <p className="text-center">EVENTO</p></div>
                         </div> */}
                         <div className="card-body fs-2 bg-secondary border">
-                           {activePark.evento}
+                            {activePark.evento}
                         </div>
                     </div>
                 </Popup>
@@ -124,25 +132,40 @@ export function MapTab() {
     }
     return (
         <>
-            {(show) && (
-                <MapContainer
-                    id="mapcontainter"
-                    center={[centerLatitud, centerLongitud]}
-                    zoom={zoom}
-                    className=" ml-4"
-                    style={{ height: 700 }}
-                >
-                    <TileLayer
-                        url={CapaBasicNight}
-                    />
-                    <RenderPopUp />
-                    {/**  si son todos aplicamos el clustering, si se filtra lo desagregamos*/}
-                    {
-                        <Puntos />
-                      
-                    }
-                </MapContainer>
-            )}
+            <Modal
+                show={showModal}
+                onHide={handleClose}
+                size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>{title}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                {(show) && (
+                    <MapContainer
+                        id="mapcontainter"
+                        center={[centerLatitud, centerLongitud]}
+                        zoom={zoom}
+                        className=" ml-4"
+                        style={{ height: 700 }}
+                    >
+                        <TileLayer
+                            url={CapaBasicNight}
+                        />
+                        <RenderPopUp />
+                        {/**  si son todos aplicamos el clustering, si se filtra lo desagregamos*/}
+                        {
+                            <Puntos />
+
+                        }
+                    </MapContainer>
+                )}
+                </Modal.Body>               
+                <Modal.Footer>
+                    <Button type="button" variant="secondary" onClick={handleClose}>
+                        Cerrar
+                    </Button>
+                </Modal.Footer>
+            </Modal >
         </>
     );
 }
