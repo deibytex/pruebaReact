@@ -99,7 +99,7 @@ export const UpdateRequerimientos: React.FC<Props> = ({ show, handleClose, title
 
   useEffect(() => {
 
-    getConfiguracion('1').then((response) => {
+    getConfiguracion('OERST').then((response) => {
 
       JSON.parse(response.data[0].Configuracion) ? setData(JSON.parse(response.data[0].Configuracion) as any[])
         : setData([]);
@@ -200,7 +200,7 @@ export const UpdateRequerimientos: React.FC<Props> = ({ show, handleClose, title
 
     confirmarDialog(() => {
       if (tipoModificacion == "1") {
-        setConfiguracion('1', '[' + JSON.stringify(parametrosRequerimientos) + ']', '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
+        setConfiguracion('OERST', '[' + JSON.stringify(parametrosRequerimientos) + ']', '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
           successDialog("Operación Éxitosa", "");
           setData([...Data, JSON.parse(JSON.stringify(parametrosRequerimientos))] as any[]);
           settipo("");
@@ -227,7 +227,7 @@ export const UpdateRequerimientos: React.FC<Props> = ({ show, handleClose, title
        
      
 
-        setConfiguracion('1', JSON.stringify(conf), '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
+        setConfiguracion('OERST', JSON.stringify(conf), '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
           successDialog("Operación Éxitosa", "");
           setData(JSON.parse(JSON.stringify(conf)) as any[]);
           settipo("");

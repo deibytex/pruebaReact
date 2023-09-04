@@ -59,7 +59,7 @@ export default function Parametrizacion() {
         <>
 
             <div className="col-lg-12">
-                <h3 className="fw-bolder mb-8">Parametrzación</h3>
+                <h3 className="fw-bolder mb-8">Parametrización</h3>
                 {/* begin::Row */}
                 <div className="row g-5">
                     <div className="col-sm-4">

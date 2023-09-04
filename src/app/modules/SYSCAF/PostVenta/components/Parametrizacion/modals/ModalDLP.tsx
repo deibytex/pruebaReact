@@ -127,7 +127,7 @@ export const UpdateDLP: React.FC<Props> = ({ show, handleClose, title }) => {
 
         useEffect(() => {
 
-            getConfiguracion('2').then((response) => {
+            getConfiguracion('DLPST').then((response) => {
         
               JSON.parse(response.data[0].Configuracion) ? setData(JSON.parse(response.data[0].Configuracion) as any[])
                 : setData([]);
@@ -225,7 +225,7 @@ export const UpdateDLP: React.FC<Props> = ({ show, handleClose, title }) => {
     
         confirmarDialog(() => {
           if (tipoModificacion == "1") {
-            setConfiguracion('2', '[' + JSON.stringify(parametrosDLP) + ']', '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
+            setConfiguracion('DLPST', '[' + JSON.stringify(parametrosDLP) + ']', '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
               successDialog("Operación Éxitosa", "");
               setData([...Data, JSON.parse(JSON.stringify(parametrosDLP))] as any[]);
               setobservaciones("");
@@ -260,7 +260,7 @@ export const UpdateDLP: React.FC<Props> = ({ show, handleClose, title }) => {
            
          
     
-            setConfiguracion('2', JSON.stringify(conf), '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
+            setConfiguracion('DLPST', JSON.stringify(conf), '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
               successDialog("Operación Éxitosa", "");
               setData(JSON.parse(JSON.stringify(conf)) as any[]);
               setobservaciones("");

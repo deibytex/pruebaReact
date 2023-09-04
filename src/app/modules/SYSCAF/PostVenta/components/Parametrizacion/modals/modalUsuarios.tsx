@@ -92,7 +92,7 @@ export const UpdateUsuarios: React.FC<Props> = ({ show, handleClose, title }) =>
 
         useEffect(() => {
 
-            getConfiguracion(title == 'Parametrizar Usuarios ST' ? '1002' : '1003').then((response) => {
+            getConfiguracion(title == 'Parametrizar Usuarios ST' ? 'CUSST' : 'COUSS').then((response) => {
         
               JSON.parse(response.data[0].Configuracion) ? setData(JSON.parse(response.data[0].Configuracion) as any[])
                 : setData([]);
@@ -141,6 +141,7 @@ export const UpdateUsuarios: React.FC<Props> = ({ show, handleClose, title }) =>
 
     const modalSetUsuarios = (row: any) => {
 
+        setusersinEditar(row.UserId);
         setuserid(row.UserId);
         setnombre(row.nombre);
         setesGestor(row.esGestor);
@@ -187,7 +188,7 @@ export const UpdateUsuarios: React.FC<Props> = ({ show, handleClose, title }) =>
 
         confirmarDialog(() => {
             if (tipoModificacion == "1") {
-                setConfiguracion(title == 'Parametrizar Usuarios ST' ? '1002' : '1003', '[' + JSON.stringify(usuariosSoporte) + ']', '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
+                setConfiguracion(title == 'Parametrizar Usuarios ST' ? 'CUSST' : 'COUSS', '[' + JSON.stringify(usuariosSoporte) + ']', '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
                     successDialog("Operación Éxitosa", "");
                     setData([...Data, JSON.parse(JSON.stringify(usuariosSoporte))] as any[]);
                     setnombre("");
@@ -212,7 +213,7 @@ export const UpdateUsuarios: React.FC<Props> = ({ show, handleClose, title }) =>
 
 
 
-                setConfiguracion(title == 'Parametrizar Usuarios ST' ? '1002' : '1003', JSON.stringify(conf), '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
+                setConfiguracion(title == 'Parametrizar Usuarios ST' ? 'CUSST' : 'COUSS', JSON.stringify(conf), '[' + JSON.stringify(movimientos) + ']', tipoModificacion).then((response) => {
                     successDialog("Operación Éxitosa", "");
                     setData(JSON.parse(JSON.stringify(conf)) as any[]);
                     setnombre("");
