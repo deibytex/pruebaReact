@@ -152,12 +152,12 @@ export default function Creacion() {
     //Para los flujos
     const [Flujos, setFlujos] = useState<any>([]);
     const [disable, setdisable] = useState<boolean>(false);
-    const [EventosCreados, setEventosCreados] = useState<any>("");
-    const [EventosEnSoporte, setEventosEnSoporte] = useState<any>("");
-    const [EventosEnST, setEventosEnST] = useState<any>("");
+    const [EventosCreados, setEstadosSoporteCreados] = useState<any>("");
+    const [EventosEnSoporte, setEstadosEnSoporte] = useState<any>("");
+    const [EventosEnST, setEstadosEnST] = useState<any>("");
     const [Asignados, setAsignados] = useState<any>("");
-    const [SinAsignar, setSinAsignar] = useState<any>("");
-    const [Resueltos, setResueltos] = useState<any>("");
+    const [SinAsignar, setEstadosSoporteSinAsignar] = useState<any>("");
+    const [Resueltos, setEstadoSoporteResueltos] = useState<any>("");
     /*============================================================================================================================================================================== */
     /** ESpacio para los tipos de estados a usar por el momento usare estos porque fueron los que se habian definido si en un posterior evento se dinamiza cambiar por estos.        */
     /*============================================================================================================================================================================== */
@@ -506,6 +506,7 @@ export default function Creacion() {
                 //Estados de Soporte
                 let States = FiltroData.getConfiguracionSigla(response.data,"OERS");
                 setEstadoRequerimientos(States[0]);
+
                 //Preguntas DLP
                 let DLP = FiltroData.getConfiguracionSigla(response.data,"DLPST");
                 setListadoDLP(DLP[0]);
@@ -513,8 +514,8 @@ export default function Creacion() {
                 let _usuariosST = FiltroData.getConfiguracionSigla(response.data,"CUSST");
                 setUsuariosST(_usuariosST[0]);
                 setEstadosRequerimientos(States[0]);
-                let StatesST = FiltroData.getConfiguracionSigla(response.data,"OERST");
-                setEstadoRequerimientosST(StatesST[0]);
+                // let StatesST = FiltroData.getConfiguracionSigla(response.data,"OERST");
+                // setEstadoRequerimientosST(StatesST[0]);
             }
         }).catch(({error}) =>{
             console.log("Error: ", error)
@@ -640,12 +641,18 @@ export default function Creacion() {
     //Para los estados y todo lo relacionado una vez haya datos
     useEffect(() =>{
         if(EstadosRequerimientos.length != 0){
-            setEventosCreados(EstadosRequerimientos.filter(f => !["8","6"].includes(f.valor)).map((e:any) =>e.label).join());
-            setEventosEnSoporte(EstadosRequerimientos.filter(f => ["3","4","5"].includes(f.valor)).map((e:any) =>e.label).join());
+            // estados de creacion
+            setEstadosSoporteCreados(EstadosRequerimientos.filter(f => !["8","6"].includes(f.valor)).map((e:any) =>e.label).join());
+           // estados de soporte
+            setEstadosEnSoporte(EstadosRequerimientos.filter(f => ["3","4","5"].includes(f.valor)).map((e:any) =>e.label).join());
+            // estados de asignados soporte
             setAsignados(EstadosRequerimientos.filter(f => ["4","5"].includes(f.valor)).map((e:any) =>e.label).join());
-            setEventosEnST(EstadoRequerimientosST.map((f:any) =>f.label).join());
-            setSinAsignar(EstadosRequerimientos.filter(f => ["1","2","3"].includes(f.valor)).map((e:any) =>e.label).join());
-            setResueltos(EstadosRequerimientos.filter((e:any) =>{
+            // todos los estados de sT
+            setEstadosEnST(EstadoRequerimientosST.map((f:any) =>f.label).join());
+            // set estados soporte sin asignar
+            setEstadosSoporteSinAsignar(EstadosRequerimientos.filter(f => ["1","2","3"].includes(f.valor)).map((e:any) =>e.label).join());
+
+            setEstadoSoporteResueltos(EstadosRequerimientos.filter((e:any) =>{
                 return e.valor == "8"
             })[0].label);
             setEstadosColores(EstadosRequerimientos.map((e:any) =>{
