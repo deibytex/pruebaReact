@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import confirmarDialog, { errorDialog, successDialog } from "../../../../../_start/helpers/components/ConfirmDialog";
 import { ClientesFatiga, EventoActivo } from "../../models/EventosActivos";
 import { AxiosResponse } from "axios";
-import { Button, Form, Modal } from "react-bootstrap-v5";
+import { Button, Form, Modal, Tab, Tabs } from "react-bootstrap-v5";
 import { PageTitle } from "../../../../../_start/layout/core";
 import BlockUi from "@availity/block-ui";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
@@ -76,6 +76,9 @@ export default function Parametrizacion() {
 
     const [errorCorreo, seterrorCorreo] = useState<any>("");
 
+    const [maximo, setmaximo] = useState("");
+    const [minimo, setminimo] = useState("");
+
     const columnasContacto: MRT_ColumnDef<any>[]
         = [
             {
@@ -98,8 +101,34 @@ export default function Parametrizacion() {
         ];
 
     const [dataContacto, setdataContacto] = useState<any[]>([]);
+    const [dataColores, setdataColores] = useState<any[]>([]);
 
     const [rowCount2, setRowCount2] = useState(0);
+    const [rowCount3, setRowCount3] = useState(0);
+
+    let CamposColores: MRT_ColumnDef<any>[] =
+        [
+            {
+                header: 'Max Verde',
+                Cell({ cell, column, row, table, }) {
+                    return (row.original.minAmber - 1)
+                },
+            },
+            {
+                accessorKey: 'minAmber',
+                header: 'Min Amber'
+            },
+            {
+                accessorKey: 'maxAmber',
+                header: 'Max Amber'
+            },
+            {
+                header: 'Min rojo',
+                Cell({ cell, column, row, table, }) {
+                    return (row.original.maxAmber + 1)
+                },
+            }
+        ];
 
     /* Fin Variables Deiby*/
 
@@ -135,6 +164,12 @@ export default function Parametrizacion() {
                 header: 'Tiempo'
             },
             {
+                header: 'Max Verde',
+                Cell({ cell, column, row, table, }) {
+                    return (row.original.minAmber - 1)
+                },
+            },
+            {
                 accessorKey: 'minAmber',
                 header: 'Min Amber'
             },
@@ -143,10 +178,9 @@ export default function Parametrizacion() {
                 header: 'Max Amber'
             },
             {
-                accessorKey: 'esActivo',
-                header: 'Estado',
+                header: 'Min rojo',
                 Cell({ cell, column, row, table, }) {
-                    return (<>{row.original.esActivo == true ? <span className="badge bg-primary">Activo</span> : <span className="badge bg-danger">Inactivo</span>}</>)
+                    return (row.original.maxAmber + 1)
                 },
             }
             // ,
@@ -200,7 +234,6 @@ export default function Parametrizacion() {
         setIsRefetching(true)
         getConfiguraciones(data).then((response: AxiosResponse<any>) => {
             let Datos = response.data.data;
-            console.log(Datos);
             setData(Datos);
             setFiltrado(false);
             setRowCount(response.data.data.length);
@@ -339,11 +372,14 @@ export default function Parametrizacion() {
         (row.original.columna == null ? ObtenerColumnas(row.original.condicion) : setEventosActivosNombres(row.original.columna.split(",")));
         setTiempo(row.original.tiempo);
         setCliente(row.original.clienteId);
-        ObtenerEventos((row.original.clienteId == undefined ? "" : row.original.clienteId));
         setconfiguracionAlertaId(row.original.configuracionAlertaId);
         setMostrar(false);
         setClave("2");
-        setShow(true)
+        setdataColores([row.original]);
+        setRowCount3([row.original].length);
+        setmaximo(row.original.minAmber);
+        setminimo(row.original.maxAmber);
+        setShow(true);
     }
     const CamposNuevos = () => {
         setTitulo(`Nueva configuración`)
@@ -452,12 +488,8 @@ export default function Parametrizacion() {
             numero,
             correo
         };
-        
-
-        console.log(JSON.stringify(contactos));
 
         setlabelsinEditar(nombre);
-
 
         confirmarDialog(() => {
             if (tipoModificacion == "1") {
@@ -509,6 +541,11 @@ export default function Parametrizacion() {
         const regex = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
         setcorreo(e.target.value);
         !correo || regex.test(e.target.value) === false ? seterrorCorreo("Correo No Valido") : seterrorCorreo("")
+    };
+
+    const setValores = () => {
+        console.log(maximo);
+        console.log(minimo);
     };
 
     return (
@@ -632,84 +669,153 @@ export default function Parametrizacion() {
                 <Modal.Header closeButton>
                     <Modal.Title>{Titulo}</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
-                    <div className="row">
-                        <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                            <label className="control-label label-sm font-weight-bold" htmlFor="Nombre" style={{ fontWeight: 'bold' }}>Nombre </label>
-                            <div className="input-group mb-3">
-                                <span className="input-group-text"><i className="fas fa-pen"></i></span>
-                                <input name="Nombre" placeholder="Nombre configuracion" className="form-control input-sm" value={NombeCondicion} onChange={(e: any) => { e.preventDefault(); setNombreCondicionEvent(e.target.value) }} />
-                            </div>
-                        </div>
-                        <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                            <label className="control-label label-sm font-weight-bold" htmlFor="Tiempo" style={{ fontWeight: 'bold' }}>Tiempo</label>
-                            <div className="input-group mb-3">
-                                <span className="input-group-text"><i className="fas fa-clock"></i></span>
-                                <input name="Tiempo" placeholder="Tiempo" className="form-control input-sm" value={Tiempo} onChange={(e: any) => { e.preventDefault(); setTiempo(e.target.value) }} />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                            <label className="control-label label-sm font-weight-bold" htmlFor="Tiempo" style={{ fontWeight: 'bold' }}>Valor Máximo</label>
-                            <div className="input-group mb-3">
-                                <span className="input-group-text"><i className="fas fa-clock"></i></span>
-                                <input name="Tiempo" placeholder="Tiempo" className="form-control input-sm" value={3} onChange={(e: any) => { e.preventDefault(); setTiempo(e.target.value) }} />
-                            </div>
-                        </div>
-                        <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                            <label className="control-label label-sm font-weight-bold" htmlFor="Tiempo" style={{ fontWeight: 'bold' }}>Valor Mínimo</label>
-                            <div className="input-group mb-3">
-                                <span className="input-group-text"><i className="fas fa-clock"></i></span>
-                                <input name="Tiempo" placeholder="Tiempo" className="form-control input-sm" value={5} onChange={(e: any) => { e.preventDefault(); setTiempo(e.target.value) }} />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="row">
+                <Tabs
+                    defaultActiveKey="gestion"
+                    className="mb-3"
+                // justify
+                // onClick={() => {
+                //   console.log('hola', row);
+                // }} 
+                >
+                    <Tab eventKey="gestion" title={'Eventos'} >
 
-                        <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                        <Modal.Body>
                             <div className="row">
                                 <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                                    <label className="control-label label-sm font-weight-bold" htmlFor="evento" style={{ fontWeight: 'bold' }}>Evento</label>
+                                    <label className="control-label label-sm font-weight-bold" htmlFor="Nombre" style={{ fontWeight: 'bold' }}>Nombre </label>
                                     <div className="input-group mb-3">
-                                        <span className="input-group-text mb-3"><i className="fas fa-book"></i></span>
-                                        <CargaListadoEventos />
-                                        {/* Aqui es el boton de guardar eventos */}
-                                        <button className="btn btn-sm btn-success mb-3" type="button" title="Agregar mas eventos" name="eventos" value={1} onClick={(e: any) => { AgregarEventos(e) }}> <i className="fas fa-caret-right"></i></button>
+                                        <span className="input-group-text"><i className="fas fa-pen"></i></span>
+                                        <input name="Nombre" placeholder="Nombre configuracion" className="form-control input-sm" value={NombeCondicion} onChange={(e: any) => { e.preventDefault(); setNombreCondicionEvent(e.target.value) }} />
                                     </div>
                                 </div>
-                                <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
-                                    {
-                                        (EventosActivos.length > 0) && (EventosActivosNombres.length != 0) && (
-                                            <table className="table w-100">
-                                                <thead>
-                                                    <tr>
-                                                        <th className="w-50">Evento</th>
-                                                        <th className="w-50">Opción</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {
-
-                                                        EventosActivosNombres.map((e: any, index: any) => {
-                                                            return (
-                                                                <tr key={e + index}>
-                                                                    <td key={e}>{e}</td>
-                                                                    <td key={index}><span onClick={(event) => { EliminarEvento(e) }} className="btn btn-sm btn-danger"><i className="bi-trash3-fill"></i></span></td>
-                                                                </tr>
-                                                            )
-                                                        })
-                                                    }
-                                                </tbody>
-                                            </table>
-                                        )
-                                    }
+                                <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                    <label className="control-label label-sm font-weight-bold" htmlFor="Tiempo" style={{ fontWeight: 'bold' }}>Tiempo</label>
+                                    <div className="input-group mb-3">
+                                        <span className="input-group-text"><i className="fas fa-clock"></i></span>
+                                        <input name="Tiempo" placeholder="Tiempo" className="form-control input-sm" value={Tiempo} onChange={(e: any) => { e.preventDefault(); setTiempo(e.target.value) }} />
+                                    </div>
                                 </div>
                             </div>
+                            <div className="row">
 
-                        </div>
-                    </div>
-                </Modal.Body>
+                                <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                                    <div className="row">
+                                        <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                            <label className="control-label label-sm font-weight-bold" htmlFor="evento" style={{ fontWeight: 'bold' }}>Evento</label>
+                                            <div className="input-group mb-3">
+                                                <span className="input-group-text mb-3"><i className="fas fa-book"></i></span>
+                                                <CargaListadoEventos />
+                                                {/* Aqui es el boton de guardar eventos */}
+                                                <button className="btn btn-sm btn-success mb-3" type="button" title="Agregar mas eventos" name="eventos" value={1} onClick={(e: any) => { AgregarEventos(e) }}> <i className="fas fa-caret-right"></i></button>
+                                            </div>
+                                        </div>
+                                        <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                                            {
+                                                (EventosActivos.length > 0) && (EventosActivosNombres.length != 0) && (
+                                                    <table className="table w-100">
+                                                        <thead>
+                                                            <tr>
+                                                                <th className="w-50">Evento</th>
+                                                                <th className="w-50">Opción</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {
+
+                                                                EventosActivosNombres.map((e: any, index: any) => {
+                                                                    return (
+                                                                        <tr key={e + index}>
+                                                                            <td key={e}>{e}</td>
+                                                                            <td key={index}><span onClick={(event) => { EliminarEvento(e) }} className="btn btn-sm btn-danger"><i className="bi-trash3-fill"></i></span></td>
+                                                                        </tr>
+                                                                    )
+                                                                })
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                )
+                                            }
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </Modal.Body>
+                    </Tab>
+                    <Tab eventKey="clasificacion" title={'Clasificación'} >
+                        <Modal.Body>
+                            <div className="row">
+                                <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                    <label className="control-label label-sm font-weight-bold" htmlFor="Valores" style={{ fontWeight: 'bold' }}>Valor Mínimo</label>
+                                    <div className="input-group mb-3 mt-1">
+                                        <span className="input-group-text"><i className="fas fa-pen"></i></span>
+                                        <input name="minimo" placeholder="Valor Mínimo" className="form-control input-sm" value={minimo} onChange={(e) => setminimo(e.target.value)}/>
+                                    </div>
+                                </div>
+                                <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                    <label className="control-label label-sm font-weight-bold" htmlFor="Valores" style={{ fontWeight: 'bold' }}>Valor Máximo</label>
+                                    <div className="input-group mb-3 mt-1">
+                                        <span className="input-group-text"><i className="fas fa-clock"></i></span>
+                                        <input name="maximo" placeholder="Valor Máximo" className="form-control input-sm" value={maximo} onChange={(e) => setmaximo(e.target.value)}/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="row mt-3">
+
+                                <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                                    <Button type="button" variant="primary" onClick={() => {
+                                        setValores();
+                                    }}>
+                                        Guardar
+                                    </Button></div>
+
+                            </div>
+                        </Modal.Body>
+                        <Modal.Body>
+                            <MaterialReactTable
+                                localization={MRT_Localization_ES}
+                                displayColumnDefOptions={{
+                                    'mrt-row-actions': {
+                                        muiTableHeadCellProps: {
+                                            align: 'center'
+                                        }
+                                    },
+                                }}
+                                columns={CamposColores}
+                                data={dataColores}
+                                enableTopToolbar
+                                enableColumnOrdering
+                                enableFilters
+                                enablePagination={false}
+                                enableColumnFilters={false}
+                                muiToolbarAlertBannerProps={
+                                    isError
+                                        ? {
+                                            color: 'error',
+                                            children: 'Error al cargar información',
+                                        }
+                                        : undefined
+                                }
+                                onColumnFiltersChange={setColumnFilters}
+                                onGlobalFilterChange={setGlobalFilter}
+                                onPaginationChange={setPagination}
+                                onSortingChange={setSorting}
+                                rowCount={rowCount3}
+                                initialState={{ density: 'compact' }}
+                                state={{
+                                    columnFilters,
+                                    globalFilter,
+                                    isLoading,
+                                    pagination,
+                                    showAlertBanner: isError,
+                                    showProgressBars: isRefetching,
+                                    sorting,
+                                }}
+                            />
+                        </Modal.Body>
+                    </Tab>
+
+                </Tabs>
                 <Modal.Footer>
                     <Button type="button" variant="primary" onClick={() => {
                         Guardar();
@@ -755,7 +861,7 @@ export default function Parametrizacion() {
                                 <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Email:</label>
                                 <input type="email" className="form-control  input input-sm " id={"nombregrupo"} placeholder="Ingrese Correo"
                                     onChange={getCorreo} value={correo}></input>
-                                <span className="text-danger">{errorCorreo}</span>    
+                                <span className="text-danger">{errorCorreo}</span>
                             </div>
                         </div>
                     </div>
@@ -873,7 +979,7 @@ export default function Parametrizacion() {
                                 <label className="control-label label-sm font-weight-bold" htmlFor="comentario" style={{ fontWeight: 'bold' }}>Email:</label>
                                 <input className="form-control  input input-sm " id={"nombregrupo"} placeholder="Ingrese Correo"
                                     onChange={getCorreo} value={correo}></input>
-                                <span className="text-danger">{errorCorreo}</span>    
+                                <span className="text-danger">{errorCorreo}</span>
                             </div>
                         </div>
                     </div>
