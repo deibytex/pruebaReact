@@ -27,6 +27,7 @@ import { original } from "@reduxjs/toolkit";
 export default function Creacion() {
     //INICIO ESPACIO CONSTANTES
     const [EstadosRequerimientos, setEstadosRequerimientos] = useState<any[]>([]);
+    const [EstadoEdit, setEstadoEdit] = useState<any>({});
     const [ListadoDLP, setListadoDLP] = useState<any[]>([]);
     const [UsuariosST, setUsuariosST] = useState<any[]>([]);
     const [Usuarios, setUsuarios] = useState<any[]>([]);
@@ -50,11 +51,13 @@ export default function Creacion() {
     const [TextoNotificacionAmin,setTextoNoticacionAmin] = useState<string>("Hola {Admin}, Estás siendo notificado porque el agente {UsuarioDestino} ha dado por resuelto el requerimiento {Consecutivo}. Por favor, revisa información. Saludos cordiales.");
     const [NotificarCorreo,setNotificarCorreo] = useState<string>("1");
     const [NotificarPortal,setNotificarPortal] = useState<string>("1");
+    const [ObsDiagnostico, setObsDiagnostico] = useState<string>("");
     //ESPACIO PARA LAS CONST
     const [loader, setloader] = useState<boolean>(false);
     const [lstIndicadores, setListIndicadores] = useState<any>([
         { "Estado": "Abiertos", "Descripcion": "Total de Requerimientos Abiertos", "Valor": 0 },
         { "Estado": "En Soporte", "Descripcion": "Total de Requerimientos en Soporte", "Valor": 0 },
+        { "Estado": "En Servicio T", "Descripcion": "Total de Requerimientos en servicio tecnico", "Valor": 0 },
         { "Estado": "Tasa de resolución", "Descripcion": "Tasa de resolución de los requerimientos de los últimos 7 días", "Valor": 0 },
         { "Estado": "Total resueltos", "Descripcion": "Total de requerimientos resueltos en los últimos 7 días.", "Valor": 0 }
     ]);
@@ -151,6 +154,7 @@ export default function Creacion() {
     const [disable, setdisable] = useState<boolean>(false);
     const [EventosCreados, setEventosCreados] = useState<any>("");
     const [EventosEnSoporte, setEventosEnSoporte] = useState<any>("");
+    const [EventosEnST, setEventosEnST] = useState<any>("");
     const [Asignados, setAsignados] = useState<any>("");
     const [SinAsignar, setSinAsignar] = useState<any>("");
     const [Resueltos, setResueltos] = useState<any>("");
@@ -291,7 +295,7 @@ export default function Creacion() {
                                 {/* <FormLabel id="demo-radio-buttons-group-label">¿Diagnostico positivo?</FormLabel> */}
                                 <RadioGroup
                                     aria-labelledby="demo-radio-buttons-group-label"
-                                    defaultValue={row.original.Estado}
+                                    defaultValue={null}
                                     name="radio-buttons-group"
                                     id={`${row.original.id}`}
                                     style={{display: 'block'}}
@@ -466,7 +470,7 @@ export default function Creacion() {
                     });
                     setEstados(estados);
                     //Para pintar los Indicadores
-                    PintarIndicadores(response.data);
+                    //PintarIndicadores(response.data);
                     //Para no volver a cargar
                     setisCallData(false);
                     let Tiporeporte = [...TipoReporteBase];
@@ -527,6 +531,9 @@ export default function Creacion() {
         // filtramos por las fechas
         datosfiltrados = datosfiltrados.
             filter((f: any) => moment(f.Periodo).toDate() >= FechaInicial && moment(f.Periodo).toDate() <= FechaFinal);
+        let estates = EstadoRequerimientosST.map(e => e.label).join();
+        if(AgenteST && EstadoRequerimientosST.length != 0)
+            datosfiltrados = datosfiltrados.filter((f:any)=> [...estates.split(",")].includes(((FiltroDashBoardData.EsJson(f.Estado)  == true ? JSON.parse(f.Estado).label : f.Estado))));
         //FILTRA POR USUARIOS O AGENTES
         if (AgentesSeleccionado.UsuarioId != undefined && AgentesSeleccionado.UsuarioId != "Todos")
             datosfiltrados = FiltroData.getFiltrobyAgente(datosfiltrados, AgentesSeleccionado.UsuarioId);
@@ -633,10 +640,11 @@ export default function Creacion() {
     //Para los estados y todo lo relacionado una vez haya datos
     useEffect(() =>{
         if(EstadosRequerimientos.length != 0){
-            setEventosCreados(EstadosRequerimientos.filter(f => !["8","6"].includes(f.valor)).map((e:any) =>e.label).join())
-            setEventosEnSoporte(EstadosRequerimientos.filter(f => ["3","4","5"].includes(f.valor)).map((e:any) =>e.label).join())
-            setAsignados(EstadosRequerimientos.filter(f => ["4","5"].includes(f.valor)).map((e:any) =>e.label).join())
-            setSinAsignar(EstadosRequerimientos.filter(f => ["1","2","3"].includes(f.valor)).map((e:any) =>e.label).join())
+            setEventosCreados(EstadosRequerimientos.filter(f => !["8","6"].includes(f.valor)).map((e:any) =>e.label).join());
+            setEventosEnSoporte(EstadosRequerimientos.filter(f => ["3","4","5"].includes(f.valor)).map((e:any) =>e.label).join());
+            setAsignados(EstadosRequerimientos.filter(f => ["4","5"].includes(f.valor)).map((e:any) =>e.label).join());
+            setEventosEnST(EstadoRequerimientosST.map((f:any) =>f.label).join());
+            setSinAsignar(EstadosRequerimientos.filter(f => ["1","2","3"].includes(f.valor)).map((e:any) =>e.label).join());
             setResueltos(EstadosRequerimientos.filter((e:any) =>{
                 return e.valor == "8"
             })[0].label);
@@ -646,12 +654,12 @@ export default function Creacion() {
             setEstadoRequerimientosSeleccionado(EstadosRequerimientos[0]);
         }
     
-    },[EstadosRequerimientos])
+    },[EstadosRequerimientos,EstadoRequerimientosST])
     //Pinta los Indicadores
     useEffect(() =>{
         //Para pintar los Indicadores
         PintarIndicadores(TipoReporte[0].Data);
-    },[EventosCreados,EventosEnSoporte,Asignados, SinAsignar, Resueltos])
+    },[EventosCreados,EventosEnSoporte,Asignados, SinAsignar, Resueltos, EventosEnST])
     //PAra actualizar el listado de usuarios
     useEffect(() =>{
         if(Usuarios.length != 0 || UsuariosST.length != 0){
@@ -669,9 +677,9 @@ export default function Creacion() {
     },[Usuarios, UsuariosST])
     //Para mostrar la info una vez carguen los usuarios
     useEffect(() =>{
-        if(UserCount.length != 0)
+        if(UserCount.length != 0 || EstadoRequerimientosST.length !=0)
         FiltroDatos();
-    },[UserCount])
+    },[UserCount, EstadoRequerimientosST])
     //FUNCION PARA VALIDAR LAS FECHAS
     let ValidarFechas = (Range: Date[]) => {
         let Tiporeporte = [...TipoReporte];
@@ -704,12 +712,14 @@ export default function Creacion() {
     const PintarIndicadores = (datosfiltrados: any) => {
         let Abiertos = FiltroData.getAbiertos(datosfiltrados, EventosCreados);
         let Soporte = FiltroData.getSoporte(datosfiltrados,EventosEnSoporte);
+        let St = FiltroData.getSoporte(datosfiltrados,EventosEnST);
         let TotalRequerimientos = datosfiltrados.length;
         let _Resueltos = FiltroData.getCerrados(datosfiltrados, Resueltos);
         let Resolucion = (TotalRequerimientos == 0 ? 0 : _Resueltos.length / TotalRequerimientos);
         setListIndicadores([
             { "Estado": "Abiertos", "Descripcion": "Total de Requerimientos Abiertos", "Valor": Abiertos.length },
             { "Estado": "En Soporte", "Descripcion": "Total de Requerimientos en Soporte", "Valor": Soporte.length },
+            { "Estado": "En Servicio T", "Descripcion": "Total de Requerimientos en Servicio Tecnico", "Valor": St.length },
             { "Estado": "Tasa de resolución", "Descripcion": "Tasa de resolución de los requerimientos de los últimos 7 días", "Valor": locateFormatPercentNDijitos(Resolucion, 2) },
             { "Estado": "Total resueltos", "Descripcion": "Total de requerimientos resueltos en los últimos 7 días.", "Valor": _Resueltos.length }
         ]);
@@ -808,7 +818,7 @@ export default function Creacion() {
                     <option value={"Seleccione"}>Todos</option>
                     {
                         (AgenteST ? EstadoRequerimientosST:EstadoRequerimientos)?.filter((l:any)=>{
-                            let siguiente = Flujos.replaceAll("[","").replaceAll("]","");
+                            let siguiente = (Flujos.length != 0 ? Flujos.replaceAll("[","").replaceAll("]",""):"") ;
                             let division = siguiente.split(",");
                             return (division[0] != "" ?  [EstadoRequerimientosSeleccionado.valor, ...division].includes(l.valor): l);
                         }).map((element: any) => {
@@ -883,6 +893,7 @@ export default function Creacion() {
         setEstadoRequerimientosSeleccionadoAnterior((EstadoSelect.length == 0 ? { "label": "Todos", "valor": "0" } : EstadoSelect[0]));
         setFlujos((a.length != 0 ? a[0]:[]));
         setEstadoRequerimientosSeleccionado((EstadoSelect.length == 0 ? { "label": "Todos", "valor": "0" } : EstadoSelect[0]));
+        setEstadoEdit(row.original.Estado);
         //Lo divido en 2 para tener mejor claridad
         let Inicio = String(row.original.Consecutivo).substring(0, 6);
         let Final = String(row.original.Consecutivo).substring(6, String(row.original.Consecutivo).length);
@@ -952,11 +963,10 @@ export default function Creacion() {
                 estado: JSON.stringify({ "label": EstadoRequerimientosSeleccionado.label, "valor": EstadoRequerimientosSeleccionado.valor })
             }
         )
-
         let Campos = {};
         Campos["Cabecera"] = JSON.stringify([_Cabecera]);
         Campos["Observaciones"] = JSON.stringify(_obs);
-        Campos["Estado"] = (EstadoRequerimientosSeleccionado.valor == "0" ? "": JSON.stringify({ "label": EstadoRequerimientosSeleccionado.label, "valor": EstadoRequerimientosSeleccionado.valor })); 
+        Campos["Estado"] = (EstadoRequerimientosSeleccionado.valor == "0" ? EstadoEdit: JSON.stringify({ "label": EstadoRequerimientosSeleccionado.label, "valor": EstadoRequerimientosSeleccionado.valor })); 
         Campos["Id"] = Id;
         confirmarDialog(() => {
             setloader(true)
@@ -987,6 +997,7 @@ export default function Creacion() {
                         FiltroData.Notificar(dataNotificacion)
                     }
                     setloader(false);
+                    setshoweditSt(false);
                 }
 
             }).catch(({ error }) => {
@@ -1092,6 +1103,7 @@ export default function Creacion() {
                     }
                     setloader(false);
                     setShowAsignacion(false);
+                    setshoweditSt(false);
                 }
             }).catch(({ error }) => {
                 console.log("Error", error)
@@ -1351,39 +1363,31 @@ export default function Creacion() {
         stinicial["Encabezado"] = JSON.parse(row.original.Cabecera)[0];
         stinicial["Consecutivo"] = row.original.Consecutivo;
         setStInicialData(stinicial);
-        setModalDLP(true)
+        setObsInicial(JSON.parse(row.original.Observaciones));
+        setId(row.original.Id);
+        setModalDLP(true);
     }
     //Este resuelve el requerimiento
     //==========================================================================================================
     // RESUELVE EL REQUERIMIENTO
     //==========================================================================================================
     const GuardarOtro = () =>{
-        let _Cabecera = {
-            administrador: Admin.Administrador,
-            UsuarioAdministradorId: Admin.Id,
-            assetid: CabeceraIncial[0].assetid,
-            clienteid: CabeceraIncial[0].clienteid.toString(),
-            registrationNumber: CabeceraIncial[0].registrationNumber,
-            nombrecliente: CabeceraIncial[0].nombrecliente,
-            agente: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.Nombres),
-            UsuarioId: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.UserId),
-        }
-        // setCabecera(_Cabecera);
+        console.log(CabeceraIncial);
+        let estado = EstadosRequerimientos.filter((e:any)=>e.valor == "8").map((a:any) =>{return {"label":a.label,"valor":a.valor}})[0];
         let _obs = ObsInicial;
         _obs.push(
             {
                 fecha: moment().format("DD/MM/YYYY HH:MM"),
-                observacion: `Se realiza el diagnostico y se ${(FiltroData.getEsCompletado(ListadoDLPRespuesta).length == 0 ? "completa el diagnostico quedando resuelto" : "guarda sin completar el diagnostico")}`,
+                observacion: ObsDiagnostico,
                 usuario: vUser.Nombres,
-                estado: JSON.stringify((FiltroData.getEsCompletado(ListadoDLPRespuesta).length == 0 ?  EstadosRequerimientos.filter((e:any)=>e.valor == "8" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}})[0]:EstadosRequerimientos.filter((e:any)=>e.valor == "5" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}})[0]))
+                estado: JSON.stringify(estado)
             }
         )
-       
         //Para enviar al servidor
         let Campos = {};
         Campos["Diagnostico"] = JSON.stringify(ListadoDLPRespuesta);
         Campos["Observaciones"] = JSON.stringify(_obs);
-        Campos["Estado"] = JSON.stringify((FiltroData.getEsCompletado(ListadoDLPRespuesta).length == 0 ?  EstadosRequerimientos.filter((e:any)=>e.valor == "8" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}})[0]:EstadosRequerimientos.filter((e:any)=>e.valor == "5" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}})[0])); 
+        Campos["Estado"] = JSON.stringify(estado); 
         Campos["Id"] = Id;
         confirmarDialog(() => {
             setloader(true)
@@ -1412,13 +1416,14 @@ export default function Creacion() {
                     dataNotificacion['NotificarPortal']= NotificarPortal;
                     FiltroData.Notificar(dataNotificacion)
                     setloader(false);
+                    setModalDLP(false)
                 }
 
             }).catch(({ error }) => {
                 console.log("Error", error)
                 setshowedit(false);
             });
-        }, `¿Esta seguro que desea guardar el registro ${(FiltroData.getEsCompletado(ListadoDLPRespuesta).length == 0 ? "" : "sin completar")}?`, 'Guardar');
+        }, `¿Esta seguro que desea guardar el registro como completado?`, 'Guardar');
     };
     //para las observaciones
     const SeteoObservaciones = (e:any) =>{
@@ -1445,7 +1450,7 @@ export default function Creacion() {
                                 {
                                     (lstIndicadores.map((element: any) => {
                                         return (
-                                            <div key={`indicadores_${element.Estado}`} className="row card shadow-sm col-sm-3 col-md-3 col-xs-3 mx-auto"
+                                            <div key={`indicadores_${element.Estado}`} className="row card shadow-sm col-sm-2 col-md-2 col-xs-2 mx-auto"
                                                 title={element.Descripcion}
                                                 style={{
                                                     backgroundColor: "#b6fffe "
@@ -1769,7 +1774,7 @@ export default function Creacion() {
                        Guardar
                     </Button>
                     <Button type="button" className="btn btn-sm" variant="secondary" onClick={() => setshowedit(false)}>
-                        Cancelar
+                    Cerrar
                     </Button>
                 </Modal.Footer>
             </Modal>
@@ -1994,7 +1999,9 @@ export default function Creacion() {
                         <div className="row">
                             <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12  pt-5">
                                 <label className="control-label label label-sm text-muted fw-bolder">Notas adicionales</label>
-                                <textarea rows={3}  style={{display:(val && GrandeModal== "xl" ? 'none':'inline')}} className="form-control" ></textarea>
+                                <textarea rows={3}  style={{display:(val && GrandeModal== "xl" ? 'none':'inline')}} value={ObsDiagnostico} onChange={(e) =>{
+                                    setObsDiagnostico(e.target.value);
+                                }} className="form-control" ></textarea>
                             </div>
                         </div>
                     </div>
@@ -2002,12 +2009,12 @@ export default function Creacion() {
                 </Modal.Body>
                 <Modal.Footer>
                    
-                    <Button type="button" style={{display:(val && GrandeModal== "xl" ? 'none':'inline')}} className="btn btn-sm" variant="primary" onClick={() => {
+                    <Button type="button" style={{display:(val ? 'none':'inline')}} className="btn btn-sm" variant="primary" onClick={() => {
                         GuardarOtro() 
                     }}>
                       Resolver
                     </Button>
-                    <Button type="button" className="btn btn-sm" variant="info" onClick={() => {
+                    <Button type="button" style={{display:(!val ? 'none':'inline')}} className="btn btn-sm" variant="info" onClick={() => {
                      
                         setshowedit(false);
                         let b = StInicialData;
@@ -2020,7 +2027,7 @@ export default function Creacion() {
                         Enviar ST
                     </Button>
                     <Button type="button" className="btn btn-sm" variant="secondary" onClick={() => setshowedit(false)}>
-                        Cancelar
+                    Cerrar
                     </Button>
                 </Modal.Footer>
             </Modal>
@@ -2064,7 +2071,7 @@ export default function Creacion() {
                        Guardar
                     </Button>
                     <Button type="button" className="btn btn-sm" variant="secondary" onClick={() => setshowedit(false)}>
-                        Cancelar
+                        Cerrar
                     </Button>
                 </Modal.Footer>
             </Modal>

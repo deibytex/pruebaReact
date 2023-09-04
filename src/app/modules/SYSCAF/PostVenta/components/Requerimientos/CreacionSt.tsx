@@ -135,7 +135,7 @@ const   CreacionSt:React.FC<Props> =  ({show,handleClose, title, data}) => {
                         Guardar
                     </Button>
                     <Button type="button" className="btn btn-sm" variant="secondary" onClick={() => handleClose(false)}>
-                        Cancelar
+                        Cerrar
                     </Button>
                 </Modal.Footer>
             </Modal>
