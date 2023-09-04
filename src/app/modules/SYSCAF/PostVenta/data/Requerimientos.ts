@@ -127,7 +127,7 @@ export function GetConfiguracion(Sigla:any|null){
 //======================================================================================================================================
 export const FiltroData = {
     // Indicadores asignados
-    getAsignados: (data: any[],Estado: any) => {
+    getAsignados: (data: any[],Estado: any, St:any) => {
         return data.filter(f => [...Estado.split(",")].includes(((FiltroDashBoardData.EsJson(f.Estado)  == true ? JSON.parse(f.Estado).label : f.Estado))));
     },
     getNoAsignados: (data: any[],Estado: any) => {
@@ -248,7 +248,13 @@ export const FiltroData = {
     },
      //Indicador de soporte
      getSoporteTipo: (data: any[],Estado:any, Tipo:any) => {
-        return data.filter(f => [...Estado.split(",")].includes((f.Estado)) && f.Tipo == Tipo);
+        let datos =  data.filter((f:any) => {
+            [...Estado.split(",")].includes(
+                    (FiltroDashBoardData.EsJson(f.Estado)  == true ? JSON.parse(f.Estado).valor : f.Estado)
+                )
+            }
+        );
+        return datos
     },
     getIsActivoMod:(row:any, estado:any) =>{
         let Estado =  (FiltroDashBoardData.EsJson(row.original.Estado)  ? JSON.parse(row.original.Estado):row.original.Estado);
@@ -269,9 +275,11 @@ export const FiltroData = {
         let Existe = Usuarios.filter((f:any) =>f.UserId == Usuario);
        return (Existe.length != 0 ? true:false);
     },
-    getFiltroGestor : (data:any[], Usuario:any, Usuarios:any) =>{
+    getFiltroGestor : (data:any[], Usuario:any, Usuarios:any, St:any, Estados:any) =>{
         if(Usuario == "")
             return;
+        
+        let Valores:any= (St ? ["1","2","3","7"]: ["1","2","3"]);
 
         let UsuarioFound = Usuarios.filter((f:any) =>f.UserId == Usuario);
         if(UsuarioFound.length != 0){
@@ -281,7 +289,12 @@ export const FiltroData = {
             else
                 return data.filter((val:any) =>{
                     let Estado =  (FiltroDashBoardData.EsJson(val.Estado)  == true ? JSON.parse(val.Estado) : val.Estado);
-                    if(Estado.valor  == "1" || Estado.valor == "3" || val.UsuarioId == Usuario){
+                    // //estado
+                    // let _estados  = JSON.stringify(Estados.filter((f:any) => Valores.includes((f.valor))).map((f:any) =>{
+                    //     return {"label":f.label, "valor":f.valor}
+                    // }));
+                   
+                    if(Valores.includes(Estado.valor)|| val.UsuarioId == Usuario){
                         return val;
                     }
                  
@@ -333,6 +346,17 @@ export const FiltroData = {
             return true;
         else
             return false;
+    },
+    getEsSoporte : (row:any, Estado:any,consulta:any) =>{
+       let _estado =  Estado.filter((f:any) =>{
+            return (f.valor == JSON.parse(row.original.Estado).valor && f.tipo == consulta)
+        })
+        if(_estado.length != 0){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 };
 // cuando se usa un filtro permite traer el unico valor de todas los valores del array

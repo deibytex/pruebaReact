@@ -22,6 +22,8 @@ import { useToaster, Notification } from "rsuite";
 export default function HomePostVenta() {
     const toaster = useToaster();
     const ValorEstado = "3";
+    const ValoresAbiertos = ["1","2","3","4","5"];
+    const ValoresSoporte = ["3","4","5"];
     const message = (type: any, titulo: string, mensaje: React.ReactNode) => {
         return (<Notification className="bg-light-danger" type={type} header={titulo}
             closable duration={10000}>
@@ -721,18 +723,18 @@ export default function HomePostVenta() {
                 requerimientos = Cabeceras;
                 setRequerimientos(Cabeceras);
                 //PARA ST
-                let abiertos = FiltroData.getAbiertosTipo(response.data, `Resuelto`, "Servicio Tecnico");
-                let Asginados = FiltroData.getAsignadosTipo(response.data, "Creado - Asignado", "Servicio Tecnico");
-                let Soporte = FiltroData.getSoporteTipo(response.data, "", "Servicio Tecnico");
+                let abiertos = FiltroData.getSoporteTipo(response.data,ValoresAbiertos.join(","), "Servicio Tecnico");
+                let Asginados = FiltroData.getSoporteTipo(response.data, "4", "Servicio Tecnico");
+                let Soporte = FiltroData.getSoporteTipo(response.data, ValoresSoporte.join(","), "Servicio Tecnico");
                 setCerrados(Cerrados.length.toString());
                 setAsignadosSt(Asginados.length.toString());
                 setAbiertos(abiertos.length.toString());
                 setEnSoporte(Soporte.length.toString())
 
                 //PARA SOPORTE
-                let abiertosSoporte = FiltroData.getAbiertosTipo(response.data, "", "Soporte");
-                let asignadosSoporte = FiltroData.getAsignadosTipo(response.data, "", "Soporte");
-                let enSoporteSoporte = FiltroData.getSoporteTipo(response.data, "", "Soporte");
+                let abiertosSoporte = FiltroData.getSoporteTipo(response.data, ValoresAbiertos.join(","), "Soporte");
+                let asignadosSoporte = FiltroData.getSoporteTipo(response.data,"4", "Soporte");
+                let enSoporteSoporte = FiltroData.getSoporteTipo(response.data, ValoresSoporte.join(","), "Soporte");
                 setAbiertosSoporte(abiertosSoporte.length.toString())
                 setAsignadosSoporte(asignadosSoporte.length.toString())
                 setEnSoporteSoporte(enSoporteSoporte.length.toString())

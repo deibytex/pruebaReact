@@ -22,6 +22,7 @@ import { RootState } from "../../../../../../setup";
 import confirmarDialog, { confirmarDialogText, successDialog } from "../../../../../../_start/helpers/components/ConfirmDialog";
 import CreacionSt from "./CreacionSt";
 import { Perfiles } from "../../../../../../_start/helpers/Constants";
+import { original } from "@reduxjs/toolkit";
 
 export default function Creacion() {
     //INICIO ESPACIO CONSTANTES
@@ -31,6 +32,7 @@ export default function Creacion() {
     const [Usuarios, setUsuarios] = useState<any[]>([]);
     const toaster = useToaster();
     const tableContainerRef = useRef<HTMLDivElement>(null);
+    const [AgenteST, setAgenteST] = useState<boolean>(false);
     const message = (type: any, titulo: string, mensaje: React.ReactNode) => {
       return (<Notification className="bg-light-danger" type={type} header={titulo}
         closable duration={10000}>
@@ -64,9 +66,10 @@ export default function Creacion() {
     const [val, setval] = useState<boolean>(false);
     //Constante para el modal de ST
     const [ShowSt, setShowSt] = useState<boolean>(false);
+    const [showeditSt, setshoweditSt] = useState<boolean>(false);
     const [StInicialData, setStInicialData] = useState<any[]>([]);
     //Para el diagnostico
-  //   let DiagnosticoCon:any[]= [];
+    //let DiagnosticoCon:any[]= [];
     const [Diagnostico, setDiagnostico] = useState<any[]>([]);
     const [ConsecutivoNotificacion, setConsecutivoNotificacion] = useState<string>("");
     //Para saber cual es la que viene desde la tabla o DB
@@ -106,6 +109,7 @@ export default function Creacion() {
     const [InfDiag, setInfDiag] = useState<any[]>([]);
     // const [TipoRequerimientosSeleccionado, setTipoRequerimientosSeleccionado] = useState<any>({ Nombre: "", Value: "" });
     const [EstadoRequerimientos, setEstadoRequerimientos] = useState<any[]>([]);
+    const [EstadoRequerimientosST, setEstadoRequerimientosST] = useState<any[]>([]);
     const [EstadoRequerimientosSeleccionado, setEstadoRequerimientosSeleccionado] = useState<any>({ label: "Seleccione", valor: "0" });
     const [EstadoRequerimientosSeleccionadoAnterior, setEstadoRequerimientosSeleccionadoAnterior] = useState<any>({ label: "Seleccione", valor: "0" });
     const [UsuarioSeleccionado, setUsuarioSeleccionado] = useState<any>({ Nombres: "Seleccione", UserId: "0" });
@@ -496,7 +500,7 @@ export default function Creacion() {
                 let Users = FiltroData.getConfiguracionSigla(response.data,"COUSS");
                 setUsuarios((Users.length !=0 ? Users[0]:[]));
                 //Estados de Soporte
-                let States = FiltroData.getConfiguracionSigla(response.data,"OERST");
+                let States = FiltroData.getConfiguracionSigla(response.data,"OERS");
                 setEstadoRequerimientos(States[0]);
                 //Preguntas DLP
                 let DLP = FiltroData.getConfiguracionSigla(response.data,"DLPST");
@@ -505,6 +509,8 @@ export default function Creacion() {
                 let _usuariosST = FiltroData.getConfiguracionSigla(response.data,"CUSST");
                 setUsuariosST(_usuariosST[0]);
                 setEstadosRequerimientos(States[0]);
+                let StatesST = FiltroData.getConfiguracionSigla(response.data,"OERST");
+                setEstadoRequerimientosST(StatesST[0]);
             }
         }).catch(({error}) =>{
             console.log("Error: ", error)
@@ -531,13 +537,13 @@ export default function Creacion() {
             datosfiltrados = FiltroData.getFiltrobyCliente(datosfiltrados, ClienteSeleccionado.ClienteId);
             
         let Usuario = (UserCount.length != 0 ? UserCount[0].UserId: "");
+        let FiltradoGestor:any[] | undefined= (AgenteST ?FiltroData.getFiltroGestor(datosfiltrados,Usuario, UsuariosST,AgenteST, EstadoRequerimientosST ): FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios,AgenteST, EstadoRequerimientos));
         // SE HACE SWITCH Entre tabs para cambiar informacion segun se requiera.
         //Y SE HACE RENDER A UNA SOLA TABLA PARA QUE EN LA CONSOLA NO SALGAN ERRORES.
         switch (tabSel) {
             case 0:
             default:
-                //PintarIndicadores(datosfiltrados);
-                let FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
+
                 setDatosTabla((FiltradoGestor == undefined ? []:FiltradoGestor));
                 setShowTablaTodos(true);
                 setShowTablaCerradas(false);
@@ -546,9 +552,9 @@ export default function Creacion() {
                 setshowTablaSinAsginar(false);
                 break;
             case 1:
-                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
+                // FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
                 setDatosTabla(FiltroData.getAsignados((FiltradoGestor == undefined ? []:FiltradoGestor),
-                Asignados));
+                Asignados,AgenteST));
                 setShowTablaTodos(false);
                 setShowTablaCerradas(false);
                 setShowTablaAsignadas(true);
@@ -556,10 +562,9 @@ export default function Creacion() {
                 setshowTablaSinAsginar(false);
                 break;
             case 2:
-                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
+                // FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
                     setDatosTabla(FiltroData.getNoAsignados((FiltradoGestor == undefined ? []:FiltradoGestor),
                     SinAsignar));
-                    
                     setshowTablaSinAsginar(true);
                     setShowTablaTodos(false);
                     setShowTablaCerradas(false);
@@ -567,7 +572,7 @@ export default function Creacion() {
                     setShowTablaReporte(false);
                     break;
             case 3:
-                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
+                // FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
                 setDatosTabla(FiltroData.getCerrados((FiltradoGestor == undefined ? []:FiltradoGestor),
                 Resueltos));
                 setShowTablaTodos(false);
@@ -577,7 +582,7 @@ export default function Creacion() {
                 setshowTablaSinAsginar(false);
                 break;
             case 4:
-                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
+                // FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
                 let reporte = FiltroData.getReporte((FiltradoGestor == undefined ? []:FiltradoGestor));
                 let DatosReporte: any[] = [];
                 Object.entries(reporte).map((elem: any) => {
@@ -591,8 +596,6 @@ export default function Creacion() {
                 setshowTablaSinAsginar(false);
                 break;
         }
-
-
     }
     //ESPACIO PARA LOS USEEFFECT
     useEffect(() => {
@@ -641,7 +644,6 @@ export default function Creacion() {
                 return {"label":e.label, "color":(e.tipo =="admin" ?"badge bg-warning":(e.tipo == "soporte" ? "badge bg-info" :"badge bg-primary" ) )};
             }));
             setEstadoRequerimientosSeleccionado(EstadosRequerimientos[0]);
-            
         }
     
     },[EstadosRequerimientos])
@@ -652,13 +654,14 @@ export default function Creacion() {
     },[EventosCreados,EventosEnSoporte,Asignados, SinAsignar, Resueltos])
     //PAra actualizar el listado de usuarios
     useEffect(() =>{
-        if(Usuarios.length != 0){
+        if(Usuarios.length != 0 || UsuariosST.length != 0){
             let UsuarioSoporte = Usuarios.filter((e:any) =>{
                 return e.UserId == vUser.Id;
             }); 
             let UsuarioST = UsuariosST.filter((e:any) =>{
                 return e.UserId == vUser.Id;
             }); 
+            (UsuarioSoporte.length != 0 ? setAgenteST(false):setAgenteST(true));
             setUserCount((UsuarioSoporte.length != 0 ? UsuarioSoporte:UsuarioST));
            
         }
@@ -797,14 +800,14 @@ export default function Creacion() {
                 <span style={{ height: '40px' }} className="input-group-text mt-3" id="basic-addon1"><i className="bi-credit-card-2-front"></i></span>
                 <Form.Select title="Estados para asignación" style={{ height: '40px' }} className="input-sm  mb-3 mt-3 " onChange={(e) => {
                     // buscamos el objeto completo para tenerlo en el sistema
-                    let lstEstado = EstadoRequerimientos.filter((val: any) => {
+                    let lstEstado =  (AgenteST ? EstadoRequerimientosST:EstadoRequerimientos).filter((val: any) => {
                         return val.valor === e.currentTarget.value
                     })
                     setEstadoRequerimientosSeleccionado((lstEstado[0] ? lstEstado[0] : { "Estado": "Seleccione" }));
                 }} aria-label="Default select example">
                     <option value={"Seleccione"}>Todos</option>
                     {
-                        EstadoRequerimientos?.filter((l:any)=>{
+                        (AgenteST ? EstadoRequerimientosST:EstadoRequerimientos)?.filter((l:any)=>{
                             let siguiente = Flujos.replaceAll("[","").replaceAll("]","");
                             let division = siguiente.split(",");
                             return (division[0] != "" ?  [EstadoRequerimientosSeleccionado.valor, ...division].includes(l.valor): l);
@@ -870,17 +873,15 @@ export default function Creacion() {
         setUsuarioSeleccionado((Seleccion.length !=0 ?  Seleccion[0]:{ Nombres: "Seleccione", UserId: "0" }));
         //Estado
         let Estado = (FiltroDashBoardData.EsJson(row.original.Estado) ? JSON.parse(row.original.Estado) : row.original.Estado);
-        let EstadoSelect = EstadoRequerimientos.filter((e: any) => {
+        let EstadoSelect = (AgenteST ?EstadoRequerimientosST:EstadoRequerimientos).filter((e: any) => {
             return e.label == (Estado.label == undefined ? Estado : Estado.label);
         });
        
-       
-
         let a = EstadoSelect.map((data:any) => {
             return data.flujo;
         }).filter((w) =>w);
         setEstadoRequerimientosSeleccionadoAnterior((EstadoSelect.length == 0 ? { "label": "Todos", "valor": "0" } : EstadoSelect[0]));
-        setFlujos(a[0]);
+        setFlujos((a.length != 0 ? a[0]:[]));
         setEstadoRequerimientosSeleccionado((EstadoSelect.length == 0 ? { "label": "Todos", "valor": "0" } : EstadoSelect[0]));
         //Lo divido en 2 para tener mejor claridad
         let Inicio = String(row.original.Consecutivo).substring(0, 6);
@@ -910,14 +911,14 @@ export default function Creacion() {
         setId(row.original.Id);
         setAdmin(_admin[0]);
 
-         //Para armar el de ST
-         let stinicial = [...StInicialData];
-         stinicial["ObsInicial"] = JSON.parse(row.original.Observaciones);
-         stinicial["Nombres"] = vUser.Nombres;
-         stinicial["Id"] = row.original.Id;
-         stinicial["EstadosRequerimientos"] = EstadosRequerimientos;
-         stinicial["ListadoDLPRespuesta"] = ListadoDLPRespuesta;
-         setStInicialData(stinicial);
+        //  //Para armar el de ST
+        //  let stinicial = [...StInicialData];
+        //  stinicial["ObsInicial"] = JSON.parse(row.original.Observaciones);
+        //  stinicial["Nombres"] = vUser.Nombres;
+        //  stinicial["Id"] = row.original.Id;
+        //  stinicial["EstadosRequerimientos"] = EstadosRequerimientos;
+        //  stinicial["ListadoDLPRespuesta"] = ListadoDLPRespuesta;
+        //  setStInicialData(stinicial);
 
     };
     //Para Crearlo y enviarlo al servidor
@@ -1039,24 +1040,23 @@ export default function Creacion() {
             clienteid: CabeceraIncial[0].clienteid.toString(),
             registrationNumber: CabeceraIncial[0].registrationNumber,
             nombrecliente: CabeceraIncial[0].nombrecliente,
-            agente: (UsuarioSeleccionado.UserId == "0" ? UserCount[0].Nombres :UsuarioSeleccionado.Nombres) ,
+            agente: (UsuarioSeleccionado.UserId == "0" ? (AgenteST ? UserCount[0].nombre :UserCount[0].Nombres) :UsuarioSeleccionado.Nombres) ,
             Fallas:CabeceraIncial[0].TFallas,
             DiasSinTx:(CabeceraIncial[0].DiasSinTx)
         }
         // setCabecera(_Cabecera);
         let _obs = ObsInicial;
-        let estado =  JSON.stringify(EstadoRequerimientos.map((val:any) =>{
-            return (val.valor == "4" ? { "label": val.label, "valor": val.valor } : undefined )
+        let estado =  JSON.stringify((AgenteST ?EstadoRequerimientosST:EstadoRequerimientos ).map((val:any) =>{
+            return (val.valor == (AgenteST ? "9":"4")  ? { "label": val.label, "valor": val.valor } : undefined )
         }).filter((e) =>e)[0]);
         _obs.push(
             {
                 fecha: moment().format("DD/MM/YYYY HH:MM"),
-                observacion: "Asginación de requerimiento agente de soporte. ",
+                observacion: (AgenteST ?"Asginación de requerimiento agente de soporte.":"Asginación de requerimiento agente de servicio técnico."),
                 usuario: vUser.Nombres,
                 estado: estado
             }
         )
-
         let Campos = {};
         Campos["Cabecera"] = JSON.stringify([_Cabecera]);
         Campos["Observaciones"] = JSON.stringify(_obs);
@@ -1150,6 +1150,67 @@ export default function Creacion() {
             setShowModalDiag(true);
         }
     }
+    const AsignarSt = (row:any) =>{
+        let Est = JSON.parse(row.original.Estado);
+        (Est.valor == "9" || Est.valor == "10"? setOcultarEstado(true):setOcultarEstado(false));
+        (Est.valor == "1"  || Est.valor == "2" || Est.valor == "3" || Est.valor == "7" && !UserCount[0].EsGestor ? setAsignar(true):setAsignar(false));
+       //Para saber cual es el diagnostico
+        // setDiagnostico(row.original.Diagnostico == null ? []: JSON.parse(row.original.Diagnostico));
+        // // setloader(true);
+        setObservacionesModificar("");
+        let Cabeceras = JSON.parse(row.original.Cabecera);
+        setCabeceraInicial(Cabeceras);
+        //Usuario
+        let Usuario = Cabeceras.map((e: any) => (e.UsuarioId));
+        let _admin = Cabeceras.map((e: any) => ({"Administrador":e.administrador,"Id":e.UsuarioAdministradorId }) );
+        let User:any[]=[];
+         //Para que no pueda asignarle el req a otro asesor. sino la primera vez a el.
+        if(!UserCount[0].EsGestor)
+            User = (AgenteST ? UsuariosST:Usuarios).filter((u: any) => {
+                return u.UserId == UserCount[0].UserId;
+            });
+        else
+            User = (AgenteST ? UsuariosST:Usuarios) ;
+
+        let Seleccion = User.filter((u: any) => {
+            return u.UserId == Usuario[0];
+        });
+        setUsuarioSeleccionado((Seleccion.length !=0 ?  Seleccion[0]:{ Nombres: "Seleccione", UserId: "0" }));
+        //Estado
+        let Estado = (FiltroDashBoardData.EsJson(row.original.Estado) ? JSON.parse(row.original.Estado) : row.original.Estado);
+        let EstadoSelect =  (AgenteST ? EstadoRequerimientosST:EstadoRequerimientos).filter((e: any) => {
+            return e.label == (Estado.label == undefined ? Estado : Estado.label);
+        });
+       
+        let a = EstadoSelect.map((data:any) => {
+            return data.flujo;
+        }).filter((w) =>w);
+        setEstadoRequerimientosSeleccionadoAnterior((EstadoSelect.length == 0 ? { "label": "Todos", "valor": "0" } : EstadoSelect[0]));
+        setFlujos(a[0]);
+        setEstadoRequerimientosSeleccionado((EstadoSelect.length == 0 ? { "label": "Todos", "valor": "0" } : EstadoSelect[0]));
+        //Lo divido en 2 para tener mejor claridad
+        let Inicio = String(row.original.Consecutivo).substring(0, 6);
+        let Final = String(row.original.Consecutivo).substring(6, String(row.original.Consecutivo).length);
+        setTitulo(`Requerimiento ${Inicio}-${Final}`);
+        setConsecutivo(`${Cabeceras[0].nombrecliente} - ${Cabeceras[0].registrationNumber}`);
+        //Para mostar el modal de edicion.
+        //=======================================================================================================================================================
+        // Si el registro no esta en estado en progreso muestra cierta cantidad de informacion.
+        // Si lo esta 
+        //
+        //
+        //=======================================================================================================================================================
+        //&& !UserCount[0].EsGestor vUser.perfil == PerfilEmpleado  && vUser.perfil == PerfilEmpleado &&
+        // ( EstadoSelect[0].valor =="5" ?EncabezadoConsulta(Cabeceras[0].assetid):EncabezadoSinconsulta());
+        // ( EstadoSelect[0].valor =="5"  ?setGrandeModal("xl"):setGrandeModal("lg"));
+        setIsDiagnostico(false);
+        setshoweditSt(true);
+        let Obs = JSON.parse(row.original.Observaciones);
+        setObsInicial(Obs);
+      
+        setId(row.original.Id);
+        setAdmin(_admin[0]);
+    }
     //Para montar la tabla tab 1, 2, 3,4
     function MontarTabla() {
         //Completado estado
@@ -1198,14 +1259,14 @@ export default function Creacion() {
                             </IconButton>
                         </Tooltip>
                         {/* Para editar si cumple con la condicion */}
-                        {(vUser.perfil == PerfilEmpleado || vUser.perfil == PerfilSuperAdmin || vUser.perfil == PerfilAdminFlota) && (<Tooltip arrow placement="top" title="Edición o asignación de requerimiento">
+                        {(!AgenteST) &&(vUser.perfil == PerfilEmpleado || vUser.perfil == PerfilSuperAdmin || vUser.perfil == PerfilAdminFlota) && (<Tooltip arrow placement="top" title="Edición o asignación de requerimiento">
                             <IconButton onClick={() => EditarRequerimiento(row)}>
                                 {(JSON.parse(row.original.Estado).valor === "4" || JSON.parse(row.original.Estado).valor === "5"  || JSON.parse(row.original.Estado).valor === "8"?  <Message   className="text-info"/>:<Edit  className="text-warning" />) }
                                 
                             </IconButton>
                         </Tooltip>)}
                         {/*Permite realizar el dlp */}
-                        {
+                        {(!AgenteST) &&
                         (EstadoRequerimientos.filter(e =>e.valor == "5")[0].label == JSON.parse(row.original.Estado).label) && (JSON.parse(row.original.Cabecera)[0].UsuarioId == vUser.Id ) && (<Tooltip arrow placement="top" title="Realizar DLP">
                             <IconButton onClick={() => EncabezadoConsulta(row)}>
                                 {/* <i className="text-success bi-border-style"></i> */}
@@ -1214,14 +1275,16 @@ export default function Creacion() {
                         </Tooltip>)
                         }
                         {/* Permite ver el diagnostico del requerimiento */}
-                        {(vUser.perfil == PerfilEmpleado || vUser.perfil == PerfilSuperAdmin || vUser.perfil == PerfilAdminFlota) && (row.original.Estado == estadoCompletado)
+                        
+                        {(!AgenteST) &&(vUser.perfil == PerfilEmpleado || vUser.perfil == PerfilSuperAdmin || vUser.perfil == PerfilAdminFlota) && (row.original.Estado == estadoCompletado)
                         && (<Tooltip arrow placement="top" title="Ver diagnóstico de requerimiento">
                             <IconButton onClick={() => VerRequerimiento(row)}>
                                 <ViewAgenda  className="text-info" />
                             </IconButton>
                         </Tooltip>)}
                         {/* Permite eliminar el requerimiento siempre y cuando sea en estado Creado de lo contrario no permite eliminarlo*/}
-                        {(FiltroData.getIsActivoMod(row, EventosCreados) && vUser.perfil === PerfilAdminFlota ) && (<Tooltip arrow placement="top" title="Eliminar requerimiento">
+                        
+                        {(!AgenteST) &&(FiltroData.getIsActivoMod(row, EventosCreados) && vUser.perfil === PerfilAdminFlota ) && (<Tooltip arrow placement="top" title="Eliminar requerimiento">
                             <IconButton onClick={() => {
                                 EliminarRequerimiento(row);
                             }}>
@@ -1229,13 +1292,24 @@ export default function Creacion() {
                             </IconButton>
                         </Tooltip>)}
                         {/* Permite asignarlo siempre y cuando este en estado creado sino no lo asigna a soporte*/}
-                        {((vUser.perfil === PerfilSuperAdmin || vUser.perfil === PerfilAdminFlota) && (UserCount[0].EsGestor) && FiltroData.getIsUsuarioSoporte(UserCount[0].UserId, Usuarios) && (FiltroData.getEsAsignable(row.original,EstadoRequerimientos.filter(e =>e.valor == "3")[0].label))) && (<Tooltip arrow placement="right" title="Asignar requerimiento">
+                        {(!AgenteST) &&((vUser.perfil === PerfilSuperAdmin || vUser.perfil === PerfilAdminFlota) && (UserCount[0].EsGestor) && FiltroData.getIsUsuarioSoporte(UserCount[0].UserId, Usuarios) && (FiltroData.getEsAsignable(row.original,EstadoRequerimientos.filter(e =>e.valor == "3")[0].label))) && (<Tooltip arrow placement="right" title="Asignar requerimiento">
                             <IconButton onClick={() => {
                                 Asignacion(row);
                             }}>
                                 <Assignment className="text-success" />
                             </IconButton>
                         </Tooltip>)}
+                        {
+                            (AgenteST && FiltroData.getEsSoporte(row, (AgenteST ? EstadoRequerimientosST:EstadoRequerimientos),(AgenteST ? "st":"soporte")) ) &&(
+                                <Tooltip arrow placement="right" title="Editar, asignar requerimiento serivico técnico">
+                                    <IconButton onClick={() => {
+                                        AsignarSt(row)
+                                    }}>
+                                        <Edit className="text-success"/>
+                                    </IconButton>
+                                </Tooltip>
+                            ) 
+                        }
                     </Box>
                 )
                 }
@@ -1267,6 +1341,16 @@ export default function Creacion() {
     //Obtiene un encabezado
     const EncabezadoConsulta = (row:any) =>{
         setEncabezado(JSON.parse(row.original.Cabecera)[0]);
+        let stinicial = [...StInicialData];
+        stinicial["ObsInicial"] = JSON.parse(row.original.Observaciones);
+        stinicial["Nombres"] = vUser.Nombres;
+        stinicial["UsuarioId"] = vUser.Id;
+        stinicial["Id"] = row.original.Id;
+        stinicial["EstadosRequerimientos"] = EstadosRequerimientos;
+        stinicial["ListadoDLPRespuesta"] = ListadoDLPRespuesta;
+        stinicial["Encabezado"] = JSON.parse(row.original.Cabecera)[0];
+        stinicial["Consecutivo"] = row.original.Consecutivo;
+        setStInicialData(stinicial);
         setModalDLP(true)
     }
     //Este resuelve el requerimiento
@@ -1725,7 +1809,6 @@ export default function Creacion() {
                     </Button>
                 </Modal.Footer>
             </Modal>
-
             {/* Modal para diagnostico */}
             <Modal show={ShowModalDiag} onHide={setShowModalDiag} size={"xl"}>
                 <Modal.Header closeButton>
@@ -1925,12 +2008,14 @@ export default function Creacion() {
                       Resolver
                     </Button>
                     <Button type="button" className="btn btn-sm" variant="info" onClick={() => {
-                        setShowSt(true);
+                     
                         setshowedit(false);
-                        console.log(StInicialData);
-                        let b = [...StInicialData];
+                        let b = StInicialData;
                         b['ListadoDLPRespuesta'] = ListadoDLPRespuesta;
+                        b["Cargado"] = true;
                         setStInicialData(b);
+                        setModalDLP(false);
+                        setShowSt(true);
                     }}>
                         Enviar ST
                     </Button>
@@ -1939,7 +2024,50 @@ export default function Creacion() {
                     </Button>
                 </Modal.Footer>
             </Modal>
-            {(StInicialData.length != 0 && ShowSt) && (<CreacionSt show={ShowSt} handleClose={setShowSt} data={StInicialData}></CreacionSt>)} 
+           <CreacionSt show={ShowSt} handleClose={setShowSt} data={StInicialData}></CreacionSt>
+           <Modal show={showeditSt} onHide={setshoweditSt} size={"lg"}>
+                <Modal.Header closeButton>
+                    <Modal.Title>{Titulo}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="p-0">
+                    <div className="row">
+                        <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 text-center">
+                            <div className="row">
+                                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                                    <span className="mx-4 fs-6 fw-bolder">Cliente: </span><span className="mx-4 fs-5 text-muted">{Consecutivo}</span>
+                                </div>
+                                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                                    <span className="mx-4 fs-6 fw-bolder">Creado por: </span><span className="mx-4 fs-6 text-muted">{Admin.Administrador}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6" style={{display:`${(OcultarEstado ? 'inlline block':"none")}`}}>
+                            <div className="form-control-sm">
+                                <label className="control-label label label-sm" style={{ display:``, fontWeight: 'bold' }}>Estados: </label>
+                                <EstadosEditar></EstadosEditar>
+                            </div>
+                        </div>
+                        <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                            <div className="form-control-sm">
+                                <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Observaciones: </label>
+                                <textarea className="form-control" rows={3} value={ObservacionesModificar} onChange={
+                                    SeteoObservaciones
+                                    }></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button type="button" className="btn btn-sm" variant="primary" onClick={() => {
+                        {Asignar ? GuardarAsginacion(): Guardar()}
+                    }}>
+                       Guardar
+                    </Button>
+                    <Button type="button" className="btn btn-sm" variant="secondary" onClick={() => setshowedit(false)}>
+                        Cancelar
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </>
     )
 }
