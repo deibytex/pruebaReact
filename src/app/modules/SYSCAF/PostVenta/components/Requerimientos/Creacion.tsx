@@ -22,15 +22,18 @@ import { RootState } from "../../../../../../setup";
 import confirmarDialog, { confirmarDialogText, successDialog } from "../../../../../../_start/helpers/components/ConfirmDialog";
 import CreacionSt from "./CreacionSt";
 import { Perfiles } from "../../../../../../_start/helpers/Constants";
+import { original } from "@reduxjs/toolkit";
 
 export default function Creacion() {
     //INICIO ESPACIO CONSTANTES
     const [EstadosRequerimientos, setEstadosRequerimientos] = useState<any[]>([]);
+    const [EstadoEdit, setEstadoEdit] = useState<any>({});
     const [ListadoDLP, setListadoDLP] = useState<any[]>([]);
     const [UsuariosST, setUsuariosST] = useState<any[]>([]);
     const [Usuarios, setUsuarios] = useState<any[]>([]);
     const toaster = useToaster();
     const tableContainerRef = useRef<HTMLDivElement>(null);
+    const [AgenteST, setAgenteST] = useState<boolean>(false);
     const message = (type: any, titulo: string, mensaje: React.ReactNode) => {
       return (<Notification className="bg-light-danger" type={type} header={titulo}
         closable duration={10000}>
@@ -48,11 +51,13 @@ export default function Creacion() {
     const [TextoNotificacionAmin,setTextoNoticacionAmin] = useState<string>("Hola {Admin}, Estás siendo notificado porque el agente {UsuarioDestino} ha dado por resuelto el requerimiento {Consecutivo}. Por favor, revisa información. Saludos cordiales.");
     const [NotificarCorreo,setNotificarCorreo] = useState<string>("1");
     const [NotificarPortal,setNotificarPortal] = useState<string>("1");
+    const [ObsDiagnostico, setObsDiagnostico] = useState<string>("");
     //ESPACIO PARA LAS CONST
     const [loader, setloader] = useState<boolean>(false);
     const [lstIndicadores, setListIndicadores] = useState<any>([
         { "Estado": "Abiertos", "Descripcion": "Total de Requerimientos Abiertos", "Valor": 0 },
         { "Estado": "En Soporte", "Descripcion": "Total de Requerimientos en Soporte", "Valor": 0 },
+        { "Estado": "En Servicio T", "Descripcion": "Total de Requerimientos en servicio tecnico", "Valor": 0 },
         { "Estado": "Tasa de resolución", "Descripcion": "Tasa de resolución de los requerimientos de los últimos 7 días", "Valor": 0 },
         { "Estado": "Total resueltos", "Descripcion": "Total de requerimientos resueltos en los últimos 7 días.", "Valor": 0 }
     ]);
@@ -64,9 +69,10 @@ export default function Creacion() {
     const [val, setval] = useState<boolean>(false);
     //Constante para el modal de ST
     const [ShowSt, setShowSt] = useState<boolean>(false);
+    const [showeditSt, setshoweditSt] = useState<boolean>(false);
     const [StInicialData, setStInicialData] = useState<any[]>([]);
     //Para el diagnostico
-  //   let DiagnosticoCon:any[]= [];
+    //let DiagnosticoCon:any[]= [];
     const [Diagnostico, setDiagnostico] = useState<any[]>([]);
     const [ConsecutivoNotificacion, setConsecutivoNotificacion] = useState<string>("");
     //Para saber cual es la que viene desde la tabla o DB
@@ -106,6 +112,7 @@ export default function Creacion() {
     const [InfDiag, setInfDiag] = useState<any[]>([]);
     // const [TipoRequerimientosSeleccionado, setTipoRequerimientosSeleccionado] = useState<any>({ Nombre: "", Value: "" });
     const [EstadoRequerimientos, setEstadoRequerimientos] = useState<any[]>([]);
+    const [EstadoRequerimientosST, setEstadoRequerimientosST] = useState<any[]>([]);
     const [EstadoRequerimientosSeleccionado, setEstadoRequerimientosSeleccionado] = useState<any>({ label: "Seleccione", valor: "0" });
     const [EstadoRequerimientosSeleccionadoAnterior, setEstadoRequerimientosSeleccionadoAnterior] = useState<any>({ label: "Seleccione", valor: "0" });
     const [UsuarioSeleccionado, setUsuarioSeleccionado] = useState<any>({ Nombres: "Seleccione", UserId: "0" });
@@ -147,6 +154,7 @@ export default function Creacion() {
     const [disable, setdisable] = useState<boolean>(false);
     const [EventosCreados, setEventosCreados] = useState<any>("");
     const [EventosEnSoporte, setEventosEnSoporte] = useState<any>("");
+    const [EventosEnST, setEventosEnST] = useState<any>("");
     const [Asignados, setAsignados] = useState<any>("");
     const [SinAsignar, setSinAsignar] = useState<any>("");
     const [Resueltos, setResueltos] = useState<any>("");
@@ -287,7 +295,7 @@ export default function Creacion() {
                                 {/* <FormLabel id="demo-radio-buttons-group-label">¿Diagnostico positivo?</FormLabel> */}
                                 <RadioGroup
                                     aria-labelledby="demo-radio-buttons-group-label"
-                                    defaultValue={row.original.Estado}
+                                    defaultValue={null}
                                     name="radio-buttons-group"
                                     id={`${row.original.id}`}
                                     style={{display: 'block'}}
@@ -462,7 +470,7 @@ export default function Creacion() {
                     });
                     setEstados(estados);
                     //Para pintar los Indicadores
-                    PintarIndicadores(response.data);
+                    //PintarIndicadores(response.data);
                     //Para no volver a cargar
                     setisCallData(false);
                     let Tiporeporte = [...TipoReporteBase];
@@ -496,7 +504,7 @@ export default function Creacion() {
                 let Users = FiltroData.getConfiguracionSigla(response.data,"COUSS");
                 setUsuarios((Users.length !=0 ? Users[0]:[]));
                 //Estados de Soporte
-                let States = FiltroData.getConfiguracionSigla(response.data,"OERST");
+                let States = FiltroData.getConfiguracionSigla(response.data,"OERS");
                 setEstadoRequerimientos(States[0]);
                 //Preguntas DLP
                 let DLP = FiltroData.getConfiguracionSigla(response.data,"DLPST");
@@ -505,6 +513,8 @@ export default function Creacion() {
                 let _usuariosST = FiltroData.getConfiguracionSigla(response.data,"CUSST");
                 setUsuariosST(_usuariosST[0]);
                 setEstadosRequerimientos(States[0]);
+                let StatesST = FiltroData.getConfiguracionSigla(response.data,"OERST");
+                setEstadoRequerimientosST(StatesST[0]);
             }
         }).catch(({error}) =>{
             console.log("Error: ", error)
@@ -521,6 +531,9 @@ export default function Creacion() {
         // filtramos por las fechas
         datosfiltrados = datosfiltrados.
             filter((f: any) => moment(f.Periodo).toDate() >= FechaInicial && moment(f.Periodo).toDate() <= FechaFinal);
+        let estates = EstadoRequerimientosST.map(e => e.label).join();
+        if(AgenteST && EstadoRequerimientosST.length != 0)
+            datosfiltrados = datosfiltrados.filter((f:any)=> [...estates.split(",")].includes(((FiltroDashBoardData.EsJson(f.Estado)  == true ? JSON.parse(f.Estado).label : f.Estado))));
         //FILTRA POR USUARIOS O AGENTES
         if (AgentesSeleccionado.UsuarioId != undefined && AgentesSeleccionado.UsuarioId != "Todos")
             datosfiltrados = FiltroData.getFiltrobyAgente(datosfiltrados, AgentesSeleccionado.UsuarioId);
@@ -531,13 +544,13 @@ export default function Creacion() {
             datosfiltrados = FiltroData.getFiltrobyCliente(datosfiltrados, ClienteSeleccionado.ClienteId);
             
         let Usuario = (UserCount.length != 0 ? UserCount[0].UserId: "");
+        let FiltradoGestor:any[] | undefined= (AgenteST ?FiltroData.getFiltroGestor(datosfiltrados,Usuario, UsuariosST,AgenteST, EstadoRequerimientosST ): FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios,AgenteST, EstadoRequerimientos));
         // SE HACE SWITCH Entre tabs para cambiar informacion segun se requiera.
         //Y SE HACE RENDER A UNA SOLA TABLA PARA QUE EN LA CONSOLA NO SALGAN ERRORES.
         switch (tabSel) {
             case 0:
             default:
-                //PintarIndicadores(datosfiltrados);
-                let FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
+
                 setDatosTabla((FiltradoGestor == undefined ? []:FiltradoGestor));
                 setShowTablaTodos(true);
                 setShowTablaCerradas(false);
@@ -546,9 +559,9 @@ export default function Creacion() {
                 setshowTablaSinAsginar(false);
                 break;
             case 1:
-                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
+                // FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
                 setDatosTabla(FiltroData.getAsignados((FiltradoGestor == undefined ? []:FiltradoGestor),
-                Asignados));
+                Asignados,AgenteST));
                 setShowTablaTodos(false);
                 setShowTablaCerradas(false);
                 setShowTablaAsignadas(true);
@@ -556,10 +569,9 @@ export default function Creacion() {
                 setshowTablaSinAsginar(false);
                 break;
             case 2:
-                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
+                // FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
                     setDatosTabla(FiltroData.getNoAsignados((FiltradoGestor == undefined ? []:FiltradoGestor),
                     SinAsignar));
-                    
                     setshowTablaSinAsginar(true);
                     setShowTablaTodos(false);
                     setShowTablaCerradas(false);
@@ -567,7 +579,7 @@ export default function Creacion() {
                     setShowTablaReporte(false);
                     break;
             case 3:
-                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
+                // FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
                 setDatosTabla(FiltroData.getCerrados((FiltradoGestor == undefined ? []:FiltradoGestor),
                 Resueltos));
                 setShowTablaTodos(false);
@@ -577,7 +589,7 @@ export default function Creacion() {
                 setshowTablaSinAsginar(false);
                 break;
             case 4:
-                FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
+                // FiltradoGestor = FiltroData.getFiltroGestor(datosfiltrados,Usuario, Usuarios);
                 let reporte = FiltroData.getReporte((FiltradoGestor == undefined ? []:FiltradoGestor));
                 let DatosReporte: any[] = [];
                 Object.entries(reporte).map((elem: any) => {
@@ -591,8 +603,6 @@ export default function Creacion() {
                 setshowTablaSinAsginar(false);
                 break;
         }
-
-
     }
     //ESPACIO PARA LOS USEEFFECT
     useEffect(() => {
@@ -630,10 +640,11 @@ export default function Creacion() {
     //Para los estados y todo lo relacionado una vez haya datos
     useEffect(() =>{
         if(EstadosRequerimientos.length != 0){
-            setEventosCreados(EstadosRequerimientos.filter(f => !["8","6"].includes(f.valor)).map((e:any) =>e.label).join())
-            setEventosEnSoporte(EstadosRequerimientos.filter(f => ["3","4","5"].includes(f.valor)).map((e:any) =>e.label).join())
-            setAsignados(EstadosRequerimientos.filter(f => ["4","5"].includes(f.valor)).map((e:any) =>e.label).join())
-            setSinAsignar(EstadosRequerimientos.filter(f => ["1","2","3"].includes(f.valor)).map((e:any) =>e.label).join())
+            setEventosCreados(EstadosRequerimientos.filter(f => !["8","6"].includes(f.valor)).map((e:any) =>e.label).join());
+            setEventosEnSoporte(EstadosRequerimientos.filter(f => ["3","4","5"].includes(f.valor)).map((e:any) =>e.label).join());
+            setAsignados(EstadosRequerimientos.filter(f => ["4","5"].includes(f.valor)).map((e:any) =>e.label).join());
+            setEventosEnST(EstadoRequerimientosST.map((f:any) =>f.label).join());
+            setSinAsignar(EstadosRequerimientos.filter(f => ["1","2","3"].includes(f.valor)).map((e:any) =>e.label).join());
             setResueltos(EstadosRequerimientos.filter((e:any) =>{
                 return e.valor == "8"
             })[0].label);
@@ -641,24 +652,24 @@ export default function Creacion() {
                 return {"label":e.label, "color":(e.tipo =="admin" ?"badge bg-warning":(e.tipo == "soporte" ? "badge bg-info" :"badge bg-primary" ) )};
             }));
             setEstadoRequerimientosSeleccionado(EstadosRequerimientos[0]);
-            
         }
     
-    },[EstadosRequerimientos])
+    },[EstadosRequerimientos,EstadoRequerimientosST])
     //Pinta los Indicadores
     useEffect(() =>{
         //Para pintar los Indicadores
         PintarIndicadores(TipoReporte[0].Data);
-    },[EventosCreados,EventosEnSoporte,Asignados, SinAsignar, Resueltos])
+    },[EventosCreados,EventosEnSoporte,Asignados, SinAsignar, Resueltos, EventosEnST])
     //PAra actualizar el listado de usuarios
     useEffect(() =>{
-        if(Usuarios.length != 0){
+        if(Usuarios.length != 0 || UsuariosST.length != 0){
             let UsuarioSoporte = Usuarios.filter((e:any) =>{
                 return e.UserId == vUser.Id;
             }); 
             let UsuarioST = UsuariosST.filter((e:any) =>{
                 return e.UserId == vUser.Id;
             }); 
+            (UsuarioSoporte.length != 0 ? setAgenteST(false):setAgenteST(true));
             setUserCount((UsuarioSoporte.length != 0 ? UsuarioSoporte:UsuarioST));
            
         }
@@ -666,9 +677,9 @@ export default function Creacion() {
     },[Usuarios, UsuariosST])
     //Para mostrar la info una vez carguen los usuarios
     useEffect(() =>{
-        if(UserCount.length != 0)
+        if(UserCount.length != 0 || EstadoRequerimientosST.length !=0)
         FiltroDatos();
-    },[UserCount])
+    },[UserCount, EstadoRequerimientosST])
     //FUNCION PARA VALIDAR LAS FECHAS
     let ValidarFechas = (Range: Date[]) => {
         let Tiporeporte = [...TipoReporte];
@@ -701,12 +712,14 @@ export default function Creacion() {
     const PintarIndicadores = (datosfiltrados: any) => {
         let Abiertos = FiltroData.getAbiertos(datosfiltrados, EventosCreados);
         let Soporte = FiltroData.getSoporte(datosfiltrados,EventosEnSoporte);
+        let St = FiltroData.getSoporte(datosfiltrados,EventosEnST);
         let TotalRequerimientos = datosfiltrados.length;
         let _Resueltos = FiltroData.getCerrados(datosfiltrados, Resueltos);
         let Resolucion = (TotalRequerimientos == 0 ? 0 : _Resueltos.length / TotalRequerimientos);
         setListIndicadores([
             { "Estado": "Abiertos", "Descripcion": "Total de Requerimientos Abiertos", "Valor": Abiertos.length },
             { "Estado": "En Soporte", "Descripcion": "Total de Requerimientos en Soporte", "Valor": Soporte.length },
+            { "Estado": "En Servicio T", "Descripcion": "Total de Requerimientos en Servicio Tecnico", "Valor": St.length },
             { "Estado": "Tasa de resolución", "Descripcion": "Tasa de resolución de los requerimientos de los últimos 7 días", "Valor": locateFormatPercentNDijitos(Resolucion, 2) },
             { "Estado": "Total resueltos", "Descripcion": "Total de requerimientos resueltos en los últimos 7 días.", "Valor": _Resueltos.length }
         ]);
@@ -797,15 +810,15 @@ export default function Creacion() {
                 <span style={{ height: '40px' }} className="input-group-text mt-3" id="basic-addon1"><i className="bi-credit-card-2-front"></i></span>
                 <Form.Select title="Estados para asignación" style={{ height: '40px' }} className="input-sm  mb-3 mt-3 " onChange={(e) => {
                     // buscamos el objeto completo para tenerlo en el sistema
-                    let lstEstado = EstadoRequerimientos.filter((val: any) => {
+                    let lstEstado =  (AgenteST ? EstadoRequerimientosST:EstadoRequerimientos).filter((val: any) => {
                         return val.valor === e.currentTarget.value
                     })
                     setEstadoRequerimientosSeleccionado((lstEstado[0] ? lstEstado[0] : { "Estado": "Seleccione" }));
                 }} aria-label="Default select example">
                     <option value={"Seleccione"}>Todos</option>
                     {
-                        EstadoRequerimientos?.filter((l:any)=>{
-                            let siguiente = Flujos.replaceAll("[","").replaceAll("]","");
+                        (AgenteST ? EstadoRequerimientosST:EstadoRequerimientos)?.filter((l:any)=>{
+                            let siguiente = (Flujos.length != 0 ? Flujos.replaceAll("[","").replaceAll("]",""):"") ;
                             let division = siguiente.split(",");
                             return (division[0] != "" ?  [EstadoRequerimientosSeleccionado.valor, ...division].includes(l.valor): l);
                         }).map((element: any) => {
@@ -870,18 +883,17 @@ export default function Creacion() {
         setUsuarioSeleccionado((Seleccion.length !=0 ?  Seleccion[0]:{ Nombres: "Seleccione", UserId: "0" }));
         //Estado
         let Estado = (FiltroDashBoardData.EsJson(row.original.Estado) ? JSON.parse(row.original.Estado) : row.original.Estado);
-        let EstadoSelect = EstadoRequerimientos.filter((e: any) => {
+        let EstadoSelect = (AgenteST ?EstadoRequerimientosST:EstadoRequerimientos).filter((e: any) => {
             return e.label == (Estado.label == undefined ? Estado : Estado.label);
         });
        
-       
-
         let a = EstadoSelect.map((data:any) => {
             return data.flujo;
         }).filter((w) =>w);
         setEstadoRequerimientosSeleccionadoAnterior((EstadoSelect.length == 0 ? { "label": "Todos", "valor": "0" } : EstadoSelect[0]));
-        setFlujos(a[0]);
+        setFlujos((a.length != 0 ? a[0]:[]));
         setEstadoRequerimientosSeleccionado((EstadoSelect.length == 0 ? { "label": "Todos", "valor": "0" } : EstadoSelect[0]));
+        setEstadoEdit(row.original.Estado);
         //Lo divido en 2 para tener mejor claridad
         let Inicio = String(row.original.Consecutivo).substring(0, 6);
         let Final = String(row.original.Consecutivo).substring(6, String(row.original.Consecutivo).length);
@@ -910,14 +922,14 @@ export default function Creacion() {
         setId(row.original.Id);
         setAdmin(_admin[0]);
 
-         //Para armar el de ST
-         let stinicial = [...StInicialData];
-         stinicial["ObsInicial"] = JSON.parse(row.original.Observaciones);
-         stinicial["Nombres"] = vUser.Nombres;
-         stinicial["Id"] = row.original.Id;
-         stinicial["EstadosRequerimientos"] = EstadosRequerimientos;
-         stinicial["ListadoDLPRespuesta"] = ListadoDLPRespuesta;
-         setStInicialData(stinicial);
+        //  //Para armar el de ST
+        //  let stinicial = [...StInicialData];
+        //  stinicial["ObsInicial"] = JSON.parse(row.original.Observaciones);
+        //  stinicial["Nombres"] = vUser.Nombres;
+        //  stinicial["Id"] = row.original.Id;
+        //  stinicial["EstadosRequerimientos"] = EstadosRequerimientos;
+        //  stinicial["ListadoDLPRespuesta"] = ListadoDLPRespuesta;
+        //  setStInicialData(stinicial);
 
     };
     //Para Crearlo y enviarlo al servidor
@@ -951,11 +963,10 @@ export default function Creacion() {
                 estado: JSON.stringify({ "label": EstadoRequerimientosSeleccionado.label, "valor": EstadoRequerimientosSeleccionado.valor })
             }
         )
-
         let Campos = {};
         Campos["Cabecera"] = JSON.stringify([_Cabecera]);
         Campos["Observaciones"] = JSON.stringify(_obs);
-        Campos["Estado"] = (EstadoRequerimientosSeleccionado.valor == "0" ? "": JSON.stringify({ "label": EstadoRequerimientosSeleccionado.label, "valor": EstadoRequerimientosSeleccionado.valor })); 
+        Campos["Estado"] = (EstadoRequerimientosSeleccionado.valor == "0" ? EstadoEdit: JSON.stringify({ "label": EstadoRequerimientosSeleccionado.label, "valor": EstadoRequerimientosSeleccionado.valor })); 
         Campos["Id"] = Id;
         confirmarDialog(() => {
             setloader(true)
@@ -986,6 +997,7 @@ export default function Creacion() {
                         FiltroData.Notificar(dataNotificacion)
                     }
                     setloader(false);
+                    setshoweditSt(false);
                 }
 
             }).catch(({ error }) => {
@@ -1039,24 +1051,23 @@ export default function Creacion() {
             clienteid: CabeceraIncial[0].clienteid.toString(),
             registrationNumber: CabeceraIncial[0].registrationNumber,
             nombrecliente: CabeceraIncial[0].nombrecliente,
-            agente: (UsuarioSeleccionado.UserId == "0" ? UserCount[0].Nombres :UsuarioSeleccionado.Nombres) ,
+            agente: (UsuarioSeleccionado.UserId == "0" ? (AgenteST ? UserCount[0].nombre :UserCount[0].Nombres) :UsuarioSeleccionado.Nombres) ,
             Fallas:CabeceraIncial[0].TFallas,
             DiasSinTx:(CabeceraIncial[0].DiasSinTx)
         }
         // setCabecera(_Cabecera);
         let _obs = ObsInicial;
-        let estado =  JSON.stringify(EstadoRequerimientos.map((val:any) =>{
-            return (val.valor == "4" ? { "label": val.label, "valor": val.valor } : undefined )
+        let estado =  JSON.stringify((AgenteST ?EstadoRequerimientosST:EstadoRequerimientos ).map((val:any) =>{
+            return (val.valor == (AgenteST ? "9":"4")  ? { "label": val.label, "valor": val.valor } : undefined )
         }).filter((e) =>e)[0]);
         _obs.push(
             {
                 fecha: moment().format("DD/MM/YYYY HH:MM"),
-                observacion: "Asginación de requerimiento agente de soporte. ",
+                observacion: (AgenteST ?"Asginación de requerimiento agente de soporte.":"Asginación de requerimiento agente de servicio técnico."),
                 usuario: vUser.Nombres,
                 estado: estado
             }
         )
-
         let Campos = {};
         Campos["Cabecera"] = JSON.stringify([_Cabecera]);
         Campos["Observaciones"] = JSON.stringify(_obs);
@@ -1092,6 +1103,7 @@ export default function Creacion() {
                     }
                     setloader(false);
                     setShowAsignacion(false);
+                    setshoweditSt(false);
                 }
             }).catch(({ error }) => {
                 console.log("Error", error)
@@ -1150,6 +1162,67 @@ export default function Creacion() {
             setShowModalDiag(true);
         }
     }
+    const AsignarSt = (row:any) =>{
+        let Est = JSON.parse(row.original.Estado);
+        (Est.valor == "9" || Est.valor == "10"? setOcultarEstado(true):setOcultarEstado(false));
+        (Est.valor == "1"  || Est.valor == "2" || Est.valor == "3" || Est.valor == "7" && !UserCount[0].EsGestor ? setAsignar(true):setAsignar(false));
+       //Para saber cual es el diagnostico
+        // setDiagnostico(row.original.Diagnostico == null ? []: JSON.parse(row.original.Diagnostico));
+        // // setloader(true);
+        setObservacionesModificar("");
+        let Cabeceras = JSON.parse(row.original.Cabecera);
+        setCabeceraInicial(Cabeceras);
+        //Usuario
+        let Usuario = Cabeceras.map((e: any) => (e.UsuarioId));
+        let _admin = Cabeceras.map((e: any) => ({"Administrador":e.administrador,"Id":e.UsuarioAdministradorId }) );
+        let User:any[]=[];
+         //Para que no pueda asignarle el req a otro asesor. sino la primera vez a el.
+        if(!UserCount[0].EsGestor)
+            User = (AgenteST ? UsuariosST:Usuarios).filter((u: any) => {
+                return u.UserId == UserCount[0].UserId;
+            });
+        else
+            User = (AgenteST ? UsuariosST:Usuarios) ;
+
+        let Seleccion = User.filter((u: any) => {
+            return u.UserId == Usuario[0];
+        });
+        setUsuarioSeleccionado((Seleccion.length !=0 ?  Seleccion[0]:{ Nombres: "Seleccione", UserId: "0" }));
+        //Estado
+        let Estado = (FiltroDashBoardData.EsJson(row.original.Estado) ? JSON.parse(row.original.Estado) : row.original.Estado);
+        let EstadoSelect =  (AgenteST ? EstadoRequerimientosST:EstadoRequerimientos).filter((e: any) => {
+            return e.label == (Estado.label == undefined ? Estado : Estado.label);
+        });
+       
+        let a = EstadoSelect.map((data:any) => {
+            return data.flujo;
+        }).filter((w) =>w);
+        setEstadoRequerimientosSeleccionadoAnterior((EstadoSelect.length == 0 ? { "label": "Todos", "valor": "0" } : EstadoSelect[0]));
+        setFlujos(a[0]);
+        setEstadoRequerimientosSeleccionado((EstadoSelect.length == 0 ? { "label": "Todos", "valor": "0" } : EstadoSelect[0]));
+        //Lo divido en 2 para tener mejor claridad
+        let Inicio = String(row.original.Consecutivo).substring(0, 6);
+        let Final = String(row.original.Consecutivo).substring(6, String(row.original.Consecutivo).length);
+        setTitulo(`Requerimiento ${Inicio}-${Final}`);
+        setConsecutivo(`${Cabeceras[0].nombrecliente} - ${Cabeceras[0].registrationNumber}`);
+        //Para mostar el modal de edicion.
+        //=======================================================================================================================================================
+        // Si el registro no esta en estado en progreso muestra cierta cantidad de informacion.
+        // Si lo esta 
+        //
+        //
+        //=======================================================================================================================================================
+        //&& !UserCount[0].EsGestor vUser.perfil == PerfilEmpleado  && vUser.perfil == PerfilEmpleado &&
+        // ( EstadoSelect[0].valor =="5" ?EncabezadoConsulta(Cabeceras[0].assetid):EncabezadoSinconsulta());
+        // ( EstadoSelect[0].valor =="5"  ?setGrandeModal("xl"):setGrandeModal("lg"));
+        setIsDiagnostico(false);
+        setshoweditSt(true);
+        let Obs = JSON.parse(row.original.Observaciones);
+        setObsInicial(Obs);
+      
+        setId(row.original.Id);
+        setAdmin(_admin[0]);
+    }
     //Para montar la tabla tab 1, 2, 3,4
     function MontarTabla() {
         //Completado estado
@@ -1198,14 +1271,14 @@ export default function Creacion() {
                             </IconButton>
                         </Tooltip>
                         {/* Para editar si cumple con la condicion */}
-                        {(vUser.perfil == PerfilEmpleado || vUser.perfil == PerfilSuperAdmin || vUser.perfil == PerfilAdminFlota) && (<Tooltip arrow placement="top" title="Edición o asignación de requerimiento">
+                        {(!AgenteST) &&(vUser.perfil == PerfilEmpleado || vUser.perfil == PerfilSuperAdmin || vUser.perfil == PerfilAdminFlota) && (<Tooltip arrow placement="top" title="Edición o asignación de requerimiento">
                             <IconButton onClick={() => EditarRequerimiento(row)}>
                                 {(JSON.parse(row.original.Estado).valor === "4" || JSON.parse(row.original.Estado).valor === "5"  || JSON.parse(row.original.Estado).valor === "8"?  <Message   className="text-info"/>:<Edit  className="text-warning" />) }
                                 
                             </IconButton>
                         </Tooltip>)}
                         {/*Permite realizar el dlp */}
-                        {
+                        {(!AgenteST) &&
                         (EstadoRequerimientos.filter(e =>e.valor == "5")[0].label == JSON.parse(row.original.Estado).label) && (JSON.parse(row.original.Cabecera)[0].UsuarioId == vUser.Id ) && (<Tooltip arrow placement="top" title="Realizar DLP">
                             <IconButton onClick={() => EncabezadoConsulta(row)}>
                                 {/* <i className="text-success bi-border-style"></i> */}
@@ -1214,14 +1287,16 @@ export default function Creacion() {
                         </Tooltip>)
                         }
                         {/* Permite ver el diagnostico del requerimiento */}
-                        {(vUser.perfil == PerfilEmpleado || vUser.perfil == PerfilSuperAdmin || vUser.perfil == PerfilAdminFlota) && (row.original.Estado == estadoCompletado)
+                        
+                        {(!AgenteST) &&(vUser.perfil == PerfilEmpleado || vUser.perfil == PerfilSuperAdmin || vUser.perfil == PerfilAdminFlota) && (row.original.Estado == estadoCompletado)
                         && (<Tooltip arrow placement="top" title="Ver diagnóstico de requerimiento">
                             <IconButton onClick={() => VerRequerimiento(row)}>
                                 <ViewAgenda  className="text-info" />
                             </IconButton>
                         </Tooltip>)}
                         {/* Permite eliminar el requerimiento siempre y cuando sea en estado Creado de lo contrario no permite eliminarlo*/}
-                        {(FiltroData.getIsActivoMod(row, EventosCreados) && vUser.perfil === PerfilAdminFlota ) && (<Tooltip arrow placement="top" title="Eliminar requerimiento">
+                        
+                        {(!AgenteST) &&(FiltroData.getIsActivoMod(row, EventosCreados) && vUser.perfil === PerfilAdminFlota ) && (<Tooltip arrow placement="top" title="Eliminar requerimiento">
                             <IconButton onClick={() => {
                                 EliminarRequerimiento(row);
                             }}>
@@ -1229,13 +1304,24 @@ export default function Creacion() {
                             </IconButton>
                         </Tooltip>)}
                         {/* Permite asignarlo siempre y cuando este en estado creado sino no lo asigna a soporte*/}
-                        {((vUser.perfil === PerfilSuperAdmin || vUser.perfil === PerfilAdminFlota) && (UserCount[0].EsGestor) && FiltroData.getIsUsuarioSoporte(UserCount[0].UserId, Usuarios) && (FiltroData.getEsAsignable(row.original,EstadoRequerimientos.filter(e =>e.valor == "3")[0].label))) && (<Tooltip arrow placement="right" title="Asignar requerimiento">
+                        {(!AgenteST) &&((vUser.perfil === PerfilSuperAdmin || vUser.perfil === PerfilAdminFlota) && (UserCount[0].EsGestor) && FiltroData.getIsUsuarioSoporte(UserCount[0].UserId, Usuarios) && (FiltroData.getEsAsignable(row.original,EstadoRequerimientos.filter(e =>e.valor == "3")[0].label))) && (<Tooltip arrow placement="right" title="Asignar requerimiento">
                             <IconButton onClick={() => {
                                 Asignacion(row);
                             }}>
                                 <Assignment className="text-success" />
                             </IconButton>
                         </Tooltip>)}
+                        {
+                            (AgenteST && FiltroData.getEsSoporte(row, (AgenteST ? EstadoRequerimientosST:EstadoRequerimientos),(AgenteST ? "st":"soporte")) ) &&(
+                                <Tooltip arrow placement="right" title="Editar, asignar requerimiento serivico técnico">
+                                    <IconButton onClick={() => {
+                                        AsignarSt(row)
+                                    }}>
+                                        <Edit className="text-success"/>
+                                    </IconButton>
+                                </Tooltip>
+                            ) 
+                        }
                     </Box>
                 )
                 }
@@ -1267,39 +1353,41 @@ export default function Creacion() {
     //Obtiene un encabezado
     const EncabezadoConsulta = (row:any) =>{
         setEncabezado(JSON.parse(row.original.Cabecera)[0]);
-        setModalDLP(true)
+        let stinicial = [...StInicialData];
+        stinicial["ObsInicial"] = JSON.parse(row.original.Observaciones);
+        stinicial["Nombres"] = vUser.Nombres;
+        stinicial["UsuarioId"] = vUser.Id;
+        stinicial["Id"] = row.original.Id;
+        stinicial["EstadosRequerimientos"] = EstadosRequerimientos;
+        stinicial["ListadoDLPRespuesta"] = ListadoDLPRespuesta;
+        stinicial["Encabezado"] = JSON.parse(row.original.Cabecera)[0];
+        stinicial["Consecutivo"] = row.original.Consecutivo;
+        setStInicialData(stinicial);
+        setObsInicial(JSON.parse(row.original.Observaciones));
+        setId(row.original.Id);
+        setModalDLP(true);
     }
     //Este resuelve el requerimiento
     //==========================================================================================================
     // RESUELVE EL REQUERIMIENTO
     //==========================================================================================================
     const GuardarOtro = () =>{
-        let _Cabecera = {
-            administrador: Admin.Administrador,
-            UsuarioAdministradorId: Admin.Id,
-            assetid: CabeceraIncial[0].assetid,
-            clienteid: CabeceraIncial[0].clienteid.toString(),
-            registrationNumber: CabeceraIncial[0].registrationNumber,
-            nombrecliente: CabeceraIncial[0].nombrecliente,
-            agente: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.Nombres),
-            UsuarioId: (UsuarioSeleccionado.UserId == "0" ? "" :UsuarioSeleccionado.UserId),
-        }
-        // setCabecera(_Cabecera);
+        console.log(CabeceraIncial);
+        let estado = EstadosRequerimientos.filter((e:any)=>e.valor == "8").map((a:any) =>{return {"label":a.label,"valor":a.valor}})[0];
         let _obs = ObsInicial;
         _obs.push(
             {
                 fecha: moment().format("DD/MM/YYYY HH:MM"),
-                observacion: `Se realiza el diagnostico y se ${(FiltroData.getEsCompletado(ListadoDLPRespuesta).length == 0 ? "completa el diagnostico quedando resuelto" : "guarda sin completar el diagnostico")}`,
+                observacion: ObsDiagnostico,
                 usuario: vUser.Nombres,
-                estado: JSON.stringify((FiltroData.getEsCompletado(ListadoDLPRespuesta).length == 0 ?  EstadosRequerimientos.filter((e:any)=>e.valor == "8" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}})[0]:EstadosRequerimientos.filter((e:any)=>e.valor == "5" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}})[0]))
+                estado: JSON.stringify(estado)
             }
         )
-       
         //Para enviar al servidor
         let Campos = {};
         Campos["Diagnostico"] = JSON.stringify(ListadoDLPRespuesta);
         Campos["Observaciones"] = JSON.stringify(_obs);
-        Campos["Estado"] = JSON.stringify((FiltroData.getEsCompletado(ListadoDLPRespuesta).length == 0 ?  EstadosRequerimientos.filter((e:any)=>e.valor == "8" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}})[0]:EstadosRequerimientos.filter((e:any)=>e.valor == "5" ).map((a:any) =>{return {"label":a.label,"valor":a.valor}})[0])); 
+        Campos["Estado"] = JSON.stringify(estado); 
         Campos["Id"] = Id;
         confirmarDialog(() => {
             setloader(true)
@@ -1328,13 +1416,14 @@ export default function Creacion() {
                     dataNotificacion['NotificarPortal']= NotificarPortal;
                     FiltroData.Notificar(dataNotificacion)
                     setloader(false);
+                    setModalDLP(false)
                 }
 
             }).catch(({ error }) => {
                 console.log("Error", error)
                 setshowedit(false);
             });
-        }, `¿Esta seguro que desea guardar el registro ${(FiltroData.getEsCompletado(ListadoDLPRespuesta).length == 0 ? "" : "sin completar")}?`, 'Guardar');
+        }, `¿Esta seguro que desea guardar el registro como completado?`, 'Guardar');
     };
     //para las observaciones
     const SeteoObservaciones = (e:any) =>{
@@ -1361,7 +1450,7 @@ export default function Creacion() {
                                 {
                                     (lstIndicadores.map((element: any) => {
                                         return (
-                                            <div key={`indicadores_${element.Estado}`} className="row card shadow-sm col-sm-3 col-md-3 col-xs-3 mx-auto"
+                                            <div key={`indicadores_${element.Estado}`} className="row card shadow-sm col-sm-2 col-md-2 col-xs-2 mx-auto"
                                                 title={element.Descripcion}
                                                 style={{
                                                     backgroundColor: "#b6fffe "
@@ -1685,7 +1774,7 @@ export default function Creacion() {
                        Guardar
                     </Button>
                     <Button type="button" className="btn btn-sm" variant="secondary" onClick={() => setshowedit(false)}>
-                        Cancelar
+                    Cerrar
                     </Button>
                 </Modal.Footer>
             </Modal>
@@ -1725,7 +1814,6 @@ export default function Creacion() {
                     </Button>
                 </Modal.Footer>
             </Modal>
-
             {/* Modal para diagnostico */}
             <Modal show={ShowModalDiag} onHide={setShowModalDiag} size={"xl"}>
                 <Modal.Header closeButton>
@@ -1911,7 +1999,9 @@ export default function Creacion() {
                         <div className="row">
                             <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12  pt-5">
                                 <label className="control-label label label-sm text-muted fw-bolder">Notas adicionales</label>
-                                <textarea rows={3}  style={{display:(val && GrandeModal== "xl" ? 'none':'inline')}} className="form-control" ></textarea>
+                                <textarea rows={3}  style={{display:(val && GrandeModal== "xl" ? 'none':'inline')}} value={ObsDiagnostico} onChange={(e) =>{
+                                    setObsDiagnostico(e.target.value);
+                                }} className="form-control" ></textarea>
                             </div>
                         </div>
                     </div>
@@ -1919,27 +2009,72 @@ export default function Creacion() {
                 </Modal.Body>
                 <Modal.Footer>
                    
-                    <Button type="button" style={{display:(val && GrandeModal== "xl" ? 'none':'inline')}} className="btn btn-sm" variant="primary" onClick={() => {
+                    <Button type="button" style={{display:(val ? 'none':'inline')}} className="btn btn-sm" variant="primary" onClick={() => {
                         GuardarOtro() 
                     }}>
                       Resolver
                     </Button>
-                    <Button type="button" className="btn btn-sm" variant="info" onClick={() => {
-                        setShowSt(true);
+                    <Button type="button" style={{display:(!val ? 'none':'inline')}} className="btn btn-sm" variant="info" onClick={() => {
+                     
                         setshowedit(false);
-                        console.log(StInicialData);
-                        let b = [...StInicialData];
+                        let b = StInicialData;
                         b['ListadoDLPRespuesta'] = ListadoDLPRespuesta;
+                        b["Cargado"] = true;
                         setStInicialData(b);
+                        setModalDLP(false);
+                        setShowSt(true);
                     }}>
                         Enviar ST
                     </Button>
                     <Button type="button" className="btn btn-sm" variant="secondary" onClick={() => setshowedit(false)}>
-                        Cancelar
+                    Cerrar
                     </Button>
                 </Modal.Footer>
             </Modal>
-            {(StInicialData.length != 0 && ShowSt) && (<CreacionSt show={ShowSt} handleClose={setShowSt} data={StInicialData}></CreacionSt>)} 
+           <CreacionSt show={ShowSt} handleClose={setShowSt} data={StInicialData}></CreacionSt>
+           <Modal show={showeditSt} onHide={setshoweditSt} size={"lg"}>
+                <Modal.Header closeButton>
+                    <Modal.Title>{Titulo}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="p-0">
+                    <div className="row">
+                        <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12 text-center">
+                            <div className="row">
+                                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                                    <span className="mx-4 fs-6 fw-bolder">Cliente: </span><span className="mx-4 fs-5 text-muted">{Consecutivo}</span>
+                                </div>
+                                <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6">
+                                    <span className="mx-4 fs-6 fw-bolder">Creado por: </span><span className="mx-4 fs-6 text-muted">{Admin.Administrador}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="col-sm-6 col-xl-6 col-md-6 col-lg-6" style={{display:`${(OcultarEstado ? 'inlline block':"none")}`}}>
+                            <div className="form-control-sm">
+                                <label className="control-label label label-sm" style={{ display:``, fontWeight: 'bold' }}>Estados: </label>
+                                <EstadosEditar></EstadosEditar>
+                            </div>
+                        </div>
+                        <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                            <div className="form-control-sm">
+                                <label className="control-label label label-sm" style={{ fontWeight: 'bold' }}>Observaciones: </label>
+                                <textarea className="form-control" rows={3} value={ObservacionesModificar} onChange={
+                                    SeteoObservaciones
+                                    }></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button type="button" className="btn btn-sm" variant="primary" onClick={() => {
+                        {Asignar ? GuardarAsginacion(): Guardar()}
+                    }}>
+                       Guardar
+                    </Button>
+                    <Button type="button" className="btn btn-sm" variant="secondary" onClick={() => setshowedit(false)}>
+                        Cerrar
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </>
     )
 }
