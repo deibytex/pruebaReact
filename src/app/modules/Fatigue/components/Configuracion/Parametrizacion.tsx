@@ -115,7 +115,7 @@ export default function Parametrizacion() {
   
                 header: 'Max Verde',
                 Cell({ cell, column, row, table, }) {
-                    return (row.original.minAmber as number - 1 as number)
+                    return (parseInt(row.original.minAmber)  - 1 )
                 },
             },
             {
@@ -130,7 +130,7 @@ export default function Parametrizacion() {
              
                 header: 'Min Rojo',
                 Cell({ cell, column, row, table, }) {
-                    return (row.original.maxAmber as number + 1 as number)
+                    return (parseInt(row.original.maxAmber) + 1 )
                 },
             }
         ];
@@ -172,7 +172,7 @@ export default function Parametrizacion() {
                 
                 header: 'Max Verde',
                 Cell({ cell, column, row, table, }) {
-                    return (row.original.minAmber as number - 1 as number)
+                    return (parseInt(row.original.minAmber) - 1)
                 },
             },
             {
@@ -187,7 +187,7 @@ export default function Parametrizacion() {
                
                 header: 'Min Rojo',
                 Cell({ cell, column, row, table, }) {
-                    return (row.original.maxAmber as number + 1 as number)
+                    return (parseInt(row.original.maxAmber) + 1)
                 },
             }
             // ,
@@ -384,8 +384,8 @@ export default function Parametrizacion() {
         setClave("2");
         setdataColores([row.original]);
         setRowCount3([row.original].length);
-        setmaximo(row.original.maxAmber as number);
-        setminimo(row.original.minAmber as number);
+        setmaximo(row.original.maxAmber);
+        setminimo(row.original.minAmber);
         seterrorMaximo("");
         seterrorMinimo("");
         setShow(true);
@@ -553,19 +553,12 @@ export default function Parametrizacion() {
     };
 
 
-    // useEffect(() => {
-
-    //     maximo <= minimo ? seterrorMaximo("El máximo no puede ser menor o igual al mínimo") : seterrorMaximo("");
-    //     minimo >= maximo ? seterrorMinimo("El mínimo no puede ser mayor o igual al máximo") : seterrorMinimo("");
-    // }, [maximo, minimo])
-
     const setValores = () => {
        
         const [colores] = dataColores;
         const valores = {...colores};
-        valores.maxAmber = maximo as number;
-        valores.minAmber = minimo as number;
-        console.log(valores);
+        valores.maxAmber = maximo;
+        valores.minAmber = minimo;
         if (maximo <= minimo){
             seterrorMaximo("El máximo no puede ser menor o igual al mínimo");
             seterrorMinimo("El mínimo no puede ser mayor o igual al máximo");
@@ -576,9 +569,6 @@ export default function Parametrizacion() {
             setdataColores([valores]);
         }
       
-
-        console.log('max',maximo as number);
-        console.log('min',minimo as number);
     };
 
     return (
@@ -782,7 +772,7 @@ export default function Parametrizacion() {
                                     <label className="control-label label-sm font-weight-bold" htmlFor="Valores" style={{ fontWeight: 'bold' }}>Valor Mínimo</label>
                                     <div className="input-group mb-3 mt-1">
                                         <span className="input-group-text"><i className="fas fa-pen"></i></span>
-                                        <input type="number" name="minimo" placeholder="Valor Mínimo" className="form-control input-sm" value={minimo} onChange={(e: any) => setminimo(e.target.value as number)}/>
+                                        <input type="number" name="minimo" placeholder="Valor Mínimo" className="form-control input-sm" value={minimo} onChange={(e: any) => setminimo(e.target.value)}/>
                                         <span className="text-danger">{errorMinimo}</span>
                                     </div>
                                 </div>
@@ -790,7 +780,7 @@ export default function Parametrizacion() {
                                     <label className="control-label label-sm font-weight-bold" htmlFor="Valores" style={{ fontWeight: 'bold' }}>Valor Máximo</label>
                                     <div className="input-group mb-3 mt-1">
                                         <span className="input-group-text"><i className="fas fa-clock"></i></span>
-                                        <input type="number" name="maximo" placeholder="Valor Máximo" className="form-control input-sm" value={maximo as number} onChange={(e: any) => setmaximo(e.target.value as number)}/>
+                                        <input type="number" name="maximo" placeholder="Valor Máximo" className="form-control input-sm" value={maximo} onChange={(e: any) => setmaximo(e.target.value)}/>
                                         <span className="text-danger">{errorMaximo}</span>
                                     </div>
                                 </div>
