@@ -112,6 +112,7 @@ export default function Parametrizacion() {
     let CamposColores: MRT_ColumnDef<any>[] =
         [
             {
+  
                 header: 'Max Verde',
                 Cell({ cell, column, row, table, }) {
                     return (row.original.minAmber as number - 1 as number)
@@ -126,6 +127,7 @@ export default function Parametrizacion() {
                 header: 'Max Amber'
             },
             {
+             
                 header: 'Min Rojo',
                 Cell({ cell, column, row, table, }) {
                     return (row.original.maxAmber as number + 1 as number)
@@ -167,6 +169,7 @@ export default function Parametrizacion() {
                 header: 'Tiempo'
             },
             {
+                
                 header: 'Max Verde',
                 Cell({ cell, column, row, table, }) {
                     return (row.original.minAmber as number - 1 as number)
@@ -174,13 +177,14 @@ export default function Parametrizacion() {
             },
             {
                 accessorKey: 'minAmber',
-                header: 'Min Amber'
+                header: 'Min Amber',
             },
             {
                 accessorKey: 'maxAmber',
                 header: 'Max Amber'
             },
-            {
+            {   
+               
                 header: 'Min Rojo',
                 Cell({ cell, column, row, table, }) {
                     return (row.original.maxAmber as number + 1 as number)
@@ -558,7 +562,7 @@ export default function Parametrizacion() {
     const setValores = () => {
        
         const [colores] = dataColores;
-        const valores = colores;
+        const valores = {...colores};
         valores.maxAmber = maximo as number;
         valores.minAmber = minimo as number;
         console.log(valores);
@@ -786,7 +790,7 @@ export default function Parametrizacion() {
                                     <label className="control-label label-sm font-weight-bold" htmlFor="Valores" style={{ fontWeight: 'bold' }}>Valor Máximo</label>
                                     <div className="input-group mb-3 mt-1">
                                         <span className="input-group-text"><i className="fas fa-clock"></i></span>
-                                        <input type="number" name="maximo" placeholder="Valor Máximo" className="form-control input-sm" value={maximo} onChange={(e: any) => setmaximo(e.target.value as number)}/>
+                                        <input type="number" name="maximo" placeholder="Valor Máximo" className="form-control input-sm" value={maximo as number} onChange={(e: any) => setmaximo(e.target.value as number)}/>
                                         <span className="text-danger">{errorMaximo}</span>
                                     </div>
                                 </div>
