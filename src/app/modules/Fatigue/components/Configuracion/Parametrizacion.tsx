@@ -14,6 +14,7 @@ import { Check, ConstructionOutlined, DeleteForever, Edit } from "@mui/icons-mat
 import { Box, IconButton, Tooltip } from "@mui/material";
 import { Users } from "react-feather";
 import { string } from "yup";
+import { HelpersBackground } from "../../../docs/pages/base/HelpersBackground";
 
 
 export default function Parametrizacion() {
@@ -123,7 +124,7 @@ export default function Parametrizacion() {
                 header: 'Max Amber'
             },
             {
-                header: 'Min rojo',
+                header: 'Min Rojo',
                 Cell({ cell, column, row, table, }) {
                     return (row.original.maxAmber + 1)
                 },
@@ -377,8 +378,8 @@ export default function Parametrizacion() {
         setClave("2");
         setdataColores([row.original]);
         setRowCount3([row.original].length);
-        setmaximo(row.original.minAmber);
-        setminimo(row.original.maxAmber);
+        setmaximo(row.original.maxAmber);
+        setminimo(row.original.minAmber);
         setShow(true);
     }
     const CamposNuevos = () => {
@@ -544,6 +545,12 @@ export default function Parametrizacion() {
     };
 
     const setValores = () => {
+        const [colores] = dataColores;
+        const valoresNuevos = {...colores};
+        valoresNuevos.maxAmber = maximo;
+        valoresNuevos.minAmber = minimo;
+        console.log(colores);
+        console.log(valoresNuevos);
         console.log(maximo);
         console.log(minimo);
     };
@@ -783,6 +790,18 @@ export default function Parametrizacion() {
                                 }}
                                 columns={CamposColores}
                                 data={dataColores}
+                                muiTableBodyCellProps={({ row, cell }) => ({
+                                    
+                                    sx: {
+                          
+                                      backgroundColor:
+                                      
+                                        cell.column.id == 'Min Rojo' ? 'rgba(248, 215, 218, 1)' :
+                                        cell.column.id == 'Max Verde' ? 'rgba(212, 237, 218, 1)' :
+                                              'rgba(255, 243, 205, 1)'
+                                    }
+                                    
+                                  })}
                                 enableTopToolbar
                                 enableColumnOrdering
                                 enableFilters
