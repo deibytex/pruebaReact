@@ -76,9 +76,11 @@ export default function Parametrizacion() {
     const [correo, setcorreo] = useState("");
 
     const [errorCorreo, seterrorCorreo] = useState<any>("");
+    const [errorMaximo, seterrorMaximo] = useState<any>("");
+    const [errorMinimo, seterrorMinimo] = useState<any>("");
 
-    const [maximo, setmaximo] = useState("");
-    const [minimo, setminimo] = useState("");
+    const [maximo, setmaximo] = useState<number>(0);
+    const [minimo, setminimo] = useState<number>(0);
 
     const columnasContacto: MRT_ColumnDef<any>[]
         = [
@@ -112,7 +114,7 @@ export default function Parametrizacion() {
             {
                 header: 'Max Verde',
                 Cell({ cell, column, row, table, }) {
-                    return (row.original.minAmber - 1)
+                    return (row.original.minAmber as number - 1 as number)
                 },
             },
             {
@@ -126,7 +128,7 @@ export default function Parametrizacion() {
             {
                 header: 'Min Rojo',
                 Cell({ cell, column, row, table, }) {
-                    return (row.original.maxAmber + 1)
+                    return (row.original.maxAmber as number + 1 as number)
                 },
             }
         ];
@@ -167,7 +169,7 @@ export default function Parametrizacion() {
             {
                 header: 'Max Verde',
                 Cell({ cell, column, row, table, }) {
-                    return (row.original.minAmber - 1)
+                    return (row.original.minAmber as number - 1 as number)
                 },
             },
             {
@@ -179,9 +181,9 @@ export default function Parametrizacion() {
                 header: 'Max Amber'
             },
             {
-                header: 'Min rojo',
+                header: 'Min Rojo',
                 Cell({ cell, column, row, table, }) {
-                    return (row.original.maxAmber + 1)
+                    return (row.original.maxAmber as number + 1 as number)
                 },
             }
             // ,
@@ -378,8 +380,10 @@ export default function Parametrizacion() {
         setClave("2");
         setdataColores([row.original]);
         setRowCount3([row.original].length);
-        setmaximo(row.original.maxAmber);
-        setminimo(row.original.minAmber);
+        setmaximo(row.original.maxAmber as number);
+        setminimo(row.original.minAmber as number);
+        seterrorMaximo("");
+        seterrorMinimo("");
         setShow(true);
     }
     const CamposNuevos = () => {
@@ -544,15 +548,33 @@ export default function Parametrizacion() {
         !correo || regex.test(e.target.value) === false ? seterrorCorreo("Correo No Valido") : seterrorCorreo("")
     };
 
+
+    // useEffect(() => {
+
+    //     maximo <= minimo ? seterrorMaximo("El máximo no puede ser menor o igual al mínimo") : seterrorMaximo("");
+    //     minimo >= maximo ? seterrorMinimo("El mínimo no puede ser mayor o igual al máximo") : seterrorMinimo("");
+    // }, [maximo, minimo])
+
     const setValores = () => {
+       
         const [colores] = dataColores;
-        const valoresNuevos = {...colores};
-        valoresNuevos.maxAmber = maximo;
-        valoresNuevos.minAmber = minimo;
-        console.log(colores);
-        console.log(valoresNuevos);
-        console.log(maximo);
-        console.log(minimo);
+        const valores = colores;
+        valores.maxAmber = maximo as number;
+        valores.minAmber = minimo as number;
+        console.log(valores);
+        if (maximo <= minimo){
+            seterrorMaximo("El máximo no puede ser menor o igual al mínimo");
+            seterrorMinimo("El mínimo no puede ser mayor o igual al máximo");
+        }
+        else{
+            seterrorMaximo("");
+            seterrorMinimo("");
+            setdataColores([valores]);
+        }
+      
+
+        console.log('max',maximo as number);
+        console.log('min',minimo as number);
     };
 
     return (
@@ -756,14 +778,16 @@ export default function Parametrizacion() {
                                     <label className="control-label label-sm font-weight-bold" htmlFor="Valores" style={{ fontWeight: 'bold' }}>Valor Mínimo</label>
                                     <div className="input-group mb-3 mt-1">
                                         <span className="input-group-text"><i className="fas fa-pen"></i></span>
-                                        <input name="minimo" placeholder="Valor Mínimo" className="form-control input-sm" value={minimo} onChange={(e) => setminimo(e.target.value)}/>
+                                        <input type="number" name="minimo" placeholder="Valor Mínimo" className="form-control input-sm" value={minimo} onChange={(e: any) => setminimo(e.target.value as number)}/>
+                                        <span className="text-danger">{errorMinimo}</span>
                                     </div>
                                 </div>
                                 <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
                                     <label className="control-label label-sm font-weight-bold" htmlFor="Valores" style={{ fontWeight: 'bold' }}>Valor Máximo</label>
                                     <div className="input-group mb-3 mt-1">
                                         <span className="input-group-text"><i className="fas fa-clock"></i></span>
-                                        <input name="maximo" placeholder="Valor Máximo" className="form-control input-sm" value={maximo} onChange={(e) => setmaximo(e.target.value)}/>
+                                        <input type="number" name="maximo" placeholder="Valor Máximo" className="form-control input-sm" value={maximo} onChange={(e: any) => setmaximo(e.target.value as number)}/>
+                                        <span className="text-danger">{errorMaximo}</span>
                                     </div>
                                 </div>
                             </div>
