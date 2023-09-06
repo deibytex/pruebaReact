@@ -162,21 +162,22 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
         },
         size: 80
       }, {
-        accessorKey: 'DetalladoEventos',
+        accessorFn: (row) => parseInt(JSON.parse(row.DetalladoEventos).length), 
+        id: 'DetalladoEventos',
         header: 'Cantidad eventos',
         size: 80,
-        Cell({ cell, column, row, table, }) {
+        // Cell({ cell, column, row, table, }) {
 
   
-          return (
-            <>
-              {
-                JSON.parse(row.original.DetalladoEventos).length as number
-              }
-            </>
+        //   return (
+        //     <>
+        //       {
+        //         parseInt(JSON.parse(row.original.DetalladoEventos).length)
+        //       }
+        //     </>
 
-          )
-        },
+        //   )
+        // },
       }, {
         accessorKey: 'EstadoGestion',
         header: 'Estado',
