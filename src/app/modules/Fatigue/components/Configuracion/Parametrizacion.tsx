@@ -113,7 +113,6 @@ export default function Parametrizacion() {
     let CamposColores: MRT_ColumnDef<any>[] =
         [
             {
-
                 header: 'Max Verde',
                 Cell({ cell, column, row, table, }) {
                     return (parseInt(row.original.minAmber) - 1)
@@ -878,11 +877,6 @@ export default function Parametrizacion() {
 
                 </Tabs>
                 <Modal.Footer>
-                    <Button type="button" variant="primary" onClick={() => {
-                        Guardar();
-                    }}>
-                        Guardar
-                    </Button>
                     <Button type="button" variant="secondary" onClick={() => { setShow(false); }}>
                         Cerrar
                     </Button>

@@ -165,19 +165,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
         accessorFn: (row) => parseInt(JSON.parse(row.DetalladoEventos).length), 
         id: 'DetalladoEventos',
         header: 'Cantidad eventos',
-        size: 80,
-        // Cell({ cell, column, row, table, }) {
-
-  
-        //   return (
-        //     <>
-        //       {
-        //         parseInt(JSON.parse(row.original.DetalladoEventos).length)
-        //       }
-        //     </>
-
-        //   )
-        // },
+        size: 80
       }, {
         accessorKey: 'EstadoGestion',
         header: 'Estado',
@@ -187,7 +175,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
             : (cell.getValue() == true) ? <span className="badge bg-success">Gestionado</span>
               : (cell.getValue() == false) ? <span className="badge bg-primary">En Gestion</span>
                 : <span>{row.original.EstadoGestion}</span>
-        },
+        }
       },
       {
         accessorKey: 'gestor',
@@ -195,7 +183,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
         size: 80,
         Cell({ cell, column, row, table, }) {
           return (cell.getValue() == null) ? <span>Sin Analista</span> : <span>{row.original.gestor}</span>
-        },
+        }
       }
 
     ];
