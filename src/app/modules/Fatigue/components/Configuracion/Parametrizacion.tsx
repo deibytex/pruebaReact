@@ -9,12 +9,13 @@ import BlockUi from "@availity/block-ui";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { MRT_Localization_ES } from "material-react-table/locales/es";
 import { ColumnFiltersState, PaginationState, SortingState } from "@tanstack/react-table";
-import { FiltrosData, GetClientesFatiga, GetEventos, GetEventosColumnas, getConfiguraciones, setConfiguraciones, setContactosAlertas } from "../../data/Configuracion";
+import { FiltrosData, GetClientesFatiga, GetEventos, GetEventosColumnas, getConfiguraciones, setConfiguraciones, setContactosAlertas, setValoresAmber } from "../../data/Configuracion";
 import { Check, ConstructionOutlined, DeleteForever, Edit } from "@mui/icons-material";
 import { Box, IconButton, Tooltip } from "@mui/material";
 import { Users } from "react-feather";
 import { string } from "yup";
 import { HelpersBackground } from "../../../docs/pages/base/HelpersBackground";
+import { useToaster, Notification } from "rsuite";
 
 
 export default function Parametrizacion() {
@@ -112,10 +113,10 @@ export default function Parametrizacion() {
     let CamposColores: MRT_ColumnDef<any>[] =
         [
             {
-  
+
                 header: 'Max Verde',
                 Cell({ cell, column, row, table, }) {
-                    return (parseInt(row.original.minAmber)  - 1 )
+                    return (parseInt(row.original.minAmber) - 1)
                 },
             },
             {
@@ -127,13 +128,22 @@ export default function Parametrizacion() {
                 header: 'Max Amber'
             },
             {
-             
+
                 header: 'Min Rojo',
                 Cell({ cell, column, row, table, }) {
-                    return (parseInt(row.original.maxAmber) + 1 )
+                    return (parseInt(row.original.maxAmber) + 1)
                 },
             }
         ];
+
+    const toaster = useToaster();
+
+    const message = (type: any, titulo: string, mensaje: React.ReactNode) => {
+        return (<Notification className="bg-light-danger" type={type} header={titulo}
+                closable duration={10000}>
+                {mensaje}
+                </Notification>)
+    }
 
     /* Fin Variables Deiby*/
 
@@ -169,7 +179,7 @@ export default function Parametrizacion() {
                 header: 'Tiempo'
             },
             {
-                
+
                 header: 'Max Verde',
                 Cell({ cell, column, row, table, }) {
                     return (parseInt(row.original.minAmber) - 1)
@@ -183,8 +193,8 @@ export default function Parametrizacion() {
                 accessorKey: 'maxAmber',
                 header: 'Max Amber'
             },
-            {   
-               
+            {
+
                 header: 'Min Rojo',
                 Cell({ cell, column, row, table, }) {
                     return (parseInt(row.original.maxAmber) + 1)
@@ -380,6 +390,7 @@ export default function Parametrizacion() {
         setTiempo(row.original.tiempo);
         setCliente(row.original.clienteId);
         setconfiguracionAlertaId(row.original.configuracionAlertaId);
+        setAlertaId(row.original.configuracionAlertaId);
         setMostrar(false);
         setClave("2");
         setdataColores([row.original]);
@@ -554,21 +565,34 @@ export default function Parametrizacion() {
 
 
     const setValores = () => {
-       
+
         const [colores] = dataColores;
-        const valores = {...colores};
+        const valores = { ...colores };
         valores.maxAmber = maximo;
         valores.minAmber = minimo;
-        if (maximo <= minimo){
+        if (maximo <= minimo) {
             seterrorMaximo("El máximo no puede ser menor o igual al mínimo");
             seterrorMinimo("El mínimo no puede ser mayor o igual al máximo");
         }
-        else{
-            seterrorMaximo("");
-            seterrorMinimo("");
-            setdataColores([valores]);
+        else {
+            confirmarDialog(() => {
+                setValoresAmber(AlertaId, minimo, maximo).then((response) => {
+                    toaster.push(message('success', "Cambiar valores amber", "Valores Cambiados"), {
+                        placement: 'topCenter'
+                    });
+                    seterrorMaximo("");
+                    seterrorMinimo("");
+                    GetConfiguracionAlerta([]);
+                    setdataColores([valores]);
+                }).catch((error) => {
+                    toaster.push(message('error', "Cambiar valores amber", "Error al cambiar valores intente nuevamente"), {
+                        placement: 'topCenter'
+                    });
+                });
+            }, `Desea usted cambiar los valores`, "Cambiar");
+
         }
-      
+
     };
 
     return (
@@ -769,18 +793,18 @@ export default function Parametrizacion() {
                         <Modal.Body>
                             <div className="row">
                                 <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                                    <label className="control-label label-sm font-weight-bold" htmlFor="Valores" style={{ fontWeight: 'bold' }}>Valor Mínimo</label>
+                                    <label className="control-label label-sm font-weight-bold" htmlFor="Valores" style={{ fontWeight: 'bold' }}>Valor mínimo amber:</label>
                                     <div className="input-group mb-3 mt-1">
                                         <span className="input-group-text"><i className="fas fa-pen"></i></span>
-                                        <input type="number" name="minimo" placeholder="Valor Mínimo" className="form-control input-sm" value={minimo} onChange={(e: any) => setminimo(e.target.value)}/>
+                                        <input type="number" name="minimo" placeholder="Ingrese Valor mínimo amber" className="form-control input-sm" value={minimo} onChange={(e: any) => setminimo(e.target.value)} />
                                         <span className="text-danger">{errorMinimo}</span>
                                     </div>
                                 </div>
                                 <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                                    <label className="control-label label-sm font-weight-bold" htmlFor="Valores" style={{ fontWeight: 'bold' }}>Valor Máximo</label>
+                                    <label className="control-label label-sm font-weight-bold" htmlFor="Valores" style={{ fontWeight: 'bold' }}>Valor máximo amber:</label>
                                     <div className="input-group mb-3 mt-1">
-                                        <span className="input-group-text"><i className="fas fa-clock"></i></span>
-                                        <input type="number" name="maximo" placeholder="Valor Máximo" className="form-control input-sm" value={maximo} onChange={(e: any) => setmaximo(e.target.value)}/>
+                                        <span className="input-group-text"><i className="fas fa-pen"></i></span>
+                                        <input type="number" name="maximo" placeholder="Ingrese valor máximo amber" className="form-control input-sm" value={maximo} onChange={(e: any) => setmaximo(e.target.value)} />
                                         <span className="text-danger">{errorMaximo}</span>
                                     </div>
                                 </div>
@@ -809,17 +833,17 @@ export default function Parametrizacion() {
                                 columns={CamposColores}
                                 data={dataColores}
                                 muiTableBodyCellProps={({ row, cell }) => ({
-                                    
+
                                     sx: {
-                          
-                                      backgroundColor:
-                                      
-                                        cell.column.id == 'Min Rojo' ? 'rgba(248, 215, 218, 1)' :
-                                        cell.column.id == 'Max Verde' ? 'rgba(212, 237, 218, 1)' :
-                                              'rgba(255, 243, 205, 1)'
+
+                                        backgroundColor:
+
+                                            cell.column.id == 'Min Rojo' ? 'rgba(248, 215, 218, 1)' :
+                                                cell.column.id == 'Max Verde' ? 'rgba(212, 237, 218, 1)' :
+                                                    'rgba(255, 243, 205, 1)'
                                     }
-                                    
-                                  })}
+
+                                })}
                                 enableTopToolbar
                                 enableColumnOrdering
                                 enableFilters

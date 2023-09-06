@@ -76,3 +76,15 @@ export function setContactosAlertas(Id: string, Configuraciones: string, tipo: s
         params: { Clase: "FATGQueryHelper", NombreConsulta: "setContactos" }
     });
 }
+
+export function setValoresAmber(Id: any, minAmber: any, maxAmber: any) {
+    var params: { [id: string]: string | null | undefined; } = {};
+    params["Id"] = Id.toString();
+    params["minAmber"] = minAmber.toString();
+    params["maxAmber"] = maxAmber.toString();
+    return Post_GetConsultasDinamicasDWH({
+        NombreConsulta: "setValoresAmber", Clase: "FATGQueryHelper",
+        Pagina: null,
+        RecordsPorPagina: null
+    }, params)
+}

@@ -23,6 +23,7 @@ import { useToaster, Notification } from "rsuite";
 import { FormatoColombiaDDMMYYYHHmm, FormatoColombiaDDMMYYYHHmmss } from "../../../../_start/helpers/Constants";
 import { DescargarExcelPersonalizado } from "../../../../_start/helpers/components/DescargarExcel";
 import { MapTab } from "./TabMap_Tab2";
+import { GetConfiguracionAlerta } from "../../../../_start/helpers/Axios/CoreService";
 type Props = {
 
   isActive: boolean;
@@ -43,16 +44,12 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
   const { alertas, UserId, clienteIds, setalertas, setUserId, setDataDetalladoFiltrado, setFiltrado, setActiveTab, setloader } = useDataFatigue();
 
   const [dataAlertas, setDataAlertas] = useState([]);
-  const [dataAlertasfiltrada, setDataAlertasfiltrada] = useState([]);
   const [dataContacto, setdataContacto] = useState([]);
   const [obervacionGestion, setobervacionGestion] = useState("");
-  const [obervacionGestionlast, setobervacionGestionlast] = useState("");
-
-  const [FechaApertura, setFechaApertura] = useState("n/a");
-  const [FechaGestion, setFechaGestion] = useState("n/a");
 
   const [observaciones, setobservaciones] = useState("");
   const [detalleEventos, setdetalleEventos] = useState("");
+  const [contactos, setcontactos] = useState("");
   const [alertaId, setalertaId] = useState(0);
 
   const [show, setShow] = useState(false);
@@ -126,6 +123,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
     setDataAlertas(dataFiltrada);
     setRowCount(dataFiltrada.length);
 
+   
 
   }, [alertas])
 
@@ -302,13 +300,26 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
     if (detalleEventos != "" && detalleEventos != null) {
       let json = JSON.parse(detalleEventos);
       setDataDetalleEventos(json);
-      setRowCount3(json.length);
+      setRowCount2(json.length);
     }
     else {
       setDataDetalleEventos([]);
-      setRowCount3(0);
+      setRowCount2(0);
     }
   }, [detalleEventos])
+
+  useEffect(() => {
+
+    if (contactos != "" && contactos != null) {
+      let json = JSON.parse(contactos);
+      setdataContacto(json);
+      setRowCount3(json.length);
+    }
+    else {
+      setdataContacto([]);
+      setRowCount3(0);
+    }
+  }, [contactos])
 
   const getobservacion = (e: any) => {
     setobervacionGestion(e.target.value)
@@ -386,6 +397,8 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
 
             setalertas(response.data);
             setData([JSON.parse(JSON.stringify(GestorObervaciones))] as any[]);
+            setdetalleEventos(row.DetalladoEventos);
+            setcontactos(row.contactos);
             showModal();
 
           });
@@ -410,6 +423,7 @@ const CardContainerAlertas: React.FC<Props> = ({ isActive, isDetails, filtro }) 
     setconductor(row.conductor);
     setAlerta(row.TipoAlerta);
     setdetalleEventos(row.DetalladoEventos);
+    setcontactos(row.contactos);
     setfechaEvento(moment(JSON.parse(row.DetalladoEventos).at(-1).EventDateTime as Date).format(FormatoColombiaDDMMYYYHHmm));
     settotalEventos(JSON.parse(row.DetalladoEventos).length)
 
@@ -457,7 +471,6 @@ const handleCloseModals = () => {
   return (
 
     <>
-
       <MaterialReactTable
         localization={MRT_Localization_ES}
         displayColumnDefOptions={{
@@ -745,7 +758,7 @@ const handleCloseModals = () => {
                 }
                 onColumnFiltersChange={setColumnFilters}
                 onGlobalFilterChange={setGlobalFilter}
-                rowCount={rowCount2}
+                rowCount={rowCount3}
                 initialState={{ density: 'compact' }}
                 state={{
                   columnFilters,
@@ -824,7 +837,7 @@ const handleCloseModals = () => {
               }
               onColumnFiltersChange={setColumnFilters}
               onGlobalFilterChange={setGlobalFilter}
-              rowCount={rowCount3}
+              rowCount={rowCount2}
 
               state={{
                 columnFilters,
