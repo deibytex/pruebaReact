@@ -224,6 +224,7 @@ export default function Parametrizacion() {
         if (cliente != "" && cliente != "0" && cliente != undefined && cliente != null)
             GetEventos(cliente).
                 then((response: AxiosResponse<any>) => {
+                    console.log(response.data);
                     let Eventos = response.data.map((e: any) => {
                         return { EventId: e.eventTypeId, descriptionevent: (e.CustomName == null ? e.descriptionEvent : e.CustomName) }
                     })
@@ -311,6 +312,9 @@ export default function Parametrizacion() {
         }
     };
 
+    //WARNING
+    //DEIBY
+    //modifique el select ya que usaba algo de flag que no sirve y en una porpiedad selected que no va con este control se estallaba
     function CargaListadoEventos() {
         return (
             <Form.Select className=" mb-3 " onChange={(e) => {
@@ -325,8 +329,8 @@ export default function Parametrizacion() {
                 <option>Seleccione</option>
                 {
                     tempEventos?.map((element, i) => {
-                        let flag = (element.EventId === eventoSeleccionado?.EventId)
-                        return (<option key={element.EventId} selected={flag} value={element.EventId}>{element.descriptionevent}</option>)
+                        // let flag = (element.EventId === eventoSeleccionado?.EventId)
+                        return (<option key={element.EventId}  value={element.EventId}>{element.descriptionevent}</option>)
                     })
                 }
             </Form.Select>
@@ -390,6 +394,7 @@ export default function Parametrizacion() {
         setTiempo(row.original.tiempo);
         setCliente(row.original.clienteId);
         setconfiguracionAlertaId(row.original.configuracionAlertaId);
+        ObtenerEventos((row.original.clienteId == undefined ? "" : row.original.clienteId));
         setAlertaId(row.original.configuracionAlertaId);
         setMostrar(false);
         setClave("2");
