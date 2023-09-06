@@ -113,6 +113,7 @@ export default function Parametrizacion() {
     let CamposColores: MRT_ColumnDef<any>[] =
         [
             {
+
                 header: 'Max Verde',
                 Cell({ cell, column, row, table, }) {
                     return (parseInt(row.original.minAmber) - 1)
@@ -139,9 +140,9 @@ export default function Parametrizacion() {
 
     const message = (type: any, titulo: string, mensaje: React.ReactNode) => {
         return (<Notification className="bg-light-danger" type={type} header={titulo}
-                closable duration={10000}>
-                {mensaje}
-                </Notification>)
+            closable duration={10000}>
+            {mensaje}
+        </Notification>)
     }
 
     /* Fin Variables Deiby*/
@@ -742,49 +743,60 @@ export default function Parametrizacion() {
                                     </div>
                                 </div>
                             </div>
+
                             <div className="row">
 
-                                <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
-                                    <div className="row">
-                                        <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
-                                            <label className="control-label label-sm font-weight-bold" htmlFor="evento" style={{ fontWeight: 'bold' }}>Evento</label>
-                                            <div className="input-group mb-3">
-                                                <span className="input-group-text mb-3"><i className="fas fa-book"></i></span>
-                                                <CargaListadoEventos />
-                                                {/* Aqui es el boton de guardar eventos */}
-                                                <button className="btn btn-sm btn-success mb-3" type="button" title="Agregar mas eventos" name="eventos" value={1} onClick={(e: any) => { AgregarEventos(e) }}> <i className="fas fa-caret-right"></i></button>
-                                            </div>
-                                        </div>
-                                        <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
-                                            {
-                                                (EventosActivos.length > 0) && (EventosActivosNombres.length != 0) && (
-                                                    <table className="table w-100">
-                                                        <thead>
-                                                            <tr>
-                                                                <th className="w-50">Evento</th>
-                                                                <th className="w-50">Opción</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {
-
-                                                                EventosActivosNombres.map((e: any, index: any) => {
-                                                                    return (
-                                                                        <tr key={e + index}>
-                                                                            <td key={e}>{e}</td>
-                                                                            <td key={index}><span onClick={(event) => { EliminarEvento(e) }} className="btn btn-sm btn-danger"><i className="bi-trash3-fill"></i></span></td>
-                                                                        </tr>
-                                                                    )
-                                                                })
-                                                            }
-                                                        </tbody>
-                                                    </table>
-                                                )
-                                            }
+                                <div className="row">
+                                    <div className="col-sm-4 col-xl-4 col-md-4 col-lg-4">
+                                        <label className="control-label label-sm font-weight-bold" htmlFor="evento" style={{ fontWeight: 'bold' }}>Evento</label>
+                                        <div className="input-group mb-3">
+                                            <span className="input-group-text mb-3"><i className="fas fa-book"></i></span>
+                                            <CargaListadoEventos />
+                                            {/* Aqui es el boton de guardar eventos */}
+                                            <button className="btn btn-sm btn-success mb-3" type="button" title="Agregar mas eventos" name="eventos" value={1} onClick={(e: any) => { AgregarEventos(e) }}> <i className="fas fa-caret-right"></i></button>
                                         </div>
                                     </div>
+                                </div>
+                                <div className="row">
+
+                                    <div className="col-sm-3 col-xl-3 col-md-3 col-lg-3">
+                                        <Button type="button" variant="primary" onClick={() => {
+                                            Guardar();
+                                        }}>
+                                            Guardar
+                                        </Button></div>
 
                                 </div>
+                                <div className="row">
+                                    <div className="col-sm-12 col-xl-12 col-md-12 col-lg-12">
+                                        {
+                                            (EventosActivos.length > 0) && (EventosActivosNombres.length != 0) && (
+                                                <table className="table w-100">
+                                                    <thead>
+                                                        <tr>
+                                                            <th className="w-50">Evento</th>
+                                                            <th className="w-50">Opción</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {
+
+                                                            EventosActivosNombres.map((e: any, index: any) => {
+                                                                return (
+                                                                    <tr key={e + index}>
+                                                                        <td key={e}>{e}</td>
+                                                                        <td key={index}><span onClick={(event) => { EliminarEvento(e) }} className="btn btn-sm btn-danger"><i className="bi-trash3-fill"></i></span></td>
+                                                                    </tr>
+                                                                )
+                                                            })
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            )
+                                        }
+                                    </div>
+                                </div>
+
                             </div>
                         </Modal.Body>
                     </Tab>
@@ -877,6 +889,11 @@ export default function Parametrizacion() {
 
                 </Tabs>
                 <Modal.Footer>
+                    {/* <Button type="button" variant="primary" onClick={() => {
+                        Guardar();
+                    }}>
+                        Guardar
+                    </Button> */}
                     <Button type="button" variant="secondary" onClick={() => { setShow(false); }}>
                         Cerrar
                     </Button>
